@@ -1,0 +1,11 @@
+spring:
+  application:
+    name=ai-tutor:
+
+  profiles:
+    group:
+      dev: h2
+
+spring.ai.openai.chat.options.model: gpt-4o
+
+
