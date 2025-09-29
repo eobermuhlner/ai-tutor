@@ -1,4 +1,4 @@
-package ch.obermuhlner.aitutor.service
+package ch.obermuhlner.aitutor.conversation.service
 
 import org.springframework.ai.chat.client.ChatClient
 import org.springframework.ai.chat.model.ChatModel

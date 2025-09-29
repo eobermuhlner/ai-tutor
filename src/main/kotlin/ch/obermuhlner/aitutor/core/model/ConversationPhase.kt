@@ -1,4 +1,4 @@
-package ch.obermuhlner.aitutor.model
+package ch.obermuhlner.aitutor.core.model
 
 enum class ConversationPhase {
     Free,

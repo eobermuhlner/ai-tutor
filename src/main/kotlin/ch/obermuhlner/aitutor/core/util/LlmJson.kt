@@ -1,5 +1,6 @@
-package ch.obermuhlner.aitutor.service
+package ch.obermuhlner.aitutor.core.util
 
+import com.fasterxml.jackson.core.JsonFactory
 import com.fasterxml.jackson.core.json.JsonReadFeature
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.JsonNode
@@ -19,7 +20,7 @@ object LlmJson {
 
     // Highly lenient mapper
     val mapper: ObjectMapper = ObjectMapper(
-        com.fasterxml.jackson.core.JsonFactory.builder()
+        JsonFactory.builder()
             .enable(JsonReadFeature.ALLOW_JAVA_COMMENTS)         // // and /* */ comments
             .enable(JsonReadFeature.ALLOW_SINGLE_QUOTES)         // 'strings'
             .enable(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES)  // unquoted keys

@@ -1,6 +1,6 @@
-package ch.obermuhlner.aitutor.service
+package ch.obermuhlner.aitutor.conversation.service
 
-import ch.obermuhlner.aitutor.model.ConversationResponse
+import ch.obermuhlner.aitutor.core.model.ConversationResponse
 import org.springframework.ai.chat.messages.Message
 
 interface AiChatService {

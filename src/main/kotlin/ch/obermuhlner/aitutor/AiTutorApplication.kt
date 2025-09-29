@@ -1,10 +1,10 @@
 package ch.obermuhlner.aitutor
 
-import ch.obermuhlner.aitutor.model.ConversationState
-import ch.obermuhlner.aitutor.model.CEFRLevel
-import ch.obermuhlner.aitutor.model.ConversationPhase
-import ch.obermuhlner.aitutor.model.Tutor
-import ch.obermuhlner.aitutor.service.TutorService
+import ch.obermuhlner.aitutor.core.model.ConversationState
+import ch.obermuhlner.aitutor.core.model.CEFRLevel
+import ch.obermuhlner.aitutor.core.model.ConversationPhase
+import ch.obermuhlner.aitutor.core.model.Tutor
+import ch.obermuhlner.aitutor.tutor.service.TutorService
 import org.springframework.ai.chat.messages.UserMessage
 import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication

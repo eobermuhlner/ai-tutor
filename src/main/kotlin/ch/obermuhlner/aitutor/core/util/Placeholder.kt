@@ -1,4 +1,4 @@
-package ch.obermuhlner.aitutor.service
+package ch.obermuhlner.aitutor.core.util
 
 object Placeholder {
     private val regex = Regex("""\$\{([A-Z0-9_]+)}""")

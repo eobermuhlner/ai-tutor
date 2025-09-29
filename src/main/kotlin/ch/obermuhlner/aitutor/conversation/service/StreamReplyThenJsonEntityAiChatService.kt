@@ -1,11 +1,11 @@
-package ch.obermuhlner.aitutor.service
+package ch.obermuhlner.aitutor.conversation.service
 
+import ch.obermuhlner.aitutor.core.util.LlmJson
 import org.springframework.ai.chat.messages.Message
 import org.springframework.ai.chat.messages.SystemMessage
 import org.springframework.ai.chat.model.ChatModel
 import org.springframework.ai.chat.prompt.Prompt
 import org.springframework.ai.util.json.schema.JsonSchemaGenerator
-import org.springframework.context.annotation.Primary
 import org.springframework.stereotype.Service
 
 @Service
