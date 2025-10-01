@@ -1,0 +1,46 @@
+### Create Chat Session
+# @name createSession
+POST {{host}}/api/v1/chat/sessions
+Content-Type: application/json
+
+{
+  "userId": "{{userId}}",
+  "tutorName": "Maria",
+  "tutorPersona": "patient coach",
+  "tutorDomain": "general conversation, grammar, typography",
+  "sourceLanguage": "English",
+  "targetLanguage": "Spanish",
+  "estimatedCEFRLevel": "A1"
+}
+
+> {%
+    client.global.set("chatSessionId", response.body.id);
+%}
+
+### Get User Sessions
+GET {{host}}/api/v1/chat/sessions?userId={{userId}}
+Accept: application/json
+
+### Get Session with Messages
+GET {{host}}/api/v1/chat/sessions/{{chatSessionId}}
+Accept: application/json
+
+### Send Message (Non-Streaming)
+POST {{host}}/api/v1/chat/sessions/{{chatSessionId}}/messages
+Content-Type: application/json
+
+{
+  "content": "Hola, como estas?"
+}
+
+### Send Message (Streaming with SSE)
+POST {{host}}/api/v1/chat/sessions/{{chatSessionId}}/messages/stream
+Content-Type: application/json
+
+{
+  "content": "Me gusta aprender español"
+}
+
+### Delete Session
+DELETE {{host}}/api/v1/chat/sessions/{{chatSessionId}}
+

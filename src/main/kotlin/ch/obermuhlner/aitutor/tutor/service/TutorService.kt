@@ -13,7 +13,17 @@ import org.springframework.stereotype.Service
 class TutorService(
     private val aiChatService: AiChatService
 ) {
-    fun respond(tutor: Tutor, conversationState: ConversationState, messages: List<Message>): ConversationResponse? {
+    data class TutorResponse(
+        val reply: String,
+        val conversationResponse: ConversationResponse
+    )
+
+    fun respond(
+        tutor: Tutor,
+        conversationState: ConversationState,
+        messages: List<Message>,
+        onReplyChunk: (String) -> Unit = { print(it) }
+    ): TutorResponse? {
 
         val sourceLanguage = tutor.sourceLanguage
         val targetLanguage = tutor.targetLanguage
@@ -28,8 +38,8 @@ class TutorService(
         val systemPrompt = """
 You are a language tutor teaching the target language $targetLanguage to a learner that speaks the source language $sourceLanguage.
 Your name: ${tutor.name}.
-Your persona: ${tutor.persona} 
-Your domain: ${tutor.domain} 
+Your persona: ${tutor.persona}
+Your domain: ${tutor.domain}
 Source language: $sourceLanguage
 Target language: $sourceLanguage
 
@@ -77,11 +87,13 @@ JSON Response:
             SystemMessage(conversationState.toString()),
         ) + messages
 
-        val response = aiChatService.call(AiChatService.AiChatRequest(allMessages)) { replyChunk ->
-            print(replyChunk)
-        }
-        println()
+        val response = aiChatService.call(AiChatService.AiChatRequest(allMessages), onReplyChunk)
 
-        return response?.conversationResponse
+        return response?.let {
+            TutorResponse(
+                reply = it.reply,
+                conversationResponse = it.conversationResponse
+            )
+        }
     }
 }

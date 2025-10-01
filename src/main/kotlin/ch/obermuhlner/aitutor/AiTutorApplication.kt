@@ -36,11 +36,11 @@ class AiTutorApplication(
 
         val response = tutorService.respond(tutor, conversationState, messages)
         println()
-        println("Reponse:")
+        println("Response:")
         println(response)
     }
 }
 
 fun main(args: Array<String>) {
-	runApplication<AiTutorApplication>(*args)
+    runApplication<AiTutorApplication>(*args)
 }
