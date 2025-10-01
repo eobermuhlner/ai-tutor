@@ -37,10 +37,17 @@ Language learning assistant with conversational AI tutoring and vocabulary track
   - Free: Pure fluency focus, no error tracking
   - Correction: Errors tracked for UI hover, not mentioned in conversation (default)
   - Drill: Explicit error work with tutor discussion
-  - Auto: System decides based on error frequency and patterns
+  - Auto: Severity-weighted phase selection
+- **Error Severity System** (chat-context aware):
+  - Critical (3.0): Comprehension blocked
+  - High (2.0): Global errors, significant barrier
+  - Medium (1.0): Grammar issues, meaning clear
+  - Low (0.3): Minor/chat-acceptable issues
+  - Recognizes casual chat norms (missing accents, caps, punctuation)
+- **Phase Decision Logic**: Severity-weighted scoring triggers phase transitions
 - **CEFR Levels**: A1-C2 language proficiency tracking
-- **Error Detection**: Grammar, typo, and word choice corrections with explanations
-- **UI Integration**: Corrections displayed as hover tooltips in chat interface
+- **Error Detection**: 9 error types with severity classification
+- **UI Integration**: Corrections displayed as hover tooltips with severity indicators
 - **Session Persistence**: Chat sessions and messages stored in H2 database
 
 ## Commands

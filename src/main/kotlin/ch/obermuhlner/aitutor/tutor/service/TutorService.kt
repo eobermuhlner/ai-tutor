@@ -95,7 +95,7 @@ $vocabularyGuidance
   * First, prompt awareness: "I noticed something in your last sentence..."
   * Then, encourage self-correction: "Can you spot what needs adjusting?"
   * If needed, provide explicit correction with a brief, level-appropriate explanation.
-- Prioritize high-impact errors: communication-blocking issues, recurring patterns, or fossilizing mistakes.
+- Prioritize by severity: Focus on Critical/High-severity errors (comprehension-blocking), then Medium, defer Low-severity unless fossilizing.
 - Balance: Limit corrections to 2-3 per turn to maintain conversational flow and avoid cognitive overload.
 - Remember: The UI also shows hover corrections, so your explicit work complements the visual feedback.
         """.trimIndent()
@@ -115,6 +115,27 @@ JSON Response:
 - `conversationState.estimatedCEFRLevel`: set to A1–C2 based on recent performance (consider ≥ last 3–5 user turns).
 - `conversationState.phase`: set to "Free", "Correction", or "Drill" for the current turn.
 - Do not add fields not present in the schema. Keep explanations concise and level-appropriate (see schema descriptions).
+
+Error Severity Assignment (CRITICAL):
+- Critical: Meaning completely lost, no context helps comprehension
+- High: Significant barrier, native speaker would be confused (global error)
+- Medium: Grammar error but meaning clear from context
+- Low: Minor issue OR acceptable in casual chat/texting (local error)
+
+Chat Context Rules for Typography errors:
+- Missing accents/diacritics (café→cafe) in casual chat: Low or ignore
+- No capitalization at start: Low or ignore (chat norm)
+- Missing end punctuation (period, question mark): Low or ignore (chat norm)
+- Quick typos that don't change word meaning: Low
+- Ask: "Would a native speaker make this 'error' in casual texting?" If YES → Low/ignore
+
+Severity Guidelines by ErrorType:
+- WordOrder, Lexis (wrong word): Usually High/Critical
+- TenseAspect: Medium-High (depends if meaning changes)
+- Agreement, Morphology, Pronouns: Usually Medium
+- Prepositions: Low-Medium (context-dependent)
+- Articles: Usually Low (rarely blocks comprehension)
+- Typography: Context-dependent (see chat rules above)
         """.trimIndent()
 
         val allMessages = listOf(

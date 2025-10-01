@@ -15,16 +15,27 @@ class PhaseDecisionService(
     /**
      * Decides the conversation phase based on recent message history.
      *
-     * Three-phase logic:
-     * - Free: Pure fluency, no error tracking (first few messages or very low errors)
+     * Three-phase logic using severity-weighted scoring:
+     * - Free: Pure fluency, no error tracking (very low severity score)
      * - Correction: Balanced default - track errors for UI hover but don't mention them
-     * - Drill: Explicit error work (high error frequency or repeated patterns)
+     * - Drill: Explicit error work (high severity score or critical errors)
+     *
+     * Severity Weights:
+     * - Critical: 3.0 (blocks comprehension entirely)
+     * - High: 2.0 (global errors, significant barrier)
+     * - Medium: 1.0 (grammar issues, meaning clear)
+     * - Low: 0.3 (minor/chat-acceptable issues)
      *
      * Logic:
      * - Start with Correction phase (balanced default)
-     * - Switch to Drill if 3+ repeated errors or 5+ total errors in last 5 messages
-     * - Switch to Free if consistently low errors (0-1 in last 3 messages)
-     * - Return to Correction after successful drill work (2+ low-error messages)
+     * - Switch to Drill if:
+     *   * 2+ Critical errors in last 3 messages, OR
+     *   * 3+ High-severity repeated errors, OR
+     *   * Weighted severity score >= 6.0 in last 5 messages
+     * - Switch to Free if:
+     *   * Only Low-severity errors in last 3 messages, AND
+     *   * Weighted severity score < 1.0 in last 5 messages
+     * - Default: Correction (balanced middle ground)
      */
     fun decidePhase(
         currentPhase: ConversationPhase,
@@ -45,23 +56,25 @@ class PhaseDecisionService(
 
         // Look at last 5 user messages
         val recentUserMessages = userMessages.takeLast(5)
+        val lastThreeMessages = recentUserMessages.takeLast(3)
 
-        // Count errors in each message
-        val errorCounts = recentUserMessages.map { message ->
-            countErrorsInMessage(message, recentMessages)
-        }
+        // Calculate severity-weighted scores
+        val totalSeverityScore = calculateSeverityScore(recentUserMessages, recentMessages)
 
-        val totalErrors = errorCounts.sum()
-        val lastThreeErrors = errorCounts.takeLast(3).sum()
-        val repeatedErrors = countRepeatedErrors(recentUserMessages, recentMessages)
+        // Count critical and high-severity errors
+        val criticalErrorsInLastThree = countErrorsBySeverity(lastThreeMessages, recentMessages, ch.obermuhlner.aitutor.core.model.ErrorSeverity.Critical)
+        val highSeverityRepeatedErrors = countRepeatedErrorsBySeverity(recentUserMessages, recentMessages, ch.obermuhlner.aitutor.core.model.ErrorSeverity.High)
 
-        // Switch to Drill if high error frequency or fossilization risk
-        if (repeatedErrors >= 3 || totalErrors >= 5) {
+        // Check if only low-severity errors in last 3
+        val onlyLowSeverityInLastThree = hasOnlyLowSeverityErrors(lastThreeMessages, recentMessages)
+
+        // Switch to Drill if serious comprehension issues or fossilization risk
+        if (criticalErrorsInLastThree >= 2 || highSeverityRepeatedErrors >= 3 || totalSeverityScore >= 6.0) {
             return ConversationPhase.Drill
         }
 
-        // Switch to Free if very low errors consistently (confidence building)
-        if (lastThreeErrors <= 1 && totalErrors <= 2) {
+        // Switch to Free if very low severity consistently (confidence building)
+        if (onlyLowSeverityInLastThree && totalSeverityScore < 1.0) {
             return ConversationPhase.Free
         }
 
@@ -135,6 +148,103 @@ class PhaseDecisionService(
         return try {
             val corrections: List<Correction> = objectMapper.readValue(correctionsJson)
             corrections.map { it.errorType.name }
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    /**
+     * Calculate weighted severity score for user messages.
+     * Critical: 3.0, High: 2.0, Medium: 1.0, Low: 0.3
+     */
+    private fun calculateSeverityScore(
+        userMessages: List<ChatMessageEntity>,
+        allMessages: List<ChatMessageEntity>
+    ): Double {
+        return userMessages.sumOf { userMessage ->
+            val corrections = getCorrections(userMessage, allMessages)
+            corrections.sumOf { correction ->
+                when (correction.severity) {
+                    ch.obermuhlner.aitutor.core.model.ErrorSeverity.Critical -> 3.0
+                    ch.obermuhlner.aitutor.core.model.ErrorSeverity.High -> 2.0
+                    ch.obermuhlner.aitutor.core.model.ErrorSeverity.Medium -> 1.0
+                    ch.obermuhlner.aitutor.core.model.ErrorSeverity.Low -> 0.3
+                }
+            }
+        }
+    }
+
+    /**
+     * Count errors of a specific severity level.
+     */
+    private fun countErrorsBySeverity(
+        userMessages: List<ChatMessageEntity>,
+        allMessages: List<ChatMessageEntity>,
+        severity: ch.obermuhlner.aitutor.core.model.ErrorSeverity
+    ): Int {
+        return userMessages.sumOf { userMessage ->
+            val corrections = getCorrections(userMessage, allMessages)
+            corrections.count { it.severity == severity }
+        }
+    }
+
+    /**
+     * Count repeated errors of a specific severity level.
+     */
+    private fun countRepeatedErrorsBySeverity(
+        userMessages: List<ChatMessageEntity>,
+        allMessages: List<ChatMessageEntity>,
+        severity: ch.obermuhlner.aitutor.core.model.ErrorSeverity
+    ): Int {
+        val errorTypesByMessage = userMessages.map { userMessage ->
+            val corrections = getCorrections(userMessage, allMessages)
+            corrections
+                .filter { it.severity == severity }
+                .map { it.errorType.name }
+        }
+
+        val allErrorTypes = errorTypesByMessage.flatten()
+        val errorTypeCounts = allErrorTypes.groupingBy { it }.eachCount()
+
+        return errorTypeCounts.values.count { it >= 2 }
+    }
+
+    /**
+     * Check if only low-severity errors exist in messages.
+     */
+    private fun hasOnlyLowSeverityErrors(
+        userMessages: List<ChatMessageEntity>,
+        allMessages: List<ChatMessageEntity>
+    ): Boolean {
+        return userMessages.all { userMessage ->
+            val corrections = getCorrections(userMessage, allMessages)
+            corrections.isEmpty() || corrections.all {
+                it.severity == ch.obermuhlner.aitutor.core.model.ErrorSeverity.Low
+            }
+        }
+    }
+
+    /**
+     * Get all corrections for a user message.
+     */
+    private fun getCorrections(
+        userMessage: ChatMessageEntity,
+        allMessages: List<ChatMessageEntity>
+    ): List<Correction> {
+        val userIndex = allMessages.indexOf(userMessage)
+        if (userIndex == -1 || userIndex >= allMessages.size - 1) {
+            return emptyList()
+        }
+
+        val assistantResponse = allMessages[userIndex + 1]
+        if (assistantResponse.role != MessageRole.ASSISTANT) {
+            return emptyList()
+        }
+
+        val correctionsJson = assistantResponse.correctionsJson ?: return emptyList()
+
+        return try {
+            objectMapper.readValue(correctionsJson)
         } catch (e: Exception) {
             emptyList()
         }

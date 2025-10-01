@@ -299,19 +299,58 @@ The system uses a three-phase approach based on language acquisition research:
 - **Pedagogy**: Combines immediate feedback within "cognitive window" (<1 min) with self-correction opportunities for maximum retention
 
 #### **Auto Mode** - Intelligent Phase Selection
-The system automatically selects the optimal phase based on:
+The system automatically selects the optimal phase using **severity-weighted scoring**:
+
+**Severity Weights:**
+- Critical errors: 3.0 (blocks comprehension)
+- High errors: 2.0 (global errors)
+- Medium errors: 1.0 (grammar issues)
+- Low errors: 0.3 (minor/chat-acceptable)
+
+**Phase Transitions:**
 - **Starts with**: Correction (balanced default)
-- **Switches to Drill**: 3+ repeated errors (fossilization risk) OR 5+ total errors in last 5 messages
-- **Switches to Free**: Consistently low errors (0-1 in last 3 messages) for confidence building
-- **Returns to Correction**: After successful drill work or as balanced middle ground
+- **Switches to Drill** if:
+  - 2+ Critical errors in last 3 messages, OR
+  - 3+ High-severity repeated errors (fossilization risk), OR
+  - Weighted severity score ≥ 6.0 in last 5 messages
+- **Switches to Free** if:
+  - Only Low-severity errors in last 3 messages, AND
+  - Weighted severity score < 1.0 in last 5 messages
+- **Returns to Correction**: Default middle ground for moderate error patterns
 
 You can manually override Auto mode at any time via the API to match learning goals.
 
-### Error Types
+### Error Types and Severity
 
-- **Grammar**: Verb conjugation, agreement, syntax
-- **Typography**: Spelling, punctuation, accents
-- **WordChoice**: Better word alternatives, register
+The system classifies errors by both **type** and **severity** to provide appropriate feedback:
+
+#### Error Types
+- **TenseAspect**: Wrong tense or aspect
+- **Agreement**: Subject-verb, gender, number agreement
+- **WordOrder**: Syntax, misplaced words/clauses
+- **Lexis**: Wrong vocabulary, false friends, register issues
+- **Morphology**: Incorrect endings, cases, conjugations
+- **Articles**: Missing/wrong/unnecessary articles or determiners
+- **Pronouns**: Wrong form or reference
+- **Prepositions**: Wrong or missing prepositions
+- **Typography**: Spelling, diacritics, capitalization, punctuation
+
+#### Error Severity (Context-Aware)
+- **Critical**: Meaning completely lost, comprehension impossible
+- **High**: Significant comprehension barrier (global errors) - native speaker confused
+- **Medium**: Grammar error but meaning clear from context
+- **Low**: Minor issue or acceptable in casual chat/texting (local errors)
+
+#### Chat Context Intelligence
+The system recognizes that casual chat communication differs from formal writing:
+- Missing accents (café → cafe): **Low** severity in chat
+- No capitalization: **Low** or ignored (chat norm)
+- Missing end punctuation: **Low** or ignored (chat norm)
+- Quick typos: **Low** (if meaning clear)
+
+**Philosophy**: "Would a native speaker make this 'error' in casual texting?" If yes → Low severity or ignored
+
+This ensures learners aren't penalized for typing naturally while still tracking genuine learning errors.
 
 ## 🤝 Contributing
 
