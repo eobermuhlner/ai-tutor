@@ -59,10 +59,11 @@ ai-tutor:
 
     developer: |
       JSON Response:
-      - Scope the update to the MOST RECENT user message.
+      - CRITICAL: Corrections apply ONLY to the MOST RECENT user message (the one you are responding to now).
+      - NEVER include corrections from previous messages - they have already been tracked.
       - Always return a single valid JSON object conforming to the schema.
-      - `corrections`: include an item for EVERY error you detect in that message; if none, set `corrections: []`.
-      - `span` values must be verbatim substrings of the last user message.
+      - `corrections`: include an item for EVERY error you detect in the MOST RECENT user message ONLY; if none, set `corrections: []`.
+      - `span` values must be verbatim substrings from the MOST RECENT user message (not from earlier messages).
       - `conversationState.estimatedCEFRLevel`: set to A1–C2 based on recent performance (consider ≥ last 3–5 user turns).
       - `conversationState.phase`: set to "Free", "Correction", or "Drill" for the current turn.
       - Do not add fields not present in the schema. Keep explanations concise and level-appropriate (see schema descriptions).
