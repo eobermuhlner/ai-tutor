@@ -179,6 +179,9 @@ Access the H2 database console at: `http://localhost:8080/h2-console`
 # Run tests
 ./gradlew test
 
+# Run tests with coverage
+./gradlew test jacocoTestReport
+
 # Create bootable JAR
 ./gradlew bootJar
 ```
@@ -192,6 +195,48 @@ Access the H2 database console at: `http://localhost:8080/h2-console`
 # Run JAR
 java -jar build/libs/ai-tutor-0.0.1-SNAPSHOT.jar
 ```
+
+## 🧪 Testing
+
+The project includes comprehensive test coverage with unit, controller, and integration tests.
+
+### Test Structure
+
+```
+src/test/kotlin/
+├── chat/
+│   ├── controller/    # REST API tests (@WebMvcTest)
+│   └── service/       # Business logic tests (MockK)
+├── vocabulary/
+│   └── controller/    # Vocabulary API tests
+├── config/            # Test configuration
+└── fixtures/          # Test data factories
+```
+
+### Running Tests
+
+```bash
+# Run all tests
+./gradlew test
+
+# Run specific test class
+./gradlew test --tests ChatControllerTest
+
+# Run with coverage report
+./gradlew test jacocoTestReport
+```
+
+### Test Categories
+
+- **Controller Tests** (`@WebMvcTest`): Test REST endpoints with MockMvc
+- **Service Tests** (MockK): Test business logic with mocked dependencies
+- **Integration Tests**: Test complete flows with real database
+
+### Mocking Strategy
+
+- ✅ OpenAI API is mocked in tests (configured in `TestConfig`)
+- ✅ Services are mocked in controller tests
+- ✅ Use `TestDataFactory` for consistent test data
 
 ## 📊 Data Model
 

@@ -64,8 +64,38 @@ ch.obermuhlner.aitutor
 
 ## Development Guidelines
 
+### When Adding New REST Endpoints
 When adding new REST endpoints or modifying existing ones, **always update**:
 1. **README.md** - Update API endpoint table and examples
 2. **src/test/http/http-client-requests.http** - Add HTTP client test examples
 3. **CLAUDE.md** - Update REST API Layer section and package structure
 4. **http-client.env.json** - Add any new variables if needed
+
+### When Making Code Changes
+**Before committing any changes:**
+1. **Run all tests**: `./gradlew test`
+2. **Fix all failing tests** - Never commit with failing tests
+3. **Add tests for new functionality** - Maintain test coverage
+4. **Verify build succeeds**: `./gradlew build`
+
+If tests fail, investigate and fix the root cause. Common issues:
+- Mocked dependencies need updating
+- Test data doesn't match new validation rules
+- Missing or incorrect test configuration
+
+### Preserving Existing Functionality
+**CRITICAL: Never remove or break existing features without explicit user approval.**
+
+When refactoring or adding features:
+1. **Verify all existing REST endpoints still work** - Test with HTTP client
+2. **Check existing tests pass** - Failing tests indicate broken functionality
+3. **Review before deletion** - If removing code, ask user first
+4. **Maintain backward compatibility** - Don't change existing API contracts
+5. **Document breaking changes** - If unavoidable, clearly communicate impact
+
+**Red flags that indicate functionality loss:**
+- Deleted controller methods or endpoints
+- Removed service methods still called elsewhere
+- Changed DTO field names or types
+- Modified database entity structure without migration
+- Tests that were passing now fail or are deleted
