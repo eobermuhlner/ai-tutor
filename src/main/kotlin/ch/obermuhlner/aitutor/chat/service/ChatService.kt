@@ -38,8 +38,8 @@ class ChatService(
             tutorName = request.tutorName,
             tutorPersona = request.tutorPersona,
             tutorDomain = request.tutorDomain,
-            sourceLanguage = request.sourceLanguage,
-            targetLanguage = request.targetLanguage,
+            sourceLanguageCode = request.sourceLanguageCode,
+            targetLanguageCode = request.targetLanguageCode,
             estimatedCEFRLevel = request.estimatedCEFRLevel
         )
         val saved = chatSessionRepository.save(session)
@@ -97,8 +97,8 @@ class ChatService(
             name = session.tutorName,
             persona = session.tutorPersona,
             domain = session.tutorDomain,
-            sourceLanguage = session.sourceLanguage,
-            targetLanguage = session.targetLanguage
+            sourceLanguageCode = session.sourceLanguageCode,
+            targetLanguageCode = session.targetLanguageCode
         )
 
         val conversationState = ConversationState(
@@ -130,7 +130,7 @@ class ChatService(
         if (tutorResponse.conversationResponse.newVocabulary.isNotEmpty()) {
             vocabularyService.addNewVocabulary(
                 userId = session.userId,
-                lang = session.targetLanguage,
+                lang = session.targetLanguageCode,
                 items = tutorResponse.conversationResponse.newVocabulary.map { NewVocabularyDTO(it.lemma, it.context) },
                 turnId = savedAssistantMessage.id
             )
@@ -156,8 +156,8 @@ class ChatService(
             tutorName = entity.tutorName,
             tutorPersona = entity.tutorPersona,
             tutorDomain = entity.tutorDomain,
-            sourceLanguage = entity.sourceLanguage,
-            targetLanguage = entity.targetLanguage,
+            sourceLanguageCode = entity.sourceLanguageCode,
+            targetLanguageCode = entity.targetLanguageCode,
             conversationPhase = entity.conversationPhase,
             estimatedCEFRLevel = entity.estimatedCEFRLevel,
             createdAt = entity.createdAt ?: java.time.Instant.now(),

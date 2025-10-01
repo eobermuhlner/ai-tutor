@@ -55,8 +55,8 @@ class ChatControllerTest {
             tutorName = request.tutorName,
             tutorPersona = request.tutorPersona,
             tutorDomain = request.tutorDomain,
-            sourceLanguage = request.sourceLanguage,
-            targetLanguage = request.targetLanguage,
+            sourceLanguageCode = request.sourceLanguageCode,
+            targetLanguageCode = request.targetLanguageCode,
             conversationPhase = ConversationPhase.Free,
             estimatedCEFRLevel = CEFRLevel.A1,
             createdAt = Instant.now(),
@@ -72,8 +72,8 @@ class ChatControllerTest {
                     {
                         "userId": "${request.userId}",
                         "tutorName": "${request.tutorName}",
-                        "sourceLanguage": "${request.sourceLanguage}",
-                        "targetLanguage": "${request.targetLanguage}",
+                        "sourceLanguageCode": "${request.sourceLanguageCode}",
+                        "targetLanguageCode": "${request.targetLanguageCode}",
                         "estimatedCEFRLevel": "A1"
                     }
                 """.trimIndent())
@@ -81,7 +81,7 @@ class ChatControllerTest {
             .andExpect(status().isCreated)
             .andExpect(jsonPath("$.id").value(TestDataFactory.TEST_SESSION_ID.toString()))
             .andExpect(jsonPath("$.tutorName").value("TestTutor"))
-            .andExpect(jsonPath("$.sourceLanguage").value("English"))
+            .andExpect(jsonPath("$.sourceLanguageCode").value("en"))
 
         verify(exactly = 1) { chatService.createSession(any()) }
     }
@@ -95,8 +95,8 @@ class ChatControllerTest {
                 tutorName = "TestTutor",
                 tutorPersona = "patient coach",
                 tutorDomain = "general",
-                sourceLanguage = "English",
-                targetLanguage = "Spanish",
+                sourceLanguageCode = "en",
+                targetLanguageCode = "es",
                 conversationPhase = ConversationPhase.Free,
                 estimatedCEFRLevel = CEFRLevel.A1,
                 createdAt = Instant.now(),
@@ -124,8 +124,8 @@ class ChatControllerTest {
                 tutorName = "TestTutor",
                 tutorPersona = "patient coach",
                 tutorDomain = "general",
-                sourceLanguage = "English",
-                targetLanguage = "Spanish",
+                sourceLanguageCode = "en",
+                targetLanguageCode = "es",
                 conversationPhase = ConversationPhase.Free,
                 estimatedCEFRLevel = CEFRLevel.A1,
                 createdAt = Instant.now(),

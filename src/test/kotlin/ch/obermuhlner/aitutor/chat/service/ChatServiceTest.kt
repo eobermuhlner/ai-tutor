@@ -54,8 +54,8 @@ class ChatServiceTest {
         assertNotNull(result)
         assertEquals(savedSession.id, result.id)
         assertEquals(request.tutorName, result.tutorName)
-        assertEquals(request.sourceLanguage, result.sourceLanguage)
-        assertEquals(request.targetLanguage, result.targetLanguage)
+        assertEquals(request.sourceLanguageCode, result.sourceLanguageCode)
+        assertEquals(request.targetLanguageCode, result.targetLanguageCode)
 
         verify(exactly = 1) { chatSessionRepository.save(any<ChatSessionEntity>()) }
     }

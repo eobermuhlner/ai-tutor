@@ -17,16 +17,16 @@ object TestDataFactory {
     fun createSessionRequest(
         userId: UUID = TEST_USER_ID,
         tutorName: String = "TestTutor",
-        sourceLanguage: String = "English",
-        targetLanguage: String = "Spanish",
+        sourceLanguageCode: String = "en",
+        targetLanguageCode: String = "es",
         estimatedCEFRLevel: CEFRLevel = CEFRLevel.A1
     ) = CreateSessionRequest(
         userId = userId,
         tutorName = tutorName,
         tutorPersona = "patient coach",
         tutorDomain = "general conversation",
-        sourceLanguage = sourceLanguage,
-        targetLanguage = targetLanguage,
+        sourceLanguageCode = sourceLanguageCode,
+        targetLanguageCode = targetLanguageCode,
         estimatedCEFRLevel = estimatedCEFRLevel
     )
 
@@ -34,14 +34,14 @@ object TestDataFactory {
         id: UUID = TEST_SESSION_ID,
         userId: UUID = TEST_USER_ID,
         tutorName: String = "TestTutor",
-        sourceLanguage: String = "English",
-        targetLanguage: String = "Spanish"
+        sourceLanguageCode: String = "en",
+        targetLanguageCode: String = "es"
     ) = ChatSessionEntity(
         id = id,
         userId = userId,
         tutorName = tutorName,
-        sourceLanguage = sourceLanguage,
-        targetLanguage = targetLanguage,
+        sourceLanguageCode = sourceLanguageCode,
+        targetLanguageCode = targetLanguageCode,
         conversationPhase = ConversationPhase.Free,
         estimatedCEFRLevel = CEFRLevel.A1
     )

@@ -27,11 +27,11 @@ class ChatSessionEntity(
     @Column(name = "tutor_domain", nullable = false, length = 256)
     var tutorDomain: String = "general conversation, grammar, typography",
 
-    @Column(name = "source_language", nullable = false, length = 32)
-    var sourceLanguage: String,
+    @Column(name = "source_language_code", nullable = false, length = 32)
+    var sourceLanguageCode: String,
 
-    @Column(name = "target_language", nullable = false, length = 32)
-    var targetLanguage: String,
+    @Column(name = "target_language_code", nullable = false, length = 32)
+    var targetLanguageCode: String,
 
     @Enumerated(EnumType.STRING)
     @Column(name = "conversation_phase", nullable = false, length = 16)

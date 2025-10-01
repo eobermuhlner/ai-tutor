@@ -8,8 +8,8 @@ Content-Type: application/json
   "tutorName": "Maria",
   "tutorPersona": "patient coach",
   "tutorDomain": "general conversation, grammar, typography",
-  "sourceLanguage": "English",
-  "targetLanguage": "Spanish",
+  "sourceLanguageCode": "en",
+  "targetLanguageCode": "es",
   "estimatedCEFRLevel": "A1"
 }
 
@@ -33,6 +33,14 @@ Content-Type: application/json
   "content": "Hola, como estas?"
 }
 
+### Send Message (Non-Streaming)
+POST {{host}}/api/v1/chat/sessions/{{chatSessionId}}/messages
+Content-Type: application/json
+
+{
+  "content": "Hi, how are doing?"
+}
+
 ### Send Message (Streaming with SSE)
 POST {{host}}/api/v1/chat/sessions/{{chatSessionId}}/messages/stream
 Content-Type: application/json
@@ -51,7 +59,7 @@ GET {{host}}/api/v1/vocabulary?userId={{userId}}
 Accept: application/json
 
 ### Get User Vocabulary (Specific Language)
-GET {{host}}/api/v1/vocabulary?userId={{userId}}&lang=Spanish
+GET {{host}}/api/v1/vocabulary?userId={{userId}}&lang=es
 Accept: application/json
 
 ### Get Vocabulary Item with Contexts

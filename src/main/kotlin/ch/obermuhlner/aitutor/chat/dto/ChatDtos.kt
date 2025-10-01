@@ -12,8 +12,8 @@ data class CreateSessionRequest(
     val tutorName: String,
     val tutorPersona: String = "patient coach",
     val tutorDomain: String = "general conversation, grammar, typography",
-    val sourceLanguage: String,
-    val targetLanguage: String,
+    val sourceLanguageCode: String,
+    val targetLanguageCode: String,
     val estimatedCEFRLevel: CEFRLevel = CEFRLevel.A1
 )
 
@@ -23,8 +23,8 @@ data class SessionResponse(
     val tutorName: String,
     val tutorPersona: String,
     val tutorDomain: String,
-    val sourceLanguage: String,
-    val targetLanguage: String,
+    val sourceLanguageCode: String,
+    val targetLanguageCode: String,
     val conversationPhase: ConversationPhase,
     val estimatedCEFRLevel: CEFRLevel,
     val createdAt: Instant,

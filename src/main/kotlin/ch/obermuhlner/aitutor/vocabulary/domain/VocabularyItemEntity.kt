@@ -19,7 +19,7 @@ class VocabularyItemEntity(
     @Column(name = "user_id", nullable = false)
     val userId: UUID,
 
-    @Column(nullable = false, length = 16)
+    @Column(nullable = false, length = 32)
     val lang: String,
 
     @Column(nullable = false, length = 256)

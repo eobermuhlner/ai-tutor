@@ -5,13 +5,15 @@ import ch.obermuhlner.aitutor.core.model.ConversationPhase
 import ch.obermuhlner.aitutor.core.model.ConversationResponse
 import ch.obermuhlner.aitutor.core.model.ConversationState
 import ch.obermuhlner.aitutor.core.model.Tutor
+import ch.obermuhlner.aitutor.language.service.LanguageService
 import org.springframework.ai.chat.messages.Message
 import org.springframework.ai.chat.messages.SystemMessage
 import org.springframework.stereotype.Service
 
 @Service
 class TutorService(
-    private val aiChatService: AiChatService
+    private val aiChatService: AiChatService,
+    private val languageService: LanguageService
 ) {
     data class TutorResponse(
         val reply: String,
@@ -25,8 +27,12 @@ class TutorService(
         onReplyChunk: (String) -> Unit = { print(it) }
     ): TutorResponse? {
 
-        val sourceLanguage = tutor.sourceLanguage
-        val targetLanguage = tutor.targetLanguage
+        val sourceLanguageCode = tutor.sourceLanguageCode
+        val targetLanguageCode = tutor.targetLanguageCode
+
+        // Translate language codes to English names for the LLM
+        val sourceLanguage = languageService.getLanguageName(sourceLanguageCode)
+        val targetLanguage = languageService.getLanguageName(targetLanguageCode)
 
 //        val schema = JsonSchemaGenerator.generateForType(ConversationResponse::class.java)
 //        println(schema)
@@ -36,12 +42,12 @@ class TutorService(
 //        ))
 
         val systemPrompt = """
-You are a language tutor teaching the target language $targetLanguage to a learner that speaks the source language $sourceLanguage.
+You are a language tutor teaching the target language $targetLanguage (code: $targetLanguageCode) to a learner that speaks the source language $sourceLanguage (code: $sourceLanguageCode).
 Your name: ${tutor.name}.
 Your persona: ${tutor.persona}
 Your domain: ${tutor.domain}
 Source language: $sourceLanguage
-Target language: $sourceLanguage
+Target language: $targetLanguage
 
 Role:
 - Communicate in $targetLanguage by default.

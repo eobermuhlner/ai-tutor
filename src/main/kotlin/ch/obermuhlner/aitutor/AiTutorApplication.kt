@@ -20,8 +20,8 @@ class AiTutorApplication(
 
         val tutor = Tutor(
             name = "Hans",
-            sourceLanguage = "Portuguese",
-            targetLanguage = "German"
+            sourceLanguageCode = "pt",
+            targetLanguageCode = "de"
         )
 
         val conversationState = ConversationState(
