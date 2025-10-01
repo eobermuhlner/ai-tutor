@@ -8,4 +8,6 @@ data class ConversationResponse(
     @field:JsonPropertyDescription("Corrections of learner's errors.")
     val corrections: List<Correction>,
     val newVocabulary: List<NewVocabulary>,
+    @field:JsonPropertyDescription("Word cards to help learn new vocabulary or concepts.")
+    val wordCards: List<WordCard> = emptyList(),
 )

@@ -310,6 +310,19 @@ class AiTutorCli(private val config: CliConfig) {
                 }
             }
 
+            // Display word cards if any
+            if (!message.wordCards.isNullOrEmpty()) {
+                println("\n🃏 Word Cards:")
+                message.wordCards.forEach { card ->
+                    println("  ┌─────────────────────────────────────────")
+                    println("  │ ${card.titleTargetLanguage} / ${card.titleSourceLanguage}")
+                    println("  ├─────────────────────────────────────────")
+                    println("  │ ${card.descriptionTargetLanguage}")
+                    println("  │ ${card.descriptionSourceLanguage}")
+                    println("  └─────────────────────────────────────────")
+                }
+            }
+
             println()
         } catch (e: Exception) {
             println("\n✗ Failed to send message: ${e.message}")

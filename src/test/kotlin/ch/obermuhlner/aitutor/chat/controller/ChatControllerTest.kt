@@ -138,6 +138,7 @@ class ChatControllerTest {
                     content = "Hola",
                     corrections = null,
                     newVocabulary = null,
+                    wordCards = null,
                     createdAt = Instant.now()
                 )
             )
@@ -171,6 +172,7 @@ class ChatControllerTest {
             content = "Hola! Como estas?",
             corrections = null,
             newVocabulary = null,
+            wordCards = null,
             createdAt = Instant.now()
         )
 

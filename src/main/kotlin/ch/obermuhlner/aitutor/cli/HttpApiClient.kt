@@ -51,7 +51,8 @@ class HttpApiClient(private val baseUrl: String) {
         val role: String,
         val content: String,
         val corrections: List<Correction>? = null,
-        val newVocabulary: List<NewVocabulary>? = null
+        val newVocabulary: List<NewVocabulary>? = null,
+        val wordCards: List<WordCard>? = null
     )
 
     @Serializable
@@ -68,6 +69,14 @@ class HttpApiClient(private val baseUrl: String) {
     data class NewVocabulary(
         val lemma: String,
         val context: String
+    )
+
+    @Serializable
+    data class WordCard(
+        val titleSourceLanguage: String,
+        val titleTargetLanguage: String,
+        val descriptionSourceLanguage: String,
+        val descriptionTargetLanguage: String
     )
 
     @Serializable

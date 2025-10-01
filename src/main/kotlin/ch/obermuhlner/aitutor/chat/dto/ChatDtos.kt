@@ -4,6 +4,7 @@ import ch.obermuhlner.aitutor.core.model.CEFRLevel
 import ch.obermuhlner.aitutor.core.model.ConversationPhase
 import ch.obermuhlner.aitutor.core.model.Correction
 import ch.obermuhlner.aitutor.core.model.NewVocabulary
+import ch.obermuhlner.aitutor.core.model.WordCard
 import java.time.Instant
 import java.util.UUID
 
@@ -42,6 +43,7 @@ data class MessageResponse(
     val content: String,
     val corrections: List<Correction>?,
     val newVocabulary: List<NewVocabulary>?,
+    val wordCards: List<WordCard>?,
     val createdAt: Instant
 )
 

@@ -34,6 +34,9 @@ class ChatMessageEntity(
     @Column(name = "vocabulary_json", columnDefinition = "TEXT")
     val vocabularyJson: String? = null,
 
+    @Column(name = "word_cards_json", columnDefinition = "TEXT")
+    val wordCardsJson: String? = null,
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     val createdAt: Instant? = null

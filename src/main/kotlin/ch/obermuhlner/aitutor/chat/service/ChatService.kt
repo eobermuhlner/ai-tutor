@@ -11,6 +11,7 @@ import ch.obermuhlner.aitutor.core.model.ConversationState
 import ch.obermuhlner.aitutor.core.model.Correction
 import ch.obermuhlner.aitutor.core.model.NewVocabulary
 import ch.obermuhlner.aitutor.core.model.Tutor
+import ch.obermuhlner.aitutor.core.model.WordCard
 import ch.obermuhlner.aitutor.tutor.service.TutorService
 import ch.obermuhlner.aitutor.vocabulary.service.NewVocabularyDTO
 import ch.obermuhlner.aitutor.vocabulary.service.VocabularyService
@@ -144,7 +145,9 @@ class ChatService(
             correctionsJson = if (tutorResponse.conversationResponse.corrections.isNotEmpty())
                 objectMapper.writeValueAsString(tutorResponse.conversationResponse.corrections) else null,
             vocabularyJson = if (tutorResponse.conversationResponse.newVocabulary.isNotEmpty())
-                objectMapper.writeValueAsString(tutorResponse.conversationResponse.newVocabulary) else null
+                objectMapper.writeValueAsString(tutorResponse.conversationResponse.newVocabulary) else null,
+            wordCardsJson = if (tutorResponse.conversationResponse.wordCards.isNotEmpty())
+                objectMapper.writeValueAsString(tutorResponse.conversationResponse.wordCards) else null
         )
         val savedAssistantMessage = chatMessageRepository.save(assistantMessage)
 
@@ -194,6 +197,9 @@ class ChatService(
         val vocabulary: List<NewVocabulary>? = entity.vocabularyJson?.let {
             objectMapper.readValue(it)
         }
+        val wordCards: List<WordCard>? = entity.wordCardsJson?.let {
+            objectMapper.readValue(it)
+        }
 
         return MessageResponse(
             id = entity.id,
@@ -201,6 +207,7 @@ class ChatService(
             content = entity.content,
             corrections = corrections,
             newVocabulary = vocabulary,
+            wordCards = wordCards,
             createdAt = entity.createdAt ?: java.time.Instant.now()
         )
     }
