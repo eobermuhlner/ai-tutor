@@ -193,12 +193,21 @@ Access the H2 database console at: `http://localhost:8080/h2-console`
 ### Running
 
 ```bash
-# Development mode with hot reload
-./gradlew bootRun
+# Run Spring Boot REST API server
+./gradlew runServer
+# (or use the standard task: ./gradlew bootRun)
+
+# Run standalone CLI client
+./gradlew runCli
+# (or use the standard task: ./gradlew run)
 
 # Run JAR
 java -jar build/libs/ai-tutor-0.0.1-SNAPSHOT.jar
 ```
+
+**Note:** This project has two entry points:
+- **REST API Server** (`runServer`/`bootRun`): Launches the Spring Boot backend at `http://localhost:8080`
+- **CLI Client** (`runCli`/`run`): Launches the interactive command-line interface that connects to the API server
 
 ## 🧪 Testing
 

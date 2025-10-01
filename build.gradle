@@ -54,7 +54,7 @@ dependencyManagement {
 
 kotlin {
     compilerOptions {
-        freeCompilerArgs.addAll '-Xjsr305=strict'
+        freeCompilerArgs.addAll(['-Xjsr305=strict'])
     }
 }
 
@@ -62,10 +62,32 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
+// TODO: Test Coverage Improvements
+// The following services need unit tests added (currently 6 test files vs 36 source files):
+// - HIGH PRIORITY: TutorService (core tutoring logic with phase management)
+// - HIGH PRIORITY: PhaseDecisionService (severity-weighted phase selection algorithm)
+// - MEDIUM: VocabularyService (business logic tests)
+// - MEDIUM: LanguageService (language code validation and mapping)
+// - LOW: AiChatService implementations (SingleJsonEntity, StreamReplyThenJsonEntity)
+// Current test coverage: ~17% test-to-source ratio. Target: 80%+
+
 springBoot {
     mainClass = 'ch.obermuhlner.aitutor.AiTutorApplicationKt'
 }
 
 application {
     mainClass = 'ch.obermuhlner.aitutor.cli.AiTutorCli'
+}
+
+// Descriptive aliases for dual entry points
+tasks.register('runServer') {
+    group = 'application'
+    description = 'Runs the Spring Boot REST API server'
+    dependsOn tasks.bootRun
+}
+
+tasks.register('runCli') {
+    group = 'application'
+    description = 'Runs the standalone CLI client'
+    dependsOn tasks.run
 }
