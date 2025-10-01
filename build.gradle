@@ -8,6 +8,10 @@ plugins {
     id 'application'
 }
 
+// Note: Gradle 10.0 deprecation warning for StartParameter.isConfigurationCacheRequested
+// comes from plugin internals. Will be resolved with future Spring Boot/Kotlin plugin updates.
+// No action required - build works correctly.
+
 group = 'ch.obermuhlner'
 version = '0.0.1-SNAPSHOT'
 description = 'AI Tutor'
@@ -41,8 +45,6 @@ dependencies {
     testImplementation 'org.jetbrains.kotlin:kotlin-test-junit5'
     testImplementation 'io.mockk:mockk:1.13.8'
     testImplementation 'com.ninja-squad:springmockk:4.0.2'
-    testImplementation 'org.springframework.boot:spring-boot-starter-webflux'
-    testImplementation 'com.squareup.okhttp3:mockwebserver:4.12.0'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 

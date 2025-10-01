@@ -51,10 +51,14 @@ Language learning assistant with conversational AI tutoring and vocabulary track
 - **Session Persistence**: Chat sessions and messages stored in H2 database
 
 ## Commands
-- `./gradlew bootRun` - Run application (requires OPENAI_API_KEY)
+- `./gradlew runServer` - Run REST API server (requires OPENAI_API_KEY)
+- `./gradlew runCli` - Run CLI client (connects to running server)
+- `./gradlew bootRun` - Run REST API server (alternative to runServer)
 - `./gradlew build` - Build project
 - H2 Console: http://localhost:8080/h2-console
 - HTTP Tests: `src/test/http/http-client-requests.http`
+
+**Note:** Two independent entry points - REST API server and CLI client
 
 ## Package Structure
 ```
@@ -67,13 +71,20 @@ ch.obermuhlner.aitutor
 │   └── dto/                # API request/response DTOs
 ├── vocabulary/             # Vocabulary tracking
 │   ├── controller/         # VocabularyController (/api/v1/vocabulary)
-│   ├── service/            # VocabularyService
+│   ├── service/            # VocabularyService, VocabularyContextService
 │   ├── repository/         # VocabularyItemRepository, VocabularyContextRepository
 │   ├── domain/             # VocabularyItemEntity, VocabularyContextEntity
 │   └── dto/                # Vocabulary response DTOs
 ├── tutor/service           # TutorService, PhaseDecisionService
-├── conversation/service    # AI chat abstractions
-└── core/                   # Models (Correction, Tutor, ConversationState, etc.)
+├── conversation/service    # AI chat abstractions (AiChatService, implementations)
+├── language/service        # LanguageService (language code validation)
+├── cli/                    # Standalone CLI client
+│   ├── AiTutorCli          # Main CLI application
+│   ├── CliConfig           # Configuration management
+│   └── HttpApiClient       # HTTP client for REST API
+└── core/                   # Shared models and utilities
+    ├── model/              # Domain models (Correction, Tutor, ConversationState, etc.)
+    └── util/               # Utilities (LlmJson, Placeholder)
 ```
 
 ## Development Guidelines
