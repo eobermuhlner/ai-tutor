@@ -2,8 +2,10 @@ plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.9.25'
     id 'org.jetbrains.kotlin.plugin.spring' version '1.9.25'
     id 'org.jetbrains.kotlin.plugin.jpa' version '1.9.25'
+    id 'org.jetbrains.kotlin.plugin.serialization' version '1.9.25'
     id 'org.springframework.boot' version '3.5.6'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'application'
 }
 
 group = 'ch.obermuhlner'
@@ -31,6 +33,7 @@ dependencies {
     implementation 'org.jetbrains.kotlin:kotlin-reflect'
     implementation 'org.jetbrains.kotlin:kotlin-stdlib'
     implementation 'org.springframework.ai:spring-ai-starter-model-openai'
+    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0'
     runtimeOnly 'com.h2database:h2'
 
     // Test dependencies
@@ -61,4 +64,8 @@ tasks.named('test') {
 
 springBoot {
     mainClass = 'ch.obermuhlner.aitutor.AiTutorApplicationKt'
+}
+
+application {
+    mainClass = 'ch.obermuhlner.aitutor.cli.AiTutorCli'
 }
