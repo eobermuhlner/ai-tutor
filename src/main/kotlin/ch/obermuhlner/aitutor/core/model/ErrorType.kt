@@ -1,13 +1,24 @@
 package ch.obermuhlner.aitutor.core.model
 
+import com.fasterxml.jackson.annotation.JsonPropertyDescription
+
 enum class ErrorType {
-    TenseAspect,      // wrong tense or aspect
-    Agreement,        // subject-verb, gender, number
-    WordOrder,        // syntax, misplaced words/clauses
-    Lexis,            // wrong vocabulary, false friend, register
-    Morphology,       // incorrect endings, cases, conjugations
-    Articles,         // missing/wrong/unnecessary article/determiner
-    Pronouns,         // wrong form or reference
-    Prepositions,     // wrong or missing preposition
-    Typography        // spelling, diacritics, capitalization, punctuation
+    @JsonPropertyDescription("Wrong tense or aspect")
+    TenseAspect,
+    @JsonPropertyDescription("No agreement of subject-verb, gender, number")
+    Agreement,
+    @JsonPropertyDescription("syntax, misplaced words/clauses")
+    WordOrder,
+    @JsonPropertyDescription("wrong vocabulary, false friend, register")
+    Lexis,
+    @JsonPropertyDescription("incorrect endings, cases, conjugations")
+    Morphology,
+    @JsonPropertyDescription("missing/wrong/unnecessary article/determiner")
+    Articles,
+    @JsonPropertyDescription("wrong form or reference")
+    Pronouns,
+    @JsonPropertyDescription("wrong or missing preposition")
+    Prepositions,
+    @JsonPropertyDescription("spelling, diacritics, capitalization, punctuation")
+    Typography
 }
