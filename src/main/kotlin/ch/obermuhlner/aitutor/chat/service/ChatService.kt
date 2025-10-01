@@ -106,7 +106,7 @@ class ChatService(
             estimatedCEFRLevel = session.estimatedCEFRLevel
         )
 
-        val tutorResponse = tutorService.respond(tutor, conversationState, messageHistory, onReplyChunk)
+        val tutorResponse = tutorService.respond(tutor, conversationState, session.userId, messageHistory, onReplyChunk)
             ?: return null
 
         // Update session state

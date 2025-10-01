@@ -117,7 +117,7 @@ class ChatServiceTest {
         every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
         every { chatMessageRepository.save(any<ChatMessageEntity>()) } returns userMessage andThen assistantMessage
         every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(any()) } returns emptyList()
-        every { tutorService.respond(any(), any(), any(), any()) } returns tutorResponse
+        every { tutorService.respond(any(), any(), any(), any(), any()) } returns tutorResponse
         every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns session
 
         val result = chatService.sendMessage(TestDataFactory.TEST_SESSION_ID, "Test message")

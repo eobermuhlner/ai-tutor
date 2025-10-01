@@ -41,6 +41,15 @@ Content-Type: application/json
   "content": "Hi, how are doing?"
 }
 
+### Send Message (Non-Streaming)
+POST {{host}}/api/v1/chat/sessions/{{chatSessionId}}/messages
+Content-Type: application/json
+
+{
+  "content": "Give me a list of vocabulary that I am learning."
+}
+
+
 ### Send Message (Streaming with SSE)
 POST {{host}}/api/v1/chat/sessions/{{chatSessionId}}/messages/stream
 Content-Type: application/json

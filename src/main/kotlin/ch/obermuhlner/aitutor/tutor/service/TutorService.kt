@@ -6,14 +6,17 @@ import ch.obermuhlner.aitutor.core.model.ConversationResponse
 import ch.obermuhlner.aitutor.core.model.ConversationState
 import ch.obermuhlner.aitutor.core.model.Tutor
 import ch.obermuhlner.aitutor.language.service.LanguageService
+import ch.obermuhlner.aitutor.vocabulary.service.VocabularyContextService
 import org.springframework.ai.chat.messages.Message
 import org.springframework.ai.chat.messages.SystemMessage
 import org.springframework.stereotype.Service
+import java.util.*
 
 @Service
 class TutorService(
     private val aiChatService: AiChatService,
-    private val languageService: LanguageService
+    private val languageService: LanguageService,
+    private val vocabularyContextService: VocabularyContextService
 ) {
     data class TutorResponse(
         val reply: String,
@@ -23,6 +26,7 @@ class TutorService(
     fun respond(
         tutor: Tutor,
         conversationState: ConversationState,
+        userId: UUID,
         messages: List<Message>,
         onReplyChunk: (String) -> Unit = { print(it) }
     ): TutorResponse? {
@@ -30,9 +34,11 @@ class TutorService(
         val sourceLanguageCode = tutor.sourceLanguageCode
         val targetLanguageCode = tutor.targetLanguageCode
 
-        // Translate language codes to English names for the LLM
         val sourceLanguage = languageService.getLanguageName(sourceLanguageCode)
         val targetLanguage = languageService.getLanguageName(targetLanguageCode)
+
+        // Get vocabulary context for the user
+        val vocabContext = vocabularyContextService.getVocabularyContext(userId, targetLanguageCode)
 
 //        val schema = JsonSchemaGenerator.generateForType(ConversationResponse::class.java)
 //        println(schema)
@@ -40,6 +46,8 @@ class TutorService(
 //            "sourceLanguage" to sourceLanguage,
 //            "targetLanguage" to targetLanguage,
 //        ))
+
+        val vocabularyGuidance = buildVocabularyGuidance(vocabContext)
 
         val systemPrompt = """
 You are a language tutor teaching the target language $targetLanguage (code: $targetLanguageCode) to a learner that speaks the source language $sourceLanguage (code: $sourceLanguageCode).
@@ -58,6 +66,8 @@ Role:
 Objective:
 - Maximize learner output in $targetLanguage.
 - Support long-term learning through contextual practice, not lectures.
+
+$vocabularyGuidance
         """.trimIndent()
 
         val phaseFreePrompt = """
@@ -101,5 +111,44 @@ JSON Response:
                 conversationResponse = it.conversationResponse
             )
         }
+    }
+
+    private fun buildVocabularyGuidance(vocabContext: ch.obermuhlner.aitutor.vocabulary.service.VocabularyContext): String {
+        if (vocabContext.totalWordCount == 0) {
+            return """
+Vocabulary Guidance:
+- This learner has no tracked vocabulary yet.
+- Introduce new vocabulary gradually (1-3 new words per turn maximum).
+- Keep vocabulary simple and contextual.
+            """.trimIndent()
+        }
+
+        val reinforcementList = if (vocabContext.wordsForReinforcement.isNotEmpty()) {
+            vocabContext.wordsForReinforcement.joinToString(", ")
+        } else {
+            "(none)"
+        }
+
+        val recentList = if (vocabContext.recentNewWords.isNotEmpty()) {
+            vocabContext.recentNewWords.joinToString(", ")
+        } else {
+            "(none)"
+        }
+
+        val masteredList = if (vocabContext.masteredWords.isNotEmpty()) {
+            vocabContext.masteredWords.take(20).joinToString(", ")
+        } else {
+            "(none)"
+        }
+
+        return """
+Vocabulary Guidance:
+- Total vocabulary: ${vocabContext.totalWordCount} words tracked
+- Words to reinforce naturally in conversation: $reinforcementList
+- Recently introduced (avoid re-introducing): $recentList
+- Mastered words (don't over-explain): $masteredList
+- When introducing NEW vocabulary, do so gradually (1-3 new words per turn maximum)
+- Use reinforcement words in natural contexts to aid retention
+        """.trimIndent()
     }
 }
