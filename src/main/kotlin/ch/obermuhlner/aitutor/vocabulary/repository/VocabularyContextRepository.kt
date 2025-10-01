@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository
 import java.util.*
 
 @Repository
-interface VocabularyContextRepository : JpaRepository<VocabularyContextEntity, UUID>
+interface VocabularyContextRepository : JpaRepository<VocabularyContextEntity, UUID> {
+    fun findByVocabItemId(vocabItemId: UUID): List<VocabularyContextEntity>
+}

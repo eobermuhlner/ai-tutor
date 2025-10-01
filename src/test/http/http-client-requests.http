@@ -44,3 +44,18 @@ Content-Type: application/json
 ### Delete Session
 DELETE {{host}}/api/v1/chat/sessions/{{chatSessionId}}
 
+###
+
+### Get User Vocabulary (All Languages)
+GET {{host}}/api/v1/vocabulary?userId={{userId}}
+Accept: application/json
+
+### Get User Vocabulary (Specific Language)
+GET {{host}}/api/v1/vocabulary?userId={{userId}}&lang=Spanish
+Accept: application/json
+
+### Get Vocabulary Item with Contexts
+# @name getVocabItem
+GET {{host}}/api/v1/vocabulary/VOCABULARY_ITEM_ID
+Accept: application/json
+

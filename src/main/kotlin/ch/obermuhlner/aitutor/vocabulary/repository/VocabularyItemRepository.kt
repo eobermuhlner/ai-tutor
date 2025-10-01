@@ -8,4 +8,8 @@ import java.util.*
 @Repository
 interface VocabularyItemRepository : JpaRepository<VocabularyItemEntity, UUID> {
     fun findByUserIdAndLangAndLemma(userId: UUID, lang: String, lemma: String): VocabularyItemEntity?
+    fun findByUserId(userId: UUID): List<VocabularyItemEntity>
+    fun findByUserIdAndLang(userId: UUID, lang: String): List<VocabularyItemEntity>
+    fun findByUserIdOrderByLastSeenAtDesc(userId: UUID): List<VocabularyItemEntity>
+    fun findByUserIdAndLangOrderByLastSeenAtDesc(userId: UUID, lang: String): List<VocabularyItemEntity>
 }

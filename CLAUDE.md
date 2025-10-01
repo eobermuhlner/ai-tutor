@@ -19,6 +19,9 @@ Language learning assistant with conversational AI tutoring and vocabulary track
   - POST `/sessions/{id}/messages` - Send message
   - POST `/sessions/{id}/messages/stream` - Send message with SSE streaming
   - DELETE `/sessions/{id}` - Delete session
+- **VocabularyController** - REST endpoints (`/api/v1/vocabulary/*`)
+  - GET `/?userId={id}&lang={lang}` - Get user's vocabulary (optionally filtered by language)
+  - GET `/{itemId}` - Get vocabulary item with all contexts
 - **ChatService** - Session/message orchestration, integrates TutorService
 - **ChatSessionRepository** / **ChatMessageRepository** - JPA persistence
 
@@ -42,14 +45,27 @@ Language learning assistant with conversational AI tutoring and vocabulary track
 ## Package Structure
 ```
 ch.obermuhlner.aitutor
-├── chat/                   # REST API layer
+├── chat/                   # Chat REST API layer
 │   ├── controller/         # ChatController (/api/v1/chat)
 │   ├── service/            # ChatService
 │   ├── repository/         # ChatSessionRepository, ChatMessageRepository
 │   ├── domain/             # ChatSessionEntity, ChatMessageEntity
 │   └── dto/                # API request/response DTOs
+├── vocabulary/             # Vocabulary tracking
+│   ├── controller/         # VocabularyController (/api/v1/vocabulary)
+│   ├── service/            # VocabularyService
+│   ├── repository/         # VocabularyItemRepository, VocabularyContextRepository
+│   ├── domain/             # VocabularyItemEntity, VocabularyContextEntity
+│   └── dto/                # Vocabulary response DTOs
 ├── tutor/service           # Core tutoring logic
 ├── conversation/service    # AI chat abstractions
-├── vocabulary/             # Vocabulary tracking (domain/repository/service)
 └── core/                   # Models (Correction, Tutor, ConversationState, etc.)
 ```
+
+## Development Guidelines
+
+When adding new REST endpoints or modifying existing ones, **always update**:
+1. **README.md** - Update API endpoint table and examples
+2. **src/test/http/http-client-requests.http** - Add HTTP client test examples
+3. **CLAUDE.md** - Update REST API Layer section and package structure
+4. **http-client.env.json** - Add any new variables if needed
