@@ -1,6 +1,6 @@
 spring:
   application:
-    name=ai-tutor:
+    name: ai-tutor
 
   profiles:
     group:
