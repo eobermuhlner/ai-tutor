@@ -14,6 +14,7 @@ data class CreateSessionRequest(
     val tutorDomain: String = "general conversation, grammar, typography",
     val sourceLanguageCode: String,
     val targetLanguageCode: String,
+    val conversationPhase: ConversationPhase = ConversationPhase.Auto,
     val estimatedCEFRLevel: CEFRLevel = CEFRLevel.A1
 )
 
@@ -47,4 +48,8 @@ data class MessageResponse(
 data class SessionWithMessagesResponse(
     val session: SessionResponse,
     val messages: List<MessageResponse>
+)
+
+data class UpdatePhaseRequest(
+    val phase: ConversationPhase
 )

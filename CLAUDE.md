@@ -16,6 +16,7 @@ Language learning assistant with conversational AI tutoring and vocabulary track
   - POST `/sessions` - Create session
   - GET `/sessions?userId={id}` - List sessions
   - GET `/sessions/{id}` - Get session with messages
+  - PATCH `/sessions/{id}/phase` - Update conversation phase (Free/Drill/Auto)
   - POST `/sessions/{id}/messages` - Send message
   - POST `/sessions/{id}/messages/stream` - Send message with SSE streaming
   - DELETE `/sessions/{id}` - Delete session
@@ -26,14 +27,20 @@ Language learning assistant with conversational AI tutoring and vocabulary track
 - **ChatSessionRepository** / **ChatMessageRepository** - JPA persistence
 
 ### Core Components
-- `TutorService` - Main tutoring logic with adaptive conversation phases (Free/Drill)
+- `TutorService` - Main tutoring logic with adaptive conversation phases (Free/Drill/Auto)
+- `PhaseDecisionService` - Automatic phase selection based on learner error patterns
 - `AiChatService` - AI chat integration with streaming responses
 - `VocabularyService` - Vocabulary tracking with context and exposure counting
 
 ### Conversation Model
-- **Phases**: Free (no corrections) or Drill (with corrections)
+- **Phases** (3-phase pedagogical approach):
+  - Free: Pure fluency focus, no error tracking
+  - Correction: Errors tracked for UI hover, not mentioned in conversation (default)
+  - Drill: Explicit error work with tutor discussion
+  - Auto: System decides based on error frequency and patterns
 - **CEFR Levels**: A1-C2 language proficiency tracking
 - **Error Detection**: Grammar, typo, and word choice corrections with explanations
+- **UI Integration**: Corrections displayed as hover tooltips in chat interface
 - **Session Persistence**: Chat sessions and messages stored in H2 database
 
 ## Commands
@@ -57,7 +64,7 @@ ch.obermuhlner.aitutor
 │   ├── repository/         # VocabularyItemRepository, VocabularyContextRepository
 │   ├── domain/             # VocabularyItemEntity, VocabularyContextEntity
 │   └── dto/                # Vocabulary response DTOs
-├── tutor/service           # Core tutoring logic
+├── tutor/service           # TutorService, PhaseDecisionService
 ├── conversation/service    # AI chat abstractions
 └── core/                   # Models (Correction, Tutor, ConversationState, etc.)
 ```

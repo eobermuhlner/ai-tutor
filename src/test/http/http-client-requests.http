@@ -10,6 +10,7 @@ Content-Type: application/json
   "tutorDomain": "general conversation, grammar, typography",
   "sourceLanguageCode": "en",
   "targetLanguageCode": "es",
+  "conversationPhase": "Auto",
   "estimatedCEFRLevel": "A1"
 }
 
@@ -24,6 +25,38 @@ Accept: application/json
 ### Get Session with Messages
 GET {{host}}/api/v1/chat/sessions/{{chatSessionId}}
 Accept: application/json
+
+### Update Session Phase to Free (Pure fluency, no error tracking)
+PATCH {{host}}/api/v1/chat/sessions/{{chatSessionId}}/phase
+Content-Type: application/json
+
+{
+  "phase": "Free"
+}
+
+### Update Session Phase to Correction (Errors tracked for UI hover)
+PATCH {{host}}/api/v1/chat/sessions/{{chatSessionId}}/phase
+Content-Type: application/json
+
+{
+  "phase": "Correction"
+}
+
+### Update Session Phase to Drill (Explicit error work)
+PATCH {{host}}/api/v1/chat/sessions/{{chatSessionId}}/phase
+Content-Type: application/json
+
+{
+  "phase": "Drill"
+}
+
+### Update Session Phase to Auto (System decides)
+PATCH {{host}}/api/v1/chat/sessions/{{chatSessionId}}/phase
+Content-Type: application/json
+
+{
+  "phase": "Auto"
+}
 
 ### Send Message (Non-Streaming)
 POST {{host}}/api/v1/chat/sessions/{{chatSessionId}}/messages

@@ -40,6 +40,16 @@ class ChatController(
         return ResponseEntity.noContent().build()
     }
 
+    @PatchMapping("/sessions/{sessionId}/phase")
+    fun updateSessionPhase(
+        @PathVariable sessionId: UUID,
+        @RequestBody request: UpdatePhaseRequest
+    ): ResponseEntity<SessionResponse> {
+        val session = chatService.updateSessionPhase(sessionId, request.phase)
+            ?: return ResponseEntity.notFound().build()
+        return ResponseEntity.ok(session)
+    }
+
     @PostMapping("/sessions/{sessionId}/messages")
     fun sendMessage(
         @PathVariable sessionId: UUID,

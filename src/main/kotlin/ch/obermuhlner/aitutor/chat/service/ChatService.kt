@@ -6,6 +6,7 @@ import ch.obermuhlner.aitutor.chat.domain.MessageRole
 import ch.obermuhlner.aitutor.chat.dto.*
 import ch.obermuhlner.aitutor.chat.repository.ChatMessageRepository
 import ch.obermuhlner.aitutor.chat.repository.ChatSessionRepository
+import ch.obermuhlner.aitutor.core.model.ConversationPhase
 import ch.obermuhlner.aitutor.core.model.ConversationState
 import ch.obermuhlner.aitutor.core.model.Correction
 import ch.obermuhlner.aitutor.core.model.NewVocabulary
@@ -28,6 +29,7 @@ class ChatService(
     private val chatMessageRepository: ChatMessageRepository,
     private val tutorService: TutorService,
     private val vocabularyService: VocabularyService,
+    private val phaseDecisionService: ch.obermuhlner.aitutor.tutor.service.PhaseDecisionService,
     private val objectMapper: ObjectMapper
 ) {
 
@@ -40,6 +42,7 @@ class ChatService(
             tutorDomain = request.tutorDomain,
             sourceLanguageCode = request.sourceLanguageCode,
             targetLanguageCode = request.targetLanguageCode,
+            conversationPhase = request.conversationPhase,
             estimatedCEFRLevel = request.estimatedCEFRLevel
         )
         val saved = chatSessionRepository.save(session)
@@ -74,6 +77,14 @@ class ChatService(
     }
 
     @Transactional
+    fun updateSessionPhase(sessionId: UUID, phase: ConversationPhase): SessionResponse? {
+        val session = chatSessionRepository.findById(sessionId).orElse(null) ?: return null
+        session.conversationPhase = phase
+        val saved = chatSessionRepository.save(session)
+        return toSessionResponse(saved)
+    }
+
+    @Transactional
     fun sendMessage(
         sessionId: UUID,
         userContent: String,
@@ -101,8 +112,16 @@ class ChatService(
             targetLanguageCode = session.targetLanguageCode
         )
 
+        // Resolve phase: if Auto, decide based on history
+        val resolvedPhase = if (session.conversationPhase == ConversationPhase.Auto) {
+            val allMessages = chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(sessionId)
+            phaseDecisionService.decidePhase(session.conversationPhase, allMessages)
+        } else {
+            session.conversationPhase
+        }
+
         val conversationState = ConversationState(
-            phase = session.conversationPhase,
+            phase = resolvedPhase,
             estimatedCEFRLevel = session.estimatedCEFRLevel
         )
 
@@ -110,7 +129,10 @@ class ChatService(
             ?: return null
 
         // Update session state
-        session.conversationPhase = tutorResponse.conversationResponse.conversationState.phase
+        // Don't overwrite phase if in Auto mode - keep it as Auto
+        if (session.conversationPhase != ConversationPhase.Auto) {
+            session.conversationPhase = tutorResponse.conversationResponse.conversationState.phase
+        }
         session.estimatedCEFRLevel = tutorResponse.conversationResponse.conversationState.estimatedCEFRLevel
         chatSessionRepository.save(session)
 

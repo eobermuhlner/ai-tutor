@@ -9,9 +9,11 @@ An intelligent language learning platform powered by AI that provides personaliz
 - **CEFR Level Tracking**: Monitors learner progress from A1 to C2 levels
 - **Vocabulary Management**: Tracks new vocabulary with context and exposure frequency
 - **Dual-Language Explanations**: Provides corrections in both source and target languages
-- **Conversation Modes**:
-  - **Free Mode**: Natural conversation without interruptions
-  - **Drill Mode**: Focused practice with immediate error corrections
+- **Conversation Phases**:
+  - **Free**: Pure fluency focus - no error tracking, maximum confidence building
+  - **Correction**: Balanced learning - errors tracked for UI hover display, conversation flows naturally
+  - **Drill**: Active accuracy work - explicit error discussion and correction practice
+  - **Auto**: Intelligent phase selection based on learner performance and error patterns
 - **Session Persistence**: Save and resume learning sessions
 - **RESTful API**: Full REST API for integration with web and mobile applications
 
@@ -58,8 +60,9 @@ curl -X POST http://localhost:8080/api/v1/chat/sessions \
   -d '{
     "userId": "00000000-0000-0000-0000-000000000001",
     "tutorName": "Maria",
-    "sourceLanguage": "English",
-    "targetLanguage": "Spanish",
+    "sourceLanguageCode": "en",
+    "targetLanguageCode": "es",
+    "conversationPhase": "Auto",
     "estimatedCEFRLevel": "A1"
   }'
 ```
@@ -85,6 +88,7 @@ curl http://localhost:8080/api/v1/chat/sessions/{sessionId}
 | POST | `/api/v1/chat/sessions` | Create new learning session |
 | GET | `/api/v1/chat/sessions?userId={uuid}` | List user's sessions |
 | GET | `/api/v1/chat/sessions/{id}` | Get session with full message history |
+| PATCH | `/api/v1/chat/sessions/{id}/phase` | Update conversation phase (Free/Drill/Auto) |
 | POST | `/api/v1/chat/sessions/{id}/messages` | Send message (JSON response) |
 | POST | `/api/v1/chat/sessions/{id}/messages/stream` | Send message (SSE streaming) |
 | DELETE | `/api/v1/chat/sessions/{id}` | Delete session |
@@ -271,8 +275,37 @@ The system tracks language proficiency using the Common European Framework of Re
 
 ### Conversation Phases
 
-- **Free**: Natural conversation, no interruptions (errors tracked silently)
-- **Drill**: Active practice with immediate corrections
+The system uses a three-phase approach based on language acquisition research:
+
+#### **Free Phase** - Pure Fluency Focus
+- **Goal**: Maximum output, zero pressure, confidence building
+- **Behavior**: No error tracking, conversation flows completely naturally
+- **UI**: No corrections displayed
+- **Best for**: Beginners, warm-up, confidence building, low-stakes practice
+- **Pedagogy**: Reduces affective filter, encourages risk-taking, builds communication confidence
+
+#### **Correction Phase** - Balanced Learning (Default)
+- **Goal**: Awareness without interruption
+- **Behavior**: All errors detected and tracked, but never mentioned in conversation
+- **UI**: Errors shown as subtle hover tooltips in chat
+- **Best for**: General practice, intermediate learners, autonomous learning
+- **Pedagogy**: Supports "noticing hypothesis" - learners discover errors at their own pace, maintains conversation flow while providing accountability
+
+#### **Drill Phase** - Active Accuracy Work
+- **Goal**: Explicit error correction and accuracy improvement
+- **Behavior**: Tutor actively discusses errors, prompts self-correction, provides explanations
+- **UI**: Both hover tooltips AND explicit discussion in conversation
+- **Best for**: Advanced learners, exam prep, addressing fossilized errors
+- **Pedagogy**: Combines immediate feedback within "cognitive window" (<1 min) with self-correction opportunities for maximum retention
+
+#### **Auto Mode** - Intelligent Phase Selection
+The system automatically selects the optimal phase based on:
+- **Starts with**: Correction (balanced default)
+- **Switches to Drill**: 3+ repeated errors (fossilization risk) OR 5+ total errors in last 5 messages
+- **Switches to Free**: Consistently low errors (0-1 in last 3 messages) for confidence building
+- **Returns to Correction**: After successful drill work or as balanced middle ground
+
+You can manually override Auto mode at any time via the API to match learning goals.
 
 ### Error Types
 

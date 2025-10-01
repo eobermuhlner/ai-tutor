@@ -71,18 +71,38 @@ $vocabularyGuidance
         """.trimIndent()
 
         val phaseFreePrompt = """
-- Keep a fluid and natural conversation with the learner.
-- Do not correct learner's errors in the conversation.
+- Maintain enthusiastic, encouraging conversation focused entirely on communication success.
+- Do NOT detect or track errors in your response (the system will handle minimal tracking for statistics only).
+- Prioritize building confidence, fluency, and reducing anxiety.
+- Never reference accuracy, correctness, or errors in any way.
+- Celebrate successful communication and meaning-making.
         """.trimIndent()
 
+        val phaseCorrectionPrompt = """
+- Maintain natural, flowing conversation while tracking errors for learner self-discovery.
+- Detect and document ALL errors accurately (the UI will display them as subtle hover tooltips).
+- NEVER mention errors explicitly in your conversational responses.
+- Continue the conversation as if no errors occurred - focus on meaning and engagement.
+- Let the learner discover and engage with corrections at their own pace through the UI.
+- This creates awareness without disruption, supporting autonomous learning.
+        """.trimIndent()
 
         val phaseDrillPrompt = """
-- Keep a fluid and natural conversation with the learner.
-- Correct errors with minimal disruption.
+- Maintain supportive conversation while actively addressing errors for accuracy improvement.
+- Detect all errors and reference them explicitly when pedagogically valuable.
+- Timing: Address errors after the learner completes their thought to avoid interrupting mid-sentence.
+- Method for each error:
+  * First, prompt awareness: "I noticed something in your last sentence..."
+  * Then, encourage self-correction: "Can you spot what needs adjusting?"
+  * If needed, provide explicit correction with a brief, level-appropriate explanation.
+- Prioritize high-impact errors: communication-blocking issues, recurring patterns, or fossilizing mistakes.
+- Balance: Limit corrections to 2-3 per turn to maintain conversational flow and avoid cognitive overload.
+- Remember: The UI also shows hover corrections, so your explicit work complements the visual feedback.
         """.trimIndent()
 
         val phasePrompts = mapOf(
             ConversationPhase.Free to phaseFreePrompt,
+            ConversationPhase.Correction to phaseCorrectionPrompt,
             ConversationPhase.Drill to phaseDrillPrompt,
         )
 
@@ -93,7 +113,7 @@ JSON Response:
 - `corrections`: include an item for EVERY error you detect in that message; if none, set `corrections: []`.
 - `span` values must be verbatim substrings of the last user message.
 - `conversationState.estimatedCEFRLevel`: set to A1–C2 based on recent performance (consider ≥ last 3–5 user turns).
-- `conversationState.phase`: set to "Drill" or "Free" for the current turn.
+- `conversationState.phase`: set to "Free", "Correction", or "Drill" for the current turn.
 - Do not add fields not present in the schema. Keep explanations concise and level-appropriate (see schema descriptions).
         """.trimIndent()
 

@@ -23,6 +23,7 @@ class ChatServiceTest {
     private lateinit var chatMessageRepository: ChatMessageRepository
     private lateinit var tutorService: TutorService
     private lateinit var vocabularyService: VocabularyService
+    private lateinit var phaseDecisionService: ch.obermuhlner.aitutor.tutor.service.PhaseDecisionService
     private lateinit var objectMapper: ObjectMapper
 
     @BeforeEach
@@ -31,6 +32,7 @@ class ChatServiceTest {
         chatMessageRepository = mockk()
         tutorService = mockk()
         vocabularyService = mockk()
+        phaseDecisionService = mockk()
         objectMapper = ObjectMapper()
 
         chatService = ChatService(
@@ -38,6 +40,7 @@ class ChatServiceTest {
             chatMessageRepository,
             tutorService,
             vocabularyService,
+            phaseDecisionService,
             objectMapper
         )
     }
