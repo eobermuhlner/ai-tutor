@@ -18,13 +18,19 @@ class LocalizationServiceImpl(
     ): String {
         val translations = parseMultilingualJson(jsonText)
 
-        // 1. Try requested language
+        // 1. Try requested language (exact match, e.g., "de-CH")
         translations[languageCode]?.let { return it }
 
-        // 2. Try fallback language (usually English)
+        // 2. Try base language if locale variant provided (e.g., "de-CH" -> "de")
+        if (languageCode.contains("-") || languageCode.contains("_")) {
+            val baseLanguageCode = languageCode.split("-", "_").first()
+            translations[baseLanguageCode]?.let { return it }
+        }
+
+        // 3. Try fallback language (usually English)
         translations[fallbackLanguage]?.let { return it }
 
-        // 3. AI TRANSLATION: Generate on-the-fly
+        // 4. AI TRANSLATION: Generate on-the-fly
         if (englishFallback.isNotBlank()) {
             return try {
                 translationService.translate(englishFallback, "en", languageCode)
@@ -33,7 +39,7 @@ class LocalizationServiceImpl(
             }
         }
 
-        // 4. Last resort
+        // 5. Last resort
         return "Translation missing"
     }
 

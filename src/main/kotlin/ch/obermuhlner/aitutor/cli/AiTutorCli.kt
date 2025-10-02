@@ -136,11 +136,65 @@ class AiTutorCli(private val config: CliConfig) {
             val loginResponse = apiClient.login(username, password)
             saveTokens(loginResponse)
             println("✓ Logged in as ${loginResponse.user.username}")
+
+            // Prompt for source language
+            promptForSourceLanguage()
+
             true
         } catch (e: Exception) {
             println("✗ Registration failed: ${e.message}")
             false
         }
+    }
+
+    private fun promptForSourceLanguage() {
+        println("\n=== Choose Your Native Language ===")
+        println("This is the language you're most comfortable with (for explanations and translations).")
+        println()
+
+        val supportedSourceLanguages = listOf(
+            "en" to "🇬🇧 English",
+            "es" to "🇪🇸 Español (Spanish)",
+            "fr" to "🇫🇷 Français (French)",
+            "de" to "🇩🇪 Deutsch (German)",
+            "ja" to "🇯🇵 日本語 (Japanese)"
+        )
+
+        supportedSourceLanguages.forEachIndexed { index, (code, name) ->
+            println("  ${index + 1}. $name ($code)")
+        }
+
+        print("\nChoose your native language (1-${supportedSourceLanguages.size}, language code, or press Enter for English): ")
+        val input = reader.readLine()?.trim()
+
+        val sourceLanguage = if (input.isNullOrBlank()) {
+            "en"
+        } else {
+            // Try to parse as number first
+            val choice = input.toIntOrNull()
+            if (choice != null && choice in 1..supportedSourceLanguages.size) {
+                supportedSourceLanguages[choice - 1].first
+            } else {
+                // Extract base language code from locale format (e.g., de-CH -> de)
+                val baseLangCode = input.split("-", "_").first()
+
+                // Check if base code matches a supported language
+                val matchingLang = supportedSourceLanguages.find { it.first.equals(baseLangCode, ignoreCase = true) }
+                if (matchingLang != null) {
+                    matchingLang.first
+                } else {
+                    println("Invalid choice, defaulting to English")
+                    "en"
+                }
+            }
+        }
+
+        // Save the source language to config
+        currentConfig = currentConfig.copy(defaultSourceLanguage = sourceLanguage)
+        CliConfig.save(currentConfig)
+
+        val languageName = supportedSourceLanguages.find { it.first == sourceLanguage }?.second ?: sourceLanguage
+        println("✓ Native language set to: $languageName")
     }
 
     private fun saveTokens(loginResponse: HttpApiClient.LoginResponse) {
