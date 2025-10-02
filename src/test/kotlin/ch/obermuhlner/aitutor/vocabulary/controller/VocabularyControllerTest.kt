@@ -101,9 +101,8 @@ class VocabularyControllerTest {
 
     @Test
     @WithMockUser
-    fun `should get vocabulary item with contexts`() {
+    fun `should get vocabulary item with contexts when found`() {
         val itemId = UUID.randomUUID()
-
         every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
         every { vocabularyQueryService.getVocabularyItemWithContexts(itemId, TestDataFactory.TEST_USER_ID) } returns null
 
@@ -125,5 +124,18 @@ class VocabularyControllerTest {
             get("/api/v1/vocabulary/$nonExistentId")
         )
             .andExpect(status().isNotFound)
+    }
+
+    @Test
+    @WithMockUser
+    fun `should get user vocabulary with items`() {
+        every { authorizationService.resolveUserId(null) } returns TestDataFactory.TEST_USER_ID
+        every { vocabularyQueryService.getUserVocabulary(TestDataFactory.TEST_USER_ID, null) } returns emptyList()
+
+        mockMvc.perform(
+            get("/api/v1/vocabulary")
+        )
+            .andExpect(status().isOk)
+            .andExpect(content().contentType("application/json"))
     }
 }

@@ -239,4 +239,111 @@ class ChatServiceTest {
 
         verify { chatSessionRepository.save(match { it.conversationPhase == ConversationPhase.Drill }) }
     }
+
+    @Test
+    fun `should return null when getting session with messages for another user`() {
+        val session = TestDataFactory.createSessionEntity()
+        every { chatSessionRepository.findById(any()) } returns Optional.of(session)
+
+        val result = chatService.getSessionWithMessages(TestDataFactory.TEST_SESSION_ID, UUID.randomUUID())
+
+        assertNull(result)
+    }
+
+    @Test
+    fun `should get session with messages for owned session`() {
+        val session = TestDataFactory.createSessionEntity()
+        val messages = listOf(
+            TestDataFactory.createMessageEntity(session, MessageRole.USER, "Hello"),
+            TestDataFactory.createMessageEntity(session, MessageRole.ASSISTANT, "Hi there!")
+        )
+
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+        every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(TestDataFactory.TEST_SESSION_ID) } returns messages
+
+        val result = chatService.getSessionWithMessages(TestDataFactory.TEST_SESSION_ID, TestDataFactory.TEST_USER_ID)
+
+        assertNotNull(result)
+        assertEquals(2, result?.messages?.size)
+        assertEquals("Hello", result?.messages?.get(0)?.content)
+        assertEquals("Hi there!", result?.messages?.get(1)?.content)
+    }
+
+    @Test
+    fun `should not delete session owned by another user`() {
+        val session = TestDataFactory.createSessionEntity()
+        every { chatSessionRepository.findById(any()) } returns Optional.of(session)
+
+        val result = chatService.deleteSession(TestDataFactory.TEST_SESSION_ID, UUID.randomUUID())
+
+        assertFalse(result)
+        verify(exactly = 0) { chatSessionRepository.deleteById(any()) }
+    }
+
+    @Test
+    fun `should update session phase for owned session`() {
+        val session = TestDataFactory.createSessionEntity()
+        session.conversationPhase = ConversationPhase.Free
+
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+        every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns session.apply { conversationPhase = ConversationPhase.Drill }
+
+        val result = chatService.updateSessionPhase(TestDataFactory.TEST_SESSION_ID, ConversationPhase.Drill, TestDataFactory.TEST_USER_ID)
+
+        assertNotNull(result)
+        assertEquals(ConversationPhase.Drill, result?.conversationPhase)
+        verify { chatSessionRepository.save(match { it.conversationPhase == ConversationPhase.Drill }) }
+    }
+
+    @Test
+    fun `should not update session phase for another user`() {
+        val session = TestDataFactory.createSessionEntity()
+        every { chatSessionRepository.findById(any()) } returns Optional.of(session)
+
+        val result = chatService.updateSessionPhase(TestDataFactory.TEST_SESSION_ID, ConversationPhase.Drill, UUID.randomUUID())
+
+        assertNull(result)
+        verify(exactly = 0) { chatSessionRepository.save(any()) }
+    }
+
+    @Test
+    fun `should update session topic for owned session`() {
+        val session = TestDataFactory.createSessionEntity()
+        session.currentTopic = "old-topic"
+
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+        every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns session.apply { currentTopic = "new-topic" }
+
+        val result = chatService.updateSessionTopic(TestDataFactory.TEST_SESSION_ID, "new-topic", TestDataFactory.TEST_USER_ID)
+
+        assertNotNull(result)
+        assertEquals("new-topic", result?.currentTopic)
+        verify { chatSessionRepository.save(match { it.currentTopic == "new-topic" }) }
+    }
+
+    @Test
+    fun `should get topic history for owned session`() {
+        val session = TestDataFactory.createSessionEntity()
+        session.currentTopic = "cooking"
+        session.pastTopicsJson = """["travel", "sports"]"""
+
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+
+        val result = chatService.getTopicHistory(TestDataFactory.TEST_SESSION_ID, TestDataFactory.TEST_USER_ID)
+
+        assertNotNull(result)
+        assertEquals("cooking", result?.currentTopic)
+        assertEquals(2, result?.pastTopics?.size)
+        assertTrue(result?.pastTopics?.contains("travel") == true)
+    }
+
+    @Test
+    fun `should return null when getting topic history for another user`() {
+        val session = TestDataFactory.createSessionEntity()
+        every { chatSessionRepository.findById(any()) } returns Optional.of(session)
+
+        val result = chatService.getTopicHistory(TestDataFactory.TEST_SESSION_ID, UUID.randomUUID())
+
+        assertNull(result)
+    }
 }

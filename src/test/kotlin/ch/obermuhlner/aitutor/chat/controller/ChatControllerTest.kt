@@ -347,4 +347,150 @@ class ChatControllerTest {
         )
             .andExpect(status().isNotFound)
     }
+
+    @Test
+    @WithMockUser
+    fun `should update session phase`() {
+        val sessionResponse = SessionResponse(
+            id = TestDataFactory.TEST_SESSION_ID,
+            userId = TestDataFactory.TEST_USER_ID,
+            tutorName = "TestTutor",
+            tutorPersona = "patient coach",
+            tutorDomain = "general conversation",
+            sourceLanguageCode = "en",
+            targetLanguageCode = "es",
+            conversationPhase = ConversationPhase.Drill,
+            estimatedCEFRLevel = CEFRLevel.A1,
+            createdAt = Instant.now(),
+            updatedAt = Instant.now()
+        )
+
+        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
+        every { chatService.updateSessionPhase(TestDataFactory.TEST_SESSION_ID, ConversationPhase.Drill, TestDataFactory.TEST_USER_ID) } returns sessionResponse
+
+        mockMvc.perform(
+            patch("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}/phase")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""{"phase": "Drill"}""")
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.conversationPhase").value("Drill"))
+
+        verify(exactly = 1) { chatService.updateSessionPhase(TestDataFactory.TEST_SESSION_ID, ConversationPhase.Drill, TestDataFactory.TEST_USER_ID) }
+    }
+
+    @Test
+    @WithMockUser
+    fun `should return 404 when updating phase for non-existent session`() {
+        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
+        every { chatService.updateSessionPhase(any(), any(), any()) } returns null
+
+        mockMvc.perform(
+            patch("/api/v1/chat/sessions/${UUID.randomUUID()}/phase")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""{"phase": "Drill"}""")
+        )
+            .andExpect(status().isNotFound)
+    }
+
+    @Test
+    @WithMockUser
+    fun `should get active learning sessions`() {
+        val progressResponse = SessionProgressResponse(
+            messageCount = 10,
+            vocabularyCount = 5,
+            daysActive = 3
+        )
+        val sessionWithProgress = SessionWithProgressResponse(
+            session = SessionResponse(
+                id = TestDataFactory.TEST_SESSION_ID,
+                userId = TestDataFactory.TEST_USER_ID,
+                tutorName = "TestTutor",
+                tutorPersona = "patient coach",
+                tutorDomain = "general",
+                sourceLanguageCode = "en",
+                targetLanguageCode = "es",
+                conversationPhase = ConversationPhase.Free,
+                estimatedCEFRLevel = CEFRLevel.A1,
+                createdAt = Instant.now(),
+                updatedAt = Instant.now()
+            ),
+            progress = progressResponse
+        )
+
+        every { authorizationService.resolveUserId(null) } returns TestDataFactory.TEST_USER_ID
+        every { chatService.getActiveLearningSessions(TestDataFactory.TEST_USER_ID) } returns listOf(sessionWithProgress)
+
+        mockMvc.perform(
+            get("/api/v1/chat/sessions/active")
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$[0].session.id").value(TestDataFactory.TEST_SESSION_ID.toString()))
+            .andExpect(jsonPath("$[0].progress.messageCount").value(10))
+            .andExpect(jsonPath("$[0].progress.vocabularyCount").value(5))
+    }
+
+    @Test
+    @WithMockUser
+    fun `should get session progress`() {
+        val session = SessionResponse(
+            id = TestDataFactory.TEST_SESSION_ID,
+            userId = TestDataFactory.TEST_USER_ID,
+            tutorName = "TestTutor",
+            tutorPersona = "patient coach",
+            tutorDomain = "general",
+            sourceLanguageCode = "en",
+            targetLanguageCode = "es",
+            conversationPhase = ConversationPhase.Free,
+            estimatedCEFRLevel = CEFRLevel.A1,
+            createdAt = Instant.now(),
+            updatedAt = Instant.now()
+        )
+        val progress = SessionProgressResponse(
+            messageCount = 15,
+            vocabularyCount = 8,
+            daysActive = 4
+        )
+
+        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
+        every { chatService.getSession(TestDataFactory.TEST_SESSION_ID) } returns session
+        every { chatService.getSessionProgress(TestDataFactory.TEST_SESSION_ID) } returns progress
+
+        mockMvc.perform(
+            get("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}/progress")
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.session.id").value(TestDataFactory.TEST_SESSION_ID.toString()))
+            .andExpect(jsonPath("$.progress.messageCount").value(15))
+            .andExpect(jsonPath("$.progress.vocabularyCount").value(8))
+    }
+
+    @Test
+    @WithMockUser
+    fun `should return 404 when getting progress for non-existent session`() {
+        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
+        every { chatService.getSession(any()) } returns null
+
+        mockMvc.perform(
+            get("/api/v1/chat/sessions/${UUID.randomUUID()}/progress")
+        )
+            .andExpect(status().isNotFound)
+    }
+
+    @Test
+    @WithMockUser
+    fun `should return 404 when sending message to non-existent session`() {
+        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
+        every { chatService.sendMessage(any(), any(), any(), any()) } returns null
+
+        mockMvc.perform(
+            post("/api/v1/chat/sessions/${UUID.randomUUID()}/messages")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""{"content": "Hola"}""")
+        )
+            .andExpect(status().isNotFound)
+    }
 }
