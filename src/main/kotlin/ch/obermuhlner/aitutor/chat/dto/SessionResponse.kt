@@ -16,6 +16,10 @@ data class SessionResponse(
     val conversationPhase: ConversationPhase,
     val estimatedCEFRLevel: CEFRLevel,
     val currentTopic: String? = null,
+    val courseTemplateId: UUID? = null,
+    val tutorProfileId: UUID? = null,
+    val customName: String? = null,
+    val isActive: Boolean = true,
     val createdAt: Instant,
     val updatedAt: Instant
 )

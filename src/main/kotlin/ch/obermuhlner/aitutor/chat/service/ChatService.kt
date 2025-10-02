@@ -32,6 +32,7 @@ class ChatService(
     private val vocabularyService: VocabularyService,
     private val phaseDecisionService: ch.obermuhlner.aitutor.tutor.service.PhaseDecisionService,
     private val topicDecisionService: ch.obermuhlner.aitutor.tutor.service.TopicDecisionService,
+    private val catalogService: ch.obermuhlner.aitutor.catalog.service.CatalogService,
     private val objectMapper: ObjectMapper
 ) {
 
@@ -261,6 +262,67 @@ class ChatService(
         return toMessageResponse(savedAssistantMessage)
     }
 
+    @Transactional
+    fun createSessionFromCourse(
+        userId: UUID,
+        courseTemplateId: UUID,
+        tutorProfileId: UUID,
+        sourceLanguageCode: String,
+        customName: String? = null
+    ): SessionResponse? {
+        val course = catalogService.getCourseById(courseTemplateId) ?: return null
+        val tutor = catalogService.getTutorById(tutorProfileId) ?: return null
+
+        val session = ChatSessionEntity(
+            userId = userId,
+            tutorName = tutor.name,
+            tutorPersona = tutor.personaEnglish,
+            tutorDomain = tutor.domainEnglish,
+            sourceLanguageCode = sourceLanguageCode,
+            targetLanguageCode = tutor.targetLanguageCode,
+            conversationPhase = course.defaultPhase,
+            estimatedCEFRLevel = course.startingLevel,
+            courseTemplateId = courseTemplateId,
+            tutorProfileId = tutorProfileId,
+            customName = customName,
+            isActive = true
+        )
+
+        return toSessionResponse(chatSessionRepository.save(session))
+    }
+
+    fun getActiveLearningSessions(userId: UUID): List<SessionWithProgressResponse> {
+        val sessions = chatSessionRepository.findByUserIdAndIsActiveTrueOrderByUpdatedAtDesc(userId)
+        return sessions.map { session ->
+            SessionWithProgressResponse(
+                session = toSessionResponse(session),
+                progress = getSessionProgress(session.id)
+            )
+        }
+    }
+
+    fun getSessionProgress(sessionId: UUID): SessionProgressResponse {
+        val session = chatSessionRepository.findById(sessionId).orElse(null)
+            ?: return SessionProgressResponse(0, 0, 0)
+
+        val messageCount = chatMessageRepository.countBySessionId(sessionId)
+        val vocabularyCount = vocabularyService.getVocabularyCountForLanguage(
+            session.userId,
+            session.targetLanguageCode
+        )
+
+        val daysActive = java.time.Duration.between(
+            session.createdAt ?: java.time.Instant.now(),
+            session.updatedAt ?: java.time.Instant.now()
+        ).toDays()
+
+        return SessionProgressResponse(
+            messageCount = messageCount.toInt(),
+            vocabularyCount = vocabularyCount,
+            daysActive = daysActive
+        )
+    }
+
     private fun buildMessageHistory(sessionId: UUID): List<Message> {
         return chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(sessionId)
             .map { entity ->
@@ -309,6 +371,10 @@ class ChatService(
             conversationPhase = entity.conversationPhase,
             estimatedCEFRLevel = entity.estimatedCEFRLevel,
             currentTopic = entity.currentTopic,
+            courseTemplateId = entity.courseTemplateId,
+            tutorProfileId = entity.tutorProfileId,
+            customName = entity.customName,
+            isActive = entity.isActive,
             createdAt = entity.createdAt ?: java.time.Instant.now(),
             updatedAt = entity.updatedAt ?: java.time.Instant.now()
         )

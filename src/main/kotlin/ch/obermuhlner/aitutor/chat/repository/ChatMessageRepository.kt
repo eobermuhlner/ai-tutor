@@ -8,4 +8,5 @@ import java.util.*
 @Repository
 interface ChatMessageRepository : JpaRepository<ChatMessageEntity, UUID> {
     fun findBySessionIdOrderByCreatedAtAsc(sessionId: UUID): List<ChatMessageEntity>
+    fun countBySessionId(sessionId: UUID): Long
 }

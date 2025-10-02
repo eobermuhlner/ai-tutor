@@ -56,6 +56,10 @@ class VocabularyService(
         return saved
     }
 
+    fun getVocabularyCountForLanguage(userId: UUID, lang: String): Int {
+        return vocabularyItemRepository.countByUserIdAndLang(userId, lang).toInt()
+    }
+
     private fun normalizeLemma(raw: String): String {
         val nfc = Normalizer.normalize(raw, Normalizer.Form.NFC)
         return nfc.trim()

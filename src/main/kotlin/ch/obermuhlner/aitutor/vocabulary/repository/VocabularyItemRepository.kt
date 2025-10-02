@@ -12,4 +12,5 @@ interface VocabularyItemRepository : JpaRepository<VocabularyItemEntity, UUID> {
     fun findByUserIdAndLang(userId: UUID, lang: String): List<VocabularyItemEntity>
     fun findByUserIdOrderByLastSeenAtDesc(userId: UUID): List<VocabularyItemEntity>
     fun findByUserIdAndLangOrderByLastSeenAtDesc(userId: UUID, lang: String): List<VocabularyItemEntity>
+    fun countByUserIdAndLang(userId: UUID, lang: String): Long
 }
