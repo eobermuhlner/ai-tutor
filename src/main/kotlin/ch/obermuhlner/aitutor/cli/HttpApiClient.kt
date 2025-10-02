@@ -151,6 +151,89 @@ class HttpApiClient(private val baseUrl: String) {
         val emailVerified: Boolean
     )
 
+    // Catalog DTOs
+    @Serializable
+    data class LanguageResponse(
+        val code: String,
+        val name: String,
+        val flagEmoji: String,
+        val nativeName: String,
+        val difficulty: String,
+        val description: String,
+        val courseCount: Int = 0
+    )
+
+    @Serializable
+    data class CourseResponse(
+        val id: String,
+        val languageCode: String,
+        val name: String,
+        val shortDescription: String,
+        val category: String,
+        val targetAudience: String,
+        val startingLevel: String,
+        val targetLevel: String,
+        val estimatedWeeks: Int?,
+        val displayOrder: Int
+    )
+
+    @Serializable
+    data class CourseDetailResponse(
+        val id: String,
+        val languageCode: String,
+        val name: String,
+        val shortDescription: String,
+        val description: String,
+        val category: String,
+        val targetAudience: String,
+        val startingLevel: String,
+        val targetLevel: String,
+        val estimatedWeeks: Int?,
+        val suggestedTutors: List<TutorResponse>,
+        val defaultPhase: String,
+        val topicSequence: List<String>?,
+        val learningGoals: List<String>,
+        val tags: List<String>
+    )
+
+    @Serializable
+    data class TutorResponse(
+        val id: String,
+        val name: String,
+        val emoji: String,
+        val persona: String,
+        val domain: String,
+        val personality: String,
+        val description: String,
+        val targetLanguageCode: String,
+        val culturalBackground: String?,
+        val displayOrder: Int
+    )
+
+    @Serializable
+    data class CreateSessionFromCourseRequest(
+        val userId: String,
+        val courseTemplateId: String,
+        val tutorProfileId: String,
+        val sourceLanguageCode: String,
+        val customName: String?
+    )
+
+    @Serializable
+    data class SessionWithProgressResponse(
+        val session: SessionResponse,
+        val progress: SessionProgressResponse
+    )
+
+    @Serializable
+    data class SessionProgressResponse(
+        val sessionId: String,
+        val messageCount: Int,
+        val vocabularyCount: Int,
+        val daysActive: Int,
+        val lastAccessedAt: String
+    )
+
     fun createSession(
         userId: UUID,
         tutorName: String,
@@ -389,5 +472,138 @@ class HttpApiClient(private val baseUrl: String) {
         }
 
         return json.decodeFromString(UserResponse.serializer(), response.body())
+    }
+
+    // Catalog endpoints
+    fun getAvailableLanguages(sourceLanguage: String = "en"): List<LanguageResponse> {
+        val request = HttpRequest.newBuilder()
+            .uri(URI.create("$baseUrl/api/v1/catalog/languages?sourceLanguage=$sourceLanguage"))
+            .header("Accept", "application/json")
+            .withAuth()
+            .GET()
+            .build()
+
+        val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+        if (response.statusCode() !in 200..299) {
+            throw RuntimeException("Failed to get languages: ${response.statusCode()}")
+        }
+
+        return json.decodeFromString(response.body())
+    }
+
+    fun getCoursesForLanguage(
+        languageCode: String,
+        sourceLanguage: String = "en",
+        userLevel: String? = null
+    ): List<CourseResponse> {
+        val levelParam = userLevel?.let { "&userLevel=$it" } ?: ""
+        val request = HttpRequest.newBuilder()
+            .uri(URI.create("$baseUrl/api/v1/catalog/languages/$languageCode/courses?sourceLanguage=$sourceLanguage$levelParam"))
+            .header("Accept", "application/json")
+            .withAuth()
+            .GET()
+            .build()
+
+        val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+        if (response.statusCode() !in 200..299) {
+            throw RuntimeException("Failed to get courses: ${response.statusCode()}")
+        }
+
+        return json.decodeFromString(response.body())
+    }
+
+    fun getTutorsForLanguage(languageCode: String, sourceLanguage: String = "en"): List<TutorResponse> {
+        val request = HttpRequest.newBuilder()
+            .uri(URI.create("$baseUrl/api/v1/catalog/languages/$languageCode/tutors?sourceLanguage=$sourceLanguage"))
+            .header("Accept", "application/json")
+            .withAuth()
+            .GET()
+            .build()
+
+        val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+        if (response.statusCode() !in 200..299) {
+            throw RuntimeException("Failed to get tutors: ${response.statusCode()}")
+        }
+
+        return json.decodeFromString(response.body())
+    }
+
+    fun getCourseDetails(courseId: UUID, sourceLanguage: String = "en"): CourseDetailResponse {
+        val request = HttpRequest.newBuilder()
+            .uri(URI.create("$baseUrl/api/v1/catalog/courses/$courseId?sourceLanguage=$sourceLanguage"))
+            .header("Accept", "application/json")
+            .withAuth()
+            .GET()
+            .build()
+
+        val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+        if (response.statusCode() !in 200..299) {
+            throw RuntimeException("Failed to get course details: ${response.statusCode()}")
+        }
+
+        return json.decodeFromString(CourseDetailResponse.serializer(), response.body())
+    }
+
+    // Course-based session endpoints
+    fun createSessionFromCourse(
+        userId: UUID,
+        courseTemplateId: UUID,
+        tutorProfileId: UUID,
+        sourceLanguageCode: String,
+        customName: String? = null
+    ): SessionResponse {
+        val requestBody = CreateSessionFromCourseRequest(
+            userId = userId.toString(),
+            courseTemplateId = courseTemplateId.toString(),
+            tutorProfileId = tutorProfileId.toString(),
+            sourceLanguageCode = sourceLanguageCode,
+            customName = customName
+        )
+
+        val request = HttpRequest.newBuilder()
+            .uri(URI.create("$baseUrl/api/v1/chat/sessions/from-course"))
+            .header("Content-Type", "application/json")
+            .withAuth()
+            .POST(HttpRequest.BodyPublishers.ofString(json.encodeToString(CreateSessionFromCourseRequest.serializer(), requestBody)))
+            .build()
+
+        val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+        if (response.statusCode() !in 200..299) {
+            throw RuntimeException("Failed to create session from course: ${response.statusCode()} - ${response.body()}")
+        }
+
+        return json.decodeFromString(SessionResponse.serializer(), response.body())
+    }
+
+    fun getActiveLearningSessions(userId: UUID): List<SessionWithProgressResponse> {
+        val request = HttpRequest.newBuilder()
+            .uri(URI.create("$baseUrl/api/v1/chat/sessions/active?userId=$userId"))
+            .header("Accept", "application/json")
+            .withAuth()
+            .GET()
+            .build()
+
+        val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+        if (response.statusCode() !in 200..299) {
+            throw RuntimeException("Failed to get active sessions: ${response.statusCode()}")
+        }
+
+        return json.decodeFromString(response.body())
+    }
+
+    fun getSessionProgress(sessionId: UUID): SessionProgressResponse {
+        val request = HttpRequest.newBuilder()
+            .uri(URI.create("$baseUrl/api/v1/chat/sessions/$sessionId/progress"))
+            .header("Accept", "application/json")
+            .withAuth()
+            .GET()
+            .build()
+
+        val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+        if (response.statusCode() !in 200..299) {
+            throw RuntimeException("Failed to get session progress: ${response.statusCode()}")
+        }
+
+        return json.decodeFromString(SessionProgressResponse.serializer(), response.body())
     }
 }

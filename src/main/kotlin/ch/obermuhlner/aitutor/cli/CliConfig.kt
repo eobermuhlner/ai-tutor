@@ -17,14 +17,23 @@ data class CliConfig(
     val username: String? = null,
     val password: String? = null,
     // Session preferences
+    val lastSessionId: String? = null,
+    val defaultSourceLanguage: String = "en",
+    // Deprecated (migrate to course-based sessions)
+    @Deprecated("Use course-based sessions instead")
     val defaultTutor: String = "Maria",
+    @Deprecated("Use course-based sessions instead")
     val defaultTutorPersona: String = "patient coach",
+    @Deprecated("Use course-based sessions instead")
     val defaultTutorDomain: String = "general conversation, grammar, typography",
+    @Deprecated("Use course-based sessions instead")
     val sourceLanguage: String = "en",
+    @Deprecated("Use course-based sessions instead")
     val targetLanguage: String = "es",
+    @Deprecated("Use course-based sessions instead")
     val defaultPhase: String = "Auto",
-    val defaultCEFRLevel: String = "A1",
-    val lastSessionId: String? = null
+    @Deprecated("Use course-based sessions instead")
+    val defaultCEFRLevel: String = "A1"
 ) {
     companion object {
         private val json = Json {

@@ -279,24 +279,28 @@ Authorization: Bearer {{accessToken}}
 ###########################
 
 ### List Available Languages
-GET {{host}}/api/v1/catalog/languages?locale=en
+GET {{host}}/api/v1/catalog/languages?sourceLanguage=en
 Accept: application/json
 
 ### List Available Languages (Spanish)
-GET {{host}}/api/v1/catalog/languages?locale=es
+GET {{host}}/api/v1/catalog/languages?sourceLanguage=es
 Accept: application/json
 
 ### List Courses for Language
 # @name listCourses
-GET {{host}}/api/v1/catalog/languages/es/courses?locale=en
+GET {{host}}/api/v1/catalog/languages/es/courses?sourceLanguage=en
 Accept: application/json
 
 > {%
     client.global.set("courseId", response.body[0].id);
 %}
 
+### List Courses for Language (Filtered by User Level)
+GET {{host}}/api/v1/catalog/languages/es/courses?sourceLanguage=en&userLevel=A1
+Accept: application/json
+
 ### Get Course Detail
-GET {{host}}/api/v1/catalog/courses/{{courseId}}?locale=en
+GET {{host}}/api/v1/catalog/courses/{{courseId}}?sourceLanguage=en
 Accept: application/json
 
 > {%
@@ -304,11 +308,11 @@ Accept: application/json
 %}
 
 ### List Tutors for Language
-GET {{host}}/api/v1/catalog/languages/es/tutors?locale=en
+GET {{host}}/api/v1/catalog/languages/es/tutors?sourceLanguage=en
 Accept: application/json
 
 ### Get Tutor Detail
-GET {{host}}/api/v1/catalog/tutors/{{tutorId}}?locale=en
+GET {{host}}/api/v1/catalog/tutors/{{tutorId}}?sourceLanguage=en
 Accept: application/json
 
 ###
@@ -324,8 +328,10 @@ Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 
 {
+  "userId": "{{userId}}",
   "courseTemplateId": "{{courseId}}",
   "tutorProfileId": "{{tutorId}}",
+  "sourceLanguageCode": "en",
   "customName": "My Spanish Course"
 }
 
@@ -333,21 +339,13 @@ Content-Type: application/json
     client.global.set("courseSessionId", response.body.id);
 %}
 
-### Create Session from Course (Auto-select tutor)
-POST {{host}}/api/v1/chat/sessions/from-course
+### Get Active Learning Sessions with Progress
+GET {{host}}/api/v1/chat/sessions/active?userId={{userId}}
 Authorization: Bearer {{accessToken}}
-Content-Type: application/json
-
-{
-  "courseTemplateId": "{{courseId}}"
-}
+Accept: application/json
 
 ### Get Session Progress
 GET {{host}}/api/v1/chat/sessions/{{courseSessionId}}/progress
 Authorization: Bearer {{accessToken}}
 Accept: application/json
-
-### Deactivate Session
-POST {{host}}/api/v1/chat/sessions/{{courseSessionId}}/deactivate
-Authorization: Bearer {{accessToken}}
 

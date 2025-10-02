@@ -10,6 +10,7 @@ class AiTutorCli(private val config: CliConfig) {
     private var currentConfig = config
     private val reader = BufferedReader(InputStreamReader(System.`in`))
     private var currentUserId: UUID? = null
+    private var currentTutorName: String? = null
 
     companion object {
         @JvmStatic
@@ -210,29 +211,45 @@ class AiTutorCli(private val config: CliConfig) {
             return
         }
 
-        // Try to resume last session or create new one
-        if (currentSessionId == null) {
-            println("No active session found. Creating new session...")
-            createNewSession()
-        } else {
-            println("Resuming session: $currentSessionId")
-            // Verify session still exists
+        // Show active learning sessions with progress
+        val userId = currentUserId
+        if (userId != null) {
             try {
-                currentUserId?.let { userId ->
-                    apiClient.getUserSessions(userId)
-                        .find { it.id == currentSessionId.toString() }
-                        ?: run {
-                            println("Session no longer exists. Creating new session...")
-                            createNewSession()
-                        }
-                } ?: run {
-                    println("Could not determine user ID. Creating new session...")
-                    createNewSession()
+                val sessions = apiClient.getActiveLearningSessions(userId)
+                if (sessions.isNotEmpty()) {
+                    println("\n📚 Your Learning Sessions:")
+                    sessions.forEachIndexed { index, sessionWithProgress ->
+                        val session = sessionWithProgress.session
+                        val progress = sessionWithProgress.progress
+                        val current = if (session.id == currentSessionId.toString()) " (current)" else ""
+                        println("  ${index + 1}. ${session.tutorName} - ${session.targetLanguageCode}$current")
+                        println("     ${progress.messageCount} messages | ${progress.vocabularyCount} words | ${progress.daysActive} days active")
+                    }
+
+                    // If there's a last session, resume it
+                    if (currentSessionId != null) {
+                        val currentSession = sessions.find { it.session.id == currentSessionId.toString() }
+                        currentTutorName = currentSession?.session?.tutorName
+                        println("\nResuming session: $currentSessionId")
+                    } else if (sessions.isNotEmpty()) {
+                        // Resume the most recent session
+                        val mostRecent = sessions.first()
+                        currentSessionId = UUID.fromString(mostRecent.session.id)
+                        currentTutorName = mostRecent.session.tutorName
+                        currentConfig = currentConfig.copy(lastSessionId = mostRecent.session.id)
+                        CliConfig.save(currentConfig)
+                        println("\nResuming most recent session: ${mostRecent.session.id}")
+                    }
+                } else {
+                    println("\nNo active learning sessions found.")
+                    println("Use /start-course to begin a new learning journey, or /new for a custom session.")
                 }
             } catch (e: Exception) {
-                println("Could not verify session. Creating new session...")
-                createNewSession()
+                println("Could not load sessions: ${e.message}")
+                println("Use /start-course to begin a new learning journey, or /new for a custom session.")
             }
+        } else {
+            println("\nNo user ID found. Please login again.")
         }
 
         println()
@@ -255,7 +272,7 @@ class AiTutorCli(private val config: CliConfig) {
                     }
                 }
                 currentSessionId == null -> {
-                    println("No active session. Use /new to create one.")
+                    println("No active session. Use /start-course to create one.")
                 }
                 else -> {
                     sendMessage(input)
@@ -270,15 +287,17 @@ class AiTutorCli(private val config: CliConfig) {
         println("=" .repeat(60))
         println("AI Tutor CLI - Language Learning Assistant")
         println("=" .repeat(60))
-        println("Learning: ${config.sourceLanguage} → ${config.targetLanguage}")
-        println("Tutor: ${config.defaultTutor}")
-        println("=" .repeat(60))
     }
 
     private fun printHelp() {
         println("""
             Commands:
-              /new                  Create new session
+              /languages            List available languages
+              /courses [lang]       List courses (optionally filtered by language)
+              /tutors [lang]        List tutors (optionally filtered by language)
+              /start-course         Interactive course selection wizard
+              /progress             Show progress for current session
+              /new                  Create new session (legacy)
               /sessions             List all sessions
               /switch <id>          Switch to session
               /phase <phase>        Change phase (Free/Correction/Drill/Auto)
@@ -390,6 +409,36 @@ class AiTutorCli(private val config: CliConfig) {
                 logout()
                 false // Exit after logout
             }
+            "/languages" -> {
+                cmdLanguages()
+                true
+            }
+            "/courses" -> {
+                if (arg != null) {
+                    cmdCourses(arg)
+                } else {
+                    println("Usage: /courses <language-code>")
+                    println("Example: /courses es")
+                }
+                true
+            }
+            "/tutors" -> {
+                if (arg != null) {
+                    cmdTutors(arg)
+                } else {
+                    println("Usage: /tutors <language-code>")
+                    println("Example: /tutors es")
+                }
+                true
+            }
+            "/start-course" -> {
+                cmdStartCourse()
+                true
+            }
+            "/progress" -> {
+                cmdProgress()
+                true
+            }
             else -> {
                 println("Unknown command: $command. Type /help for available commands.")
                 true
@@ -417,6 +466,7 @@ class AiTutorCli(private val config: CliConfig) {
             )
 
             currentSessionId = UUID.fromString(session.id)
+            currentTutorName = session.tutorName
             currentConfig = currentConfig.copy(lastSessionId = session.id)
             CliConfig.save(currentConfig)
 
@@ -460,6 +510,17 @@ class AiTutorCli(private val config: CliConfig) {
     private fun switchSession(sessionId: String) {
         try {
             val uuid = UUID.fromString(sessionId)
+            val userId = currentUserId
+            if (userId != null) {
+                try {
+                    val sessions = apiClient.getActiveLearningSessions(userId)
+                    val session = sessions.find { it.session.id == sessionId }
+                    currentTutorName = session?.session?.tutorName
+                } catch (e: Exception) {
+                    // Couldn't get session info, continue anyway
+                }
+            }
+
             currentSessionId = uuid
             currentConfig = currentConfig.copy(lastSessionId = sessionId)
             CliConfig.save(currentConfig)
@@ -559,6 +620,171 @@ class AiTutorCli(private val config: CliConfig) {
         }
     }
 
+    private fun cmdLanguages() {
+        try {
+            println("\n📚 Available Languages:")
+            val languages = apiClient.getAvailableLanguages(currentConfig.defaultSourceLanguage)
+            languages.forEachIndexed { index, lang ->
+                println("  ${index + 1}. ${lang.name} ${lang.flagEmoji} (${lang.courseCount} courses) - ${lang.difficulty}")
+                println("     ${lang.description}")
+            }
+            println()
+        } catch (e: Exception) {
+            println("✗ Failed to get languages: ${e.message}")
+        }
+    }
+
+    private fun cmdCourses(langCode: String) {
+        try {
+            val courses = apiClient.getCoursesForLanguage(langCode, currentConfig.defaultSourceLanguage)
+            if (courses.isEmpty()) {
+                println("No courses found for language: $langCode")
+                return
+            }
+
+            println("\nCourses for $langCode:")
+            courses.forEachIndexed { index, course ->
+                println("  ${index + 1}. ${course.name} (${course.startingLevel}→${course.targetLevel})")
+                println("     ${course.shortDescription}")
+                val duration = course.estimatedWeeks?.let { "$it weeks" } ?: "Self-paced"
+                println("     Category: ${course.category}, Duration: $duration")
+            }
+            println()
+        } catch (e: Exception) {
+            println("✗ Failed to get courses: ${e.message}")
+        }
+    }
+
+    private fun cmdTutors(langCode: String) {
+        try {
+            val tutors = apiClient.getTutorsForLanguage(langCode, currentConfig.defaultSourceLanguage)
+            if (tutors.isEmpty()) {
+                println("No tutors found for language: $langCode")
+                return
+            }
+
+            println("\nTutors for $langCode:")
+            tutors.forEachIndexed { index, tutor ->
+                println("  ${index + 1}. ${tutor.emoji} ${tutor.name} (${tutor.personality})")
+                println("     ${tutor.description}")
+            }
+            println()
+        } catch (e: Exception) {
+            println("✗ Failed to get tutors: ${e.message}")
+        }
+    }
+
+    private fun cmdStartCourse() {
+        println("\n=== Course Selection Wizard ===\n")
+
+        val userId = currentUserId
+        if (userId == null) {
+            println("✗ Cannot start course: not logged in")
+            return
+        }
+
+        try {
+            // Step 1: Select language
+            println("📚 Available Languages:")
+            val languages = apiClient.getAvailableLanguages(currentConfig.defaultSourceLanguage)
+            languages.forEachIndexed { index, lang ->
+                println("  ${index + 1}. ${lang.name} ${lang.flagEmoji} (${lang.courseCount} courses)")
+            }
+            print("\nChoose a language (1-${languages.size}): ")
+            val langChoice = reader.readLine()?.toIntOrNull()
+            if (langChoice == null || langChoice < 1 || langChoice > languages.size) {
+                println("Invalid choice")
+                return
+            }
+            val selectedLang = languages[langChoice - 1]
+
+            // Step 2: Select course
+            println("\n${selectedLang.name} ${selectedLang.flagEmoji} - Available Courses:")
+            val courses = apiClient.getCoursesForLanguage(selectedLang.code, currentConfig.defaultSourceLanguage)
+            if (courses.isEmpty()) {
+                println("No courses available for this language")
+                return
+            }
+            courses.forEachIndexed { index, course ->
+                println("  ${index + 1}. ${course.name} (${course.startingLevel}→${course.targetLevel})")
+                println("     ${course.shortDescription}")
+            }
+            print("\nChoose a course (1-${courses.size}): ")
+            val courseChoice = reader.readLine()?.toIntOrNull()
+            if (courseChoice == null || courseChoice < 1 || courseChoice > courses.size) {
+                println("Invalid choice")
+                return
+            }
+            val selectedCourse = courses[courseChoice - 1]
+
+            // Get course details
+            val courseDetails = apiClient.getCourseDetails(UUID.fromString(selectedCourse.id), currentConfig.defaultSourceLanguage)
+
+            // Step 3: Select tutor
+            println("\nChoose your tutor:")
+            val tutors = courseDetails.suggestedTutors
+            if (tutors.isEmpty()) {
+                println("No tutors available for this course")
+                return
+            }
+            tutors.forEachIndexed { index, tutor ->
+                println("  ${index + 1}. ${tutor.emoji} ${tutor.name} (${tutor.personality})")
+                println("     ${tutor.description}")
+            }
+            print("\nChoose tutor (1-${tutors.size}): ")
+            val tutorChoice = reader.readLine()?.toIntOrNull()
+            if (tutorChoice == null || tutorChoice < 1 || tutorChoice > tutors.size) {
+                println("Invalid choice")
+                return
+            }
+            val selectedTutor = tutors[tutorChoice - 1]
+
+            // Step 4: Create session
+            print("\nCustom session name (optional, press Enter to skip): ")
+            val customName = reader.readLine()?.trim()?.ifBlank { null }
+
+            val session = apiClient.createSessionFromCourse(
+                userId = userId,
+                courseTemplateId = UUID.fromString(selectedCourse.id),
+                tutorProfileId = UUID.fromString(selectedTutor.id),
+                sourceLanguageCode = currentConfig.defaultSourceLanguage,
+                customName = customName
+            )
+
+            currentSessionId = UUID.fromString(session.id)
+            currentTutorName = selectedTutor.name
+            currentConfig = currentConfig.copy(lastSessionId = session.id)
+            CliConfig.save(currentConfig)
+
+            println("\n✓ Created learning session!")
+            println("  Course: ${selectedCourse.name}")
+            println("  Tutor: ${selectedTutor.name}")
+            println("  Session ID: ${session.id}")
+            println("\nYou can now start chatting!")
+        } catch (e: Exception) {
+            println("✗ Failed to start course: ${e.message}")
+        }
+    }
+
+    private fun cmdProgress() {
+        if (currentSessionId == null) {
+            println("✗ No active session")
+            return
+        }
+
+        try {
+            val progress = apiClient.getSessionProgress(currentSessionId!!)
+            println("\n📊 Session Progress:")
+            println("  Messages: ${progress.messageCount}")
+            println("  Vocabulary: ${progress.vocabularyCount} words")
+            println("  Days active: ${progress.daysActive}")
+            println("  Last accessed: ${progress.lastAccessedAt}")
+            println()
+        } catch (e: Exception) {
+            println("✗ Failed to get progress: ${e.message}")
+        }
+    }
+
     private fun sendMessage(content: String) {
         if (currentSessionId == null) {
             println("✗ No active session")
@@ -570,7 +796,8 @@ class AiTutorCli(private val config: CliConfig) {
         }
 
         try {
-            println("\n${currentConfig.defaultTutor}: ")
+            val tutorName = currentTutorName ?: "Tutor"
+            println("\n$tutorName: ")
 
             val message = apiClient.sendMessage(currentSessionId!!, content)
 
