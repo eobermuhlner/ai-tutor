@@ -9,7 +9,14 @@ import java.util.*
 @Serializable
 data class CliConfig(
     val apiUrl: String = "http://localhost:8080",
-    val userId: String = "00000000-0000-0000-0000-000000000001",
+    // Authentication
+    val accessToken: String? = null,
+    val refreshToken: String? = null,
+    val tokenExpiresAt: Long? = null, // Timestamp in milliseconds
+    // Optional credentials for auto-login (WARNING: storing passwords is insecure, for dev convenience only)
+    val username: String? = null,
+    val password: String? = null,
+    // Session preferences
     val defaultTutor: String = "Maria",
     val defaultTutorPersona: String = "patient coach",
     val defaultTutorDomain: String = "general conversation, grammar, typography",
@@ -53,7 +60,16 @@ data class CliConfig(
         }
     }
 
-    fun getUserIdAsUUID(): UUID = UUID.fromString(userId)
-
     fun getLastSessionIdAsUUID(): UUID? = lastSessionId?.let { UUID.fromString(it) }
+
+    fun isTokenValid(): Boolean {
+        val expiresAt = tokenExpiresAt ?: return false
+        // Consider token invalid if it expires within 5 minutes
+        return System.currentTimeMillis() + (5 * 60 * 1000) < expiresAt
+    }
+
+    fun isTokenExpired(): Boolean {
+        val expiresAt = tokenExpiresAt ?: return true
+        return System.currentTimeMillis() >= expiresAt
+    }
 }

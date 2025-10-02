@@ -9,6 +9,7 @@ class AiTutorCli(private val config: CliConfig) {
     private var currentSessionId: UUID? = config.getLastSessionIdAsUUID()
     private var currentConfig = config
     private val reader = BufferedReader(InputStreamReader(System.`in`))
+    private var currentUserId: UUID? = null
 
     companion object {
         @JvmStatic
@@ -19,8 +20,195 @@ class AiTutorCli(private val config: CliConfig) {
         }
     }
 
+    private fun ensureAuthenticated(): Boolean {
+        // Check if we have a valid access token
+        if (currentConfig.accessToken != null && currentConfig.isTokenValid()) {
+            apiClient.setAccessToken(currentConfig.accessToken)
+            currentUserId = extractUserIdFromToken()
+            return true
+        }
+
+        // Try to refresh the token
+        if (currentConfig.refreshToken != null) {
+            try {
+                val loginResponse = apiClient.refreshAccessToken(currentConfig.refreshToken!!)
+                saveTokens(loginResponse)
+                println("✓ Session refreshed")
+                return true
+            } catch (e: Exception) {
+                println("Session expired. Please login.")
+            }
+        }
+
+        // Try auto-login with stored credentials
+        if (currentConfig.username != null && currentConfig.password != null) {
+            try {
+                val loginResponse = apiClient.login(currentConfig.username!!, currentConfig.password!!)
+                saveTokens(loginResponse)
+                println("✓ Logged in as ${loginResponse.user.username}")
+                return true
+            } catch (e: Exception) {
+                println("Auto-login failed: ${e.message}")
+            }
+        }
+
+        // Prompt for login
+        return promptLogin()
+    }
+
+    private fun promptLogin(): Boolean {
+        println("\n=== Login Required ===")
+        println("Don't have an account? Type 'register' to create one.")
+        print("Username or email (or 'register'): ")
+        val username = reader.readLine()?.trim()
+
+        if (username.isNullOrBlank()) {
+            println("Login cancelled.")
+            return false
+        }
+
+        if (username.equals("register", ignoreCase = true)) {
+            return promptRegister()
+        }
+
+        print("Password: ")
+        val password = reader.readLine()?.trim()
+        if (password.isNullOrBlank()) {
+            println("Login cancelled.")
+            return false
+        }
+
+        return try {
+            val loginResponse = apiClient.login(username, password)
+            saveTokens(loginResponse)
+            println("✓ Logged in as ${loginResponse.user.username}")
+            true
+        } catch (e: Exception) {
+            println("✗ Login failed: ${e.message}")
+
+            // Offer to register
+            print("\nWould you like to register a new account? (y/n): ")
+            val response = reader.readLine()?.trim()?.lowercase()
+            if (response == "y" || response == "yes") {
+                return promptRegister()
+            }
+            false
+        }
+    }
+
+    private fun promptRegister(): Boolean {
+        println("\n=== Register New Account ===")
+
+        print("Username: ")
+        val username = reader.readLine()?.trim()
+        if (username.isNullOrBlank()) {
+            println("Registration cancelled.")
+            return false
+        }
+
+        print("Email: ")
+        val email = reader.readLine()?.trim()
+        if (email.isNullOrBlank()) {
+            println("Registration cancelled.")
+            return false
+        }
+
+        print("Password: ")
+        val password = reader.readLine()?.trim()
+        if (password.isNullOrBlank()) {
+            println("Registration cancelled.")
+            return false
+        }
+
+        print("First name (optional): ")
+        val firstName = reader.readLine()?.trim()?.ifBlank { null }
+
+        print("Last name (optional): ")
+        val lastName = reader.readLine()?.trim()?.ifBlank { null }
+
+        return try {
+            val userResponse = apiClient.register(username, email, password, firstName, lastName)
+            println("✓ Registration successful! Account created: ${userResponse.username}")
+
+            // Automatically log in after registration
+            println("Logging in...")
+            val loginResponse = apiClient.login(username, password)
+            saveTokens(loginResponse)
+            println("✓ Logged in as ${loginResponse.user.username}")
+            true
+        } catch (e: Exception) {
+            println("✗ Registration failed: ${e.message}")
+            false
+        }
+    }
+
+    private fun saveTokens(loginResponse: HttpApiClient.LoginResponse) {
+        val expiresAt = System.currentTimeMillis() + loginResponse.expiresIn
+        currentConfig = currentConfig.copy(
+            accessToken = loginResponse.accessToken,
+            refreshToken = loginResponse.refreshToken,
+            tokenExpiresAt = expiresAt
+        )
+        CliConfig.save(currentConfig)
+        apiClient.setAccessToken(loginResponse.accessToken)
+        currentUserId = UUID.fromString(loginResponse.user.id)
+    }
+
+    private fun extractUserIdFromToken(): UUID? {
+        // Extract user ID from stored login response or token
+        // For now, we'll need to call an endpoint or decode the JWT
+        // Simple approach: try to get sessions and extract userId from response
+        return try {
+            // We'll set this from login response, so just return null here
+            // and rely on saveTokens to set it
+            null
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    private fun logout() {
+        currentConfig = currentConfig.copy(
+            accessToken = null,
+            refreshToken = null,
+            tokenExpiresAt = null
+        )
+        CliConfig.save(currentConfig)
+        apiClient.setAccessToken(null)
+        currentUserId = null
+        println("✓ Logged out")
+    }
+
+    private fun ensureTokenValid(): Boolean {
+        // If token is still valid, no action needed
+        if (currentConfig.isTokenValid()) {
+            return true
+        }
+
+        // Token expired or near expiration, try to refresh
+        if (currentConfig.refreshToken != null) {
+            try {
+                val loginResponse = apiClient.refreshAccessToken(currentConfig.refreshToken!!)
+                saveTokens(loginResponse)
+                return true
+            } catch (e: Exception) {
+                println("Session expired. Please login again with /login")
+                return false
+            }
+        }
+
+        println("Session expired. Please login again with /login")
+        return false
+    }
+
     fun run() {
         printWelcome()
+
+        // Ensure we're authenticated before proceeding
+        if (!ensureAuthenticated()) {
+            println("Authentication required. Exiting.")
+            return
+        }
 
         // Try to resume last session or create new one
         if (currentSessionId == null) {
@@ -30,12 +218,17 @@ class AiTutorCli(private val config: CliConfig) {
             println("Resuming session: $currentSessionId")
             // Verify session still exists
             try {
-                apiClient.getUserSessions(currentConfig.getUserIdAsUUID())
-                    .find { it.id == currentSessionId.toString() }
-                    ?: run {
-                        println("Session no longer exists. Creating new session...")
-                        createNewSession()
-                    }
+                currentUserId?.let { userId ->
+                    apiClient.getUserSessions(userId)
+                        .find { it.id == currentSessionId.toString() }
+                        ?: run {
+                            println("Session no longer exists. Creating new session...")
+                            createNewSession()
+                        }
+                } ?: run {
+                    println("Could not determine user ID. Creating new session...")
+                    createNewSession()
+                }
             } catch (e: Exception) {
                 println("Could not verify session. Creating new session...")
                 createNewSession()
@@ -92,6 +285,9 @@ class AiTutorCli(private val config: CliConfig) {
               /topic <topic>        Set conversation topic (or "none" for free conversation)
               /topics               Show topic history
               /delete               Delete current session
+              /register             Register new account
+              /login                Login (will prompt for credentials)
+              /logout               Logout and clear tokens
               /help                 Show this help
               /quit or /exit        Exit CLI
 
@@ -178,6 +374,22 @@ class AiTutorCli(private val config: CliConfig) {
                 deleteCurrentSession()
                 true
             }
+            "/login" -> {
+                if (promptLogin()) {
+                    println("You may need to create a new session with /new")
+                }
+                true
+            }
+            "/register" -> {
+                if (promptRegister()) {
+                    println("You may need to create a new session with /new")
+                }
+                true
+            }
+            "/logout" -> {
+                logout()
+                false // Exit after logout
+            }
             else -> {
                 println("Unknown command: $command. Type /help for available commands.")
                 true
@@ -186,9 +398,15 @@ class AiTutorCli(private val config: CliConfig) {
     }
 
     private fun createNewSession() {
+        val userId = currentUserId
+        if (userId == null) {
+            println("✗ Cannot create session: not logged in")
+            return
+        }
+
         try {
             val session = apiClient.createSession(
-                userId = currentConfig.getUserIdAsUUID(),
+                userId = userId,
                 tutorName = currentConfig.defaultTutor,
                 tutorPersona = currentConfig.defaultTutorPersona,
                 tutorDomain = currentConfig.defaultTutorDomain,
@@ -213,8 +431,14 @@ class AiTutorCli(private val config: CliConfig) {
     }
 
     private fun listSessions() {
+        val userId = currentUserId
+        if (userId == null) {
+            println("✗ Cannot list sessions: not logged in")
+            return
+        }
+
         try {
-            val sessions = apiClient.getUserSessions(currentConfig.getUserIdAsUUID())
+            val sessions = apiClient.getUserSessions(userId)
 
             if (sessions.isEmpty()) {
                 println("No sessions found.")
@@ -338,6 +562,10 @@ class AiTutorCli(private val config: CliConfig) {
     private fun sendMessage(content: String) {
         if (currentSessionId == null) {
             println("✗ No active session")
+            return
+        }
+
+        if (!ensureTokenValid()) {
             return
         }
 

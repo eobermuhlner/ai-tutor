@@ -18,6 +18,19 @@ class HttpApiClient(private val baseUrl: String) {
         ignoreUnknownKeys = true
     }
 
+    private var accessToken: String? = null
+
+    fun setAccessToken(token: String?) {
+        this.accessToken = token
+    }
+
+    private fun HttpRequest.Builder.withAuth(): HttpRequest.Builder {
+        accessToken?.let { token ->
+            this.header("Authorization", "Bearer $token")
+        }
+        return this
+    }
+
     @Serializable
     data class CreateSessionRequest(
         val userId: String,
@@ -96,6 +109,48 @@ class HttpApiClient(private val baseUrl: String) {
         val pastTopics: List<String>
     )
 
+    // Authentication DTOs
+    @Serializable
+    data class RegisterRequest(
+        val username: String,
+        val email: String,
+        val password: String,
+        val firstName: String?,
+        val lastName: String?
+    )
+
+    @Serializable
+    data class LoginRequest(
+        val username: String,
+        val password: String
+    )
+
+    @Serializable
+    data class LoginResponse(
+        val accessToken: String,
+        val refreshToken: String,
+        val tokenType: String,
+        val expiresIn: Long,
+        val user: UserResponse
+    )
+
+    @Serializable
+    data class RefreshTokenRequest(
+        val refreshToken: String
+    )
+
+    @Serializable
+    data class UserResponse(
+        val id: String,
+        val username: String,
+        val email: String,
+        val firstName: String?,
+        val lastName: String?,
+        val roles: List<String>,
+        val enabled: Boolean,
+        val emailVerified: Boolean
+    )
+
     fun createSession(
         userId: UUID,
         tutorName: String,
@@ -120,6 +175,7 @@ class HttpApiClient(private val baseUrl: String) {
         val request = HttpRequest.newBuilder()
             .uri(URI.create("$baseUrl/api/v1/chat/sessions"))
             .header("Content-Type", "application/json")
+            .withAuth()
             .POST(HttpRequest.BodyPublishers.ofString(json.encodeToString(CreateSessionRequest.serializer(), requestBody)))
             .build()
 
@@ -135,6 +191,7 @@ class HttpApiClient(private val baseUrl: String) {
         val request = HttpRequest.newBuilder()
             .uri(URI.create("$baseUrl/api/v1/chat/sessions?userId=$userId"))
             .header("Accept", "application/json")
+            .withAuth()
             .GET()
             .build()
 
@@ -152,6 +209,7 @@ class HttpApiClient(private val baseUrl: String) {
         val request = HttpRequest.newBuilder()
             .uri(URI.create("$baseUrl/api/v1/chat/sessions/$sessionId/messages"))
             .header("Content-Type", "application/json")
+            .withAuth()
             .POST(HttpRequest.BodyPublishers.ofString(json.encodeToString(SendMessageRequest.serializer(), requestBody)))
             .timeout(Duration.ofMinutes(2))
             .build()
@@ -171,6 +229,7 @@ class HttpApiClient(private val baseUrl: String) {
             .uri(URI.create("$baseUrl/api/v1/chat/sessions/$sessionId/messages/stream"))
             .header("Content-Type", "application/json")
             .header("Accept", "text/event-stream")
+            .withAuth()
             .POST(HttpRequest.BodyPublishers.ofString(json.encodeToString(SendMessageRequest.serializer(), requestBody)))
             .timeout(Duration.ofMinutes(2))
             .build()
@@ -215,6 +274,7 @@ class HttpApiClient(private val baseUrl: String) {
         val request = HttpRequest.newBuilder()
             .uri(URI.create("$baseUrl/api/v1/chat/sessions/$sessionId/phase"))
             .header("Content-Type", "application/json")
+            .withAuth()
             .method("PATCH", HttpRequest.BodyPublishers.ofString(json.encodeToString(UpdatePhaseRequest.serializer(), requestBody)))
             .build()
 
@@ -229,6 +289,7 @@ class HttpApiClient(private val baseUrl: String) {
     fun deleteSession(sessionId: UUID) {
         val request = HttpRequest.newBuilder()
             .uri(URI.create("$baseUrl/api/v1/chat/sessions/$sessionId"))
+            .withAuth()
             .DELETE()
             .build()
 
@@ -244,6 +305,7 @@ class HttpApiClient(private val baseUrl: String) {
         val request = HttpRequest.newBuilder()
             .uri(URI.create("$baseUrl/api/v1/chat/sessions/$sessionId/topic"))
             .header("Content-Type", "application/json")
+            .withAuth()
             .method("PATCH", HttpRequest.BodyPublishers.ofString(json.encodeToString(UpdateTopicRequest.serializer(), requestBody)))
             .build()
 
@@ -259,6 +321,7 @@ class HttpApiClient(private val baseUrl: String) {
         val request = HttpRequest.newBuilder()
             .uri(URI.create("$baseUrl/api/v1/chat/sessions/$sessionId/topics/history"))
             .header("Accept", "application/json")
+            .withAuth()
             .GET()
             .build()
 
@@ -268,5 +331,63 @@ class HttpApiClient(private val baseUrl: String) {
         }
 
         return json.decodeFromString(TopicHistoryResponse.serializer(), response.body())
+    }
+
+    // Authentication endpoints
+    fun login(username: String, password: String): LoginResponse {
+        val requestBody = LoginRequest(username, password)
+
+        val request = HttpRequest.newBuilder()
+            .uri(URI.create("$baseUrl/api/v1/auth/login"))
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(json.encodeToString(LoginRequest.serializer(), requestBody)))
+            .build()
+
+        val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+        if (response.statusCode() !in 200..299) {
+            throw RuntimeException("Login failed: ${response.statusCode()} - ${response.body()}")
+        }
+
+        return json.decodeFromString(LoginResponse.serializer(), response.body())
+    }
+
+    fun refreshAccessToken(refreshToken: String): LoginResponse {
+        val requestBody = RefreshTokenRequest(refreshToken)
+
+        val request = HttpRequest.newBuilder()
+            .uri(URI.create("$baseUrl/api/v1/auth/refresh"))
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(json.encodeToString(RefreshTokenRequest.serializer(), requestBody)))
+            .build()
+
+        val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+        if (response.statusCode() !in 200..299) {
+            throw RuntimeException("Token refresh failed: ${response.statusCode()}")
+        }
+
+        return json.decodeFromString(LoginResponse.serializer(), response.body())
+    }
+
+    fun register(
+        username: String,
+        email: String,
+        password: String,
+        firstName: String?,
+        lastName: String?
+    ): UserResponse {
+        val requestBody = RegisterRequest(username, email, password, firstName, lastName)
+
+        val request = HttpRequest.newBuilder()
+            .uri(URI.create("$baseUrl/api/v1/auth/register"))
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(json.encodeToString(RegisterRequest.serializer(), requestBody)))
+            .build()
+
+        val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+        if (response.statusCode() !in 200..299) {
+            throw RuntimeException("Registration failed: ${response.statusCode()} - ${response.body()}")
+        }
+
+        return json.decodeFromString(UserResponse.serializer(), response.body())
     }
 }
