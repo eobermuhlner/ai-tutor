@@ -3,8 +3,7 @@ package ch.obermuhlner.aitutor.vocabulary.controller
 import ch.obermuhlner.aitutor.vocabulary.dto.VocabularyContextResponse
 import ch.obermuhlner.aitutor.vocabulary.dto.VocabularyItemResponse
 import ch.obermuhlner.aitutor.vocabulary.dto.VocabularyItemWithContextsResponse
-import ch.obermuhlner.aitutor.vocabulary.repository.VocabularyContextRepository
-import ch.obermuhlner.aitutor.vocabulary.repository.VocabularyItemRepository
+import ch.obermuhlner.aitutor.vocabulary.service.VocabularyQueryService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.util.*
@@ -12,8 +11,7 @@ import java.util.*
 @RestController
 @RequestMapping("/api/v1/vocabulary")
 class VocabularyController(
-    private val vocabularyItemRepository: VocabularyItemRepository,
-    private val vocabularyContextRepository: VocabularyContextRepository
+    private val vocabularyQueryService: VocabularyQueryService
 ) {
 
     @GetMapping
@@ -21,11 +19,7 @@ class VocabularyController(
         @RequestParam userId: UUID,
         @RequestParam(required = false) lang: String?
     ): ResponseEntity<List<VocabularyItemResponse>> {
-        val items = if (lang != null) {
-            vocabularyItemRepository.findByUserIdAndLangOrderByLastSeenAtDesc(userId, lang)
-        } else {
-            vocabularyItemRepository.findByUserIdOrderByLastSeenAtDesc(userId)
-        }
+        val items = vocabularyQueryService.getUserVocabulary(userId, lang)
 
         val response = items.map { item ->
             VocabularyItemResponse(
@@ -45,10 +39,10 @@ class VocabularyController(
     fun getVocabularyItemWithContexts(
         @PathVariable itemId: UUID
     ): ResponseEntity<VocabularyItemWithContextsResponse> {
-        val item = vocabularyItemRepository.findById(itemId)
-            .orElse(null) ?: return ResponseEntity.notFound().build()
+        val result = vocabularyQueryService.getVocabularyItemWithContexts(itemId)
+            ?: return ResponseEntity.notFound().build()
 
-        val contexts = vocabularyContextRepository.findByVocabItemId(itemId).map { ctx ->
+        val contexts = result.contexts.map { ctx ->
             VocabularyContextResponse(
                 context = ctx.context,
                 turnId = ctx.turnId
@@ -56,12 +50,12 @@ class VocabularyController(
         }
 
         val response = VocabularyItemWithContextsResponse(
-            id = item.id,
-            lemma = item.lemma,
-            lang = item.lang,
-            exposures = item.exposures,
-            lastSeenAt = item.lastSeenAt,
-            createdAt = item.createdAt ?: item.lastSeenAt,
+            id = result.item.id,
+            lemma = result.item.lemma,
+            lang = result.item.lang,
+            exposures = result.item.exposures,
+            lastSeenAt = result.item.lastSeenAt,
+            createdAt = result.item.createdAt ?: result.item.lastSeenAt,
             contexts = contexts
         )
 

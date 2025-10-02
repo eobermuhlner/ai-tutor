@@ -2,8 +2,8 @@ package ch.obermuhlner.aitutor.tutor.service
 
 import ch.obermuhlner.aitutor.chat.domain.ChatMessageEntity
 import ch.obermuhlner.aitutor.chat.domain.MessageRole
-import ch.obermuhlner.aitutor.core.model.ConversationPhase
 import ch.obermuhlner.aitutor.core.model.Correction
+import ch.obermuhlner.aitutor.tutor.domain.ConversationPhase
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.springframework.stereotype.Service

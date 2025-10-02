@@ -121,18 +121,27 @@ ch.obermuhlner.aitutor
 │   ├── controller/     # REST API endpoints
 │   ├── service/        # Business logic & orchestration
 │   ├── repository/     # Data access layer
-│   ├── domain/         # JPA entities (sessions, messages)
-│   └── dto/            # API request/response objects
-├── tutor/
-│   └── service/        # Core tutoring logic with AI
-├── conversation/
-│   └── service/        # AI chat integration & streaming
+│   ├── domain/         # JPA entities (ChatSessionEntity, ChatMessageEntity, MessageRole)
+│   └── dto/            # API DTOs (6 files: CreateSessionRequest, SessionResponse, etc.)
 ├── vocabulary/
-│   ├── service/        # Vocabulary tracking
+│   ├── controller/     # Vocabulary REST API
+│   ├── service/        # Vocabulary tracking (VocabularyService, VocabularyQueryService)
 │   ├── repository/     # Vocabulary persistence
-│   └── domain/         # Vocabulary entities
+│   ├── domain/         # Vocabulary entities
+│   └── dto/            # Vocabulary DTOs (4 files: NewVocabularyDTO, VocabularyItemResponse, etc.)
+├── tutor/
+│   ├── service/        # Core tutoring logic with AI (TutorService, PhaseDecisionService)
+│   └── domain/         # Tutor domain models (Tutor, ConversationState, ConversationResponse, ConversationPhase)
+├── conversation/
+│   ├── service/        # AI chat integration & streaming (AiChatService implementations)
+│   └── dto/            # AI chat DTOs (AiChatRequest, AiChatResponse)
+├── language/
+│   └── service/        # Language utilities (LanguageService)
+├── cli/                # Standalone CLI client (AiTutorCli, HttpApiClient, CliConfig)
 └── core/
-    └── model/          # Domain models (Tutor, Correction, etc.)
+    ├── model/          # Shared domain models (CEFRLevel, ErrorType, ErrorSeverity,
+    │                   # Correction, NewVocabulary, WordCard)
+    └── util/           # Shared utilities (LlmJson, Placeholder)
 ```
 
 ### Key Design Patterns

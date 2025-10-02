@@ -1,4 +1,4 @@
-package ch.obermuhlner.aitutor.core.model
+package ch.obermuhlner.aitutor.tutor.domain
 
 data class Tutor(
     val name: String,

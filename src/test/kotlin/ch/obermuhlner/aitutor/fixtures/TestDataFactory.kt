@@ -6,7 +6,7 @@ import ch.obermuhlner.aitutor.chat.domain.MessageRole
 import ch.obermuhlner.aitutor.chat.dto.CreateSessionRequest
 import ch.obermuhlner.aitutor.chat.dto.SendMessageRequest
 import ch.obermuhlner.aitutor.core.model.CEFRLevel
-import ch.obermuhlner.aitutor.core.model.ConversationPhase
+import ch.obermuhlner.aitutor.tutor.domain.ConversationPhase
 import java.util.UUID
 
 object TestDataFactory {

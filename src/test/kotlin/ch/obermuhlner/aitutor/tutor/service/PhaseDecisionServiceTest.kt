@@ -4,6 +4,7 @@ import ch.obermuhlner.aitutor.chat.domain.ChatMessageEntity
 import ch.obermuhlner.aitutor.chat.domain.ChatSessionEntity
 import ch.obermuhlner.aitutor.chat.domain.MessageRole
 import ch.obermuhlner.aitutor.core.model.*
+import ch.obermuhlner.aitutor.tutor.domain.ConversationPhase
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.junit.jupiter.api.Assertions.assertEquals

@@ -7,6 +7,9 @@ import ch.obermuhlner.aitutor.chat.repository.ChatMessageRepository
 import ch.obermuhlner.aitutor.chat.repository.ChatSessionRepository
 import ch.obermuhlner.aitutor.core.model.*
 import ch.obermuhlner.aitutor.fixtures.TestDataFactory
+import ch.obermuhlner.aitutor.tutor.domain.ConversationPhase
+import ch.obermuhlner.aitutor.tutor.domain.ConversationResponse
+import ch.obermuhlner.aitutor.tutor.domain.ConversationState
 import ch.obermuhlner.aitutor.tutor.service.TutorService
 import ch.obermuhlner.aitutor.vocabulary.service.VocabularyService
 import com.fasterxml.jackson.databind.ObjectMapper

@@ -1,5 +1,8 @@
-package ch.obermuhlner.aitutor.core.model
+package ch.obermuhlner.aitutor.tutor.domain
 
+import ch.obermuhlner.aitutor.core.model.Correction
+import ch.obermuhlner.aitutor.core.model.NewVocabulary
+import ch.obermuhlner.aitutor.core.model.WordCard
 import com.fasterxml.jackson.annotation.JsonPropertyDescription
 
 data class ConversationResponse(

@@ -5,11 +5,6 @@ import org.hibernate.annotations.CreationTimestamp
 import java.time.Instant
 import java.util.UUID
 
-enum class MessageRole {
-    USER,
-    ASSISTANT
-}
-
 @Entity
 @Table(name = "chat_messages")
 class ChatMessageEntity(

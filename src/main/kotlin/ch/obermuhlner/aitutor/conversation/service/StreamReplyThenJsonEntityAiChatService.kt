@@ -1,5 +1,7 @@
 package ch.obermuhlner.aitutor.conversation.service
 
+import ch.obermuhlner.aitutor.conversation.dto.AiChatRequest
+import ch.obermuhlner.aitutor.conversation.dto.AiChatResponse
 import ch.obermuhlner.aitutor.core.util.LlmJson
 import org.springframework.ai.chat.messages.Message
 import org.springframework.ai.chat.messages.SystemMessage
@@ -14,10 +16,10 @@ class StreamReplyThenJsonEntityAiChatService(
 ) : AiChatService {
 
     override fun call(
-        request: AiChatService.AiChatRequest,
+        request: AiChatRequest,
         onReplyText: (String) -> Unit
-    ): AiChatService.AiChatResponse? {
-        val schema = JsonSchemaGenerator.generateForType(AiChatService.AiChatResponse::class.java)
+    ): AiChatResponse? {
+        val schema = JsonSchemaGenerator.generateForType(AiChatResponse::class.java)
 
 
         val json = streamUntilJsonAndParse(
@@ -33,7 +35,7 @@ $schema
             onReplyText(chunk)
         }
 
-        return LlmJson.parseAs<AiChatService.AiChatResponse>(json)
+        return LlmJson.parseAs<AiChatResponse>(json)
     }
 
     private fun streamUntilJsonAndParse(

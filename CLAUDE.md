@@ -67,23 +67,31 @@ ch.obermuhlner.aitutor
 │   ├── controller/         # ChatController (/api/v1/chat)
 │   ├── service/            # ChatService
 │   ├── repository/         # ChatSessionRepository, ChatMessageRepository
-│   ├── domain/             # ChatSessionEntity, ChatMessageEntity
-│   └── dto/                # API request/response DTOs
+│   ├── domain/             # ChatSessionEntity, ChatMessageEntity, MessageRole
+│   └── dto/                # CreateSessionRequest, SessionResponse, SendMessageRequest,
+│                           # MessageResponse, SessionWithMessagesResponse, UpdatePhaseRequest
 ├── vocabulary/             # Vocabulary tracking
 │   ├── controller/         # VocabularyController (/api/v1/vocabulary)
-│   ├── service/            # VocabularyService, VocabularyContextService
+│   ├── service/            # VocabularyService, VocabularyContextService, VocabularyQueryService
 │   ├── repository/         # VocabularyItemRepository, VocabularyContextRepository
 │   ├── domain/             # VocabularyItemEntity, VocabularyContextEntity
-│   └── dto/                # Vocabulary response DTOs
-├── tutor/service           # TutorService, PhaseDecisionService
-├── conversation/service    # AI chat abstractions (AiChatService, implementations)
+│   └── dto/                # NewVocabularyDTO, VocabularyItemResponse,
+│                           # VocabularyContextResponse, VocabularyItemWithContextsResponse
+├── tutor/                  # Tutoring logic and domain
+│   ├── service/            # TutorService, PhaseDecisionService
+│   └── domain/             # Tutor, ConversationState, ConversationResponse, ConversationPhase
+├── conversation/           # AI chat integration
+│   ├── service/            # AiChatService (interface), SingleJsonEntityAiChatService,
+│   │                       # StreamReplyThenJsonEntityAiChatService
+│   └── dto/                # AiChatRequest, AiChatResponse
 ├── language/service        # LanguageService (language code validation)
 ├── cli/                    # Standalone CLI client
 │   ├── AiTutorCli          # Main CLI application
 │   ├── CliConfig           # Configuration management
 │   └── HttpApiClient       # HTTP client for REST API
 └── core/                   # Shared models and utilities
-    ├── model/              # Domain models (Correction, Tutor, ConversationState, etc.)
+    ├── model/              # Shared domain models (CEFRLevel, ErrorType, ErrorSeverity,
+    │                       # Correction, NewVocabulary, WordCard)
     └── util/               # Utilities (LlmJson, Placeholder)
 ```
 

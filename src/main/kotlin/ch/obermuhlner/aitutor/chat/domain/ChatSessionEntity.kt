@@ -1,7 +1,7 @@
 package ch.obermuhlner.aitutor.chat.domain
 
 import ch.obermuhlner.aitutor.core.model.CEFRLevel
-import ch.obermuhlner.aitutor.core.model.ConversationPhase
+import ch.obermuhlner.aitutor.tutor.domain.ConversationPhase
 import jakarta.persistence.*
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.UpdateTimestamp

@@ -1,10 +1,11 @@
 package ch.obermuhlner.aitutor.tutor.service
 
+import ch.obermuhlner.aitutor.conversation.dto.AiChatRequest
 import ch.obermuhlner.aitutor.conversation.service.AiChatService
-import ch.obermuhlner.aitutor.core.model.ConversationPhase
-import ch.obermuhlner.aitutor.core.model.ConversationResponse
-import ch.obermuhlner.aitutor.core.model.ConversationState
-import ch.obermuhlner.aitutor.core.model.Tutor
+import ch.obermuhlner.aitutor.tutor.domain.ConversationPhase
+import ch.obermuhlner.aitutor.tutor.domain.ConversationResponse
+import ch.obermuhlner.aitutor.tutor.domain.ConversationState
+import ch.obermuhlner.aitutor.tutor.domain.Tutor
 import ch.obermuhlner.aitutor.language.service.LanguageService
 import ch.obermuhlner.aitutor.vocabulary.service.VocabularyContextService
 import org.springframework.ai.chat.messages.Message
@@ -96,7 +97,7 @@ class TutorService(
             SystemMessage(conversationState.toString()),
         ) + messages
 
-        val response = aiChatService.call(AiChatService.AiChatRequest(allMessages), onReplyChunk)
+        val response = aiChatService.call(AiChatRequest(allMessages), onReplyChunk)
 
         return response?.let {
             TutorResponse(

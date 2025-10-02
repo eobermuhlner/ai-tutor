@@ -3,7 +3,7 @@ package ch.obermuhlner.aitutor.chat.controller
 import ch.obermuhlner.aitutor.chat.dto.*
 import ch.obermuhlner.aitutor.chat.service.ChatService
 import ch.obermuhlner.aitutor.core.model.CEFRLevel
-import ch.obermuhlner.aitutor.core.model.ConversationPhase
+import ch.obermuhlner.aitutor.tutor.domain.ConversationPhase
 import ch.obermuhlner.aitutor.fixtures.TestDataFactory
 import ch.obermuhlner.aitutor.chat.repository.ChatMessageRepository
 import ch.obermuhlner.aitutor.chat.repository.ChatSessionRepository

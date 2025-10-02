@@ -1,4 +1,4 @@
-package ch.obermuhlner.aitutor.core.model
+package ch.obermuhlner.aitutor.tutor.domain
 
 enum class ConversationPhase {
     Auto,

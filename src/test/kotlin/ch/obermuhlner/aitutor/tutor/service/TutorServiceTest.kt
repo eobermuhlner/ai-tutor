@@ -1,8 +1,13 @@
 package ch.obermuhlner.aitutor.tutor.service
 
+import ch.obermuhlner.aitutor.conversation.dto.AiChatResponse
 import ch.obermuhlner.aitutor.conversation.service.AiChatService
 import ch.obermuhlner.aitutor.core.model.*
 import ch.obermuhlner.aitutor.language.service.LanguageService
+import ch.obermuhlner.aitutor.tutor.domain.ConversationPhase
+import ch.obermuhlner.aitutor.tutor.domain.ConversationResponse
+import ch.obermuhlner.aitutor.tutor.domain.ConversationState
+import ch.obermuhlner.aitutor.tutor.domain.Tutor
 import ch.obermuhlner.aitutor.vocabulary.service.VocabularyContext
 import ch.obermuhlner.aitutor.vocabulary.service.VocabularyContextService
 import io.mockk.every
@@ -76,7 +81,7 @@ class TutorServiceTest {
             newVocabulary = emptyList()
         )
 
-        val aiResponse = AiChatService.AiChatResponse(
+        val aiResponse = AiChatResponse(
             reply = "Hola! How can I help?",
             conversationResponse = conversationResponse
         )
@@ -129,7 +134,7 @@ class TutorServiceTest {
             newVocabulary = emptyList()
         )
 
-        val aiResponse = AiChatService.AiChatResponse(
+        val aiResponse = AiChatResponse(
             reply = "¡Muy bien!",
             conversationResponse = conversationResponse
         )
@@ -173,7 +178,7 @@ class TutorServiceTest {
             newVocabulary = emptyList()
         )
 
-        val aiResponse = AiChatService.AiChatResponse(
+        val aiResponse = AiChatResponse(
             reply = "Let's practice ser and estar!",
             conversationResponse = conversationResponse
         )
@@ -246,7 +251,7 @@ class TutorServiceTest {
             newVocabulary = emptyList()
         )
 
-        val aiResponse = AiChatService.AiChatResponse(
+        val aiResponse = AiChatResponse(
             reply = "Response",
             conversationResponse = conversationResponse
         )
@@ -285,7 +290,7 @@ class TutorServiceTest {
             newVocabulary = emptyList()
         )
 
-        val aiResponse = AiChatService.AiChatResponse(
+        val aiResponse = AiChatResponse(
             reply = "Response",
             conversationResponse = conversationResponse
         )

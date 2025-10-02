@@ -2,6 +2,7 @@ package ch.obermuhlner.aitutor.vocabulary.service
 
 import ch.obermuhlner.aitutor.vocabulary.domain.VocabularyContextEntity
 import ch.obermuhlner.aitutor.vocabulary.domain.VocabularyItemEntity
+import ch.obermuhlner.aitutor.vocabulary.dto.NewVocabularyDTO
 import ch.obermuhlner.aitutor.vocabulary.repository.VocabularyContextRepository
 import ch.obermuhlner.aitutor.vocabulary.repository.VocabularyItemRepository
 import org.springframework.stereotype.Service
@@ -9,11 +10,6 @@ import org.springframework.transaction.annotation.Transactional
 import java.text.Normalizer
 import java.time.Instant
 import java.util.*
-
-data class NewVocabularyDTO(
-    val lemma: String,
-    val context: String
-)
 
 @Service
 class VocabularyService(
