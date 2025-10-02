@@ -14,7 +14,9 @@ import java.util.*
 @RequestMapping("/api/v1/chat")
 class ChatController(
     private val chatService: ChatService,
-    private val authorizationService: AuthorizationService
+    private val authorizationService: AuthorizationService,
+    private val catalogService: ch.obermuhlner.aitutor.catalog.service.CatalogService,
+    private val chatSessionRepository: ch.obermuhlner.aitutor.chat.repository.ChatSessionRepository
 ) {
 
     @PostMapping("/sessions")
@@ -23,6 +25,64 @@ class ChatController(
         authorizationService.requireAccessToUser(request.userId)
         val session = chatService.createSession(request)
         return ResponseEntity.status(HttpStatus.CREATED).body(session)
+    }
+
+    @PostMapping("/sessions/from-course")
+    fun createSessionFromCourse(@RequestBody request: CreateSessionFromCourseRequest): ResponseEntity<SessionResponse> {
+        val currentUserId = authorizationService.getCurrentUserId()
+
+        // Get tutor ID - either from request or first suggested tutor from course
+        val tutorId = request.tutorProfileId ?: run {
+            catalogService.getTutorsForCourse(request.courseTemplateId).firstOrNull()?.id
+                ?: return ResponseEntity.badRequest().build()
+        }
+
+        // Get source language - for now use English, should be from user profile
+        val sourceLanguageCode = "en"
+
+        val session = chatService.createSessionFromCourse(
+            userId = currentUserId,
+            courseTemplateId = request.courseTemplateId,
+            tutorProfileId = tutorId,
+            sourceLanguageCode = sourceLanguageCode,
+            customName = request.customName
+        ) ?: return ResponseEntity.badRequest().build()
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(session)
+    }
+
+    @GetMapping("/sessions/{sessionId}/progress")
+    fun getSessionProgress(@PathVariable sessionId: UUID): ResponseEntity<SessionWithProgressResponse> {
+        val currentUserId = authorizationService.getCurrentUserId()
+        val session = chatService.getSession(sessionId) ?: return ResponseEntity.notFound().build()
+
+        // Validate ownership
+        if (session.userId != currentUserId) {
+            return ResponseEntity.notFound().build()
+        }
+
+        val progress = chatService.getSessionProgress(sessionId)
+        return ResponseEntity.ok(SessionWithProgressResponse(session, progress))
+    }
+
+    @PostMapping("/sessions/{sessionId}/deactivate")
+    fun deactivateSession(@PathVariable sessionId: UUID): ResponseEntity<SessionResponse> {
+        val currentUserId = authorizationService.getCurrentUserId()
+
+        // Get session entity and validate ownership
+        val sessionEntity = chatSessionRepository.findById(sessionId).orElse(null)
+            ?: return ResponseEntity.notFound().build()
+
+        if (sessionEntity.userId != currentUserId) {
+            return ResponseEntity.notFound().build()
+        }
+
+        // Deactivate
+        sessionEntity.isActive = false
+        val saved = chatSessionRepository.save(sessionEntity)
+
+        // Convert to response
+        return ResponseEntity.ok(chatService.getSession(saved.id))
     }
 
     @GetMapping("/sessions")

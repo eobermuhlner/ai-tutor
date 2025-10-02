@@ -217,3 +217,137 @@ GET {{host}}/api/v1/vocabulary/VOCABULARY_ITEM_ID
 Authorization: Bearer {{accessToken}}
 Accept: application/json
 
+###
+
+###########################
+### User Language Examples
+###########################
+
+### Get User Languages (All Types)
+GET {{host}}/api/v1/users/{{userId}}/languages
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+### Get User Languages (Source Only)
+GET {{host}}/api/v1/users/{{userId}}/languages?type=Source
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+### Get User Languages (Target Only)
+GET {{host}}/api/v1/users/{{userId}}/languages?type=Target
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+### Add Language to User Profile
+# @name addLanguage
+POST {{host}}/api/v1/users/{{userId}}/languages
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "languageCode": "fr",
+  "type": "Target",
+  "cefrLevel": "A1",
+  "isNative": false
+}
+
+> {%
+    client.global.set("languageId", response.body.id);
+%}
+
+### Update Language Level
+PATCH {{host}}/api/v1/users/{{userId}}/languages/{{languageId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "cefrLevel": "A2"
+}
+
+### Set Primary Target Language
+POST {{host}}/api/v1/users/{{userId}}/languages/{{languageId}}/primary
+Authorization: Bearer {{accessToken}}
+
+### Remove Language from User Profile
+DELETE {{host}}/api/v1/users/{{userId}}/languages/{{languageId}}
+Authorization: Bearer {{accessToken}}
+
+###
+
+###########################
+### Catalog Examples
+###########################
+
+### List Available Languages
+GET {{host}}/api/v1/catalog/languages?locale=en
+Accept: application/json
+
+### List Available Languages (Spanish)
+GET {{host}}/api/v1/catalog/languages?locale=es
+Accept: application/json
+
+### List Courses for Language
+# @name listCourses
+GET {{host}}/api/v1/catalog/languages/es/courses?locale=en
+Accept: application/json
+
+> {%
+    client.global.set("courseId", response.body[0].id);
+%}
+
+### Get Course Detail
+GET {{host}}/api/v1/catalog/courses/{{courseId}}?locale=en
+Accept: application/json
+
+> {%
+    client.global.set("tutorId", response.body.suggestedTutors[0].id);
+%}
+
+### List Tutors for Language
+GET {{host}}/api/v1/catalog/languages/es/tutors?locale=en
+Accept: application/json
+
+### Get Tutor Detail
+GET {{host}}/api/v1/catalog/tutors/{{tutorId}}?locale=en
+Accept: application/json
+
+###
+
+###########################
+### Course-Based Session Examples
+###########################
+
+### Create Session from Course
+# @name createCourseSession
+POST {{host}}/api/v1/chat/sessions/from-course
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "courseTemplateId": "{{courseId}}",
+  "tutorProfileId": "{{tutorId}}",
+  "customName": "My Spanish Course"
+}
+
+> {%
+    client.global.set("courseSessionId", response.body.id);
+%}
+
+### Create Session from Course (Auto-select tutor)
+POST {{host}}/api/v1/chat/sessions/from-course
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "courseTemplateId": "{{courseId}}"
+}
+
+### Get Session Progress
+GET {{host}}/api/v1/chat/sessions/{{courseSessionId}}/progress
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+### Deactivate Session
+POST {{host}}/api/v1/chat/sessions/{{courseSessionId}}/deactivate
+Authorization: Bearer {{accessToken}}
+

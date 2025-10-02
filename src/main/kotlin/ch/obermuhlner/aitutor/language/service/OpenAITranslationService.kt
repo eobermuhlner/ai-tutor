@@ -1,11 +1,12 @@
 package ch.obermuhlner.aitutor.language.service
 
 import org.springframework.ai.chat.client.ChatClient
+import org.springframework.ai.chat.model.ChatModel
 import org.springframework.stereotype.Service
 
 @Service
 class OpenAITranslationService(
-    private val chatClient: ChatClient
+    private val chatModel: ChatModel
 ) : TranslationService {
 
     override fun translate(text: String, from: String, to: String): String {
@@ -17,7 +18,8 @@ class OpenAITranslationService(
             Text: $text
         """.trimIndent()
 
-        return chatClient.prompt()
+        return ChatClient.create(chatModel)
+            .prompt()
             .user(prompt)
             .call()
             .content() ?: text  // Fallback to original if translation fails
@@ -34,7 +36,8 @@ class OpenAITranslationService(
             ${texts.joinToString("\n")}
         """.trimIndent()
 
-        val response = chatClient.prompt()
+        val response = ChatClient.create(chatModel)
+            .prompt()
             .user(prompt)
             .call()
             .content() ?: return texts

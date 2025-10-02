@@ -2,14 +2,24 @@ package ch.obermuhlner.aitutor.language.service
 
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkStatic
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.ai.chat.client.ChatClient
+import org.springframework.ai.chat.model.ChatModel
 
 class OpenAITranslationServiceTest {
 
+    private val chatModel = mockk<ChatModel>()
     private val chatClient = mockk<ChatClient>()
-    private val translationService = OpenAITranslationService(chatClient)
+    private val translationService = OpenAITranslationService(chatModel)
+
+    @BeforeEach
+    fun setup() {
+        mockkStatic(ChatClient::class)
+        every { ChatClient.create(chatModel) } returns chatClient
+    }
 
     @Test
     fun `translate should return translated text`() {

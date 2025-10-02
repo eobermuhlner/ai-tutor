@@ -55,6 +55,9 @@ class ChatControllerTest {
     private lateinit var vocabularyService: VocabularyService
 
     @MockkBean(relaxed = true)
+    private lateinit var catalogService: ch.obermuhlner.aitutor.catalog.service.CatalogService
+
+    @MockkBean(relaxed = true)
     private lateinit var jwtTokenService: ch.obermuhlner.aitutor.auth.service.JwtTokenService
 
     @MockkBean(relaxed = true)
