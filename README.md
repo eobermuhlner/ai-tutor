@@ -52,13 +52,41 @@ The application will start on `http://localhost:8080`.
 
 ## 📡 API Usage
 
+### Authentication
+
+The API uses JWT-based authentication. First, register and login to get access tokens:
+
+```bash
+# Register a new user
+curl -X POST http://localhost:8080/api/v1/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "demouser",
+    "email": "demo@example.com",
+    "password": "DemoPassword123",
+    "firstName": "Demo",
+    "lastName": "User"
+  }'
+
+# Login to get access tokens
+curl -X POST http://localhost:8080/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "demouser",
+    "password": "DemoPassword123"
+  }'
+```
+
+The login response includes `accessToken` and `refreshToken`. Use the access token in the `Authorization: Bearer {token}` header for all subsequent requests.
+
 ### Create a Learning Session
 
 ```bash
 curl -X POST http://localhost:8080/api/v1/chat/sessions \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer {accessToken}" \
   -d '{
-    "userId": "00000000-0000-0000-0000-000000000001",
+    "userId": "{your-user-id}",
     "tutorName": "Maria",
     "sourceLanguageCode": "en",
     "targetLanguageCode": "es",
@@ -72,26 +100,50 @@ curl -X POST http://localhost:8080/api/v1/chat/sessions \
 ```bash
 curl -X POST http://localhost:8080/api/v1/chat/sessions/{sessionId}/messages \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer {accessToken}" \
   -d '{"content": "Hola, como estas?"}'
 ```
 
 ### Get Session History
 
 ```bash
-curl http://localhost:8080/api/v1/chat/sessions/{sessionId}
+curl http://localhost:8080/api/v1/chat/sessions/{sessionId} \
+  -H "Authorization: Bearer {accessToken}"
 ```
 
 ### API Endpoints
 
+#### Authentication Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/v1/auth/register` | Register new user |
+| POST | `/api/v1/auth/login` | Login and get JWT tokens |
+| POST | `/api/v1/auth/refresh` | Refresh access token using refresh token |
+| POST | `/api/v1/auth/logout` | Logout (invalidates refresh tokens) |
+| GET | `/api/v1/auth/me` | Get current user profile |
+| POST | `/api/v1/auth/password` | Change password |
+
+#### Chat Session Endpoints
+
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | POST | `/api/v1/chat/sessions` | Create new learning session |
-| GET | `/api/v1/chat/sessions?userId={uuid}` | List user's sessions |
+| GET | `/api/v1/chat/sessions?userId={uuid}` | List user's sessions (omit userId for current user) |
 | GET | `/api/v1/chat/sessions/{id}` | Get session with full message history |
-| PATCH | `/api/v1/chat/sessions/{id}/phase` | Update conversation phase (Free/Drill/Auto) |
+| PATCH | `/api/v1/chat/sessions/{id}/phase` | Update conversation phase (Free/Correction/Drill/Auto) |
+| PATCH | `/api/v1/chat/sessions/{id}/topic` | Update current conversation topic |
+| GET | `/api/v1/chat/sessions/{id}/topics/history` | Get conversation topic history |
 | POST | `/api/v1/chat/sessions/{id}/messages` | Send message (JSON response) |
 | POST | `/api/v1/chat/sessions/{id}/messages/stream` | Send message (SSE streaming) |
 | DELETE | `/api/v1/chat/sessions/{id}` | Delete session |
+
+#### Vocabulary Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/v1/vocabulary?userId={uuid}&lang={code}` | Get user's vocabulary (optional language filter) |
+| GET | `/api/v1/vocabulary/{itemId}` | Get vocabulary item with all contexts |
 
 ## 🧪 Testing with IntelliJ HTTP Client
 
@@ -117,20 +169,28 @@ The project includes HTTP request examples in `src/test/http/http-client-request
 
 ```
 ch.obermuhlner.aitutor
+├── auth/
+│   ├── controller/     # Authentication REST API (register, login, refresh, logout, password)
+│   ├── service/        # Auth services (AuthService, JwtTokenService, AuthorizationService)
+│   └── dto/            # Auth DTOs (RegisterRequest, LoginRequest, LoginResponse, etc.)
+├── user/
+│   ├── service/        # User management (UserService, CustomUserDetailsService)
+│   ├── repository/     # User persistence (UserRepository, RefreshTokenRepository)
+│   └── domain/         # User entities (UserEntity, RefreshTokenEntity, UserRole, AuthProvider)
 ├── chat/
-│   ├── controller/     # REST API endpoints
-│   ├── service/        # Business logic & orchestration
-│   ├── repository/     # Data access layer
+│   ├── controller/     # Chat REST API endpoints
+│   ├── service/        # Business logic & orchestration (ChatService)
+│   ├── repository/     # Data access layer (ChatSessionRepository, ChatMessageRepository)
 │   ├── domain/         # JPA entities (ChatSessionEntity, ChatMessageEntity, MessageRole)
-│   └── dto/            # API DTOs (6 files: CreateSessionRequest, SessionResponse, etc.)
+│   └── dto/            # API DTOs (CreateSessionRequest, SessionResponse, UpdateTopicRequest, etc.)
 ├── vocabulary/
 │   ├── controller/     # Vocabulary REST API
-│   ├── service/        # Vocabulary tracking (VocabularyService, VocabularyQueryService)
-│   ├── repository/     # Vocabulary persistence
-│   ├── domain/         # Vocabulary entities
-│   └── dto/            # Vocabulary DTOs (4 files: NewVocabularyDTO, VocabularyItemResponse, etc.)
+│   ├── service/        # Vocabulary tracking (VocabularyService, VocabularyQueryService, VocabularyContextService)
+│   ├── repository/     # Vocabulary persistence (VocabularyItemRepository, VocabularyContextRepository)
+│   ├── domain/         # Vocabulary entities (VocabularyItemEntity, VocabularyContextEntity)
+│   └── dto/            # Vocabulary DTOs (NewVocabularyDTO, VocabularyItemResponse, etc.)
 ├── tutor/
-│   ├── service/        # Core tutoring logic with AI (TutorService, PhaseDecisionService)
+│   ├── service/        # Core tutoring logic (TutorService, PhaseDecisionService, TopicDecisionService)
 │   └── domain/         # Tutor domain models (Tutor, ConversationState, ConversationResponse, ConversationPhase)
 ├── conversation/
 │   ├── service/        # AI chat integration & streaming (AiChatService implementations)
@@ -337,6 +397,19 @@ The system automatically selects the optimal phase using **severity-weighted sco
 - **Returns to Correction**: Default middle ground for moderate error patterns
 
 You can manually override Auto mode at any time via the API to match learning goals.
+
+### Conversation Topics
+
+The system tracks conversation topics to provide structure and variety:
+
+- **Current Topic**: The topic being discussed (e.g., "travel", "food", "weather")
+- **Topic History**: Past topics to avoid repetition
+- **Topic Hysteresis**: Prevents topic thrashing with configurable thresholds
+  - Minimum 3 turns before topic can change (stability)
+  - Maximum 12 turns before encouraging topic change (variety)
+  - Won't revisit topics from last 3 topic changes (prevents repetition)
+
+The AI tutor proposes topics naturally, and the `TopicDecisionService` validates changes to ensure stable, varied conversations. You can also manually set topics via the API.
 
 ### Error Types and Severity
 

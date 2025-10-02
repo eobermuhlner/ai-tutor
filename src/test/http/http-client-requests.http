@@ -177,6 +177,20 @@ Content-Type: application/json
   "content": "Me gusta aprender español"
 }
 
+### Update Session Topic
+PATCH {{host}}/api/v1/chat/sessions/{{chatSessionId}}/topic
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "currentTopic": "travel"
+}
+
+### Get Topic History
+GET {{host}}/api/v1/chat/sessions/{{chatSessionId}}/topics/history
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
 ### Delete Session
 DELETE {{host}}/api/v1/chat/sessions/{{chatSessionId}}
 Authorization: Bearer {{accessToken}}

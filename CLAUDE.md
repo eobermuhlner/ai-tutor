@@ -12,25 +12,39 @@ Language learning assistant with conversational AI tutoring and vocabulary track
 ## Architecture
 
 ### REST API Layer
-- **ChatController** - REST endpoints (`/api/v1/chat/*`)
+- **AuthController** - Authentication REST endpoints (`/api/v1/auth/*`)
+  - POST `/register` - Register new user
+  - POST `/login` - Login and get JWT tokens
+  - POST `/refresh` - Refresh access token
+  - POST `/logout` - Logout (invalidate refresh tokens)
+  - GET `/me` - Get current user profile
+  - POST `/password` - Change password
+- **ChatController** - Chat REST endpoints (`/api/v1/chat/*`)
   - POST `/sessions` - Create session
-  - GET `/sessions?userId={id}` - List sessions
+  - GET `/sessions?userId={id}` - List sessions (omit userId for current user)
   - GET `/sessions/{id}` - Get session with messages
-  - PATCH `/sessions/{id}/phase` - Update conversation phase (Free/Drill/Auto)
+  - PATCH `/sessions/{id}/phase` - Update conversation phase (Free/Correction/Drill/Auto)
+  - PATCH `/sessions/{id}/topic` - Update current conversation topic
+  - GET `/sessions/{id}/topics/history` - Get topic history
   - POST `/sessions/{id}/messages` - Send message
   - POST `/sessions/{id}/messages/stream` - Send message with SSE streaming
   - DELETE `/sessions/{id}` - Delete session
-- **VocabularyController** - REST endpoints (`/api/v1/vocabulary/*`)
+- **VocabularyController** - Vocabulary REST endpoints (`/api/v1/vocabulary/*`)
   - GET `/?userId={id}&lang={lang}` - Get user's vocabulary (optionally filtered by language)
   - GET `/{itemId}` - Get vocabulary item with all contexts
 - **ChatService** - Session/message orchestration, integrates TutorService
 - **ChatSessionRepository** / **ChatMessageRepository** - JPA persistence
+- **AuthService** / **AuthorizationService** / **JwtTokenService** - Authentication/authorization
+- **UserService** / **UserRepository** - User management
 
 ### Core Components
-- `TutorService` - Main tutoring logic with adaptive conversation phases (Free/Drill/Auto)
+- `TutorService` - Main tutoring logic with adaptive conversation phases (Free/Correction/Drill/Auto)
 - `PhaseDecisionService` - Automatic phase selection based on learner error patterns
+- `TopicDecisionService` - Conversation topic tracking with hysteresis (prevents topic thrashing)
 - `AiChatService` - AI chat integration with streaming responses
 - `VocabularyService` - Vocabulary tracking with context and exposure counting
+- `AuthService` / `AuthorizationService` / `JwtTokenService` - JWT-based authentication
+- `UserService` - User management and Spring Security integration
 
 ### Conversation Model
 - **Phases** (3-phase pedagogical approach):
@@ -38,6 +52,11 @@ Language learning assistant with conversational AI tutoring and vocabulary track
   - Correction: Errors tracked for UI hover, not mentioned in conversation (default)
   - Drill: Explicit error work with tutor discussion
   - Auto: Severity-weighted phase selection
+- **Topic Management**:
+  - Current topic tracked per session (e.g., "travel", "food")
+  - Topic history prevents repetition (won't revisit last 3 topics)
+  - Hysteresis rules: min 3 turns before change, max 12 turns before encouraging change
+  - LLM proposes topics, TopicDecisionService validates with stability logic
 - **Error Severity System** (chat-context aware):
   - Critical (3.0): Comprehension blocked
   - High (2.0): Global errors, significant barrier
@@ -49,6 +68,7 @@ Language learning assistant with conversational AI tutoring and vocabulary track
 - **Error Detection**: 9 error types with severity classification
 - **UI Integration**: Corrections displayed as hover tooltips with severity indicators
 - **Session Persistence**: Chat sessions and messages stored in H2 database
+- **Authentication**: JWT-based with access/refresh tokens, Spring Security integration
 
 ## Commands
 - `./gradlew runServer` - Run REST API server (requires OPENAI_API_KEY)
@@ -63,13 +83,23 @@ Language learning assistant with conversational AI tutoring and vocabulary track
 ## Package Structure
 ```
 ch.obermuhlner.aitutor
+├── auth/                   # Authentication and authorization
+│   ├── controller/         # AuthController (/api/v1/auth)
+│   ├── service/            # AuthService, JwtTokenService, AuthorizationService
+│   └── dto/                # RegisterRequest, LoginRequest, LoginResponse, UserResponse,
+│                           # RefreshTokenRequest, ChangePasswordRequest
+├── user/                   # User management
+│   ├── service/            # UserService, CustomUserDetailsService
+│   ├── repository/         # UserRepository, RefreshTokenRepository
+│   └── domain/             # UserEntity, RefreshTokenEntity, UserRole, AuthProvider
 ├── chat/                   # Chat REST API layer
 │   ├── controller/         # ChatController (/api/v1/chat)
 │   ├── service/            # ChatService
 │   ├── repository/         # ChatSessionRepository, ChatMessageRepository
 │   ├── domain/             # ChatSessionEntity, ChatMessageEntity, MessageRole
 │   └── dto/                # CreateSessionRequest, SessionResponse, SendMessageRequest,
-│                           # MessageResponse, SessionWithMessagesResponse, UpdatePhaseRequest
+│                           # MessageResponse, SessionWithMessagesResponse, UpdatePhaseRequest,
+│                           # UpdateTopicRequest, TopicHistoryResponse
 ├── vocabulary/             # Vocabulary tracking
 │   ├── controller/         # VocabularyController (/api/v1/vocabulary)
 │   ├── service/            # VocabularyService, VocabularyContextService, VocabularyQueryService
@@ -78,7 +108,7 @@ ch.obermuhlner.aitutor
 │   └── dto/                # NewVocabularyDTO, VocabularyItemResponse,
 │                           # VocabularyContextResponse, VocabularyItemWithContextsResponse
 ├── tutor/                  # Tutoring logic and domain
-│   ├── service/            # TutorService, PhaseDecisionService
+│   ├── service/            # TutorService, PhaseDecisionService, TopicDecisionService
 │   └── domain/             # Tutor, ConversationState, ConversationResponse, ConversationPhase
 ├── conversation/           # AI chat integration
 │   ├── service/            # AiChatService (interface), SingleJsonEntityAiChatService,
