@@ -26,8 +26,14 @@ class VocabularyQueryService(
         }
     }
 
-    fun getVocabularyItemWithContexts(itemId: UUID): VocabularyItemWithContexts? {
+    fun getVocabularyItemWithContexts(itemId: UUID, currentUserId: UUID): VocabularyItemWithContexts? {
         val item = vocabularyItemRepository.findById(itemId).orElse(null) ?: return null
+
+        // Validate ownership
+        if (item.userId != currentUserId) {
+            return null
+        }
+
         val contexts = vocabularyContextRepository.findByVocabItemId(itemId)
         return VocabularyItemWithContexts(item, contexts)
     }

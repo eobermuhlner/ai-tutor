@@ -1,5 +1,6 @@
 package ch.obermuhlner.aitutor.chat.controller
 
+import ch.obermuhlner.aitutor.auth.service.AuthorizationService
 import ch.obermuhlner.aitutor.chat.dto.*
 import ch.obermuhlner.aitutor.chat.service.ChatService
 import org.springframework.http.HttpStatus
@@ -12,32 +13,43 @@ import java.util.*
 @RestController
 @RequestMapping("/api/v1/chat")
 class ChatController(
-    private val chatService: ChatService
+    private val chatService: ChatService,
+    private val authorizationService: AuthorizationService
 ) {
 
     @PostMapping("/sessions")
     fun createSession(@RequestBody request: CreateSessionRequest): ResponseEntity<SessionResponse> {
+        // Validate that user is creating session for themselves (or admin can create for anyone)
+        authorizationService.requireAccessToUser(request.userId)
         val session = chatService.createSession(request)
         return ResponseEntity.status(HttpStatus.CREATED).body(session)
     }
 
     @GetMapping("/sessions")
-    fun getUserSessions(@RequestParam userId: UUID): ResponseEntity<List<SessionResponse>> {
-        val sessions = chatService.getUserSessions(userId)
+    fun getUserSessions(@RequestParam(required = false) userId: UUID?): ResponseEntity<List<SessionResponse>> {
+        // Resolve userId: use authenticated user's ID or validate admin access to requested user
+        val resolvedUserId = authorizationService.resolveUserId(userId)
+        val sessions = chatService.getUserSessions(resolvedUserId)
         return ResponseEntity.ok(sessions)
     }
 
     @GetMapping("/sessions/{sessionId}")
     fun getSession(@PathVariable sessionId: UUID): ResponseEntity<SessionWithMessagesResponse> {
-        val session = chatService.getSessionWithMessages(sessionId)
+        val currentUserId = authorizationService.getCurrentUserId()
+        val session = chatService.getSessionWithMessages(sessionId, currentUserId)
             ?: return ResponseEntity.notFound().build()
         return ResponseEntity.ok(session)
     }
 
     @DeleteMapping("/sessions/{sessionId}")
     fun deleteSession(@PathVariable sessionId: UUID): ResponseEntity<Void> {
-        chatService.deleteSession(sessionId)
-        return ResponseEntity.noContent().build()
+        val currentUserId = authorizationService.getCurrentUserId()
+        val deleted = chatService.deleteSession(sessionId, currentUserId)
+        return if (deleted) {
+            ResponseEntity.noContent().build()
+        } else {
+            ResponseEntity.notFound().build()
+        }
     }
 
     @PatchMapping("/sessions/{sessionId}/phase")
@@ -45,7 +57,8 @@ class ChatController(
         @PathVariable sessionId: UUID,
         @RequestBody request: UpdatePhaseRequest
     ): ResponseEntity<SessionResponse> {
-        val session = chatService.updateSessionPhase(sessionId, request.phase)
+        val currentUserId = authorizationService.getCurrentUserId()
+        val session = chatService.updateSessionPhase(sessionId, request.phase, currentUserId)
             ?: return ResponseEntity.notFound().build()
         return ResponseEntity.ok(session)
     }
@@ -55,14 +68,16 @@ class ChatController(
         @PathVariable sessionId: UUID,
         @RequestBody request: UpdateTopicRequest
     ): ResponseEntity<SessionResponse> {
-        val session = chatService.updateSessionTopic(sessionId, request.currentTopic)
+        val currentUserId = authorizationService.getCurrentUserId()
+        val session = chatService.updateSessionTopic(sessionId, request.currentTopic, currentUserId)
             ?: return ResponseEntity.notFound().build()
         return ResponseEntity.ok(session)
     }
 
     @GetMapping("/sessions/{sessionId}/topics/history")
     fun getTopicHistory(@PathVariable sessionId: UUID): ResponseEntity<TopicHistoryResponse> {
-        val history = chatService.getTopicHistory(sessionId)
+        val currentUserId = authorizationService.getCurrentUserId()
+        val history = chatService.getTopicHistory(sessionId, currentUserId)
             ?: return ResponseEntity.notFound().build()
         return ResponseEntity.ok(history)
     }
@@ -72,7 +87,8 @@ class ChatController(
         @PathVariable sessionId: UUID,
         @RequestBody request: SendMessageRequest
     ): ResponseEntity<MessageResponse> {
-        val message = chatService.sendMessage(sessionId, request.content)
+        val currentUserId = authorizationService.getCurrentUserId()
+        val message = chatService.sendMessage(sessionId, request.content, currentUserId)
             ?: return ResponseEntity.notFound().build()
         return ResponseEntity.ok(message)
     }
@@ -82,11 +98,12 @@ class ChatController(
         @PathVariable sessionId: UUID,
         @RequestBody request: SendMessageRequest
     ): SseEmitter {
+        val currentUserId = authorizationService.getCurrentUserId()
         val emitter = SseEmitter(30_000L)
 
         Thread {
             try {
-                val message = chatService.sendMessage(sessionId, request.content) { chunk ->
+                val message = chatService.sendMessage(sessionId, request.content, currentUserId) { chunk ->
                     try {
                         emitter.send(
                             SseEmitter.event()

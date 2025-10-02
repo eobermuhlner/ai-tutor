@@ -96,7 +96,7 @@ class VocabularyQueryServiceTest {
         every { vocabularyItemRepository.findById(itemId) } returns Optional.of(item)
         every { vocabularyContextRepository.findByVocabItemId(itemId) } returns listOf(context1, context2)
 
-        val result = vocabularyQueryService.getVocabularyItemWithContexts(itemId)
+        val result = vocabularyQueryService.getVocabularyItemWithContexts(itemId, testUserId)
 
         assertNotNull(result)
         assertEquals("hola", result!!.item.lemma)
@@ -113,7 +113,7 @@ class VocabularyQueryServiceTest {
 
         every { vocabularyItemRepository.findById(itemId) } returns Optional.empty()
 
-        val result = vocabularyQueryService.getVocabularyItemWithContexts(itemId)
+        val result = vocabularyQueryService.getVocabularyItemWithContexts(itemId, testUserId)
 
         assertNull(result)
         verify(exactly = 1) { vocabularyItemRepository.findById(itemId) }

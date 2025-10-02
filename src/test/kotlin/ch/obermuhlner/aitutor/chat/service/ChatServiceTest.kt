@@ -130,7 +130,7 @@ class ChatServiceTest {
         every { tutorService.respond(any(), any(), any(), any(), any()) } returns tutorResponse
         every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns session
 
-        val result = chatService.sendMessage(TestDataFactory.TEST_SESSION_ID, "Test message")
+        val result = chatService.sendMessage(TestDataFactory.TEST_SESSION_ID, "Test message", TestDataFactory.TEST_USER_ID)
 
         assertNotNull(result)
         assertEquals("ASSISTANT", result?.role)
@@ -144,17 +144,20 @@ class ChatServiceTest {
     fun `should return null when sending message to non-existent session`() {
         every { chatSessionRepository.findById(any()) } returns Optional.empty()
 
-        val result = chatService.sendMessage(UUID.randomUUID(), "Test message")
+        val result = chatService.sendMessage(UUID.randomUUID(), "Test message", TestDataFactory.TEST_USER_ID)
 
         assertNull(result)
     }
 
     @Test
     fun `should delete session`() {
+        val session = TestDataFactory.createSessionEntity()
+        every { chatSessionRepository.findById(any()) } returns Optional.of(session)
         every { chatSessionRepository.deleteById(any()) } just Runs
 
-        chatService.deleteSession(TestDataFactory.TEST_SESSION_ID)
+        val result = chatService.deleteSession(TestDataFactory.TEST_SESSION_ID, TestDataFactory.TEST_USER_ID)
 
+        assertTrue(result)
         verify(exactly = 1) { chatSessionRepository.deleteById(TestDataFactory.TEST_SESSION_ID) }
     }
 
@@ -195,7 +198,7 @@ class ChatServiceTest {
         every { tutorService.respond(any(), any(), any(), any(), any()) } returns tutorResponse
         every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns session
 
-        val result = chatService.sendMessage(TestDataFactory.TEST_SESSION_ID, "Test")
+        val result = chatService.sendMessage(TestDataFactory.TEST_SESSION_ID, "Test", TestDataFactory.TEST_USER_ID)
 
         assertNotNull(result)
         verify { chatSessionRepository.save(match { it.currentTopic == "new-topic" }) }
@@ -229,7 +232,7 @@ class ChatServiceTest {
         every { tutorService.respond(any(), any(), any(), any(), any()) } returns tutorResponse
         every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns session
 
-        chatService.sendMessage(TestDataFactory.TEST_SESSION_ID, "Test")
+        chatService.sendMessage(TestDataFactory.TEST_SESSION_ID, "Test", TestDataFactory.TEST_USER_ID)
 
         verify { chatSessionRepository.save(match { it.conversationPhase == ConversationPhase.Drill }) }
     }

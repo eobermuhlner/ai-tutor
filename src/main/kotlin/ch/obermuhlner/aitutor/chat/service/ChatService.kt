@@ -63,8 +63,14 @@ class ChatService(
             .map { toSessionResponse(it) }
     }
 
-    fun getSessionWithMessages(sessionId: UUID): SessionWithMessagesResponse? {
+    fun getSessionWithMessages(sessionId: UUID, currentUserId: UUID): SessionWithMessagesResponse? {
         val session = chatSessionRepository.findById(sessionId).orElse(null) ?: return null
+
+        // Validate ownership
+        if (session.userId != currentUserId) {
+            return null
+        }
+
         val messages = chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(sessionId)
             .map { toMessageResponse(it) }
 
@@ -75,21 +81,40 @@ class ChatService(
     }
 
     @Transactional
-    fun deleteSession(sessionId: UUID) {
+    fun deleteSession(sessionId: UUID, currentUserId: UUID): Boolean {
+        val session = chatSessionRepository.findById(sessionId).orElse(null) ?: return false
+
+        // Validate ownership
+        if (session.userId != currentUserId) {
+            return false
+        }
+
         chatSessionRepository.deleteById(sessionId)
+        return true
     }
 
     @Transactional
-    fun updateSessionPhase(sessionId: UUID, phase: ConversationPhase): SessionResponse? {
+    fun updateSessionPhase(sessionId: UUID, phase: ConversationPhase, currentUserId: UUID): SessionResponse? {
         val session = chatSessionRepository.findById(sessionId).orElse(null) ?: return null
+
+        // Validate ownership
+        if (session.userId != currentUserId) {
+            return null
+        }
+
         session.conversationPhase = phase
         val saved = chatSessionRepository.save(session)
         return toSessionResponse(saved)
     }
 
     @Transactional
-    fun updateSessionTopic(sessionId: UUID, topic: String?): SessionResponse? {
+    fun updateSessionTopic(sessionId: UUID, topic: String?, currentUserId: UUID): SessionResponse? {
         val session = chatSessionRepository.findById(sessionId).orElse(null) ?: return null
+
+        // Validate ownership
+        if (session.userId != currentUserId) {
+            return null
+        }
 
         // Archive old topic if changing
         if (session.currentTopic != null && session.currentTopic != topic) {
@@ -105,8 +130,13 @@ class ChatService(
         return toSessionResponse(saved)
     }
 
-    fun getTopicHistory(sessionId: UUID): TopicHistoryResponse? {
+    fun getTopicHistory(sessionId: UUID, currentUserId: UUID): TopicHistoryResponse? {
         val session = chatSessionRepository.findById(sessionId).orElse(null) ?: return null
+
+        // Validate ownership
+        if (session.userId != currentUserId) {
+            return null
+        }
 
         val pastTopics = session.pastTopicsJson?.let {
             try {
@@ -126,9 +156,15 @@ class ChatService(
     fun sendMessage(
         sessionId: UUID,
         userContent: String,
+        currentUserId: UUID,
         onReplyChunk: (String) -> Unit = {}
     ): MessageResponse? {
         val session = chatSessionRepository.findById(sessionId).orElse(null) ?: return null
+
+        // Validate ownership
+        if (session.userId != currentUserId) {
+            return null
+        }
 
         // Save user message
         val userMessage = ChatMessageEntity(

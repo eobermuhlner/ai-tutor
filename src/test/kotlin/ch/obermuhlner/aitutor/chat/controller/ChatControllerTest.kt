@@ -1,5 +1,6 @@
 package ch.obermuhlner.aitutor.chat.controller
 
+import ch.obermuhlner.aitutor.auth.service.AuthorizationService
 import ch.obermuhlner.aitutor.chat.dto.*
 import ch.obermuhlner.aitutor.chat.service.ChatService
 import ch.obermuhlner.aitutor.core.model.CEFRLevel
@@ -17,7 +18,10 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.autoconfigure.json.AutoConfigureJsonTesters
+import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
+import org.springframework.security.test.context.support.WithMockUser
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
@@ -26,6 +30,7 @@ import java.util.*
 
 @WebMvcTest(controllers = [ChatController::class])
 @AutoConfigureJsonTesters
+@Import(ch.obermuhlner.aitutor.auth.config.SecurityConfig::class)
 class ChatControllerTest {
 
     @Autowired
@@ -33,6 +38,9 @@ class ChatControllerTest {
 
     @MockkBean(relaxed = true)
     private lateinit var chatService: ChatService
+
+    @MockkBean(relaxed = true)
+    private lateinit var authorizationService: AuthorizationService
 
     @MockkBean(relaxed = true)
     private lateinit var chatSessionRepository: ChatSessionRepository
@@ -46,7 +54,14 @@ class ChatControllerTest {
     @MockkBean(relaxed = true)
     private lateinit var vocabularyService: VocabularyService
 
+    @MockkBean(relaxed = true)
+    private lateinit var jwtTokenService: ch.obermuhlner.aitutor.auth.service.JwtTokenService
+
+    @MockkBean(relaxed = true)
+    private lateinit var customUserDetailsService: ch.obermuhlner.aitutor.user.service.CustomUserDetailsService
+
     @Test
+    @WithMockUser
     fun `should create chat session with valid request`() {
         val request = TestDataFactory.createSessionRequest()
         val response = SessionResponse(
@@ -63,10 +78,12 @@ class ChatControllerTest {
             updatedAt = Instant.now()
         )
 
+        every { authorizationService.requireAccessToUser(request.userId) } returns Unit
         every { chatService.createSession(any()) } returns response
 
         mockMvc.perform(
             post("/api/v1/chat/sessions")
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                     {
@@ -87,6 +104,7 @@ class ChatControllerTest {
     }
 
     @Test
+    @WithMockUser
     fun `should get user sessions`() {
         val sessions = listOf(
             SessionResponse(
@@ -104,6 +122,7 @@ class ChatControllerTest {
             )
         )
 
+        every { authorizationService.resolveUserId(TestDataFactory.TEST_USER_ID) } returns TestDataFactory.TEST_USER_ID
         every { chatService.getUserSessions(TestDataFactory.TEST_USER_ID) } returns sessions
 
         mockMvc.perform(
@@ -116,6 +135,7 @@ class ChatControllerTest {
     }
 
     @Test
+    @WithMockUser
     fun `should get session with messages`() {
         val response = SessionWithMessagesResponse(
             session = SessionResponse(
@@ -144,7 +164,8 @@ class ChatControllerTest {
             )
         )
 
-        every { chatService.getSessionWithMessages(TestDataFactory.TEST_SESSION_ID) } returns response
+        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
+        every { chatService.getSessionWithMessages(TestDataFactory.TEST_SESSION_ID, TestDataFactory.TEST_USER_ID) } returns response
 
         mockMvc.perform(
             get("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}")
@@ -155,8 +176,10 @@ class ChatControllerTest {
     }
 
     @Test
+    @WithMockUser
     fun `should return 404 when session not found`() {
-        every { chatService.getSessionWithMessages(any()) } returns null
+        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
+        every { chatService.getSessionWithMessages(any(), any()) } returns null
 
         mockMvc.perform(
             get("/api/v1/chat/sessions/${UUID.randomUUID()}")
@@ -165,6 +188,7 @@ class ChatControllerTest {
     }
 
     @Test
+    @WithMockUser
     fun `should send message to session`() {
         val messageResponse = MessageResponse(
             id = UUID.randomUUID(),
@@ -176,10 +200,12 @@ class ChatControllerTest {
             createdAt = Instant.now()
         )
 
-        every { chatService.sendMessage(any(), any(), any()) } returns messageResponse
+        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
+        every { chatService.sendMessage(any(), any(), any(), any()) } returns messageResponse
 
         mockMvc.perform(
             post("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}/messages")
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""{"content": "Hola"}""")
         )
@@ -189,18 +215,22 @@ class ChatControllerTest {
     }
 
     @Test
+    @WithMockUser
     fun `should delete session`() {
-        every { chatService.deleteSession(any()) } returns Unit
+        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
+        every { chatService.deleteSession(any(), any()) } returns true
 
         mockMvc.perform(
             delete("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}")
+                .with(csrf())
         )
             .andExpect(status().isNoContent)
 
-        verify(exactly = 1) { chatService.deleteSession(TestDataFactory.TEST_SESSION_ID) }
+        verify(exactly = 1) { chatService.deleteSession(TestDataFactory.TEST_SESSION_ID, TestDataFactory.TEST_USER_ID) }
     }
 
     @Test
+    @WithMockUser
     fun `should update session topic`() {
         val sessionResponse = SessionResponse(
             id = TestDataFactory.TEST_SESSION_ID,
@@ -217,20 +247,23 @@ class ChatControllerTest {
             updatedAt = Instant.now()
         )
 
-        every { chatService.updateSessionTopic(TestDataFactory.TEST_SESSION_ID, "cooking") } returns sessionResponse
+        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
+        every { chatService.updateSessionTopic(TestDataFactory.TEST_SESSION_ID, "cooking", TestDataFactory.TEST_USER_ID) } returns sessionResponse
 
         mockMvc.perform(
             patch("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}/topic")
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""{"currentTopic": "cooking"}""")
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.currentTopic").value("cooking"))
 
-        verify(exactly = 1) { chatService.updateSessionTopic(TestDataFactory.TEST_SESSION_ID, "cooking") }
+        verify(exactly = 1) { chatService.updateSessionTopic(TestDataFactory.TEST_SESSION_ID, "cooking", TestDataFactory.TEST_USER_ID) }
     }
 
     @Test
+    @WithMockUser
     fun `should update session topic to null`() {
         val sessionResponse = SessionResponse(
             id = TestDataFactory.TEST_SESSION_ID,
@@ -247,25 +280,30 @@ class ChatControllerTest {
             updatedAt = Instant.now()
         )
 
-        every { chatService.updateSessionTopic(TestDataFactory.TEST_SESSION_ID, null) } returns sessionResponse
+        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
+        every { chatService.updateSessionTopic(TestDataFactory.TEST_SESSION_ID, null, TestDataFactory.TEST_USER_ID) } returns sessionResponse
 
         mockMvc.perform(
             patch("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}/topic")
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""{"currentTopic": null}""")
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.currentTopic").doesNotExist())
 
-        verify(exactly = 1) { chatService.updateSessionTopic(TestDataFactory.TEST_SESSION_ID, null) }
+        verify(exactly = 1) { chatService.updateSessionTopic(TestDataFactory.TEST_SESSION_ID, null, TestDataFactory.TEST_USER_ID) }
     }
 
     @Test
+    @WithMockUser
     fun `should return 404 when updating topic for non-existent session`() {
-        every { chatService.updateSessionTopic(any(), any()) } returns null
+        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
+        every { chatService.updateSessionTopic(any(), any(), any()) } returns null
 
         mockMvc.perform(
             patch("/api/v1/chat/sessions/${UUID.randomUUID()}/topic")
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""{"currentTopic": "cooking"}""")
         )
@@ -273,13 +311,15 @@ class ChatControllerTest {
     }
 
     @Test
+    @WithMockUser
     fun `should get topic history`() {
         val topicHistory = TopicHistoryResponse(
             currentTopic = "cooking",
             pastTopics = listOf("travel", "sports", "music")
         )
 
-        every { chatService.getTopicHistory(TestDataFactory.TEST_SESSION_ID) } returns topicHistory
+        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
+        every { chatService.getTopicHistory(TestDataFactory.TEST_SESSION_ID, TestDataFactory.TEST_USER_ID) } returns topicHistory
 
         mockMvc.perform(
             get("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}/topics/history")
@@ -290,12 +330,14 @@ class ChatControllerTest {
             .andExpect(jsonPath("$.pastTopics.length()").value(3))
             .andExpect(jsonPath("$.pastTopics[0]").value("travel"))
 
-        verify(exactly = 1) { chatService.getTopicHistory(TestDataFactory.TEST_SESSION_ID) }
+        verify(exactly = 1) { chatService.getTopicHistory(TestDataFactory.TEST_SESSION_ID, TestDataFactory.TEST_USER_ID) }
     }
 
     @Test
+    @WithMockUser
     fun `should return 404 when getting topic history for non-existent session`() {
-        every { chatService.getTopicHistory(any()) } returns null
+        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
+        every { chatService.getTopicHistory(any(), any()) } returns null
 
         mockMvc.perform(
             get("/api/v1/chat/sessions/${UUID.randomUUID()}/topics/history")

@@ -1,5 +1,6 @@
 package ch.obermuhlner.aitutor.vocabulary.controller
 
+import ch.obermuhlner.aitutor.auth.service.AuthorizationService
 import ch.obermuhlner.aitutor.vocabulary.dto.VocabularyContextResponse
 import ch.obermuhlner.aitutor.vocabulary.dto.VocabularyItemResponse
 import ch.obermuhlner.aitutor.vocabulary.dto.VocabularyItemWithContextsResponse
@@ -11,15 +12,18 @@ import java.util.*
 @RestController
 @RequestMapping("/api/v1/vocabulary")
 class VocabularyController(
-    private val vocabularyQueryService: VocabularyQueryService
+    private val vocabularyQueryService: VocabularyQueryService,
+    private val authorizationService: AuthorizationService
 ) {
 
     @GetMapping
     fun getUserVocabulary(
-        @RequestParam userId: UUID,
+        @RequestParam(required = false) userId: UUID?,
         @RequestParam(required = false) lang: String?
     ): ResponseEntity<List<VocabularyItemResponse>> {
-        val items = vocabularyQueryService.getUserVocabulary(userId, lang)
+        // Resolve userId: use authenticated user's ID or validate admin access to requested user
+        val resolvedUserId = authorizationService.resolveUserId(userId)
+        val items = vocabularyQueryService.getUserVocabulary(resolvedUserId, lang)
 
         val response = items.map { item ->
             VocabularyItemResponse(
@@ -39,7 +43,8 @@ class VocabularyController(
     fun getVocabularyItemWithContexts(
         @PathVariable itemId: UUID
     ): ResponseEntity<VocabularyItemWithContextsResponse> {
-        val result = vocabularyQueryService.getVocabularyItemWithContexts(itemId)
+        val currentUserId = authorizationService.getCurrentUserId()
+        val result = vocabularyQueryService.getVocabularyItemWithContexts(itemId, currentUserId)
             ?: return ResponseEntity.notFound().build()
 
         val contexts = result.contexts.map { ctx ->
