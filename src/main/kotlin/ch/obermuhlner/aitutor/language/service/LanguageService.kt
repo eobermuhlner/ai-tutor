@@ -30,6 +30,9 @@ class LanguageService {
         "de-AT" to "German (Austria)",
         "de-CH" to "German (Switzerland)",
 
+        // Swiss German
+        "gsw" to "Swiss German",
+
         // Italian
         "it" to "Italian",
         "it-IT" to "Italian (Italy)",

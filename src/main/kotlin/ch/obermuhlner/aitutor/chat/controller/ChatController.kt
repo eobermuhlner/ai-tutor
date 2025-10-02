@@ -93,6 +93,14 @@ class ChatController(
         return ResponseEntity.ok(sessions)
     }
 
+    @GetMapping("/sessions/active")
+    fun getActiveLearningSessions(@RequestParam(required = false) userId: UUID?): ResponseEntity<List<SessionWithProgressResponse>> {
+        // Resolve userId: use authenticated user's ID or validate admin access to requested user
+        val resolvedUserId = authorizationService.resolveUserId(userId)
+        val sessions = chatService.getActiveLearningSessions(resolvedUserId)
+        return ResponseEntity.ok(sessions)
+    }
+
     @GetMapping("/sessions/{sessionId}")
     fun getSession(@PathVariable sessionId: UUID): ResponseEntity<SessionWithMessagesResponse> {
         val currentUserId = authorizationService.getCurrentUserId()
