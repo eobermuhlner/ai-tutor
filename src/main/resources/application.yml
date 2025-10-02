@@ -20,6 +20,158 @@ app:
     email: ${ADMIN_EMAIL:admin@localhost}
 
 ai-tutor:
+  catalog:
+    tutors:
+      - name: María
+        emoji: "👩‍🏫"
+        personaEnglish: patient coach
+        domainEnglish: general conversation, grammar, typography
+        descriptionEnglish: Patient coach from Madrid who loves helping beginners feel confident
+        personality: Encouraging
+        targetLanguageCode: es
+        displayOrder: 0
+      - name: Professor Rodríguez
+        emoji: "🎓"
+        personaEnglish: strict academic
+        domainEnglish: Spanish grammar, literature, formal writing
+        descriptionEnglish: Academic expert in Spanish grammar and literature with high standards
+        personality: Academic
+        targetLanguageCode: es
+        displayOrder: 1
+      - name: Carlos
+        emoji: "😊"
+        personaEnglish: casual friend
+        domainEnglish: everyday conversation, slang, culture
+        descriptionEnglish: Friendly guy from Barcelona who makes learning Spanish fun and relaxed
+        personality: Casual
+        targetLanguageCode: es
+        displayOrder: 2
+      - name: François
+        emoji: "👨‍🏫"
+        personaEnglish: academic professor
+        domainEnglish: French linguistics, literature, formal grammar
+        descriptionEnglish: Parisian professor with expertise in French linguistics and literature
+        personality: Academic
+        targetLanguageCode: fr
+        displayOrder: 0
+      - name: Céline
+        emoji: "😊"
+        personaEnglish: casual tutor
+        domainEnglish: everyday French, conversation, culture
+        descriptionEnglish: Young tutor from Lyon who loves casual conversation and cultural exchange
+        personality: Casual
+        targetLanguageCode: fr
+        displayOrder: 1
+      - name: Herr Schmidt
+        emoji: "🎓"
+        personaEnglish: strict teacher
+        domainEnglish: German grammar, formal writing, business German
+        descriptionEnglish: Traditional grammar expert from Berlin who focuses on proper form
+        personality: Strict
+        targetLanguageCode: de
+        displayOrder: 0
+      - name: Anna
+        emoji: "😊"
+        personaEnglish: friendly tutor
+        domainEnglish: everyday German, conversation, culture
+        descriptionEnglish: Friendly tutor from Munich who keeps German learning relaxed and fun
+        personality: Casual
+        targetLanguageCode: de
+        displayOrder: 1
+      - name: Yuki
+        emoji: "👩‍🏫"
+        personaEnglish: patient teacher
+        domainEnglish: Japanese basics, hiragana, katakana, simple conversation
+        descriptionEnglish: Patient teacher from Tokyo who specializes in helping beginners
+        personality: Encouraging
+        targetLanguageCode: ja
+        displayOrder: 0
+      - name: Tanaka-sensei
+        emoji: "🎓"
+        personaEnglish: traditional teacher
+        domainEnglish: Japanese grammar, kanji, formal language, etiquette
+        descriptionEnglish: Traditional teacher focused on proper form and cultural etiquette
+        personality: Strict
+        targetLanguageCode: ja
+        displayOrder: 1
+
+    courses:
+      - languageCode: es
+        nameEnglish: Conversational Spanish
+        shortDescriptionEnglish: Master everyday conversations at your own pace
+        descriptionEnglish: Learn to communicate naturally in Spanish through practical conversations covering greetings, daily routines, opinions, and more
+        category: Conversational
+        targetAudienceEnglish: Anyone wanting to speak Spanish naturally
+        startingLevel: A1
+        targetLevel: C1
+        learningGoalsEnglish:
+          - Greet people and introduce yourself
+          - Talk about daily routines and activities
+          - Describe people, places, and things
+          - Order food and shop for items
+          - Express opinions and feelings
+        displayOrder: 0
+      - languageCode: es
+        nameEnglish: Spanish for Travelers
+        shortDescriptionEnglish: Essential phrases for tourists and travelers
+        descriptionEnglish: Quick-start Spanish course focusing on practical phrases you'll need for travel
+        category: Travel
+        targetAudienceEnglish: Travelers planning a trip to Spanish-speaking countries
+        startingLevel: A1
+        targetLevel: A2
+        estimatedWeeks: 6
+        learningGoalsEnglish:
+          - Navigate airports and transportation
+          - Check into hotels and accommodations
+          - Order food at restaurants
+          - Ask for directions and help
+          - Handle emergencies
+        displayOrder: 1
+      - languageCode: fr
+        nameEnglish: French Conversation
+        shortDescriptionEnglish: Develop fluency in everyday French
+        descriptionEnglish: Practice natural French conversation skills from basic to intermediate level
+        category: Conversational
+        targetAudienceEnglish: Learners wanting to speak French confidently
+        startingLevel: A1
+        targetLevel: B2
+        learningGoalsEnglish:
+          - Engage in everyday conversations
+          - Understand French pronunciation
+          - Use common idiomatic expressions
+          - Discuss various topics naturally
+        displayOrder: 0
+      - languageCode: de
+        nameEnglish: German Fundamentals
+        shortDescriptionEnglish: Build a strong foundation in German
+        descriptionEnglish: Comprehensive beginner to intermediate German course covering grammar and conversation
+        category: General
+        targetAudienceEnglish: New German learners wanting a structured approach
+        startingLevel: A1
+        targetLevel: B1
+        estimatedWeeks: 12
+        learningGoalsEnglish:
+          - Master German cases and grammar
+          - Build essential vocabulary
+          - Form correct sentences
+          - Understand German culture
+        displayOrder: 0
+      - languageCode: ja
+        nameEnglish: Japanese for Beginners
+        shortDescriptionEnglish: Start your Japanese journey from zero
+        descriptionEnglish: Learn hiragana, katakana, and basic Japanese conversation step by step
+        category: General
+        targetAudienceEnglish: Complete beginners to Japanese
+        startingLevel: A1
+        targetLevel: A2
+        estimatedWeeks: 16
+        learningGoalsEnglish:
+          - Master hiragana and katakana
+          - Learn basic kanji
+          - Understand Japanese sentence structure
+          - Practice polite conversation
+        displayOrder: 0
+
   prompts:
     system: |
       You are a language tutor teaching the target language {targetLanguage} (code: {targetLanguageCode}) to a learner that speaks the source language {sourceLanguage} (code: {sourceLanguageCode}).

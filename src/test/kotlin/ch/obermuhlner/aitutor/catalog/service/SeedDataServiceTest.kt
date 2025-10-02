@@ -1,5 +1,6 @@
 package ch.obermuhlner.aitutor.catalog.service
 
+import ch.obermuhlner.aitutor.catalog.config.CatalogProperties
 import ch.obermuhlner.aitutor.catalog.repository.CourseTemplateRepository
 import ch.obermuhlner.aitutor.catalog.repository.TutorProfileRepository
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -21,6 +22,9 @@ class SeedDataServiceTest {
     private lateinit var courseTemplateRepository: CourseTemplateRepository
 
     @Autowired
+    private lateinit var catalogProperties: CatalogProperties
+
+    @Autowired
     private lateinit var objectMapper: ObjectMapper
 
     @BeforeEach
@@ -33,6 +37,7 @@ class SeedDataServiceTest {
         val seedDataService = SeedDataService(
             tutorProfileRepository,
             courseTemplateRepository,
+            catalogProperties,
             objectMapper
         )
         seedDataService.seedData()
