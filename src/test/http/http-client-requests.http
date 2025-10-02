@@ -1,6 +1,82 @@
+###########################
+### Authentication Examples
+###########################
+
+### Register New User
+# @name register
+POST {{host}}/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "username": "demouser",
+  "email": "demo@example.com",
+  "password": "DemoPassword123",
+  "firstName": "Demo",
+  "lastName": "User"
+}
+
+> {%
+    client.global.set("userId", response.body.id);
+%}
+
+### Login User
+# @name login
+POST {{host}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "demouser",
+  "password": "DemoPassword123"
+}
+
+> {%
+    client.global.set("accessToken", response.body.accessToken);
+    client.global.set("refreshToken", response.body.refreshToken);
+    client.global.set("userId", response.body.user.id);
+%}
+
+### Refresh Access Token
+POST {{host}}/api/v1/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "{{refreshToken}}"
+}
+
+> {%
+    client.global.set("accessToken", response.body.accessToken);
+    client.global.set("refreshToken", response.body.refreshToken);
+%}
+
+### Get Current User Profile
+GET {{host}}/api/v1/auth/me
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+### Change Password
+POST {{host}}/api/v1/auth/password
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "currentPassword": "DemoPassword123",
+  "newPassword": "NewDemoPassword456"
+}
+
+### Logout
+POST {{host}}/api/v1/auth/logout
+Authorization: Bearer {{accessToken}}
+
+###
+
+###########################
+### Chat Session Examples
+###########################
+
 ### Create Chat Session
 # @name createSession
 POST {{host}}/api/v1/chat/sessions
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 
 {
@@ -20,14 +96,17 @@ Content-Type: application/json
 
 ### Get User Sessions
 GET {{host}}/api/v1/chat/sessions?userId={{userId}}
+Authorization: Bearer {{accessToken}}
 Accept: application/json
 
 ### Get Session with Messages
 GET {{host}}/api/v1/chat/sessions/{{chatSessionId}}
+Authorization: Bearer {{accessToken}}
 Accept: application/json
 
 ### Update Session Phase to Free (Pure fluency, no error tracking)
 PATCH {{host}}/api/v1/chat/sessions/{{chatSessionId}}/phase
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 
 {
@@ -36,6 +115,7 @@ Content-Type: application/json
 
 ### Update Session Phase to Correction (Errors tracked for UI hover)
 PATCH {{host}}/api/v1/chat/sessions/{{chatSessionId}}/phase
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 
 {
@@ -44,6 +124,7 @@ Content-Type: application/json
 
 ### Update Session Phase to Drill (Explicit error work)
 PATCH {{host}}/api/v1/chat/sessions/{{chatSessionId}}/phase
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 
 {
@@ -52,6 +133,7 @@ Content-Type: application/json
 
 ### Update Session Phase to Auto (System decides)
 PATCH {{host}}/api/v1/chat/sessions/{{chatSessionId}}/phase
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 
 {
@@ -60,6 +142,7 @@ Content-Type: application/json
 
 ### Send Message (Non-Streaming)
 POST {{host}}/api/v1/chat/sessions/{{chatSessionId}}/messages
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 
 {
@@ -68,6 +151,7 @@ Content-Type: application/json
 
 ### Send Message (Non-Streaming)
 POST {{host}}/api/v1/chat/sessions/{{chatSessionId}}/messages
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 
 {
@@ -76,6 +160,7 @@ Content-Type: application/json
 
 ### Send Message (Non-Streaming)
 POST {{host}}/api/v1/chat/sessions/{{chatSessionId}}/messages
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 
 {
@@ -85,6 +170,7 @@ Content-Type: application/json
 
 ### Send Message (Streaming with SSE)
 POST {{host}}/api/v1/chat/sessions/{{chatSessionId}}/messages/stream
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 
 {
@@ -93,19 +179,27 @@ Content-Type: application/json
 
 ### Delete Session
 DELETE {{host}}/api/v1/chat/sessions/{{chatSessionId}}
+Authorization: Bearer {{accessToken}}
 
 ###
 
+###########################
+### Vocabulary Examples
+###########################
+
 ### Get User Vocabulary (All Languages)
 GET {{host}}/api/v1/vocabulary?userId={{userId}}
+Authorization: Bearer {{accessToken}}
 Accept: application/json
 
 ### Get User Vocabulary (Specific Language)
 GET {{host}}/api/v1/vocabulary?userId={{userId}}&lang=es
+Authorization: Bearer {{accessToken}}
 Accept: application/json
 
 ### Get Vocabulary Item with Contexts
 # @name getVocabItem
 GET {{host}}/api/v1/vocabulary/VOCABULARY_ITEM_ID
+Authorization: Bearer {{accessToken}}
 Accept: application/json
 
