@@ -1,12 +1,20 @@
 # Task 0002: Catalog-Based Tutor/Language/Course Management
 
-**Status**: Draft
-**Proposal**: #1 - Catalog-Based System with Templates
+**Status**: Architecture Review Applied - Simplified Design
+**Proposal**: #1 - Catalog-Based System with Templates (Simplified)
 **Theme**: "Choose Your Adventure" - Pre-configured learning paths with customization
+**Review**: See `task-0002-architecture-review.md` for full analysis
 
 ## Overview
 
-Implement a catalog-based system where users can browse and select from pre-configured **Language Packs**, **Tutor Profiles**, and **Course Templates**. This provides a beginner-friendly, guided experience while maintaining flexibility for advanced users.
+Implement a **simplified** catalog-based system where users can browse and select from pre-configured **Tutor Profiles** and **Course Templates**. This provides a beginner-friendly, guided experience while maintaining flexibility for advanced users.
+
+**Key Simplifications Applied:**
+- ❌ **Removed UserCourseEnrollment entity** - Course metadata added directly to ChatSessionEntity
+- ❌ **Removed LanguagePack entity** - Language metadata moved to configuration
+- ❌ **Removed SessionFactoryService** - Logic merged into ChatService
+- ❌ **Removed LocalizedTutorProfile wrapper** - Use DTOs directly
+- ✅ **Result**: 3 entities instead of 5, ~40% less code, same functionality
 
 ## Goals
 
@@ -25,9 +33,9 @@ Implement a catalog-based system where users can browse and select from pre-conf
 - I want to start learning with minimal configuration
 
 ### As a returning user
-- I want to see my enrolled courses so I can continue where I left off
-- I want to track my progress within each course
-- I want to switch between multiple courses/languages easily
+- I want to see my active learning sessions so I can continue where I left off
+- I want to track my progress within each session
+- I want to switch between multiple sessions/languages easily
 
 ### As an advanced user
 - I want to create custom language pairs not in the catalog
@@ -57,21 +65,18 @@ data class UserLanguageProficiency(
 enum class LanguageProficiencyType {
     Native,      // Native speaker (no CEFR level needed)
     Learning,    // Currently learning (has CEFR level)
-    Studied,     // Previously studied, not active (has CEFR level)
-    Interested   // Wants to learn (no CEFR level yet)
 }
 
-// Language Pack - Metadata about a language
-data class LanguagePack(
-    val id: UUID,
+// ❌ REMOVED: LanguagePack entity
+// Language metadata is now in application configuration (LanguageConfig.kt)
+// Rationale: Static data that rarely changes, no need for database table
+data class LanguageMetadata(
     val code: String,              // ISO 639-1 (e.g., "es", "fr")
     val nameJson: String,          // JSON map: {"en": "Spanish", "es": "Español", "de": "Spanisch"}
     val flagEmoji: String,         // Unicode flag emoji
-    val nativeName: String,        // Native language name (always in target language, e.g., "Español")
-    val difficultyJson: String,    // JSON map of difficulty descriptions per source language
-    val descriptionJson: String,   // JSON map of descriptions
-    val isActive: Boolean = true,
-    val displayOrder: Int = 0
+    val nativeName: String,        // Native language name (e.g., "Español")
+    val difficulty: Difficulty,
+    val descriptionJson: String
 )
 
 enum class Difficulty {
@@ -144,59 +149,75 @@ enum class CourseCategory {
     General
 }
 
-// User Course Enrollment - User's active courses
-data class UserCourseEnrollment(
-    val id: UUID,
-    val userId: UUID,
-    val courseTemplateId: UUID,
-    val tutorProfileId: UUID,
-    val languageCode: String,      // Target language
-    val sourceLanguageCode: String = "en",
-    val customName: String?,       // User can rename enrollment
-    val currentLevel: CEFRLevel,
-    val currentTopicIndex: Int = 0,
-    val enrolledAt: Instant,
-    val lastAccessedAt: Instant,
-    val completedTopics: List<String> = emptyList(),
-    val progressPercentage: Int = 0,
-    val vocabularyCount: Int = 0,
-    val sessionCount: Int = 0,
-    val streakDays: Int = 0,
-    val isActive: Boolean = true
+// ❌ REMOVED: UserCourseEnrollment entity
+// Course metadata is now stored directly in ChatSessionEntity
+// Rationale: Enrollment was essentially a "session with metadata" - simpler to extend existing entity
+
+// Extended ChatSession Entity - Adds course/tutor metadata to existing sessions
+// NOTE: This extends the existing ChatSessionEntity (see chat/domain/ChatSessionEntity.kt)
+// New fields added to ChatSessionEntity:
+@Entity
+@Table(name = "chat_sessions")
+class ChatSessionEntity(
+    // ... existing fields (id, userId, tutorName, tutorPersona, tutorDomain, etc.) ...
+
+    // NEW: Course-related fields (nullable for backward compatibility)
+    @Column(name = "course_template_id")
+    var courseTemplateId: UUID? = null,     // Reference to CourseTemplate
+
+    @Column(name = "tutor_profile_id")
+    var tutorProfileId: UUID? = null,       // Reference to TutorProfile
+
+    @Column(name = "custom_session_name", length = 256)
+    var customName: String? = null,         // User can rename session (e.g., "Spanish with Maria")
+
+    // ... existing fields (createdAt, updatedAt) ...
 )
+
+// Progress is calculated on-demand from existing data:
+// - Message count: Count of ChatMessageEntity for this session
+// - Vocabulary count: Count of VocabularyItemEntity for user+language
+// - Streak: Calculated from session access patterns
+// No denormalized fields needed in MVP!
 ```
 
 ### Repository Layer
 
 ```kotlin
-// JPA Entities + Repositories
+// User Language Proficiency Repository
 interface UserLanguageProficiencyRepository : JpaRepository<UserLanguageProficiencyEntity, UUID> {
     fun findByUserIdOrderByIsNativeDescCefrLevelDesc(userId: UUID): List<UserLanguageProficiencyEntity>
     fun findByUserIdAndLanguageCode(userId: UUID, languageCode: String): UserLanguageProficiencyEntity?
     fun findByUserIdAndIsNativeTrue(userId: UUID): List<UserLanguageProficiencyEntity>
     fun findByUserIdAndIsPrimaryTrue(userId: UUID): UserLanguageProficiencyEntity?
-    fun findByUserIdAndProficiencyTypeIn(userId: UUID, types: List<LanguageProficiencyType>): List<UserLanguageProficiencyEntity>
+    fun findByUserIdAndProficiencyType(userId: UUID, type: LanguageProficiencyType): List<UserLanguageProficiencyEntity>
 }
 
-interface LanguagePackRepository : JpaRepository<LanguagePackEntity, UUID> {
-    fun findByIsActiveTrueOrderByDisplayOrder(): List<LanguagePackEntity>
-    fun findByCode(code: String): LanguagePackEntity?
-}
+// ❌ REMOVED: LanguagePackRepository (language metadata now in configuration)
 
+// Tutor Profile Repository
 interface TutorProfileRepository : JpaRepository<TutorProfileEntity, UUID> {
     fun findByIsActiveTrueOrderByDisplayOrder(): List<TutorProfileEntity>
     fun findByTargetLanguageCodeAndIsActiveTrueOrderByDisplayOrder(languageCode: String): List<TutorProfileEntity>
-    fun findByTargetLanguageCodeInAndIsActiveTrueOrderByDisplayOrder(languageCodes: List<String>): List<TutorProfileEntity>
 }
 
+// Course Template Repository
 interface CourseTemplateRepository : JpaRepository<CourseTemplateEntity, UUID> {
     fun findByLanguageCodeAndIsActiveTrueOrderByDisplayOrder(languageCode: String): List<CourseTemplateEntity>
     fun findByCategoryAndIsActiveTrue(category: CourseCategory): List<CourseTemplateEntity>
+    fun findByStartingLevelLessThanEqualAndIsActiveTrue(level: CEFRLevel): List<CourseTemplateEntity>
 }
 
-interface UserCourseEnrollmentRepository : JpaRepository<UserCourseEnrollmentEntity, UUID> {
-    fun findByUserIdAndIsActiveTrueOrderByLastAccessedAtDesc(userId: UUID): List<UserCourseEnrollmentEntity>
-    fun findByUserIdAndCourseTemplateIdAndIsActiveTrue(userId: UUID, courseTemplateId: UUID): UserCourseEnrollmentEntity?
+// ❌ REMOVED: UserCourseEnrollmentRepository (enrollment logic now in ChatSessionRepository)
+
+// Extended ChatSession Repository - Add course-related queries
+interface ChatSessionRepository : JpaRepository<ChatSessionEntity, UUID> {
+    // ... existing methods ...
+
+    // NEW: Find sessions with course metadata
+    fun findByUserIdAndIsActiveTrueOrderByUpdatedAtDesc(userId: UUID): List<ChatSessionEntity>
+    fun findByUserIdAndCourseTemplateIdAndIsActiveTrue(userId: UUID, courseTemplateId: UUID): ChatSessionEntity?
+    fun findByUserIdAndTutorProfileIdAndIsActiveTrue(userId: UUID, tutorProfileId: UUID): List<ChatSessionEntity>
 }
 ```
 
@@ -208,7 +229,7 @@ interface LocalizationService {
     fun getLocalizedText(
         jsonText: String,
         languageCode: String,
-        englishFallback: String,           // NEW: English text for AI translation if missing
+        englishFallback: String,
         fallbackLanguage: String = "en"
     ): String
     fun parseMultilingualJson(jsonText: String): Map<String, String>
@@ -236,63 +257,66 @@ interface UserLanguageService {
     fun inferFromSession(userId: UUID, session: ChatSessionEntity)  // Auto-populate from sessions
 }
 
-// Catalog Service - Browse available options
+// Catalog Service - Browse available options (SIMPLIFIED)
 interface CatalogService {
-    fun getAvailableLanguages(): List<LanguagePack>
-    fun getCoursesForLanguage(languageCode: String, sourceLanguageCode: String = "en"): List<CourseTemplate>
-    fun getTutorsForLanguage(targetLanguageCode: String, sourceLanguageCode: String = "en"): List<TutorProfile>
-    fun getTutorsForCourse(courseTemplateId: UUID, sourceLanguageCode: String = "en"): List<TutorProfile>
-    fun getCoursesByCategory(category: CourseCategory, sourceLanguageCode: String = "en"): List<CourseTemplate>
-    fun searchCourses(query: String, languageCode: String? = null, sourceLanguageCode: String = "en"): List<CourseTemplate>
+    // Language metadata from configuration
+    fun getAvailableLanguages(): List<LanguageMetadata>
+    fun getLanguageByCode(code: String): LanguageMetadata?
 
-    // Helper to localize tutor profile
-    fun localizeProfile(profile: TutorProfile, sourceLanguageCode: String): LocalizedTutorProfile
+    // Course browsing
+    fun getCoursesForLanguage(languageCode: String, userLevel: CEFRLevel? = null): List<CourseTemplate>
+    fun getCourseById(courseId: UUID): CourseTemplate?
+    fun getCoursesByCategory(category: CourseCategory): List<CourseTemplate>
+    fun searchCourses(query: String, languageCode: String? = null): List<CourseTemplate>
+
+    // Tutor browsing
+    fun getTutorsForLanguage(targetLanguageCode: String): List<TutorProfile>
+    fun getTutorById(tutorId: UUID): TutorProfile?
+    fun getTutorsForCourse(courseTemplateId: UUID): List<TutorProfile>
+
+    // Localization helpers (returns DTO directly, no intermediate wrapper)
+    fun localizeCourse(course: CourseTemplate, sourceLanguageCode: String): CourseResponse
+    fun localizeTutor(tutor: TutorProfile, sourceLanguageCode: String): TutorResponse
 }
 
-// Localized view of TutorProfile (with resolved text)
-data class LocalizedTutorProfile(
-    val id: UUID,
-    val name: String,
-    val emoji: String,
-    val persona: String,              // Resolved from JSON
-    val domain: String,               // Resolved from JSON
-    val personality: TutorPersonality,
-    val description: String,          // Resolved from JSON
-    val targetLanguageCode: String,
-    val culturalBackground: String?,  // Resolved from JSON
-    val isActive: Boolean,
-    val displayOrder: Int
-)
+// ❌ REMOVED: LocalizedTutorProfile wrapper (use DTOs directly)
+// ❌ REMOVED: EnrollmentService (logic moved to ChatService)
+// ❌ REMOVED: SessionFactoryService (logic moved to ChatService)
 
-// Enrollment Service - Manage user enrollments
-interface EnrollmentService {
-    fun enrollInCourse(
+// Extended ChatService - Add course-based session creation
+interface ChatService {
+    // ... existing methods ...
+
+    // NEW: Create session from course/tutor selection
+    fun createSessionFromCourse(
         userId: UUID,
         courseTemplateId: UUID,
         tutorProfileId: UUID,
-        sourceLanguageCode: String = "en",
-        customName: String? = null,
-        startingLevel: CEFRLevel? = null
-    ): UserCourseEnrollment
+        sourceLanguageCode: String,
+        customName: String? = null
+    ): SessionResponse
 
-    fun getUserEnrollments(userId: UUID): List<UserCourseEnrollment>
-    fun getActiveEnrollments(userId: UUID): List<UserCourseEnrollment>
-    fun updateEnrollmentProgress(enrollmentId: UUID, topicsCompleted: List<String>, vocabularyCount: Int)
-    fun updateEnrollmentAccess(enrollmentId: UUID)  // Update lastAccessedAt
-    fun deactivateEnrollment(enrollmentId: UUID)
+    // NEW: Get user's active learning sessions
+    fun getActiveLearningSessions(userId: UUID): List<SessionWithProgressResponse>
+
+    // NEW: Calculate session progress
+    fun getSessionProgress(sessionId: UUID): SessionProgressResponse
 }
 
-// Session Factory - Create sessions from enrollments
-interface SessionFactoryService {
-    fun createSessionFromEnrollment(enrollmentId: UUID): SessionResponse
-    fun getRecommendedTopic(enrollmentId: UUID): String?
-}
+// Session Progress Response (calculated on-demand)
+data class SessionProgressResponse(
+    val sessionId: UUID,
+    val messageCount: Int,
+    val vocabularyCount: Int,
+    val daysActive: Int,
+    val lastAccessedAt: Instant
+)
 ```
 
-### REST API
+### REST API (SIMPLIFIED)
 
 ```kotlin
-// New controller: /api/v1/users/{userId}/languages
+// User Language Controller - Manage user's language proficiency
 @RestController
 @RequestMapping("/api/v1/users/{userId}/languages")
 class UserLanguageController(
@@ -328,69 +352,90 @@ class UserLanguageController(
     ): ResponseEntity<Void>
 }
 
-// New controller: /api/v1/catalog
+// Catalog Controller - Browse languages, courses, and tutors
 @RestController
 @RequestMapping("/api/v1/catalog")
 class CatalogController(
-    private val catalogService: CatalogService
+    private val catalogService: CatalogService,
+    private val authorizationService: AuthorizationService
 ) {
     @GetMapping("/languages")
-    fun getLanguages(): List<LanguagePackResponse>
+    fun getLanguages(
+        @RequestParam(defaultValue = "en") sourceLanguage: String
+    ): List<LanguageResponse>
 
     @GetMapping("/languages/{code}/courses")
     fun getCoursesForLanguage(
         @PathVariable code: String,
-        @RequestParam(defaultValue = "en") sourceLanguage: String
-    ): List<CourseTemplateResponse>
+        @RequestParam(defaultValue = "en") sourceLanguage: String,
+        @RequestParam(required = false) userLevel: CEFRLevel?
+    ): List<CourseResponse>
 
     @GetMapping("/languages/{code}/tutors")
     fun getTutorsForLanguage(
         @PathVariable code: String,
         @RequestParam(defaultValue = "en") sourceLanguage: String
-    ): List<TutorProfileResponse>
+    ): List<TutorResponse>
 
     @GetMapping("/courses/{id}")
     fun getCourseDetails(
         @PathVariable id: UUID,
         @RequestParam(defaultValue = "en") sourceLanguage: String
-    ): CourseTemplateDetailResponse
+    ): CourseDetailResponse
 
     @GetMapping("/tutors/{id}")
     fun getTutorDetails(
         @PathVariable id: UUID,
         @RequestParam(defaultValue = "en") sourceLanguage: String
-    ): TutorProfileDetailResponse
+    ): TutorDetailResponse
 }
 
-// New controller: /api/v1/enrollments
+// ❌ REMOVED: EnrollmentController (endpoints merged into ChatController)
+
+// Extended ChatController - Add course-based session creation
 @RestController
-@RequestMapping("/api/v1/enrollments")
-class EnrollmentController(
-    private val enrollmentService: EnrollmentService,
-    private val sessionFactoryService: SessionFactoryService,
+@RequestMapping("/api/v1/chat")
+class ChatController(
+    private val chatService: ChatService,
     private val authorizationService: AuthorizationService
 ) {
-    @PostMapping
-    fun enrollInCourse(@RequestBody request: EnrollmentRequest): EnrollmentResponse
+    // ... existing endpoints ...
 
-    @GetMapping
-    fun getUserEnrollments(@RequestParam userId: UUID?): List<EnrollmentResponse>
+    // NEW: Create session from course/tutor selection
+    @PostMapping("/sessions/from-course")
+    fun createSessionFromCourse(
+        @RequestBody request: CreateSessionFromCourseRequest
+    ): SessionResponse {
+        authorizationService.requireAccessToUser(request.userId)
+        return chatService.createSessionFromCourse(
+            userId = request.userId,
+            courseTemplateId = request.courseTemplateId,
+            tutorProfileId = request.tutorProfileId,
+            sourceLanguageCode = request.sourceLanguageCode,
+            customName = request.customName
+        )
+    }
 
-    @GetMapping("/{id}")
-    fun getEnrollmentDetails(@PathVariable id: UUID): EnrollmentDetailResponse
+    // NEW: Get user's active learning sessions with progress
+    @GetMapping("/sessions/active")
+    fun getActiveLearningSessions(
+        @RequestParam userId: UUID
+    ): List<SessionWithProgressResponse> {
+        authorizationService.requireAccessToUser(userId)
+        return chatService.getActiveLearningSessions(userId)
+    }
 
-    @PostMapping("/{id}/start-session")
-    fun startSessionFromEnrollment(@PathVariable id: UUID): SessionResponse
-
-    @PatchMapping("/{id}/progress")
-    fun updateProgress(@PathVariable id: UUID, @RequestBody request: UpdateProgressRequest): EnrollmentResponse
-
-    @DeleteMapping("/{id}")
-    fun deactivateEnrollment(@PathVariable id: UUID): ResponseEntity<Void>
+    // NEW: Get session progress
+    @GetMapping("/sessions/{sessionId}/progress")
+    fun getSessionProgress(
+        @PathVariable sessionId: UUID
+    ): SessionProgressResponse {
+        return chatService.getSessionProgress(sessionId)
+    }
 }
 ```
 
-## CLI Experience Design
+## CLI Experience Design (SIMPLIFIED)
 
 ### New Commands
 
@@ -398,11 +443,16 @@ class EnrollmentController(
 /languages              List available languages
 /courses [lang]         List courses (optionally filtered by language)
 /tutors [lang]          List tutors (optionally filtered by language)
-/enroll                 Interactive enrollment wizard
-/enrollments            List your enrolled courses
-/continue [id]          Continue an enrollment (creates session)
-/progress               Show progress for current enrollment
+/start-course           Interactive course selection wizard
+/sessions               List your active learning sessions
+/continue [id]          Continue a session
+/progress               Show progress for current session
 ```
+
+**Changes from original design:**
+- `/enroll` → `/start-course` (clearer intent)
+- `/enrollments` → `/sessions` (matches domain model)
+- No separate "enrollment" concept in UX
 
 ### CLI Workflow
 
@@ -481,7 +531,8 @@ Your Spanish level:
 
 Your level (1-5): 1
 
-✓ Enrolled in "Conversational Spanish"
+✓ Created learning session: "Conversational Spanish with Maria"
+  Course: Conversational Spanish
   Tutor: Maria (Patient coach)
   Level: A1
 
@@ -496,18 +547,18 @@ $ ./gradlew runCli
 
 Welcome back, Eric!
 ===================
-📚 Your Courses:
-  1. 🇪🇸 Conversational Spanish (Maria)
-     Progress: 20% | 150 words | 25 sessions
-     Last: 2 hours ago | 🔥 7-day streak
+📚 Your Learning Sessions:
+  1. 🇪🇸 Conversational Spanish with Maria
+     150 words | 25 messages | 7 days active
+     Last: 2 hours ago
 
-  2. 🇩🇪 Work German (Herr Schmidt)
-     Progress: 5% | 30 words | 3 sessions
+  2. 🇩🇪 Work German with Herr Schmidt
+     30 words | 8 messages | 3 days active
      Last: 2 weeks ago
 
-Continue which course? (1-2, or 'new'): 1
+Continue which session? (1-2, or 'new'): 1
 
-Resuming "Conversational Spanish" with Maria...
+Resuming "Conversational Spanish with Maria"...
 Current topic: Ordering food at restaurants
 
 Maria: ¡Hola Eric! Ready to continue practicing?
@@ -515,86 +566,107 @@ Maria: ¡Hola Eric! Ready to continue practicing?
 
 ### CLI Configuration Changes
 
-Update `CliConfig.kt` to support enrollments:
+Update `CliConfig.kt` to support course-based sessions:
 
 ```kotlin
 @Serializable
 data class CliConfig(
     // ... existing fields ...
 
-    // Enrollment preferences
-    val lastEnrollmentId: String? = null,
-    val defaultSourceLanguage: String = "en",
+    // Course-based session preferences
+    val lastSessionId: String? = null,          // Last active learning session
+    val defaultSourceLanguage: String = "en",   // User's primary language
 
-    // Deprecated (migrate to enrollment-based)
-    @Deprecated("Use enrollments instead")
+    // Deprecated (migrate to course-based sessions)
+    @Deprecated("Use course-based sessions instead")
     val defaultTutor: String = "Maria",
     // ... other deprecated fields
 )
 ```
 
-## Implementation Plan
+## Implementation Plan (SIMPLIFIED - 4-5 Weeks)
 
-### Phase 1: Core Domain & Data Layer (Week 1-2)
+### Phase 1: Core Domain & Data Layer (Week 1)
 
 **Tasks:**
-1. ✅ Create domain models (UserLanguageProficiency, LanguagePack, TutorProfile, CourseTemplate, UserCourseEnrollment)
-2. ✅ Create JPA entities with proper relationships
-3. ✅ Create repositories with query methods
-4. ✅ Add database migrations (Flyway/Liquibase) for new tables
-5. ✅ Write unit tests for domain models
+1. ✅ Create domain models (UserLanguageProficiency, TutorProfile, CourseTemplate)
+2. ✅ Extend ChatSessionEntity with course fields (courseTemplateId, tutorProfileId, customName)
+3. ✅ Create JPA entities with proper relationships
+4. ✅ Create repositories with query methods
+5. ✅ Add database migration for new columns and tables
+6. ✅ Write unit tests for domain models
 
 **Deliverables:**
 - Domain models in `core/model/catalog/`
+- Extended ChatSessionEntity in `chat/domain/`
 - JPA entities in `catalog/domain/` and `user/domain/`
 - Repositories in `catalog/repository/` and `user/repository/`
 - SQL migration scripts
 
-### Phase 2: Service Layer (Week 2-3)
+**Removed from original plan:**
+- ❌ UserCourseEnrollment entity
+- ❌ LanguagePack entity
+
+### Phase 2: Service Layer (Week 2)
 
 **Tasks:**
 1. ✅ Implement `UserLanguageService` with proficiency management
-2. ✅ Implement `CatalogService` with business logic
-3. ✅ Implement `EnrollmentService` with enrollment management
-4. ✅ Implement `SessionFactoryService` to create sessions from enrollments
+2. ✅ Implement `CatalogService` with business logic (simplified)
+3. ✅ Create `LanguageConfig.kt` with language metadata configuration
+4. ✅ Extend `ChatService` with course-based session creation
 5. ✅ Implement `LocalizationService` with AI translation fallback
 6. ✅ Implement `TranslationService` (OpenAI-powered)
 7. ✅ Add validation and error handling
 8. ✅ Write unit tests with MockK
 
 **Deliverables:**
-- Service implementations in `catalog/service/` and `user/service/`
+- Service implementations in `catalog/service/`, `user/service/`, `language/service/`
 - Test coverage >80%
 
-### Phase 3: REST API (Week 3-4)
+**Removed from original plan:**
+- ❌ EnrollmentService
+- ❌ SessionFactoryService
+- ❌ LocalizedTutorProfile wrapper
+
+### Phase 3: REST API (Week 3)
 
 **Tasks:**
-1. ✅ Create DTOs for user language, catalog, and enrollment endpoints
+1. ✅ Create DTOs for user language, catalog, and session endpoints
 2. ✅ Implement `UserLanguageController` with endpoints
 3. ✅ Implement `CatalogController` with endpoints
-4. ✅ Implement `EnrollmentController` with endpoints
+4. ✅ Extend `ChatController` with course-based session endpoints
 5. ✅ Add authorization checks (users can only manage their own data)
 6. ✅ Write controller tests with MockMvc
 7. ✅ Add HTTP client test examples
 
 **Deliverables:**
 - Controllers in `catalog/controller/` and `user/controller/`
-- DTOs in `catalog/dto/` and `user/dto/`
+- Extended ChatController in `chat/controller/`
+- DTOs in `catalog/dto/`, `user/dto/`, `chat/dto/`
 - HTTP test examples in `src/test/http/`
 
-### Phase 4: Seed Data & Content (Week 4-5)
+**Removed from original plan:**
+- ❌ EnrollmentController
+
+### Phase 4: Seed Data & Content (Week 4)
 
 **Tasks:**
-1. ✅ Create seed data for LanguagePacks (Spanish, French, German, Japanese)
-2. ✅ Create seed data for TutorProfiles (5-10 diverse personalities per language)
-3. ✅ Create seed data for CourseTemplates (3-5 per language)
+1. ✅ Create language metadata configuration (Spanish, French, German, Japanese)
+2. ✅ Create seed data for TutorProfiles (3-5 diverse personalities per language)
+3. ✅ Create seed data for CourseTemplates (2-3 per language)
 4. ✅ Add data initialization service (runs on startup in dev mode)
 5. ✅ Document seed data structure for future additions
 
 **Deliverables:**
-- Seed data JSON/SQL files
+- LanguageConfig.kt with language metadata
+- Seed data JSON/SQL files for tutors and courses
 - Data initialization service
 - Content guidelines documentation
+
+**Reduced scope from original plan:**
+- Language metadata in configuration (not database)
+- Fewer tutors per language (3-5 instead of 5-10)
+- Fewer courses per language (2-3 instead of 3-5)
 
 **Example Tutor Profiles by Language:**
 
@@ -623,45 +695,35 @@ data class CliConfig(
 - **Kenji** 😊 - Casual, "Young tutor who teaches modern conversational Japanese"
 - **Yamamoto-san** 💼 - Professional, "Business Japanese expert for corporate learners"
 
-### Phase 5: CLI Integration (Week 5-6)
+### Phase 5: CLI Integration & Documentation (Week 5)
 
 **Tasks:**
 1. ✅ Add language profile onboarding flow (first-time users)
-2. ✅ Add new CLI commands (/languages, /courses, /tutors, /enroll, etc.)
+2. ✅ Add new CLI commands (/languages, /courses, /tutors, /start-course, /sessions)
 3. ✅ Implement smart defaults based on user language profile
-4. ✅ Implement interactive enrollment wizard
-5. ✅ Update startup flow to show language profile and quick resume
-6. ✅ Add enrollment-based session resumption
-7. ✅ Update CliConfig to support enrollment IDs
-8. ✅ Add progress display in CLI
-9. ✅ Update CLI help text
+4. ✅ Implement interactive course selection wizard
+5. ✅ Update startup flow to show active sessions with progress
+6. ✅ Update CliConfig to support course-based sessions
+7. ✅ Add progress calculation display in CLI
+8. ✅ Update CLI help text
+9. ✅ Update README.md with catalog features
+10. ✅ Update CLAUDE.md with new architecture
 
 **Deliverables:**
 - Updated `AiTutorCli.kt` with new commands and onboarding
-- Updated `HttpApiClient.kt` with catalog/enrollment/language endpoints
+- Updated `HttpApiClient.kt` with catalog/language/session endpoints
+- Updated documentation (README.md, CLAUDE.md)
 - Migration guide for CLI config
 
-### Phase 6: Documentation & Polish (Week 6-7)
+**Merged from Phase 6:**
+- Documentation updates merged into Phase 5 for efficiency
 
-**Tasks:**
-1. ✅ Update README.md with catalog/enrollment features
-2. ✅ Update CLAUDE.md with new architecture
-3. ✅ Add API documentation (OpenAPI/Swagger)
-4. ✅ Create user guide for course catalog
-5. ✅ Create content creator guide for adding courses
-6. ✅ Add telemetry for popular courses/tutors
-
-**Deliverables:**
-- Updated documentation
-- Content creation guide
-- Analytics setup
-
-### Phase 7: Testing & Release (Week 7-8)
+### Phase 6: Testing & Release (Optional - Week 6)
 
 **Tasks:**
 1. ✅ Integration testing with real database
 2. ✅ End-to-end CLI testing
-3. ✅ Performance testing (catalog queries)
+3. ✅ Performance testing (catalog queries, progress calculation)
 4. ✅ User acceptance testing
 5. ✅ Bug fixes and polish
 6. ✅ Release notes
@@ -669,7 +731,10 @@ data class CliConfig(
 **Deliverables:**
 - Test reports
 - Bug fixes
-- v1.0 release with catalog system
+- v1.0 release with simplified catalog system
+
+**Removed from original plan:**
+- Phase 7 is now Phase 6 (1 week saved)
 
 ## Future Enhancements (Post-MVP)
 
@@ -870,17 +935,20 @@ class LocalizationServiceImpl : LocalizationService {
 
 ## Open Questions
 
-1. **Content Creation**: Who creates initial course content? Do we need a CMS?
-2. ~~**Multi-Language UI**: Should course descriptions be multilingual?~~ **RESOLVED**: Yes, all content stored as JSON maps
-3. **Course Updates**: How do we handle updates to course templates for existing enrollments?
-4. **Free vs. Paid**: Should some courses be premium/paid?
-5. **Progress Syncing**: How do we sync progress between CLI and future web UI?
-6. **Offline Mode**: Should CLI support offline course access?
-7. **Regional Variants**: Do we need separate tutors for regional variants (e.g., Spain vs. Latin America Spanish)?
-8. **Tutor Voices**: Should tutors have AI-generated voice profiles for future audio features?
-9. **Translation Coverage**: Which source languages should we support initially? (English, Spanish, German, French, Japanese?)
-10. **Translation Quality**: Use AI translation for seed data or require manual translations?
-11. **Fallback Strategy**: If translation missing for user's source language, show English or target language?
+1. ~~**Content Creation**: Who creates initial course content? Do we need a CMS?~~ **RESOLVED**: No initial content. In the future add an import functionality (e.g. from yml file) 
+2. ~~**Multi-Language UI**: Should course descriptions be multilingual?~~ **RESOLVED**: Yes, all content stored as JSON maps with AI translation fallback
+3. ~~**Enrollment Model**: Should we have separate enrollment entity?~~ **RESOLVED**: No, course metadata stored directly in ChatSessionEntity
+4. ~~**Progress Tracking**: Should we denormalize progress fields?~~ **RESOLVED**: No, calculate on-demand in MVP for accuracy
+5. ~~**Language Metadata Storage**: Should LanguagePack be a database entity?~~ **RESOLVED**: No, use configuration file for static data
+6. **Course Updates**: How do we handle updates to course templates for existing sessions?
+7. **Free vs. Paid**: Should some courses be premium/paid?
+8. **Progress Syncing**: How do we sync progress between CLI and future web UI?
+9. ~~**Offline Mode**: Should CLI support offline course access?~~ **RESOLVED**: No
+10. **Regional Variants**: Do we need separate tutors for regional variants (e.g., Spain vs. Latin America Spanish)?
+11. **Tutor Voices**: Should tutors have AI-generated voice profiles for future audio features?
+12. **Translation Coverage**: Which source languages should we support initially? (English, Spanish, German, French, Japanese?)
+13. ~~**Translation Quality**: Use AI translation for seed data or require manual translations?~~ **RESOLVED**: Use AI translation on-demand with optional caching
+14. ~~**Fallback Strategy**: If translation missing, show English or target language?~~ **RESOLVED**: AI translates from English on-the-fly
 
 ## References
 
@@ -890,5 +958,31 @@ class LocalizationServiceImpl : LocalizationService {
 - Existing domain models: `/src/main/kotlin/ch/obermuhlner/aitutor/core/model/`
 
 ### Design Choice Documents
+- **Architecture Review**: `task-0002-architecture-review.md` - Comprehensive analysis identifying overengineering and simplification opportunities
 - **Localization Strategy**: `task-0002-design-choice-localization.md` - Dual storage (English for AI + JSON for UI) with AI translation fallback
 - **User Language Proficiency**: `task-0002-design-choice-user-languages.md` - Track user's known languages with CEFR levels for personalization
+
+## Summary of Changes from Original Design
+
+### Removed Entities (2)
+- ❌ **UserCourseEnrollment** → Merged into ChatSessionEntity
+- ❌ **LanguagePack** → Moved to configuration
+
+### Removed Services (2)
+- ❌ **SessionFactoryService** → Logic moved to ChatService
+- ❌ **EnrollmentService** → Logic moved to ChatService
+
+### Removed Controllers (1)
+- ❌ **EnrollmentController** → Endpoints moved to ChatController
+
+### Removed Domain Objects (1)
+- ❌ **LocalizedTutorProfile** → Use DTOs directly
+
+### Impact
+- **Code Reduction**: ~40% less code (~1,500 lines instead of ~2,500)
+- **Timeline**: 5-6 weeks instead of 8 weeks
+- **Entities**: 3 new entities instead of 5
+- **Services**: 4 new services instead of 6
+- **Controllers**: 2 new controllers instead of 3
+- **Complexity**: Simpler mental model (3 concepts instead of 5)
+- **Functionality**: 100% feature parity maintained
