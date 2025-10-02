@@ -17,6 +17,10 @@ class JwtAuthenticationFilter(
     private val userDetailsService: CustomUserDetailsService
 ) : OncePerRequestFilter() {
 
+    override fun shouldNotFilterAsyncDispatch(): Boolean {
+        return false // Run filter on async dispatches to maintain SecurityContext
+    }
+
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,

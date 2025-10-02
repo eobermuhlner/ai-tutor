@@ -169,8 +169,14 @@ class ChatController(
         val currentUserId = authorizationService.getCurrentUserId()
         val emitter = SseEmitter(30_000L)
 
+        // Capture SecurityContext for async processing
+        val context = org.springframework.security.core.context.SecurityContextHolder.getContext()
+
         Thread {
             try {
+                // Propagate SecurityContext to async thread
+                org.springframework.security.core.context.SecurityContextHolder.setContext(context)
+
                 val message = chatService.sendMessage(sessionId, request.content, currentUserId) { chunk ->
                     try {
                         emitter.send(
@@ -195,6 +201,9 @@ class ChatController(
                 }
             } catch (e: Exception) {
                 emitter.completeWithError(e)
+            } finally {
+                // Clear SecurityContext from thread
+                org.springframework.security.core.context.SecurityContextHolder.clearContext()
             }
         }.start()
 
