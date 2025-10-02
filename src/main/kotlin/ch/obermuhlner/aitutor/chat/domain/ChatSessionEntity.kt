@@ -47,6 +47,19 @@ class ChatSessionEntity(
     @Column(name = "past_topics_json", nullable = true, columnDefinition = "TEXT")
     var pastTopicsJson: String? = null,
 
+    // NEW: Course-related fields (nullable for backward compatibility)
+    @Column(name = "course_template_id")
+    var courseTemplateId: UUID? = null,
+
+    @Column(name = "tutor_profile_id")
+    var tutorProfileId: UUID? = null,
+
+    @Column(name = "custom_session_name", length = 256)
+    var customName: String? = null,
+
+    @Column(name = "is_active")
+    var isActive: Boolean = true,
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     val createdAt: Instant? = null,

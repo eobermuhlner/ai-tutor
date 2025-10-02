@@ -9,4 +9,9 @@ import java.util.*
 interface ChatSessionRepository : JpaRepository<ChatSessionEntity, UUID> {
     fun findByUserId(userId: UUID): List<ChatSessionEntity>
     fun findByUserIdOrderByUpdatedAtDesc(userId: UUID): List<ChatSessionEntity>
+
+    // NEW: Course-related queries
+    fun findByUserIdAndIsActiveTrueOrderByUpdatedAtDesc(userId: UUID): List<ChatSessionEntity>
+    fun findByUserIdAndCourseTemplateIdAndIsActiveTrue(userId: UUID, courseTemplateId: UUID): ChatSessionEntity?
+    fun findByUserIdAndTutorProfileIdAndIsActiveTrue(userId: UUID, tutorProfileId: UUID): List<ChatSessionEntity>
 }
