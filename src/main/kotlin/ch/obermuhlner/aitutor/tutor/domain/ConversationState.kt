@@ -9,4 +9,6 @@ data class ConversationState(
     val phase: ConversationPhase,
     @field:JsonPropertyDescription("The estimated CEFR level of the learner.")
     val estimatedCEFRLevel: CEFRLevel,
+    @field:JsonPropertyDescription("The current topic of conversation, or null if no specific topic.")
+    val currentTopic: String? = null,
 )

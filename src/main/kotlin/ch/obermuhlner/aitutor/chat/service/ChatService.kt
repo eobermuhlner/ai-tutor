@@ -31,6 +31,7 @@ class ChatService(
     private val tutorService: TutorService,
     private val vocabularyService: VocabularyService,
     private val phaseDecisionService: ch.obermuhlner.aitutor.tutor.service.PhaseDecisionService,
+    private val topicDecisionService: ch.obermuhlner.aitutor.tutor.service.TopicDecisionService,
     private val objectMapper: ObjectMapper
 ) {
 
@@ -44,7 +45,8 @@ class ChatService(
             sourceLanguageCode = request.sourceLanguageCode,
             targetLanguageCode = request.targetLanguageCode,
             conversationPhase = request.conversationPhase,
-            estimatedCEFRLevel = request.estimatedCEFRLevel
+            estimatedCEFRLevel = request.estimatedCEFRLevel,
+            currentTopic = request.currentTopic
         )
         val saved = chatSessionRepository.save(session)
         return toSessionResponse(saved)
@@ -114,16 +116,20 @@ class ChatService(
         )
 
         // Resolve phase: if Auto, decide based on history
+        val allMessages = chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(sessionId)
         val resolvedPhase = if (session.conversationPhase == ConversationPhase.Auto) {
-            val allMessages = chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(sessionId)
             phaseDecisionService.decidePhase(session.conversationPhase, allMessages)
         } else {
             session.conversationPhase
         }
 
+        // Resolve topic: decide based on history
+        val resolvedTopic = topicDecisionService.decideTopic(session.currentTopic, allMessages)
+
         val conversationState = ConversationState(
             phase = resolvedPhase,
-            estimatedCEFRLevel = session.estimatedCEFRLevel
+            estimatedCEFRLevel = session.estimatedCEFRLevel,
+            currentTopic = resolvedTopic
         )
 
         val tutorResponse = tutorService.respond(tutor, conversationState, session.userId, messageHistory, onReplyChunk)
@@ -135,6 +141,20 @@ class ChatService(
             session.conversationPhase = tutorResponse.conversationResponse.conversationState.phase
         }
         session.estimatedCEFRLevel = tutorResponse.conversationResponse.conversationState.estimatedCEFRLevel
+
+        // Handle topic changes
+        val newTopic = tutorResponse.conversationResponse.conversationState.currentTopic
+        if (newTopic != session.currentTopic) {
+            // Topic changed - archive old topic if it was sustained long enough
+            if (session.currentTopic != null) {
+                val messagesSinceTopicStart = allMessages.size // Simplified - could track more precisely
+                if (topicDecisionService.shouldArchiveTopic(session.currentTopic, messagesSinceTopicStart)) {
+                    archiveTopic(session, session.currentTopic!!)
+                }
+            }
+            session.currentTopic = newTopic
+        }
+
         chatSessionRepository.save(session)
 
         // Save assistant message
@@ -174,6 +194,32 @@ class ChatService(
             }
     }
 
+    /**
+     * Archives a topic to the past topics history.
+     * Maintains a list of the last 20 topics.
+     */
+    private fun archiveTopic(session: ChatSessionEntity, topic: String) {
+        val pastTopics = session.pastTopicsJson?.let {
+            try {
+                objectMapper.readValue<List<String>>(it).toMutableList()
+            } catch (e: Exception) {
+                mutableListOf()
+            }
+        } ?: mutableListOf()
+
+        // Add new topic if not already at the end
+        if (pastTopics.lastOrNull() != topic) {
+            pastTopics.add(topic)
+        }
+
+        // Keep only last 20 topics
+        if (pastTopics.size > 20) {
+            pastTopics.removeAt(0)
+        }
+
+        session.pastTopicsJson = objectMapper.writeValueAsString(pastTopics)
+    }
+
     private fun toSessionResponse(entity: ChatSessionEntity): SessionResponse {
         return SessionResponse(
             id = entity.id,
@@ -185,6 +231,7 @@ class ChatService(
             targetLanguageCode = entity.targetLanguageCode,
             conversationPhase = entity.conversationPhase,
             estimatedCEFRLevel = entity.estimatedCEFRLevel,
+            currentTopic = entity.currentTopic,
             createdAt = entity.createdAt ?: java.time.Instant.now(),
             updatedAt = entity.updatedAt ?: java.time.Instant.now()
         )

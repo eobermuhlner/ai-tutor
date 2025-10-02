@@ -27,6 +27,7 @@ class ChatServiceTest {
     private lateinit var tutorService: TutorService
     private lateinit var vocabularyService: VocabularyService
     private lateinit var phaseDecisionService: ch.obermuhlner.aitutor.tutor.service.PhaseDecisionService
+    private lateinit var topicDecisionService: ch.obermuhlner.aitutor.tutor.service.TopicDecisionService
     private lateinit var objectMapper: ObjectMapper
 
     @BeforeEach
@@ -36,6 +37,7 @@ class ChatServiceTest {
         tutorService = mockk()
         vocabularyService = mockk()
         phaseDecisionService = mockk()
+        topicDecisionService = mockk()
         objectMapper = ObjectMapper()
 
         chatService = ChatService(
@@ -44,6 +46,7 @@ class ChatServiceTest {
             tutorService,
             vocabularyService,
             phaseDecisionService,
+            topicDecisionService,
             objectMapper
         )
     }
@@ -123,6 +126,7 @@ class ChatServiceTest {
         every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
         every { chatMessageRepository.save(any<ChatMessageEntity>()) } returns userMessage andThen assistantMessage
         every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(any()) } returns emptyList()
+        every { topicDecisionService.decideTopic(any(), any()) } returns null
         every { tutorService.respond(any(), any(), any(), any(), any()) } returns tutorResponse
         every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns session
 
@@ -152,5 +156,80 @@ class ChatServiceTest {
         chatService.deleteSession(TestDataFactory.TEST_SESSION_ID)
 
         verify(exactly = 1) { chatSessionRepository.deleteById(TestDataFactory.TEST_SESSION_ID) }
+    }
+
+    @Test
+    fun `should handle topic change and archive old topic`() {
+        val session = TestDataFactory.createSessionEntity()
+        session.currentTopic = "old-topic"
+
+        val userMessage = TestDataFactory.createMessageEntity(session)
+        val assistantMessage = TestDataFactory.createMessageEntity(session, MessageRole.ASSISTANT, "Reply")
+
+        val tutorResponse = TutorService.TutorResponse(
+            reply = "Reply",
+            conversationResponse = ConversationResponse(
+                conversationState = ConversationState(
+                    phase = ConversationPhase.Correction,
+                    estimatedCEFRLevel = CEFRLevel.A1,
+                    currentTopic = "new-topic"
+                ),
+                corrections = emptyList(),
+                newVocabulary = emptyList()
+            )
+        )
+
+        val allMessages = (1..10).flatMap {
+            listOf(
+                TestDataFactory.createMessageEntity(session, MessageRole.USER, "msg $it"),
+                TestDataFactory.createMessageEntity(session, MessageRole.ASSISTANT, "reply $it")
+            )
+        }
+
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+        every { chatMessageRepository.save(any<ChatMessageEntity>()) } returns userMessage andThen assistantMessage
+        every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(any()) } returns allMessages
+        every { topicDecisionService.decideTopic(any(), any()) } returns "new-topic"
+        every { topicDecisionService.shouldArchiveTopic(any(), any()) } returns true
+        every { tutorService.respond(any(), any(), any(), any(), any()) } returns tutorResponse
+        every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns session
+
+        val result = chatService.sendMessage(TestDataFactory.TEST_SESSION_ID, "Test")
+
+        assertNotNull(result)
+        verify { chatSessionRepository.save(match { it.currentTopic == "new-topic" }) }
+    }
+
+    @Test
+    fun `should update session phase when not in Auto mode`() {
+        val session = TestDataFactory.createSessionEntity()
+        session.conversationPhase = ConversationPhase.Correction
+
+        val tutorResponse = TutorService.TutorResponse(
+            reply = "Reply",
+            conversationResponse = ConversationResponse(
+                conversationState = ConversationState(
+                    phase = ConversationPhase.Drill,
+                    estimatedCEFRLevel = CEFRLevel.A2,
+                    currentTopic = null
+                ),
+                corrections = emptyList(),
+                newVocabulary = emptyList()
+            )
+        )
+
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+        every { chatMessageRepository.save(any<ChatMessageEntity>()) } returnsMany listOf(
+            TestDataFactory.createMessageEntity(session),
+            TestDataFactory.createMessageEntity(session, MessageRole.ASSISTANT, "Reply")
+        )
+        every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(any()) } returns emptyList()
+        every { topicDecisionService.decideTopic(any(), any()) } returns null
+        every { tutorService.respond(any(), any(), any(), any(), any()) } returns tutorResponse
+        every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns session
+
+        chatService.sendMessage(TestDataFactory.TEST_SESSION_ID, "Test")
+
+        verify { chatSessionRepository.save(match { it.conversationPhase == ConversationPhase.Drill }) }
     }
 }

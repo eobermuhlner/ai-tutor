@@ -15,6 +15,7 @@ data class SessionResponse(
     val targetLanguageCode: String,
     val conversationPhase: ConversationPhase,
     val estimatedCEFRLevel: CEFRLevel,
+    val currentTopic: String? = null,
     val createdAt: Instant,
     val updatedAt: Instant
 )

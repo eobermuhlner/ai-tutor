@@ -41,6 +41,12 @@ class ChatSessionEntity(
     @Column(name = "estimated_cefr_level", nullable = false, length = 8)
     var estimatedCEFRLevel: CEFRLevel = CEFRLevel.A1,
 
+    @Column(name = "current_topic", nullable = true, length = 128)
+    var currentTopic: String? = null,
+
+    @Column(name = "past_topics_json", nullable = true, columnDefinition = "TEXT")
+    var pastTopicsJson: String? = null,
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     val createdAt: Instant? = null,
