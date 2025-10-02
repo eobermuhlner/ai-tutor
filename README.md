@@ -2,7 +2,7 @@
 
 An intelligent language learning platform powered by AI that provides personalized conversational tutoring with real-time error correction and vocabulary tracking.
 
-## 🎯 Features
+## Features
 
 - **Conversational AI Tutoring**: Natural language conversations with adaptive AI tutors
 - **Real-time Error Detection**: Automatic correction of grammar, typography, and word choice errors
@@ -17,7 +17,7 @@ An intelligent language learning platform powered by AI that provides personaliz
 - **Session Persistence**: Save and resume learning sessions
 - **RESTful API**: Full REST API for integration with web and mobile applications
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
@@ -50,7 +50,7 @@ export OPENAI_API_KEY=your-api-key-here
 
 The application will start on `http://localhost:8080`.
 
-## 📡 API Usage
+## API Usage
 
 ### Authentication
 
@@ -145,7 +145,7 @@ curl http://localhost:8080/api/v1/chat/sessions/{sessionId} \
 | GET | `/api/v1/vocabulary?userId={uuid}&lang={code}` | Get user's vocabulary (optional language filter) |
 | GET | `/api/v1/vocabulary/{itemId}` | Get vocabulary item with all contexts |
 
-## 🧪 Testing with IntelliJ HTTP Client
+## Testing with IntelliJ HTTP Client
 
 The project includes HTTP request examples in `src/test/http/http-client-requests.http`.
 
@@ -155,7 +155,7 @@ The project includes HTTP request examples in `src/test/http/http-client-request
 4. The session ID is automatically captured for subsequent requests
 5. Execute other requests to interact with the API
 
-## 🏗️ Architecture
+## Architecture
 
 ### Technology Stack
 
@@ -211,7 +211,7 @@ ch.obermuhlner.aitutor
 - **DTO Pattern**: API contract separation from domain models
 - **Strategy Pattern**: Pluggable AI chat service implementations
 
-## 🧑‍💻 Development
+## Development
 
 ### Configuration
 
@@ -278,7 +278,7 @@ java -jar build/libs/ai-tutor-0.0.1-SNAPSHOT.jar
 - **REST API Server** (`runServer`/`bootRun`): Launches the Spring Boot backend at `http://localhost:8080`
 - **CLI Client** (`runCli`/`run`): Launches the interactive command-line interface that connects to the API server
 
-## 🧪 Testing
+## Testing
 
 The project includes comprehensive test coverage with unit, controller, and integration tests.
 
@@ -320,7 +320,7 @@ src/test/kotlin/
 - ✅ Services are mocked in controller tests
 - ✅ Use `TestDataFactory` for consistent test data
 
-## 📊 Data Model
+## Data Model
 
 ### Chat Session
 - User ID, tutor configuration (name, persona, domain)
@@ -342,7 +342,7 @@ src/test/kotlin/
 - Last seen timestamp
 - Context examples
 
-## 🎓 Learning Concepts
+## Learning Concepts
 
 ### CEFR Levels
 
@@ -443,7 +443,7 @@ The system recognizes that casual chat communication differs from formal writing
 
 This ensures learners aren't penalized for typing naturally while still tracking genuine learning errors.
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -451,16 +451,16 @@ This ensures learners aren't penalized for typing naturally while still tracking
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📝 License
+## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - Built with [Spring AI](https://spring.io/projects/spring-ai)
 - Powered by [OpenAI](https://openai.com/)
 - Language framework based on [CEFR](https://www.coe.int/en/web/common-european-framework-reference-languages)
 
-## 📧 Contact
+## Contact
 
 For questions or support, please open an issue on GitHub.
