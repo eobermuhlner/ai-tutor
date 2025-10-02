@@ -50,6 +50,23 @@ class ChatController(
         return ResponseEntity.ok(session)
     }
 
+    @PatchMapping("/sessions/{sessionId}/topic")
+    fun updateSessionTopic(
+        @PathVariable sessionId: UUID,
+        @RequestBody request: UpdateTopicRequest
+    ): ResponseEntity<SessionResponse> {
+        val session = chatService.updateSessionTopic(sessionId, request.currentTopic)
+            ?: return ResponseEntity.notFound().build()
+        return ResponseEntity.ok(session)
+    }
+
+    @GetMapping("/sessions/{sessionId}/topics/history")
+    fun getTopicHistory(@PathVariable sessionId: UUID): ResponseEntity<TopicHistoryResponse> {
+        val history = chatService.getTopicHistory(sessionId)
+            ?: return ResponseEntity.notFound().build()
+        return ResponseEntity.ok(history)
+    }
+
     @PostMapping("/sessions/{sessionId}/messages")
     fun sendMessage(
         @PathVariable sessionId: UUID,

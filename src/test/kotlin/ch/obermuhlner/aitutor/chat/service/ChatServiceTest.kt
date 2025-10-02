@@ -126,7 +126,7 @@ class ChatServiceTest {
         every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
         every { chatMessageRepository.save(any<ChatMessageEntity>()) } returns userMessage andThen assistantMessage
         every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(any()) } returns emptyList()
-        every { topicDecisionService.decideTopic(any(), any()) } returns null
+        every { topicDecisionService.decideTopic(any(), any(), any(), any()) } returns null
         every { tutorService.respond(any(), any(), any(), any(), any()) } returns tutorResponse
         every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns session
 
@@ -189,7 +189,8 @@ class ChatServiceTest {
         every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
         every { chatMessageRepository.save(any<ChatMessageEntity>()) } returns userMessage andThen assistantMessage
         every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(any()) } returns allMessages
-        every { topicDecisionService.decideTopic(any(), any()) } returns "new-topic"
+        every { topicDecisionService.decideTopic(any(), any(), any(), any()) } returns "new-topic"
+        every { topicDecisionService.countTurnsInRecentMessages(any()) } returns 10
         every { topicDecisionService.shouldArchiveTopic(any(), any()) } returns true
         every { tutorService.respond(any(), any(), any(), any(), any()) } returns tutorResponse
         every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns session
@@ -224,7 +225,7 @@ class ChatServiceTest {
             TestDataFactory.createMessageEntity(session, MessageRole.ASSISTANT, "Reply")
         )
         every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(any()) } returns emptyList()
-        every { topicDecisionService.decideTopic(any(), any()) } returns null
+        every { topicDecisionService.decideTopic(any(), any(), any(), any()) } returns null
         every { tutorService.respond(any(), any(), any(), any(), any()) } returns tutorResponse
         every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns session
 

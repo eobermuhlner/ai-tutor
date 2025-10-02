@@ -88,6 +88,41 @@ class ChatService(
     }
 
     @Transactional
+    fun updateSessionTopic(sessionId: UUID, topic: String?): SessionResponse? {
+        val session = chatSessionRepository.findById(sessionId).orElse(null) ?: return null
+
+        // Archive old topic if changing
+        if (session.currentTopic != null && session.currentTopic != topic) {
+            val allMessages = chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(sessionId)
+            val turnCount = topicDecisionService.countTurnsInRecentMessages(allMessages)
+            if (topicDecisionService.shouldArchiveTopic(session.currentTopic, turnCount)) {
+                archiveTopic(session, session.currentTopic!!)
+            }
+        }
+
+        session.currentTopic = topic
+        val saved = chatSessionRepository.save(session)
+        return toSessionResponse(saved)
+    }
+
+    fun getTopicHistory(sessionId: UUID): TopicHistoryResponse? {
+        val session = chatSessionRepository.findById(sessionId).orElse(null) ?: return null
+
+        val pastTopics = session.pastTopicsJson?.let {
+            try {
+                objectMapper.readValue<List<String>>(it)
+            } catch (e: Exception) {
+                emptyList()
+            }
+        } ?: emptyList()
+
+        return TopicHistoryResponse(
+            currentTopic = session.currentTopic,
+            pastTopics = pastTopics
+        )
+    }
+
+    @Transactional
     fun sendMessage(
         sessionId: UUID,
         userContent: String,
@@ -123,13 +158,11 @@ class ChatService(
             session.conversationPhase
         }
 
-        // Resolve topic: decide based on history
-        val resolvedTopic = topicDecisionService.decideTopic(session.currentTopic, allMessages)
-
+        // Pass current topic to LLM - it will propose any changes
         val conversationState = ConversationState(
             phase = resolvedPhase,
             estimatedCEFRLevel = session.estimatedCEFRLevel,
-            currentTopic = resolvedTopic
+            currentTopic = session.currentTopic
         )
 
         val tutorResponse = tutorService.respond(tutor, conversationState, session.userId, messageHistory, onReplyChunk)
@@ -142,17 +175,25 @@ class ChatService(
         }
         session.estimatedCEFRLevel = tutorResponse.conversationResponse.conversationState.estimatedCEFRLevel
 
+        // Validate and apply topic change from LLM with hysteresis
+        val llmProposedTopic = tutorResponse.conversationResponse.conversationState.currentTopic
+        val validatedTopic = topicDecisionService.decideTopic(
+            currentTopic = session.currentTopic,
+            llmProposedTopic = llmProposedTopic,
+            recentMessages = allMessages,
+            pastTopicsJson = session.pastTopicsJson
+        )
+
         // Handle topic changes
-        val newTopic = tutorResponse.conversationResponse.conversationState.currentTopic
-        if (newTopic != session.currentTopic) {
+        if (validatedTopic != session.currentTopic) {
             // Topic changed - archive old topic if it was sustained long enough
             if (session.currentTopic != null) {
-                val messagesSinceTopicStart = allMessages.size // Simplified - could track more precisely
-                if (topicDecisionService.shouldArchiveTopic(session.currentTopic, messagesSinceTopicStart)) {
+                val turnCount = topicDecisionService.countTurnsInRecentMessages(allMessages)
+                if (topicDecisionService.shouldArchiveTopic(session.currentTopic, turnCount)) {
                     archiveTopic(session, session.currentTopic!!)
                 }
             }
-            session.currentTopic = newTopic
+            session.currentTopic = validatedTopic
         }
 
         chatSessionRepository.save(session)

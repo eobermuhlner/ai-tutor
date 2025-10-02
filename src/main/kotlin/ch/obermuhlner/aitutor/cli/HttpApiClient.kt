@@ -37,7 +37,8 @@ class HttpApiClient(private val baseUrl: String) {
         val tutorName: String,
         val conversationPhase: String,
         val sourceLanguageCode: String,
-        val targetLanguageCode: String
+        val targetLanguageCode: String,
+        val currentTopic: String? = null
     )
 
     @Serializable
@@ -82,6 +83,17 @@ class HttpApiClient(private val baseUrl: String) {
     @Serializable
     data class UpdatePhaseRequest(
         val phase: String
+    )
+
+    @Serializable
+    data class UpdateTopicRequest(
+        val currentTopic: String?
+    )
+
+    @Serializable
+    data class TopicHistoryResponse(
+        val currentTopic: String?,
+        val pastTopics: List<String>
     )
 
     fun createSession(
@@ -224,5 +236,37 @@ class HttpApiClient(private val baseUrl: String) {
         if (response.statusCode() !in 200..299) {
             throw RuntimeException("Failed to delete session: ${response.statusCode()}")
         }
+    }
+
+    fun updateTopic(sessionId: UUID, topic: String?): SessionResponse {
+        val requestBody = UpdateTopicRequest(topic)
+
+        val request = HttpRequest.newBuilder()
+            .uri(URI.create("$baseUrl/api/v1/chat/sessions/$sessionId/topic"))
+            .header("Content-Type", "application/json")
+            .method("PATCH", HttpRequest.BodyPublishers.ofString(json.encodeToString(UpdateTopicRequest.serializer(), requestBody)))
+            .build()
+
+        val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+        if (response.statusCode() !in 200..299) {
+            throw RuntimeException("Failed to update topic: ${response.statusCode()}")
+        }
+
+        return json.decodeFromString(SessionResponse.serializer(), response.body())
+    }
+
+    fun getTopicHistory(sessionId: UUID): TopicHistoryResponse {
+        val request = HttpRequest.newBuilder()
+            .uri(URI.create("$baseUrl/api/v1/chat/sessions/$sessionId/topics/history"))
+            .header("Accept", "application/json")
+            .GET()
+            .build()
+
+        val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+        if (response.statusCode() !in 200..299) {
+            throw RuntimeException("Failed to get topic history: ${response.statusCode()}")
+        }
+
+        return json.decodeFromString(TopicHistoryResponse.serializer(), response.body())
     }
 }

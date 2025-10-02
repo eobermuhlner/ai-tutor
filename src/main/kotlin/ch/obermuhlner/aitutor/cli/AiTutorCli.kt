@@ -89,6 +89,8 @@ class AiTutorCli(private val config: CliConfig) {
               /sessions             List all sessions
               /switch <id>          Switch to session
               /phase <phase>        Change phase (Free/Correction/Drill/Auto)
+              /topic <topic>        Set conversation topic (or "none" for free conversation)
+              /topics               Show topic history
               /delete               Delete current session
               /help                 Show this help
               /quit or /exit        Exit CLI
@@ -160,6 +162,18 @@ class AiTutorCli(private val config: CliConfig) {
                 }
                 true
             }
+            "/topic" -> {
+                if (arg != null) {
+                    updateTopic(arg)
+                } else {
+                    println("Usage: /topic <topic-name> or /topic none")
+                }
+                true
+            }
+            "/topics" -> {
+                showTopicHistory()
+                true
+            }
             "/delete" -> {
                 deleteCurrentSession()
                 true
@@ -191,6 +205,7 @@ class AiTutorCli(private val config: CliConfig) {
             println("✓ Created new session: ${session.id}")
             println("  Tutor: ${session.tutorName}")
             println("  Phase: ${session.conversationPhase}")
+            println("  Topic: ${session.currentTopic ?: "(none)"}")
             println("  Languages: ${session.sourceLanguageCode} → ${session.targetLanguageCode}")
         } catch (e: Exception) {
             println("✗ Failed to create session: ${e.message}")
@@ -211,6 +226,7 @@ class AiTutorCli(private val config: CliConfig) {
                 val current = if (session.id == currentSessionId.toString()) " (current)" else ""
                 println("  ${session.id}$current")
                 println("    Tutor: ${session.tutorName}, Phase: ${session.conversationPhase}")
+                println("    Topic: ${session.currentTopic ?: "(none)"}")
             }
         } catch (e: Exception) {
             println("✗ Failed to list sessions: ${e.message}")
@@ -269,6 +285,53 @@ class AiTutorCli(private val config: CliConfig) {
             CliConfig.save(currentConfig)
         } catch (e: Exception) {
             println("✗ Failed to delete session: ${e.message}")
+        }
+    }
+
+    private fun updateTopic(topicArg: String) {
+        if (currentSessionId == null) {
+            println("✗ No active session")
+            return
+        }
+
+        // "none" means clear the topic (null)
+        val topic = if (topicArg.lowercase() == "none") null else topicArg
+
+        try {
+            val session = apiClient.updateTopic(currentSessionId!!, topic)
+            if (topic == null) {
+                println("✓ Topic cleared - now in free conversation mode")
+            } else {
+                println("✓ Topic updated to: ${session.currentTopic}")
+            }
+        } catch (e: Exception) {
+            println("✗ Failed to update topic: ${e.message}")
+        }
+    }
+
+    private fun showTopicHistory() {
+        if (currentSessionId == null) {
+            println("✗ No active session")
+            return
+        }
+
+        try {
+            val history = apiClient.getTopicHistory(currentSessionId!!)
+
+            println("\n📚 Topic History:")
+            println("  Current: ${history.currentTopic ?: "(free conversation)"}")
+
+            if (history.pastTopics.isEmpty()) {
+                println("  Past: (none)")
+            } else {
+                println("  Past topics:")
+                history.pastTopics.reversed().forEachIndexed { index, topic ->
+                    println("    ${history.pastTopics.size - index}. $topic")
+                }
+            }
+            println()
+        } catch (e: Exception) {
+            println("✗ Failed to get topic history: ${e.message}")
         }
     }
 

@@ -199,4 +199,107 @@ class ChatControllerTest {
 
         verify(exactly = 1) { chatService.deleteSession(TestDataFactory.TEST_SESSION_ID) }
     }
+
+    @Test
+    fun `should update session topic`() {
+        val sessionResponse = SessionResponse(
+            id = TestDataFactory.TEST_SESSION_ID,
+            userId = TestDataFactory.TEST_USER_ID,
+            tutorName = "TestTutor",
+            tutorPersona = "patient coach",
+            tutorDomain = "general conversation",
+            sourceLanguageCode = "en",
+            targetLanguageCode = "es",
+            conversationPhase = ConversationPhase.Correction,
+            estimatedCEFRLevel = CEFRLevel.A1,
+            currentTopic = "cooking",
+            createdAt = Instant.now(),
+            updatedAt = Instant.now()
+        )
+
+        every { chatService.updateSessionTopic(TestDataFactory.TEST_SESSION_ID, "cooking") } returns sessionResponse
+
+        mockMvc.perform(
+            patch("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}/topic")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""{"currentTopic": "cooking"}""")
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.currentTopic").value("cooking"))
+
+        verify(exactly = 1) { chatService.updateSessionTopic(TestDataFactory.TEST_SESSION_ID, "cooking") }
+    }
+
+    @Test
+    fun `should update session topic to null`() {
+        val sessionResponse = SessionResponse(
+            id = TestDataFactory.TEST_SESSION_ID,
+            userId = TestDataFactory.TEST_USER_ID,
+            tutorName = "TestTutor",
+            tutorPersona = "patient coach",
+            tutorDomain = "general conversation",
+            sourceLanguageCode = "en",
+            targetLanguageCode = "es",
+            conversationPhase = ConversationPhase.Correction,
+            estimatedCEFRLevel = CEFRLevel.A1,
+            currentTopic = null,
+            createdAt = Instant.now(),
+            updatedAt = Instant.now()
+        )
+
+        every { chatService.updateSessionTopic(TestDataFactory.TEST_SESSION_ID, null) } returns sessionResponse
+
+        mockMvc.perform(
+            patch("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}/topic")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""{"currentTopic": null}""")
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.currentTopic").doesNotExist())
+
+        verify(exactly = 1) { chatService.updateSessionTopic(TestDataFactory.TEST_SESSION_ID, null) }
+    }
+
+    @Test
+    fun `should return 404 when updating topic for non-existent session`() {
+        every { chatService.updateSessionTopic(any(), any()) } returns null
+
+        mockMvc.perform(
+            patch("/api/v1/chat/sessions/${UUID.randomUUID()}/topic")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""{"currentTopic": "cooking"}""")
+        )
+            .andExpect(status().isNotFound)
+    }
+
+    @Test
+    fun `should get topic history`() {
+        val topicHistory = TopicHistoryResponse(
+            currentTopic = "cooking",
+            pastTopics = listOf("travel", "sports", "music")
+        )
+
+        every { chatService.getTopicHistory(TestDataFactory.TEST_SESSION_ID) } returns topicHistory
+
+        mockMvc.perform(
+            get("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}/topics/history")
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.currentTopic").value("cooking"))
+            .andExpect(jsonPath("$.pastTopics").isArray)
+            .andExpect(jsonPath("$.pastTopics.length()").value(3))
+            .andExpect(jsonPath("$.pastTopics[0]").value("travel"))
+
+        verify(exactly = 1) { chatService.getTopicHistory(TestDataFactory.TEST_SESSION_ID) }
+    }
+
+    @Test
+    fun `should return 404 when getting topic history for non-existent session`() {
+        every { chatService.getTopicHistory(any()) } returns null
+
+        mockMvc.perform(
+            get("/api/v1/chat/sessions/${UUID.randomUUID()}/topics/history")
+        )
+            .andExpect(status().isNotFound)
+    }
 }

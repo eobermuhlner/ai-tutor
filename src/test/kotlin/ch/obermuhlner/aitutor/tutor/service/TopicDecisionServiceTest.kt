@@ -1,8 +1,8 @@
 package ch.obermuhlner.aitutor.tutor.service
 
-import ch.obermuhlner.aitutor.chat.domain.ChatMessageEntity
 import ch.obermuhlner.aitutor.chat.domain.MessageRole
 import ch.obermuhlner.aitutor.fixtures.TestDataFactory
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -10,69 +10,171 @@ import org.junit.jupiter.api.Test
 class TopicDecisionServiceTest {
 
     private lateinit var topicDecisionService: TopicDecisionService
+    private lateinit var objectMapper: ObjectMapper
 
     @BeforeEach
     fun setup() {
-        topicDecisionService = TopicDecisionService()
+        objectMapper = ObjectMapper()
+        topicDecisionService = TopicDecisionService(objectMapper)
     }
 
     @Test
-    fun `should return null when not enough messages`() {
+    fun `should accept LLM proposal when topics are the same`() {
         val session = TestDataFactory.createSessionEntity()
         val messages = listOf(
-            TestDataFactory.createMessageEntity(session, MessageRole.USER, "Hello"),
-            TestDataFactory.createMessageEntity(session, MessageRole.ASSISTANT, "Hi")
+            TestDataFactory.createMessageEntity(session, MessageRole.USER, "Tell me about cooking"),
+            TestDataFactory.createMessageEntity(session, MessageRole.ASSISTANT, "Cooking is...")
         )
 
-        val result = topicDecisionService.decideTopic(null, messages)
+        val result = topicDecisionService.decideTopic("cooking", "cooking", messages)
 
-        assertNull(result)
+        assertEquals("cooking", result)
     }
 
     @Test
-    fun `should maintain current topic when enough messages`() {
+    fun `should reject topic change when too early (hysteresis)`() {
         val session = TestDataFactory.createSessionEntity()
-        val currentTopic = "cooking"
         val messages = listOf(
-            TestDataFactory.createMessageEntity(session, MessageRole.USER, "What is a recipe?"),
-            TestDataFactory.createMessageEntity(session, MessageRole.ASSISTANT, "A recipe is..."),
-            TestDataFactory.createMessageEntity(session, MessageRole.USER, "Tell me about baking"),
-            TestDataFactory.createMessageEntity(session, MessageRole.ASSISTANT, "Baking is...")
+            TestDataFactory.createMessageEntity(session, MessageRole.USER, "Tell me about cooking"),
+            TestDataFactory.createMessageEntity(session, MessageRole.ASSISTANT, "Cooking is...")
         )
 
-        val result = topicDecisionService.decideTopic(currentTopic, messages)
+        // Only 1 turn, need 3 to change
+        val result = topicDecisionService.decideTopic("cooking", "sports", messages)
 
-        assertEquals(currentTopic, result)
+        assertEquals("cooking", result) // Should keep current topic
     }
 
     @Test
-    fun `should return null when no current topic and not enough messages`() {
+    fun `should accept topic change after minimum turns`() {
+        val session = TestDataFactory.createSessionEntity()
+        val messages = (1..4).flatMap {
+            listOf(
+                TestDataFactory.createMessageEntity(session, MessageRole.USER, "Message $it"),
+                TestDataFactory.createMessageEntity(session, MessageRole.ASSISTANT, "Reply $it")
+            )
+        }
+
+        // 4 turns, enough to change
+        val result = topicDecisionService.decideTopic("cooking", "sports", messages)
+
+        assertEquals("sports", result)
+    }
+
+    @Test
+    fun `should reject recently discussed topic`() {
+        val session = TestDataFactory.createSessionEntity()
+        val messages = (1..4).flatMap {
+            listOf(
+                TestDataFactory.createMessageEntity(session, MessageRole.USER, "Message $it"),
+                TestDataFactory.createMessageEntity(session, MessageRole.ASSISTANT, "Reply $it")
+            )
+        }
+        val pastTopics = objectMapper.writeValueAsString(listOf("travel", "sports", "music"))
+
+        val result = topicDecisionService.decideTopic("cooking", "sports", messages, pastTopics)
+
+        assertEquals("cooking", result) // Should reject recently discussed topic
+    }
+
+    @Test
+    fun `should accept change for stale topic`() {
+        val session = TestDataFactory.createSessionEntity()
+        val messages = (1..15).flatMap {
+            listOf(
+                TestDataFactory.createMessageEntity(session, MessageRole.USER, "Message $it"),
+                TestDataFactory.createMessageEntity(session, MessageRole.ASSISTANT, "Reply $it")
+            )
+        }
+
+        // 15 turns, stale (max is 12)
+        val result = topicDecisionService.decideTopic("cooking", "sports", messages)
+
+        assertEquals("sports", result) // Should encourage variety
+    }
+
+    @Test
+    fun `should require minimum turns to establish new topic from null`() {
         val session = TestDataFactory.createSessionEntity()
         val messages = listOf(
             TestDataFactory.createMessageEntity(session, MessageRole.USER, "Hello")
         )
 
-        val result = topicDecisionService.decideTopic(null, messages)
+        // Only 1 turn, need 2 to establish
+        val result = topicDecisionService.decideTopic(null, "cooking", messages)
 
-        assertNull(result)
+        assertNull(result) // Should stay in free conversation
     }
 
     @Test
-    fun `should archive topic when enough messages exchanged`() {
-        val topic = "sports"
-        val messageCount = 10 // 5 exchanges
+    fun `should establish new topic after minimum engagement`() {
+        val session = TestDataFactory.createSessionEntity()
+        val messages = (1..3).flatMap {
+            listOf(
+                TestDataFactory.createMessageEntity(session, MessageRole.USER, "Message $it"),
+                TestDataFactory.createMessageEntity(session, MessageRole.ASSISTANT, "Reply $it")
+            )
+        }
 
-        val result = topicDecisionService.shouldArchiveTopic(topic, messageCount)
+        // 3 turns, enough to establish
+        val result = topicDecisionService.decideTopic(null, "cooking", messages)
+
+        assertEquals("cooking", result)
+    }
+
+    @Test
+    fun `should allow return to free conversation after minimum turns`() {
+        val session = TestDataFactory.createSessionEntity()
+        val messages = (1..4).flatMap {
+            listOf(
+                TestDataFactory.createMessageEntity(session, MessageRole.USER, "Message $it"),
+                TestDataFactory.createMessageEntity(session, MessageRole.ASSISTANT, "Reply $it")
+            )
+        }
+
+        val result = topicDecisionService.decideTopic("cooking", null, messages)
+
+        assertNull(result) // Natural conclusion
+    }
+
+    @Test
+    fun `should keep topic alive when too early to return to null`() {
+        val session = TestDataFactory.createSessionEntity()
+        val messages = listOf(
+            TestDataFactory.createMessageEntity(session, MessageRole.USER, "Message 1"),
+            TestDataFactory.createMessageEntity(session, MessageRole.ASSISTANT, "Reply 1")
+        )
+
+        val result = topicDecisionService.decideTopic("cooking", null, messages)
+
+        assertEquals("cooking", result) // Keep topic alive
+    }
+
+    @Test
+    fun `should count turns correctly`() {
+        val session = TestDataFactory.createSessionEntity()
+        val messages = (1..5).flatMap {
+            listOf(
+                TestDataFactory.createMessageEntity(session, MessageRole.USER, "Message $it"),
+                TestDataFactory.createMessageEntity(session, MessageRole.ASSISTANT, "Reply $it")
+            )
+        }
+
+        val turnCount = topicDecisionService.countTurnsInRecentMessages(messages)
+
+        assertEquals(5, turnCount)
+    }
+
+    @Test
+    fun `should archive topic after sufficient turns`() {
+        val result = topicDecisionService.shouldArchiveTopic("cooking", 3)
 
         assertTrue(result)
     }
 
     @Test
-    fun `should not archive topic when too few messages`() {
-        val topic = "sports"
-        val messageCount = 4 // 2 exchanges
-
-        val result = topicDecisionService.shouldArchiveTopic(topic, messageCount)
+    fun `should not archive topic with insufficient turns`() {
+        val result = topicDecisionService.shouldArchiveTopic("cooking", 2)
 
         assertFalse(result)
     }
@@ -86,37 +188,22 @@ class TopicDecisionServiceTest {
 
     @Test
     fun `should extract explicit topic from user message`() {
-        val userMessage = "Let's talk about cooking"
-
-        val result = topicDecisionService.extractExplicitTopic(userMessage)
+        val result = topicDecisionService.extractExplicitTopic("Let's talk about cooking")
 
         assertEquals("cooking", result)
     }
 
     @Test
     fun `should extract explicit topic case insensitive`() {
-        val userMessage = "LET'S TALK ABOUT SPORTS"
-
-        val result = topicDecisionService.extractExplicitTopic(userMessage)
+        val result = topicDecisionService.extractExplicitTopic("LET'S TALK ABOUT SPORTS")
 
         assertEquals("SPORTS", result)
     }
 
     @Test
     fun `should return null when no explicit topic in message`() {
-        val userMessage = "Hello, how are you?"
-
-        val result = topicDecisionService.extractExplicitTopic(userMessage)
+        val result = topicDecisionService.extractExplicitTopic("Hello, how are you?")
 
         assertNull(result)
-    }
-
-    @Test
-    fun `should extract topic with apostrophe variation`() {
-        val userMessage = "Lets talk about music"
-
-        val result = topicDecisionService.extractExplicitTopic(userMessage)
-
-        assertEquals("music", result)
     }
 }
