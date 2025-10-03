@@ -11,19 +11,25 @@ import org.springframework.stereotype.Component
 @ConfigurationProperties(prefix = "ai-tutor.catalog")
 data class CatalogProperties(
     var languages: List<LanguageConfig> = emptyList(),
-    var tutors: List<TutorConfig> = emptyList(),
+    var tutorArchetypes: List<TutorArchetypeConfig> = emptyList(),
     var courses: List<CourseConfig> = emptyList()
 )
 
-data class TutorConfig(
-    val name: String,
+data class TutorArchetypeConfig(
+    val id: String,
     val emoji: String,
     val personaEnglish: String,
     val domainEnglish: String,
-    val descriptionEnglish: String,
+    val descriptionTemplateEnglish: String,
     val personality: TutorPersonality,
-    val targetLanguageCode: String,
     val displayOrder: Int
+)
+
+data class TutorVariantConfig(
+    val archetypeId: String,
+    val name: String,
+    val culturalNotes: String,
+    val displayOrderOverride: Int? = null
 )
 
 data class LanguageConfig(
@@ -32,7 +38,8 @@ data class LanguageConfig(
     val flagEmoji: String,
     val nativeName: String,
     val difficulty: Difficulty,
-    val descriptionJson: String
+    val descriptionJson: String,
+    val tutorVariants: List<TutorVariantConfig> = emptyList()
 )
 
 data class CourseConfig(

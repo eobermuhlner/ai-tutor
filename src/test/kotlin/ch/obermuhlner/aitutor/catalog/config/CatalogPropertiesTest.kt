@@ -14,31 +14,50 @@ class CatalogPropertiesTest {
     private lateinit var catalogProperties: CatalogProperties
 
     @Test
-    fun `should load tutor configurations from YAML`() {
+    fun `should load tutor archetypes from YAML`() {
         // When
-        val tutors = catalogProperties.tutors
+        val archetypes = catalogProperties.tutorArchetypes
 
         // Then
-        assertTrue(tutors.isNotEmpty(), "Should have tutor configurations")
+        assertTrue(archetypes.isNotEmpty(), "Should have tutor archetypes")
+
+        // Verify common archetypes exist
+        assertTrue(archetypes.any { it.id == "encouraging-general" })
+        assertTrue(archetypes.any { it.id == "strict-academic" })
+        assertTrue(archetypes.any { it.id == "casual-friend" })
+
+        // Verify specialized archetypes
+        assertTrue(archetypes.any { it.id == "romaji-specialist" })
+        assertTrue(archetypes.any { it.id == "hiragana-bridge" })
+    }
+
+    @Test
+    fun `should load tutor variants for each language`() {
+        // When
+        val languages = catalogProperties.languages
+
+        // Then
+        assertTrue(languages.isNotEmpty(), "Should have language configurations")
 
         // Verify Spanish tutors
-        val spanishTutors = tutors.filter { it.targetLanguageCode == "es-ES" }
-        assertEquals(3, spanishTutors.size, "Should have 3 Spanish tutors")
-        assertTrue(spanishTutors.any { it.name == "María" })
-        assertTrue(spanishTutors.any { it.name == "Professor Rodríguez" })
-        assertTrue(spanishTutors.any { it.name == "Carlos" })
+        val spanish = languages.find { it.code == "es-ES" }
+        assertNotNull(spanish)
+        assertEquals(3, spanish?.tutorVariants?.size, "Should have 3 Spanish tutor variants")
+        assertTrue(spanish?.tutorVariants?.any { it.name == "María" } ?: false)
+        assertTrue(spanish?.tutorVariants?.any { it.name == "Professor Rodríguez" } ?: false)
+        assertTrue(spanish?.tutorVariants?.any { it.name == "Carlos" } ?: false)
 
         // Verify French tutors
-        val frenchTutors = tutors.filter { it.targetLanguageCode == "fr-FR" }
-        assertEquals(2, frenchTutors.size, "Should have 2 French tutors")
+        val french = languages.find { it.code == "fr-FR" }
+        assertEquals(2, french?.tutorVariants?.size, "Should have 2 French tutor variants")
 
         // Verify German tutors
-        val germanTutors = tutors.filter { it.targetLanguageCode == "de-DE" }
-        assertEquals(2, germanTutors.size, "Should have 2 German tutors")
+        val german = languages.find { it.code == "de-DE" }
+        assertEquals(2, german?.tutorVariants?.size, "Should have 2 German tutor variants")
 
         // Verify Japanese tutors
-        val japaneseTutors = tutors.filter { it.targetLanguageCode == "ja-JP" }
-        assertEquals(4, japaneseTutors.size, "Should have 4 Japanese tutors")
+        val japanese = languages.find { it.code == "ja-JP" }
+        assertEquals(4, japanese?.tutorVariants?.size, "Should have 4 Japanese tutor variants")
     }
 
     @Test
@@ -69,21 +88,39 @@ class CatalogPropertiesTest {
     }
 
     @Test
-    fun `tutor configurations should have all required fields`() {
+    fun `tutor archetypes should have all required fields`() {
         // Given
-        val maria = catalogProperties.tutors.find { it.name == "María" }
+        val encouragingArchetype = catalogProperties.tutorArchetypes.find { it.id == "encouraging-general" }
 
         // Then
-        assertNotNull(maria)
-        maria?.let {
-            assertEquals("María", it.name)
+        assertNotNull(encouragingArchetype)
+        encouragingArchetype?.let {
+            assertEquals("encouraging-general", it.id)
             assertEquals("👩‍🏫", it.emoji)
             assertEquals("patient coach", it.personaEnglish)
             assertTrue(it.domainEnglish.isNotBlank())
-            assertTrue(it.descriptionEnglish.isNotBlank())
+            assertTrue(it.descriptionTemplateEnglish.contains("{culturalNotes}"), "Should have template placeholder")
             assertNotNull(it.personality)
-            assertEquals("es-ES", it.targetLanguageCode)
             assertEquals(0, it.displayOrder)
+        }
+    }
+
+    @Test
+    fun `tutor variants should reference valid archetypes`() {
+        // Given
+        val spanish = catalogProperties.languages.find { it.code == "es-ES" }
+        val mariaVariant = spanish?.tutorVariants?.find { it.name == "María" }
+
+        // Then
+        assertNotNull(mariaVariant)
+        mariaVariant?.let {
+            assertEquals("María", it.name)
+            assertEquals("encouraging-general", it.archetypeId)
+            assertTrue(it.culturalNotes.isNotBlank())
+
+            // Verify archetype exists
+            val archetype = catalogProperties.tutorArchetypes.find { arch -> arch.id == it.archetypeId }
+            assertNotNull(archetype, "Referenced archetype should exist")
         }
     }
 

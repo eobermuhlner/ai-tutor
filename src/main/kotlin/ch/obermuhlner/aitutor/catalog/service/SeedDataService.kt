@@ -37,22 +37,35 @@ class SeedDataService(
     }
 
     private fun seedTutors(): Map<String, List<TutorProfileEntity>> {
-        val tutorEntities = catalogProperties.tutors.map { config ->
-            TutorProfileEntity(
-                name = config.name,
-                emoji = config.emoji,
-                personaEnglish = config.personaEnglish,
-                domainEnglish = config.domainEnglish,
-                descriptionEnglish = config.descriptionEnglish,
-                personaJson = """{"en": "${config.personaEnglish}"}""",
-                domainJson = """{"en": "${config.domainEnglish}"}""",
-                descriptionJson = """{"en": "${config.descriptionEnglish}"}""",
-                culturalBackgroundJson = null,
-                personality = config.personality,
-                targetLanguageCode = config.targetLanguageCode,
-                isActive = true,
-                displayOrder = config.displayOrder
-            )
+        // Create archetype lookup map for efficient access
+        val archetypeMap = catalogProperties.tutorArchetypes.associateBy { it.id }
+
+        // Cross-join: iterate through languages and their tutor variants
+        val tutorEntities = catalogProperties.languages.flatMap { language ->
+            language.tutorVariants.map { variant ->
+                val archetype = archetypeMap[variant.archetypeId]
+                    ?: throw IllegalStateException("Archetype '${variant.archetypeId}' not found for tutor variant '${variant.name}'")
+
+                // Template interpolation: replace {culturalNotes} placeholder
+                val description = archetype.descriptionTemplateEnglish
+                    .replace("{culturalNotes}", variant.culturalNotes)
+
+                TutorProfileEntity(
+                    name = variant.name,
+                    emoji = archetype.emoji,
+                    personaEnglish = archetype.personaEnglish,
+                    domainEnglish = archetype.domainEnglish,
+                    descriptionEnglish = description,
+                    personaJson = """{"en": "${archetype.personaEnglish}"}""",
+                    domainJson = """{"en": "${archetype.domainEnglish}"}""",
+                    descriptionJson = """{"en": "$description"}""",
+                    culturalBackgroundJson = """{"en": "${variant.culturalNotes}"}""",
+                    personality = archetype.personality,
+                    targetLanguageCode = language.code,
+                    isActive = true,
+                    displayOrder = variant.displayOrderOverride ?: archetype.displayOrder
+                )
+            }
         }
 
         tutorProfileRepository.saveAll(tutorEntities)

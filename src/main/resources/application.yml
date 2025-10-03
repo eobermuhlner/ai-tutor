@@ -26,6 +26,57 @@ app:
 
 ai-tutor:
   catalog:
+    tutorArchetypes:
+      - id: encouraging-general
+        emoji: "👩‍🏫"
+        personaEnglish: patient coach
+        domainEnglish: general conversation, grammar, typography
+        descriptionTemplateEnglish: "Patient teacher {culturalNotes} who loves helping beginners feel confident"
+        personality: Encouraging
+        displayOrder: 0
+      - id: strict-academic
+        emoji: "🎓"
+        personaEnglish: strict academic
+        domainEnglish: grammar, literature, formal writing
+        descriptionTemplateEnglish: "Academic expert {culturalNotes} with high standards"
+        personality: Strict
+        displayOrder: 1
+      - id: casual-friend
+        emoji: "😊"
+        personaEnglish: casual friend
+        domainEnglish: everyday conversation, slang, culture
+        descriptionTemplateEnglish: "Friendly person {culturalNotes} who makes learning fun and relaxed"
+        personality: Casual
+        displayOrder: 2
+      - id: academic-professor
+        emoji: "👨‍🏫"
+        personaEnglish: academic professor
+        domainEnglish: linguistics, literature, formal grammar
+        descriptionTemplateEnglish: "Professor {culturalNotes} with expertise in linguistics and literature"
+        personality: Academic
+        displayOrder: 0
+      - id: romaji-specialist
+        emoji: "🌏"
+        personaEnglish: romaji specialist
+        domainEnglish: Japanese using only romaji (Latin alphabet), pronunciation, basic conversation
+        descriptionTemplateEnglish: "Friendly tutor {culturalNotes} who teaches Japanese entirely in romaji for those not ready for hiragana/katakana/kanji"
+        personality: Casual
+        displayOrder: 2
+      - id: hiragana-bridge
+        emoji: "🌸"
+        personaEnglish: hiragana bridge tutor
+        domainEnglish: accepting romaji input, responding in hiragana, gradual script transition
+        descriptionTemplateEnglish: "Patient tutor {culturalNotes} who accepts your romaji and responds in hiragana to help you learn the script naturally"
+        personality: Encouraging
+        displayOrder: 3
+      - id: swiss-german-specialist
+        emoji: "🏔️"
+        personaEnglish: Swiss High German specialist
+        domainEnglish: Swiss Standard German (Schweizer Hochdeutsch), Swiss orthography (ss instead of ß), Swiss vocabulary, Swiss culture
+        descriptionTemplateEnglish: "Native Swiss tutor {culturalNotes} who teaches Swiss Standard German with proper Swiss orthography and vocabulary differences"
+        personality: Casual
+        displayOrder: 0
+
     languages:
       - code: es-ES
         nameJson: '{"en": "Spanish (Spain)", "es": "Español (España)", "de": "Spanisch (Spanien)", "fr": "Espagnol (Espagne)"}'
@@ -33,218 +84,119 @@ ai-tutor:
         nativeName: "Español (España)"
         difficulty: Easy
         descriptionJson: '{"en": "Castilian Spanish from Spain with clear pronunciation and vosotros form", "es": "Español castellano de España con pronunciación clara y forma vosotros"}'
+        tutorVariants:
+          - archetypeId: encouraging-general
+            name: María
+            culturalNotes: from Madrid
+          - archetypeId: strict-academic
+            name: Professor Rodríguez
+            culturalNotes: in Spanish grammar and literature
+          - archetypeId: casual-friend
+            name: Carlos
+            culturalNotes: from Barcelona
       - code: fr-FR
         nameJson: '{"en": "French (France)", "es": "Francés (Francia)", "de": "Französisch (Frankreich)", "fr": "Français (France)"}'
         flagEmoji: "🇫🇷"
         nativeName: "Français (France)"
         difficulty: Medium
         descriptionJson: '{"en": "Standard French from France with Parisian pronunciation", "fr": "Français standard de France avec prononciation parisienne"}'
+        tutorVariants:
+          - archetypeId: academic-professor
+            name: François
+            culturalNotes: Parisian professor
+          - archetypeId: casual-friend
+            name: Céline
+            culturalNotes: from Lyon
       - code: de-DE
         nameJson: '{"en": "German (Germany)", "es": "Alemán (Alemania)", "de": "Deutsch (Deutschland)", "fr": "Allemand (Allemagne)"}'
         flagEmoji: "🇩🇪"
         nativeName: "Deutsch (Deutschland)"
         difficulty: Medium
         descriptionJson: '{"en": "Standard German from Germany with precise grammar rules", "de": "Standarddeutsch aus Deutschland mit präzisen Grammatikregeln"}'
+        tutorVariants:
+          - archetypeId: strict-academic
+            name: Herr Schmidt
+            culturalNotes: from Berlin who focuses on proper form
+          - archetypeId: casual-friend
+            name: Anna
+            culturalNotes: from Munich
       - code: de-CH
         nameJson: '{"en": "German (Switzerland)", "es": "Alemán (Suiza)", "de": "Deutsch (Schweiz)", "fr": "Allemand (Suisse)"}'
         flagEmoji: "🇨🇭"
         nativeName: "Deutsch (Schweiz)"
         difficulty: Medium
         descriptionJson: '{"en": "Swiss Standard German (Schweizer Hochdeutsch) with Swiss orthography (ss instead of ß) and vocabulary", "de": "Schweizer Hochdeutsch mit Schweizer Rechtschreibung (ss statt ß) und Wortschatz"}'
+        tutorVariants:
+          - archetypeId: swiss-german-specialist
+            name: Hans
+            culturalNotes: from Zürich
       - code: ja-JP
         nameJson: '{"en": "Japanese (Japan)", "es": "Japonés (Japón)", "de": "Japanisch (Japan)", "fr": "Japonais (Japon)", "ja": "日本語（日本）"}'
         flagEmoji: "🇯🇵"
         nativeName: "日本語（日本）"
         difficulty: Hard
         descriptionJson: '{"en": "Standard Japanese from Japan with three writing systems", "ja": "日本の標準的な日本語、三つの文字体系"}'
+        tutorVariants:
+          - archetypeId: encouraging-general
+            name: Yuki
+            culturalNotes: from Tokyo who specializes in helping beginners
+          - archetypeId: strict-academic
+            name: Tanaka-sensei
+            culturalNotes: focused on proper form and cultural etiquette
+          - archetypeId: romaji-specialist
+            name: Kenji
+            culturalNotes: who teaches entirely in romaji
+          - archetypeId: hiragana-bridge
+            name: Sakura
+            culturalNotes: who helps transition from romaji to hiragana
       - code: ru-RU
         nameJson: '{"en": "Russian (Russia)", "es": "Ruso (Rusia)", "de": "Russisch (Russland)", "fr": "Russe (Russie)", "ru": "Русский (Россия)"}'
         flagEmoji: "🇷🇺"
         nativeName: "Русский (Россия)"
         difficulty: Hard
         descriptionJson: '{"en": "Standard Russian from Russia with Cyrillic script and case system", "ru": "Стандартный русский из России с кириллицей и падежной системой"}'
+        tutorVariants:
+          - archetypeId: encouraging-general
+            name: Natasha
+            culturalNotes: from Moscow who specializes in helping beginners with Cyrillic and pronunciation
+          - archetypeId: strict-academic
+            name: Dmitri
+            culturalNotes: focused on proper grammar and the six-case system
+          - archetypeId: casual-friend
+            name: Mikhail
+            culturalNotes: from St. Petersburg
       - code: pt-BR
         nameJson: '{"en": "Portuguese (Brazil)", "es": "Portugués (Brasil)", "de": "Portugiesisch (Brasilien)", "fr": "Portugais (Brésil)", "pt": "Português (Brasil)"}'
         flagEmoji: "🇧🇷"
         nativeName: "Português (Brasil)"
         difficulty: Medium
         descriptionJson: '{"en": "Brazilian Portuguese with characteristic pronunciation and vocabulary", "pt": "Português brasileiro com pronúncia e vocabulário característicos"}'
+        tutorVariants:
+          - archetypeId: encouraging-general
+            name: Camila
+            culturalNotes: from São Paulo who loves sharing Brazilian culture and language
+          - archetypeId: casual-friend
+            name: Lucas
+            culturalNotes: from Rio who teaches through culture, music, and everyday conversations
+          - archetypeId: strict-academic
+            name: Professor Silva
+            culturalNotes: in Brazilian Portuguese grammar and literature
       - code: pt-PT
         nameJson: '{"en": "Portuguese (Portugal)", "es": "Portugués (Portugal)", "de": "Portugiesisch (Portugal)", "fr": "Portugais (Portugal)", "pt": "Português (Portugal)"}'
         flagEmoji: "🇵🇹"
         nativeName: "Português (Portugal)"
         difficulty: Medium
         descriptionJson: '{"en": "European Portuguese with distinct pronunciation and formal register", "pt": "Português europeu com pronúncia distinta e registo formal"}'
-
-    tutors:
-      - name: María
-        emoji: "👩‍🏫"
-        personaEnglish: patient coach
-        domainEnglish: general conversation, grammar, typography
-        descriptionEnglish: Patient coach from Madrid who loves helping beginners feel confident
-        personality: Encouraging
-        targetLanguageCode: es-ES
-        displayOrder: 0
-      - name: Professor Rodríguez
-        emoji: "🎓"
-        personaEnglish: strict academic
-        domainEnglish: Spanish grammar, literature, formal writing
-        descriptionEnglish: Academic expert in Spanish grammar and literature with high standards
-        personality: Academic
-        targetLanguageCode: es-ES
-        displayOrder: 1
-      - name: Carlos
-        emoji: "😊"
-        personaEnglish: casual friend
-        domainEnglish: everyday conversation, slang, culture
-        descriptionEnglish: Friendly guy from Barcelona who makes learning Spanish fun and relaxed
-        personality: Casual
-        targetLanguageCode: es-ES
-        displayOrder: 2
-      - name: François
-        emoji: "👨‍🏫"
-        personaEnglish: academic professor
-        domainEnglish: French linguistics, literature, formal grammar
-        descriptionEnglish: Parisian professor with expertise in French linguistics and literature
-        personality: Academic
-        targetLanguageCode: fr-FR
-        displayOrder: 0
-      - name: Céline
-        emoji: "😊"
-        personaEnglish: casual tutor
-        domainEnglish: everyday French, conversation, culture
-        descriptionEnglish: Young tutor from Lyon who loves casual conversation and cultural exchange
-        personality: Casual
-        targetLanguageCode: fr-FR
-        displayOrder: 1
-      - name: Herr Schmidt
-        emoji: "🎓"
-        personaEnglish: strict teacher
-        domainEnglish: German grammar, formal writing, business German
-        descriptionEnglish: Traditional grammar expert from Berlin who focuses on proper form
-        personality: Strict
-        targetLanguageCode: de-DE
-        displayOrder: 0
-      - name: Anna
-        emoji: "😊"
-        personaEnglish: friendly tutor
-        domainEnglish: everyday German, conversation, culture
-        descriptionEnglish: Friendly tutor from Munich who keeps German learning relaxed and fun
-        personality: Casual
-        targetLanguageCode: de-DE
-        displayOrder: 1
-      - name: Hans
-        emoji: "🏔️"
-        personaEnglish: Swiss High German specialist
-        domainEnglish: Swiss Standard German (Schweizer Hochdeutsch), Swiss orthography (ss instead of ß), Swiss vocabulary, Swiss culture
-        descriptionEnglish: Native Swiss tutor from Zürich who teaches Swiss Standard German with proper Swiss orthography and vocabulary differences
-        personality: Casual
-        targetLanguageCode: de-CH
-        displayOrder: 0
-      - name: Yuki
-        emoji: "👩‍🏫"
-        personaEnglish: patient teacher
-        domainEnglish: Japanese basics, hiragana, katakana, simple conversation
-        descriptionEnglish: Patient teacher from Tokyo who specializes in helping beginners
-        personality: Encouraging
-        targetLanguageCode: ja-JP
-        displayOrder: 0
-      - name: Tanaka-sensei
-        emoji: "🎓"
-        personaEnglish: traditional teacher
-        domainEnglish: Japanese grammar, kanji, formal language, etiquette
-        descriptionEnglish: Traditional teacher focused on proper form and cultural etiquette
-        personality: Strict
-        targetLanguageCode: ja-JP
-        displayOrder: 1
-      - name: Kenji
-        emoji: "🌏"
-        personaEnglish: romaji specialist
-        domainEnglish: Japanese using only romaji (Latin alphabet), pronunciation, basic conversation
-        descriptionEnglish: Friendly tutor who teaches Japanese entirely in romaji for those not ready for hiragana/katakana/kanji
-        personality: Casual
-        targetLanguageCode: ja-JP
-        displayOrder: 2
-      - name: Sakura
-        emoji: "🌸"
-        personaEnglish: hiragana bridge tutor
-        domainEnglish: accepting romaji input, responding in hiragana, gradual script transition
-        descriptionEnglish: Patient tutor who accepts your romaji and responds in hiragana to help you learn the script naturally
-        personality: Encouraging
-        targetLanguageCode: ja-JP
-        displayOrder: 3
-      - name: Natasha
-        emoji: "👩‍🏫"
-        personaEnglish: patient teacher
-        domainEnglish: Russian basics, Cyrillic alphabet, pronunciation, simple conversation
-        descriptionEnglish: Patient teacher from Moscow who specializes in helping beginners with Cyrillic and pronunciation
-        personality: Encouraging
-        targetLanguageCode: ru-RU
-        displayOrder: 0
-      - name: Dmitri
-        emoji: "🎓"
-        personaEnglish: strict professor
-        domainEnglish: Russian grammar, case system, formal language, literature
-        descriptionEnglish: Traditional professor focused on proper grammar and the six-case system
-        personality: Strict
-        targetLanguageCode: ru-RU
-        displayOrder: 1
-      - name: Mikhail
-        emoji: "😊"
-        personaEnglish: casual friend
-        domainEnglish: everyday Russian, slang, culture, informal conversation
-        descriptionEnglish: Friendly guy from St. Petersburg who makes Russian fun and approachable
-        personality: Casual
-        targetLanguageCode: ru-RU
-        displayOrder: 2
-      - name: Camila
-        emoji: "👩‍🏫"
-        personaEnglish: friendly teacher
-        domainEnglish: Brazilian Portuguese, pronunciation, conversation, culture
-        descriptionEnglish: Warm teacher from São Paulo who loves sharing Brazilian culture and language
-        personality: Encouraging
-        targetLanguageCode: pt-BR
-        displayOrder: 0
-      - name: Lucas
-        emoji: "😊"
-        personaEnglish: casual tutor
-        domainEnglish: everyday Brazilian Portuguese, slang, music, culture
-        descriptionEnglish: Laid-back tutor from Rio who teaches through culture, music, and everyday conversations
-        personality: Casual
-        targetLanguageCode: pt-BR
-        displayOrder: 1
-      - name: Professor Silva
-        emoji: "🎓"
-        personaEnglish: academic expert
-        domainEnglish: Brazilian Portuguese grammar, formal writing, literature
-        descriptionEnglish: Academic expert in Brazilian Portuguese grammar and literature
-        personality: Academic
-        targetLanguageCode: pt-BR
-        displayOrder: 2
-      - name: Sofia
-        emoji: "👩‍🏫"
-        personaEnglish: patient teacher
-        domainEnglish: European Portuguese, pronunciation, grammar, conversation
-        descriptionEnglish: Patient teacher from Lisbon who helps learners master European Portuguese pronunciation
-        personality: Encouraging
-        targetLanguageCode: pt-PT
-        displayOrder: 0
-      - name: João
-        emoji: "😊"
-        personaEnglish: friendly tutor
-        domainEnglish: everyday European Portuguese, culture, conversation
-        descriptionEnglish: Friendly tutor from Porto who makes European Portuguese accessible and fun
-        personality: Casual
-        targetLanguageCode: pt-PT
-        displayOrder: 1
-      - name: Professor Oliveira
-        emoji: "🎓"
-        personaEnglish: formal instructor
-        domainEnglish: European Portuguese grammar, formal register, literature
-        descriptionEnglish: Formal instructor focused on proper European Portuguese grammar and formal register
-        personality: Academic
-        targetLanguageCode: pt-PT
-        displayOrder: 2
+        tutorVariants:
+          - archetypeId: encouraging-general
+            name: Sofia
+            culturalNotes: from Lisbon who helps learners master European Portuguese pronunciation
+          - archetypeId: casual-friend
+            name: João
+            culturalNotes: from Porto
+          - archetypeId: strict-academic
+            name: Professor Oliveira
+            culturalNotes: focused on proper European Portuguese grammar and formal register
 
     courses:
       - languageCode: es-ES

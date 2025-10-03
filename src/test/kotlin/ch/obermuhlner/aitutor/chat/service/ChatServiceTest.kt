@@ -156,6 +156,8 @@ class ChatServiceTest {
     fun `should delete session`() {
         val session = TestDataFactory.createSessionEntity()
         every { chatSessionRepository.findById(any()) } returns Optional.of(session)
+        every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(any()) } returns emptyList()
+        every { chatMessageRepository.deleteAll(any<List<ChatMessageEntity>>()) } just Runs
         every { chatSessionRepository.deleteById(any()) } just Runs
 
         val result = chatService.deleteSession(TestDataFactory.TEST_SESSION_ID, TestDataFactory.TEST_USER_ID)
