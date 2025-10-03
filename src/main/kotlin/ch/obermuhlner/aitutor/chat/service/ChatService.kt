@@ -90,6 +90,10 @@ class ChatService(
             return false
         }
 
+        // Delete all messages first to avoid foreign key constraint violation
+        val messages = chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(sessionId)
+        chatMessageRepository.deleteAll(messages)
+
         chatSessionRepository.deleteById(sessionId)
         return true
     }
