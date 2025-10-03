@@ -57,6 +57,24 @@ ai-tutor:
         nativeName: "日本語（日本）"
         difficulty: Hard
         descriptionJson: '{"en": "Standard Japanese from Japan with three writing systems", "ja": "日本の標準的な日本語、三つの文字体系"}'
+      - code: ru-RU
+        nameJson: '{"en": "Russian (Russia)", "es": "Ruso (Rusia)", "de": "Russisch (Russland)", "fr": "Russe (Russie)", "ru": "Русский (Россия)"}'
+        flagEmoji: "🇷🇺"
+        nativeName: "Русский (Россия)"
+        difficulty: Hard
+        descriptionJson: '{"en": "Standard Russian from Russia with Cyrillic script and case system", "ru": "Стандартный русский из России с кириллицей и падежной системой"}'
+      - code: pt-BR
+        nameJson: '{"en": "Portuguese (Brazil)", "es": "Portugués (Brasil)", "de": "Portugiesisch (Brasilien)", "fr": "Portugais (Brésil)", "pt": "Português (Brasil)"}'
+        flagEmoji: "🇧🇷"
+        nativeName: "Português (Brasil)"
+        difficulty: Medium
+        descriptionJson: '{"en": "Brazilian Portuguese with characteristic pronunciation and vocabulary", "pt": "Português brasileiro com pronúncia e vocabulário característicos"}'
+      - code: pt-PT
+        nameJson: '{"en": "Portuguese (Portugal)", "es": "Portugués (Portugal)", "de": "Portugiesisch (Portugal)", "fr": "Portugais (Portugal)", "pt": "Português (Portugal)"}'
+        flagEmoji: "🇵🇹"
+        nativeName: "Português (Portugal)"
+        difficulty: Medium
+        descriptionJson: '{"en": "European Portuguese with distinct pronunciation and formal register", "pt": "Português europeu com pronúncia distinta e registo formal"}'
 
     tutors:
       - name: María
@@ -155,6 +173,78 @@ ai-tutor:
         personality: Encouraging
         targetLanguageCode: ja-JP
         displayOrder: 3
+      - name: Natasha
+        emoji: "👩‍🏫"
+        personaEnglish: patient teacher
+        domainEnglish: Russian basics, Cyrillic alphabet, pronunciation, simple conversation
+        descriptionEnglish: Patient teacher from Moscow who specializes in helping beginners with Cyrillic and pronunciation
+        personality: Encouraging
+        targetLanguageCode: ru-RU
+        displayOrder: 0
+      - name: Dmitri
+        emoji: "🎓"
+        personaEnglish: strict professor
+        domainEnglish: Russian grammar, case system, formal language, literature
+        descriptionEnglish: Traditional professor focused on proper grammar and the six-case system
+        personality: Strict
+        targetLanguageCode: ru-RU
+        displayOrder: 1
+      - name: Mikhail
+        emoji: "😊"
+        personaEnglish: casual friend
+        domainEnglish: everyday Russian, slang, culture, informal conversation
+        descriptionEnglish: Friendly guy from St. Petersburg who makes Russian fun and approachable
+        personality: Casual
+        targetLanguageCode: ru-RU
+        displayOrder: 2
+      - name: Camila
+        emoji: "👩‍🏫"
+        personaEnglish: friendly teacher
+        domainEnglish: Brazilian Portuguese, pronunciation, conversation, culture
+        descriptionEnglish: Warm teacher from São Paulo who loves sharing Brazilian culture and language
+        personality: Encouraging
+        targetLanguageCode: pt-BR
+        displayOrder: 0
+      - name: Lucas
+        emoji: "😊"
+        personaEnglish: casual tutor
+        domainEnglish: everyday Brazilian Portuguese, slang, music, culture
+        descriptionEnglish: Laid-back tutor from Rio who teaches through culture, music, and everyday conversations
+        personality: Casual
+        targetLanguageCode: pt-BR
+        displayOrder: 1
+      - name: Professor Silva
+        emoji: "🎓"
+        personaEnglish: academic expert
+        domainEnglish: Brazilian Portuguese grammar, formal writing, literature
+        descriptionEnglish: Academic expert in Brazilian Portuguese grammar and literature
+        personality: Academic
+        targetLanguageCode: pt-BR
+        displayOrder: 2
+      - name: Sofia
+        emoji: "👩‍🏫"
+        personaEnglish: patient teacher
+        domainEnglish: European Portuguese, pronunciation, grammar, conversation
+        descriptionEnglish: Patient teacher from Lisbon who helps learners master European Portuguese pronunciation
+        personality: Encouraging
+        targetLanguageCode: pt-PT
+        displayOrder: 0
+      - name: João
+        emoji: "😊"
+        personaEnglish: friendly tutor
+        domainEnglish: everyday European Portuguese, culture, conversation
+        descriptionEnglish: Friendly tutor from Porto who makes European Portuguese accessible and fun
+        personality: Casual
+        targetLanguageCode: pt-PT
+        displayOrder: 1
+      - name: Professor Oliveira
+        emoji: "🎓"
+        personaEnglish: formal instructor
+        domainEnglish: European Portuguese grammar, formal register, literature
+        descriptionEnglish: Formal instructor focused on proper European Portuguese grammar and formal register
+        personality: Academic
+        targetLanguageCode: pt-PT
+        displayOrder: 2
 
     courses:
       - languageCode: es-ES
@@ -232,6 +322,94 @@ ai-tutor:
           - Understand Japanese sentence structure
           - Practice polite conversation
         displayOrder: 0
+      - languageCode: ru-RU
+        nameEnglish: Russian Conversation
+        shortDescriptionEnglish: Develop fluency in everyday Russian
+        descriptionEnglish: Practice natural Russian conversation skills while mastering Cyrillic and basic grammar
+        category: Conversational
+        targetAudienceEnglish: Learners wanting to speak Russian confidently
+        startingLevel: A1
+        targetLevel: B2
+        learningGoalsEnglish:
+          - Master Cyrillic alphabet and reading
+          - Engage in everyday conversations
+          - Understand Russian pronunciation
+          - Use common expressions naturally
+        displayOrder: 0
+      - languageCode: ru-RU
+        nameEnglish: Russian Grammar Fundamentals
+        shortDescriptionEnglish: Master the Russian case system
+        descriptionEnglish: Comprehensive course covering Russian grammar including the six-case system and verb aspects
+        category: General
+        targetAudienceEnglish: Serious learners wanting structured grammar training
+        startingLevel: A1
+        targetLevel: B1
+        estimatedWeeks: 14
+        learningGoalsEnglish:
+          - Master the six Russian cases
+          - Understand verb aspects (perfective/imperfective)
+          - Build essential vocabulary
+          - Form correct sentences
+        displayOrder: 1
+      - languageCode: pt-BR
+        nameEnglish: Brazilian Portuguese Conversation
+        shortDescriptionEnglish: Speak Brazilian Portuguese naturally
+        descriptionEnglish: Learn to communicate naturally in Brazilian Portuguese through practical conversations and cultural immersion
+        category: Conversational
+        targetAudienceEnglish: Anyone wanting to speak Brazilian Portuguese
+        startingLevel: A1
+        targetLevel: B2
+        learningGoalsEnglish:
+          - Master Brazilian pronunciation
+          - Engage in everyday conversations
+          - Understand Brazilian slang and expressions
+          - Discuss culture, music, and daily life
+        displayOrder: 0
+      - languageCode: pt-BR
+        nameEnglish: Brazilian Portuguese for Travelers
+        shortDescriptionEnglish: Essential phrases for visiting Brazil
+        descriptionEnglish: Quick-start course focusing on practical phrases for traveling in Brazil
+        category: Travel
+        targetAudienceEnglish: Travelers planning a trip to Brazil
+        startingLevel: A1
+        targetLevel: A2
+        estimatedWeeks: 6
+        learningGoalsEnglish:
+          - Navigate airports and transportation
+          - Order food at restaurants
+          - Ask for directions and help
+          - Understand Brazilian customs
+          - Handle basic situations
+        displayOrder: 1
+      - languageCode: pt-PT
+        nameEnglish: European Portuguese Essentials
+        shortDescriptionEnglish: Build a strong foundation in European Portuguese
+        descriptionEnglish: Comprehensive beginner to intermediate European Portuguese course covering pronunciation, grammar, and conversation
+        category: General
+        targetAudienceEnglish: New learners of European Portuguese
+        startingLevel: A1
+        targetLevel: B1
+        estimatedWeeks: 12
+        learningGoalsEnglish:
+          - Master European Portuguese pronunciation
+          - Learn essential grammar structures
+          - Build practical vocabulary
+          - Understand formal and informal registers
+        displayOrder: 0
+      - languageCode: pt-PT
+        nameEnglish: Portuguese Conversation
+        shortDescriptionEnglish: Speak European Portuguese confidently
+        descriptionEnglish: Practice natural European Portuguese conversation skills and cultural understanding
+        category: Conversational
+        targetAudienceEnglish: Learners wanting conversational fluency
+        startingLevel: A1
+        targetLevel: B2
+        learningGoalsEnglish:
+          - Engage in everyday conversations
+          - Understand Portuguese culture
+          - Use idiomatic expressions
+          - Discuss various topics naturally
+        displayOrder: 1
 
   prompts:
     system: |
