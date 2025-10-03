@@ -11,37 +11,45 @@ class LanguageConfig {
     @Bean
     fun supportedLanguages(): Map<String, LanguageMetadata> {
         return mapOf(
-            "es" to LanguageMetadata(
-                code = "es",
-                nameJson = """{"en": "Spanish", "es": "Español", "de": "Spanisch", "fr": "Espagnol"}""",
+            "es-ES" to LanguageMetadata(
+                code = "es-ES",
+                nameJson = """{"en": "Spanish (Spain)", "es": "Español (España)", "de": "Spanisch (Spanien)", "fr": "Espagnol (Espagne)"}""",
                 flagEmoji = "🇪🇸",
-                nativeName = "Español",
+                nativeName = "Español (España)",
                 difficulty = Difficulty.Easy,
-                descriptionJson = """{"en": "One of the most spoken languages worldwide, with clear pronunciation rules", "es": "Uno de los idiomas más hablados del mundo, con reglas de pronunciación claras"}"""
+                descriptionJson = """{"en": "Castilian Spanish from Spain with clear pronunciation and vosotros form", "es": "Español castellano de España con pronunciación clara y forma vosotros"}"""
             ),
-            "fr" to LanguageMetadata(
-                code = "fr",
-                nameJson = """{"en": "French", "es": "Francés", "de": "Französisch", "fr": "Français"}""",
+            "fr-FR" to LanguageMetadata(
+                code = "fr-FR",
+                nameJson = """{"en": "French (France)", "es": "Francés (Francia)", "de": "Französisch (Frankreich)", "fr": "Français (France)"}""",
                 flagEmoji = "🇫🇷",
-                nativeName = "Français",
+                nativeName = "Français (France)",
                 difficulty = Difficulty.Medium,
-                descriptionJson = """{"en": "Romance language spoken across five continents", "fr": "Langue romane parlée sur cinq continents"}"""
+                descriptionJson = """{"en": "Standard French from France with Parisian pronunciation", "fr": "Français standard de France avec prononciation parisienne"}"""
             ),
-            "de" to LanguageMetadata(
-                code = "de",
-                nameJson = """{"en": "German", "es": "Alemán", "de": "Deutsch", "fr": "Allemand"}""",
+            "de-DE" to LanguageMetadata(
+                code = "de-DE",
+                nameJson = """{"en": "German (Germany)", "es": "Alemán (Alemania)", "de": "Deutsch (Deutschland)", "fr": "Allemand (Allemagne)"}""",
                 flagEmoji = "🇩🇪",
-                nativeName = "Deutsch",
+                nativeName = "Deutsch (Deutschland)",
                 difficulty = Difficulty.Medium,
-                descriptionJson = """{"en": "Germanic language with precise grammar rules", "de": "Germanische Sprache mit präzisen Grammatikregeln"}"""
+                descriptionJson = """{"en": "Standard German from Germany with precise grammar rules", "de": "Standarddeutsch aus Deutschland mit präzisen Grammatikregeln"}"""
             ),
-            "ja" to LanguageMetadata(
-                code = "ja",
-                nameJson = """{"en": "Japanese", "es": "Japonés", "de": "Japanisch", "fr": "Japonais", "ja": "日本語"}""",
+            "de-CH" to LanguageMetadata(
+                code = "de-CH",
+                nameJson = """{"en": "German (Switzerland)", "es": "Alemán (Suiza)", "de": "Deutsch (Schweiz)", "fr": "Allemand (Suisse)"}""",
+                flagEmoji = "🇨🇭",
+                nativeName = "Deutsch (Schweiz)",
+                difficulty = Difficulty.Medium,
+                descriptionJson = """{"en": "Swiss Standard German (Schweizer Hochdeutsch) with Swiss orthography (ss instead of ß) and vocabulary", "de": "Schweizer Hochdeutsch mit Schweizer Rechtschreibung (ss statt ß) und Wortschatz"}"""
+            ),
+            "ja-JP" to LanguageMetadata(
+                code = "ja-JP",
+                nameJson = """{"en": "Japanese (Japan)", "es": "Japonés (Japón)", "de": "Japanisch (Japan)", "fr": "Japonais (Japon)", "ja": "日本語（日本）"}""",
                 flagEmoji = "🇯🇵",
-                nativeName = "日本語",
+                nativeName = "日本語（日本）",
                 difficulty = Difficulty.Hard,
-                descriptionJson = """{"en": "East Asian language with three writing systems", "ja": "三つの文字体系を持つ東アジアの言語"}"""
+                descriptionJson = """{"en": "Standard Japanese from Japan with three writing systems", "ja": "日本の標準的な日本語、三つの文字体系"}"""
             )
         )
     }

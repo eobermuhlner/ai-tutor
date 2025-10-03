@@ -22,23 +22,23 @@ class CatalogPropertiesTest {
         assertTrue(tutors.isNotEmpty(), "Should have tutor configurations")
 
         // Verify Spanish tutors
-        val spanishTutors = tutors.filter { it.targetLanguageCode == "es" }
+        val spanishTutors = tutors.filter { it.targetLanguageCode == "es-ES" }
         assertEquals(3, spanishTutors.size, "Should have 3 Spanish tutors")
         assertTrue(spanishTutors.any { it.name == "María" })
         assertTrue(spanishTutors.any { it.name == "Professor Rodríguez" })
         assertTrue(spanishTutors.any { it.name == "Carlos" })
 
         // Verify French tutors
-        val frenchTutors = tutors.filter { it.targetLanguageCode == "fr" }
+        val frenchTutors = tutors.filter { it.targetLanguageCode == "fr-FR" }
         assertEquals(2, frenchTutors.size, "Should have 2 French tutors")
 
         // Verify German tutors
-        val germanTutors = tutors.filter { it.targetLanguageCode == "de" }
+        val germanTutors = tutors.filter { it.targetLanguageCode == "de-DE" }
         assertEquals(2, germanTutors.size, "Should have 2 German tutors")
 
         // Verify Japanese tutors
-        val japaneseTutors = tutors.filter { it.targetLanguageCode == "ja" }
-        assertEquals(2, japaneseTutors.size, "Should have 2 Japanese tutors")
+        val japaneseTutors = tutors.filter { it.targetLanguageCode == "ja-JP" }
+        assertEquals(4, japaneseTutors.size, "Should have 4 Japanese tutors")
     }
 
     @Test
@@ -50,21 +50,21 @@ class CatalogPropertiesTest {
         assertTrue(courses.isNotEmpty(), "Should have course configurations")
 
         // Verify Spanish courses
-        val spanishCourses = courses.filter { it.languageCode == "es" }
+        val spanishCourses = courses.filter { it.languageCode == "es-ES" }
         assertEquals(2, spanishCourses.size, "Should have 2 Spanish courses")
         assertTrue(spanishCourses.any { it.nameEnglish.contains("Conversational") })
         assertTrue(spanishCourses.any { it.nameEnglish.contains("Travelers") })
 
         // Verify French courses
-        val frenchCourses = courses.filter { it.languageCode == "fr" }
+        val frenchCourses = courses.filter { it.languageCode == "fr-FR" }
         assertEquals(1, frenchCourses.size, "Should have 1 French course")
 
         // Verify German courses
-        val germanCourses = courses.filter { it.languageCode == "de" }
+        val germanCourses = courses.filter { it.languageCode == "de-DE" }
         assertEquals(1, germanCourses.size, "Should have 1 German course")
 
         // Verify Japanese courses
-        val japaneseCourses = courses.filter { it.languageCode == "ja" }
+        val japaneseCourses = courses.filter { it.languageCode == "ja-JP" }
         assertEquals(1, japaneseCourses.size, "Should have 1 Japanese course")
     }
 
@@ -82,7 +82,7 @@ class CatalogPropertiesTest {
             assertTrue(it.domainEnglish.isNotBlank())
             assertTrue(it.descriptionEnglish.isNotBlank())
             assertNotNull(it.personality)
-            assertEquals("es", it.targetLanguageCode)
+            assertEquals("es-ES", it.targetLanguageCode)
             assertEquals(0, it.displayOrder)
         }
     }
@@ -97,7 +97,7 @@ class CatalogPropertiesTest {
         assertNotNull(conversationalSpanish)
         conversationalSpanish?.let {
             assertEquals("Conversational Spanish", it.nameEnglish)
-            assertEquals("es", it.languageCode)
+            assertEquals("es-ES", it.languageCode)
             assertTrue(it.shortDescriptionEnglish.isNotBlank())
             assertTrue(it.descriptionEnglish.isNotBlank())
             assertNotNull(it.category)

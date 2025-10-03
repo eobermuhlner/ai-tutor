@@ -33,7 +33,7 @@ ai-tutor:
         domainEnglish: general conversation, grammar, typography
         descriptionEnglish: Patient coach from Madrid who loves helping beginners feel confident
         personality: Encouraging
-        targetLanguageCode: es
+        targetLanguageCode: es-ES
         displayOrder: 0
       - name: Professor Rodríguez
         emoji: "🎓"
@@ -41,7 +41,7 @@ ai-tutor:
         domainEnglish: Spanish grammar, literature, formal writing
         descriptionEnglish: Academic expert in Spanish grammar and literature with high standards
         personality: Academic
-        targetLanguageCode: es
+        targetLanguageCode: es-ES
         displayOrder: 1
       - name: Carlos
         emoji: "😊"
@@ -49,7 +49,7 @@ ai-tutor:
         domainEnglish: everyday conversation, slang, culture
         descriptionEnglish: Friendly guy from Barcelona who makes learning Spanish fun and relaxed
         personality: Casual
-        targetLanguageCode: es
+        targetLanguageCode: es-ES
         displayOrder: 2
       - name: François
         emoji: "👨‍🏫"
@@ -57,7 +57,7 @@ ai-tutor:
         domainEnglish: French linguistics, literature, formal grammar
         descriptionEnglish: Parisian professor with expertise in French linguistics and literature
         personality: Academic
-        targetLanguageCode: fr
+        targetLanguageCode: fr-FR
         displayOrder: 0
       - name: Céline
         emoji: "😊"
@@ -65,7 +65,7 @@ ai-tutor:
         domainEnglish: everyday French, conversation, culture
         descriptionEnglish: Young tutor from Lyon who loves casual conversation and cultural exchange
         personality: Casual
-        targetLanguageCode: fr
+        targetLanguageCode: fr-FR
         displayOrder: 1
       - name: Herr Schmidt
         emoji: "🎓"
@@ -73,7 +73,7 @@ ai-tutor:
         domainEnglish: German grammar, formal writing, business German
         descriptionEnglish: Traditional grammar expert from Berlin who focuses on proper form
         personality: Strict
-        targetLanguageCode: de
+        targetLanguageCode: de-DE
         displayOrder: 0
       - name: Anna
         emoji: "😊"
@@ -81,15 +81,23 @@ ai-tutor:
         domainEnglish: everyday German, conversation, culture
         descriptionEnglish: Friendly tutor from Munich who keeps German learning relaxed and fun
         personality: Casual
-        targetLanguageCode: de
+        targetLanguageCode: de-DE
         displayOrder: 1
+      - name: Hans
+        emoji: "🏔️"
+        personaEnglish: Swiss High German specialist
+        domainEnglish: Swiss Standard German (Schweizer Hochdeutsch), Swiss orthography (ss instead of ß), Swiss vocabulary, Swiss culture
+        descriptionEnglish: Native Swiss tutor from Zürich who teaches Swiss Standard German with proper Swiss orthography and vocabulary differences
+        personality: Casual
+        targetLanguageCode: de-CH
+        displayOrder: 0
       - name: Yuki
         emoji: "👩‍🏫"
         personaEnglish: patient teacher
         domainEnglish: Japanese basics, hiragana, katakana, simple conversation
         descriptionEnglish: Patient teacher from Tokyo who specializes in helping beginners
         personality: Encouraging
-        targetLanguageCode: ja
+        targetLanguageCode: ja-JP
         displayOrder: 0
       - name: Tanaka-sensei
         emoji: "🎓"
@@ -97,11 +105,27 @@ ai-tutor:
         domainEnglish: Japanese grammar, kanji, formal language, etiquette
         descriptionEnglish: Traditional teacher focused on proper form and cultural etiquette
         personality: Strict
-        targetLanguageCode: ja
+        targetLanguageCode: ja-JP
         displayOrder: 1
+      - name: Kenji
+        emoji: "🌏"
+        personaEnglish: romaji specialist
+        domainEnglish: Japanese using only romaji (Latin alphabet), pronunciation, basic conversation
+        descriptionEnglish: Friendly tutor who teaches Japanese entirely in romaji for those not ready for hiragana/katakana/kanji
+        personality: Casual
+        targetLanguageCode: ja-JP
+        displayOrder: 2
+      - name: Sakura
+        emoji: "🌸"
+        personaEnglish: hiragana bridge tutor
+        domainEnglish: accepting romaji input, responding in hiragana, gradual script transition
+        descriptionEnglish: Patient tutor who accepts your romaji and responds in hiragana to help you learn the script naturally
+        personality: Encouraging
+        targetLanguageCode: ja-JP
+        displayOrder: 3
 
     courses:
-      - languageCode: es
+      - languageCode: es-ES
         nameEnglish: Conversational Spanish
         shortDescriptionEnglish: Master everyday conversations at your own pace
         descriptionEnglish: Learn to communicate naturally in Spanish through practical conversations covering greetings, daily routines, opinions, and more
@@ -116,7 +140,7 @@ ai-tutor:
           - Order food and shop for items
           - Express opinions and feelings
         displayOrder: 0
-      - languageCode: es
+      - languageCode: es-ES
         nameEnglish: Spanish for Travelers
         shortDescriptionEnglish: Essential phrases for tourists and travelers
         descriptionEnglish: Quick-start Spanish course focusing on practical phrases you'll need for travel
@@ -132,7 +156,7 @@ ai-tutor:
           - Ask for directions and help
           - Handle emergencies
         displayOrder: 1
-      - languageCode: fr
+      - languageCode: fr-FR
         nameEnglish: French Conversation
         shortDescriptionEnglish: Develop fluency in everyday French
         descriptionEnglish: Practice natural French conversation skills from basic to intermediate level
@@ -146,7 +170,7 @@ ai-tutor:
           - Use common idiomatic expressions
           - Discuss various topics naturally
         displayOrder: 0
-      - languageCode: de
+      - languageCode: de-DE
         nameEnglish: German Fundamentals
         shortDescriptionEnglish: Build a strong foundation in German
         descriptionEnglish: Comprehensive beginner to intermediate German course covering grammar and conversation
@@ -161,7 +185,7 @@ ai-tutor:
           - Form correct sentences
           - Understand German culture
         displayOrder: 0
-      - languageCode: ja
+      - languageCode: ja-JP
         nameEnglish: Japanese for Beginners
         shortDescriptionEnglish: Start your Japanese journey from zero
         descriptionEnglish: Learn hiragana, katakana, and basic Japanese conversation step by step

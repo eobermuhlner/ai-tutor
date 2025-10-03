@@ -18,7 +18,7 @@ object TestDataFactory {
         userId: UUID = TEST_USER_ID,
         tutorName: String = "TestTutor",
         sourceLanguageCode: String = "en",
-        targetLanguageCode: String = "es",
+        targetLanguageCode: String = "es-ES",
         estimatedCEFRLevel: CEFRLevel = CEFRLevel.A1
     ) = CreateSessionRequest(
         userId = userId,
@@ -35,7 +35,7 @@ object TestDataFactory {
         userId: UUID = TEST_USER_ID,
         tutorName: String = "TestTutor",
         sourceLanguageCode: String = "en",
-        targetLanguageCode: String = "es"
+        targetLanguageCode: String = "es-ES"
     ) = ChatSessionEntity(
         id = id,
         userId = userId,
