@@ -34,13 +34,17 @@ class VocabularyService(
                 ?.apply {
                     exposures += 1
                     lastSeenAt = now
+                    if (conceptName == null && nv.conceptName != null) {
+                        conceptName = nv.conceptName
+                    }
                 }
                 ?: VocabularyItemEntity(
                     userId = userId,
                     lang = lang,
                     lemma = lemmaNorm,
                     exposures = 1,
-                    lastSeenAt = now
+                    lastSeenAt = now,
+                    conceptName = nv.conceptName
                 )
 
             val persisted = vocabularyItemRepository.save(item)

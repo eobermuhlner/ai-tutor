@@ -31,6 +31,9 @@ class VocabularyItemEntity(
     @Column(name = "last_seen_at", nullable = false)
     var lastSeenAt: Instant = Instant.now(),
 
+    @Column(name = "concept_name", length = 256)
+    var conceptName: String? = null,
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     val createdAt: Instant? = null,

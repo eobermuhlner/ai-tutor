@@ -10,5 +10,6 @@ data class VocabularyItemWithContextsResponse(
     val exposures: Int,
     val lastSeenAt: Instant,
     val createdAt: Instant,
-    val contexts: List<VocabularyContextResponse>
+    val contexts: List<VocabularyContextResponse>,
+    val imageUrl: String? = null
 )

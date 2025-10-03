@@ -32,7 +32,8 @@ class VocabularyController(
                 lang = item.lang,
                 exposures = item.exposures,
                 lastSeenAt = item.lastSeenAt,
-                createdAt = item.createdAt ?: item.lastSeenAt
+                createdAt = item.createdAt ?: item.lastSeenAt,
+                imageUrl = item.conceptName?.let { "/api/v1/images/concept/$it/data" }
             )
         }
 
@@ -61,7 +62,8 @@ class VocabularyController(
             exposures = result.item.exposures,
             lastSeenAt = result.item.lastSeenAt,
             createdAt = result.item.createdAt ?: result.item.lastSeenAt,
-            contexts = contexts
+            contexts = contexts,
+            imageUrl = result.item.conceptName?.let { "/api/v1/images/concept/$it/data" }
         )
 
         return ResponseEntity.ok(response)

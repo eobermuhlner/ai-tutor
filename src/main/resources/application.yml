@@ -25,6 +25,8 @@ app:
     email: ${DEMO_EMAIL:demo@localhost}
 
 ai-tutor:
+  images:
+    seed-directory: src/main/resources/images
   catalog:
     tutorArchetypes:
       - id: encouraging-general
@@ -468,5 +470,6 @@ ai-tutor:
         - Mastered words (don't over-explain): {masteredWords}
         - When introducing NEW vocabulary, do so gradually (1-3 new words per turn maximum)
         - Use reinforcement words in natural contexts to aid retention
+        - When recording new vocabulary in your JSON response, include a "conceptName" field with a simple English concept identifier (e.g., "apple" for "manzana", "running" for "corriendo", "coffee-cup" for compound concepts)
 
 

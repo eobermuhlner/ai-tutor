@@ -9,5 +9,6 @@ data class VocabularyItemResponse(
     val lang: String,
     val exposures: Int,
     val lastSeenAt: Instant,
-    val createdAt: Instant
+    val createdAt: Instant,
+    val imageUrl: String? = null
 )
