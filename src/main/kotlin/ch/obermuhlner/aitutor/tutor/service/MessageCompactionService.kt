@@ -1,5 +1,6 @@
 package ch.obermuhlner.aitutor.tutor.service
 
+import org.slf4j.LoggerFactory
 import org.springframework.ai.chat.messages.Message
 import org.springframework.ai.chat.messages.SystemMessage
 import org.springframework.ai.chat.messages.UserMessage
@@ -14,6 +15,7 @@ class MessageCompactionService(
     @Value("\${ai-tutor.context.summarization.enabled}") private val summarizationEnabled: Boolean,
     private val summarizationService: ConversationSummarizationService
 ) {
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     /**
      * Compacts message history to fit within token limits.
@@ -30,6 +32,8 @@ class MessageCompactionService(
         systemMessages: List<Message>,
         conversationMessages: List<Message>
     ): List<Message> {
+        logger.debug("Compacting messages: ${conversationMessages.size} conversation messages, max tokens: $maxTokens")
+
         // Estimate tokens for system messages (rough: 4 chars ≈ 1 token)
         val systemTokens = estimateTokens(systemMessages)
 
@@ -37,7 +41,7 @@ class MessageCompactionService(
         val conversationBudget = maxTokens - systemTokens
 
         if (conversationBudget <= 0) {
-            // System messages alone exceed budget - return just system messages
+            logger.warn("System messages alone exceed budget (${systemTokens} tokens), returning only system messages")
             return systemMessages
         }
 
@@ -45,33 +49,39 @@ class MessageCompactionService(
         val recentMessages = conversationMessages.takeLast(recentMessageCount)
         val oldMessages = conversationMessages.dropLast(recentMessageCount)
 
+        logger.debug("Split: ${oldMessages.size} old messages, ${recentMessages.size} recent messages")
+
         // LLM-based summarization path
         if (summarizationEnabled && oldMessages.isNotEmpty()) {
+            logger.debug("Summarization enabled, summarizing ${oldMessages.size} old messages")
             val summary = summarizationService.summarizeMessages(oldMessages)
             val summaryMessage = SystemMessage("Previous conversation summary: $summary")
 
             val recentTokens = estimateTokens(recentMessages)
             val summaryTokens = estimateTokens(listOf(summaryMessage))
 
+            logger.debug("Summary: ${summaryTokens} tokens, recent: ${recentTokens} tokens, budget: ${conversationBudget}")
+
             return if (summaryTokens + recentTokens <= conversationBudget) {
-                // Summary + recent messages fit
+                logger.info("Compaction complete: summary + ${recentMessages.size} recent messages")
                 systemMessages + summaryMessage + recentMessages
             } else {
-                // Summary + recent still too big, trim recent
                 val availableForRecent = (conversationBudget - summaryTokens).coerceAtLeast(0)
                 val trimmedRecent = trimToTokenBudget(recentMessages, availableForRecent)
+                logger.info("Compaction complete: summary + ${trimmedRecent.size} trimmed recent messages (${recentMessages.size - trimmedRecent.size} dropped)")
                 systemMessages + summaryMessage + trimmedRecent
             }
         }
 
         // Fallback: sliding window (original behavior)
+        logger.debug("Using sliding window (summarization disabled or no old messages)")
         val recentTokens = estimateTokens(recentMessages)
         return if (recentTokens <= conversationBudget) {
-            // Recent messages fit within budget
+            logger.info("Compaction complete: ${recentMessages.size} recent messages fit within budget")
             systemMessages + recentMessages
         } else {
-            // Even recent messages exceed budget - trim further
             val trimmedMessages = trimToTokenBudget(recentMessages, conversationBudget)
+            logger.info("Compaction complete: ${trimmedMessages.size} messages after trimming (${recentMessages.size - trimmedMessages.size} dropped)")
             systemMessages + trimmedMessages
         }
     }

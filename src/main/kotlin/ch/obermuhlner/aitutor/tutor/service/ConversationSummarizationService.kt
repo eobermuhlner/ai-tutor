@@ -1,5 +1,6 @@
 package ch.obermuhlner.aitutor.tutor.service
 
+import org.slf4j.LoggerFactory
 import org.springframework.ai.chat.messages.AssistantMessage
 import org.springframework.ai.chat.messages.Message
 import org.springframework.ai.chat.messages.SystemMessage
@@ -16,6 +17,7 @@ class ConversationSummarizationService(
     @Value("\${ai-tutor.context.summarization.summary-token-budget}") private val summaryTokenBudget: Int,
     @Value("\${ai-tutor.context.summarization.prompt}") private val summarizationPrompt: String
 ) {
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     /**
      * Summarizes a list of messages using LLM, with automatic batching for large histories.
@@ -24,23 +26,29 @@ class ConversationSummarizationService(
      * summarizes the summaries to produce a final concise summary.
      */
     fun summarizeMessages(messages: List<Message>): String {
-        if (messages.isEmpty()) return ""
+        if (messages.isEmpty()) {
+            logger.debug("No messages to summarize")
+            return ""
+        }
 
         val totalTokens = estimateTokens(messages)
+        logger.debug("Summarizing ${messages.size} messages (~$totalTokens tokens)")
 
         return if (totalTokens <= batchSizeTokens) {
             // Single batch - summarize directly
+            logger.debug("Single batch summarization")
             summarizeBatch(messages)
         } else {
             // Multiple batches - split, summarize each, then summarize summaries
             val batches = splitIntoBatches(messages, batchSizeTokens)
+            logger.info("Multi-batch summarization: ${batches.size} batches")
             val batchSummaries = batches.map { batch -> summarizeBatch(batch) }
 
             // Recursively summarize the summaries
             if (batchSummaries.size == 1) {
                 batchSummaries.first()
             } else {
-                // Create messages from summaries and recursively summarize
+                logger.debug("Recursively summarizing ${batchSummaries.size} batch summaries")
                 val summaryMessages = batchSummaries.mapIndexed { index, summary ->
                     SystemMessage("Batch ${index + 1} summary: $summary")
                 }
@@ -53,6 +61,8 @@ class ConversationSummarizationService(
      * Summarizes a single batch of messages using the configured LLM.
      */
     private fun summarizeBatch(messages: List<Message>): String {
+        logger.debug("Summarizing batch of ${messages.size} messages")
+
         // Build conversation text from messages
         val conversationText = messages.joinToString("\n") { message ->
             val role = when (message) {
@@ -72,8 +82,11 @@ class ConversationSummarizationService(
         )
 
         // Call LLM to generate summary
+        logger.debug("Calling LLM for summary generation")
         val response = chatModel.call(Prompt(promptMessages))
-        return response.result.output.text ?: ""
+        val summary = response.result.output.text ?: ""
+        logger.debug("Summary generated: ${summary.length} chars")
+        return summary
     }
 
     /**
