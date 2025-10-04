@@ -20,6 +20,7 @@ class TutorService(
     private val aiChatService: AiChatService,
     private val languageService: LanguageService,
     private val vocabularyContextService: VocabularyContextService,
+    private val messageCompactionService: MessageCompactionService,
     @Value("\${ai-tutor.prompts.system}") private val systemPromptTemplate: String,
     @Value("\${ai-tutor.prompts.phase-free}") private val phaseFreePromptTemplate: String,
     @Value("\${ai-tutor.prompts.phase-correction}") private val phaseCorrectionPromptTemplate: String,
@@ -91,13 +92,16 @@ class TutorService(
             "sourceLanguage" to sourceLanguage
         ))
 
-        val allMessages = listOf(
+        val systemMessages = listOf(
             SystemMessage(systemPrompt + (phasePrompts[conversationState.phase] ?: phaseFreePrompt)),
             SystemMessage(developerPrompt),
             SystemMessage(conversationState.toString()),
-        ) + messages
+        )
 
-        val response = aiChatService.call(AiChatRequest(allMessages), onReplyChunk)
+        // Compact messages to fit within token limits
+        val compactedMessages = messageCompactionService.compactMessages(systemMessages, messages)
+
+        val response = aiChatService.call(AiChatRequest(compactedMessages), onReplyChunk)
 
         return response?.let {
             TutorResponse(

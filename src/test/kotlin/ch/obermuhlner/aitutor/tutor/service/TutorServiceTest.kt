@@ -40,11 +40,16 @@ class TutorServiceTest {
         aiChatService = mockk()
         languageService = mockk()
         vocabularyContextService = mockk()
+        val messageCompactionService = MessageCompactionService(
+            maxTokens = 100000,
+            recentMessageCount = 15
+        )
 
         tutorService = TutorService(
             aiChatService = aiChatService,
             languageService = languageService,
             vocabularyContextService = vocabularyContextService,
+            messageCompactionService = messageCompactionService,
             systemPromptTemplate = systemPromptTemplate,
             phaseFreePromptTemplate = phaseFreePromptTemplate,
             phaseCorrectionPromptTemplate = phaseCorrectionPromptTemplate,

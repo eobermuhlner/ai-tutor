@@ -25,6 +25,9 @@ app:
     email: ${DEMO_EMAIL:demo@localhost}
 
 ai-tutor:
+  context:
+    max-tokens: 100000  # Safety margin below model's 128k limit
+    recent-messages: 15  # Keep last 15 messages at full fidelity
   images:
     seed-directory: seed-images
   imagestore:
