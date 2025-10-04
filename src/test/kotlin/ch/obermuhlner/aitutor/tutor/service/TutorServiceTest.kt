@@ -40,9 +40,12 @@ class TutorServiceTest {
         aiChatService = mockk()
         languageService = mockk()
         vocabularyContextService = mockk()
+        val mockSummarizationService = mockk<ConversationSummarizationService>(relaxed = true)
         val messageCompactionService = MessageCompactionService(
             maxTokens = 100000,
-            recentMessageCount = 15
+            recentMessageCount = 15,
+            summarizationEnabled = false, // Disable for tests to avoid mocking
+            summarizationService = mockSummarizationService
         )
 
         tutorService = TutorService(

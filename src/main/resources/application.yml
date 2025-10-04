@@ -28,6 +28,14 @@ ai-tutor:
   context:
     max-tokens: 100000  # Safety margin below model's 128k limit
     recent-messages: 15  # Keep last 15 messages at full fidelity
+    summarization:
+      enabled: true  # Enable LLM-based summarization of old messages
+      batch-size-tokens: 50000  # Max tokens per batch when summarizing
+      summary-token-budget: 2000  # Target tokens for each summary output
+      prompt: |
+        Summarize this conversation history between a language tutor and learner.
+        Preserve: key topics discussed, vocabulary introduced, learner progress and errors, pedagogical context.
+        Be concise but comprehensive. Target length: approximately 500 words.
   images:
     seed-directory: seed-images
   imagestore:

@@ -10,16 +10,17 @@ import org.springframework.stereotype.Service
 @Service
 class MessageCompactionService(
     @Value("\${ai-tutor.context.max-tokens}") private val maxTokens: Int,
-    @Value("\${ai-tutor.context.recent-messages}") private val recentMessageCount: Int
+    @Value("\${ai-tutor.context.recent-messages}") private val recentMessageCount: Int,
+    @Value("\${ai-tutor.context.summarization.enabled}") private val summarizationEnabled: Boolean,
+    private val summarizationService: ConversationSummarizationService
 ) {
 
     /**
-     * Compacts message history to fit within token limits using a sliding window strategy.
+     * Compacts message history to fit within token limits.
      *
      * Strategy:
-     * - Keeps system messages (they're always needed)
-     * - Keeps the most recent N user/assistant messages at full fidelity
-     * - Drops older messages beyond the sliding window
+     * - If summarization enabled: System + LLM Summary of old messages + Recent N messages
+     * - Otherwise: System + Recent N messages (sliding window)
      *
      * @param systemMessages System prompts that must always be included
      * @param conversationMessages Historical user/assistant messages
@@ -40,10 +41,31 @@ class MessageCompactionService(
             return systemMessages
         }
 
-        // Take most recent messages up to the configured count
+        // Separate recent and old messages
         val recentMessages = conversationMessages.takeLast(recentMessageCount)
-        val recentTokens = estimateTokens(recentMessages)
+        val oldMessages = conversationMessages.dropLast(recentMessageCount)
 
+        // LLM-based summarization path
+        if (summarizationEnabled && oldMessages.isNotEmpty()) {
+            val summary = summarizationService.summarizeMessages(oldMessages)
+            val summaryMessage = SystemMessage("Previous conversation summary: $summary")
+
+            val recentTokens = estimateTokens(recentMessages)
+            val summaryTokens = estimateTokens(listOf(summaryMessage))
+
+            return if (summaryTokens + recentTokens <= conversationBudget) {
+                // Summary + recent messages fit
+                systemMessages + summaryMessage + recentMessages
+            } else {
+                // Summary + recent still too big, trim recent
+                val availableForRecent = (conversationBudget - summaryTokens).coerceAtLeast(0)
+                val trimmedRecent = trimToTokenBudget(recentMessages, availableForRecent)
+                systemMessages + summaryMessage + trimmedRecent
+            }
+        }
+
+        // Fallback: sliding window (original behavior)
+        val recentTokens = estimateTokens(recentMessages)
         return if (recentTokens <= conversationBudget) {
             // Recent messages fit within budget
             systemMessages + recentMessages

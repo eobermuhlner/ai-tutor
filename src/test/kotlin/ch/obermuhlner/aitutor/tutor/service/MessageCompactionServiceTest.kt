@@ -1,5 +1,8 @@
 package ch.obermuhlner.aitutor.tutor.service
 
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import org.junit.jupiter.api.Test
 import org.springframework.ai.chat.messages.SystemMessage
 import org.springframework.ai.chat.messages.UserMessage
@@ -9,9 +12,20 @@ import kotlin.test.assertTrue
 
 class MessageCompactionServiceTest {
 
-    private val service = MessageCompactionService(
+    private val mockSummarizationService = mockk<ConversationSummarizationService>()
+
+    private val serviceWithSummarization = MessageCompactionService(
         maxTokens = 100000,
-        recentMessageCount = 15
+        recentMessageCount = 15,
+        summarizationEnabled = true,
+        summarizationService = mockSummarizationService
+    )
+
+    private val serviceWithoutSummarization = MessageCompactionService(
+        maxTokens = 100000,
+        recentMessageCount = 15,
+        summarizationEnabled = false,
+        summarizationService = mockSummarizationService
     )
 
     @Test
@@ -28,7 +42,7 @@ class MessageCompactionServiceTest {
             AssistantMessage("I'm doing well, thank you!")
         )
 
-        val result = service.compactMessages(systemMessages, conversationMessages)
+        val result = serviceWithoutSummarization.compactMessages(systemMessages, conversationMessages)
 
         // Should have all system messages + all conversation messages
         assertEquals(6, result.size)
@@ -36,7 +50,7 @@ class MessageCompactionServiceTest {
     }
 
     @Test
-    fun `compactMessages should keep only recent messages when limit exceeded`() {
+    fun `compactMessages should keep only recent messages when limit exceeded (no summarization)`() {
         val systemMessages = listOf(
             SystemMessage("System prompt")
         )
@@ -50,7 +64,7 @@ class MessageCompactionServiceTest {
             }
         }
 
-        val result = service.compactMessages(systemMessages, conversationMessages)
+        val result = serviceWithoutSummarization.compactMessages(systemMessages, conversationMessages)
 
         // Should have 1 system message + up to 15 recent conversation messages
         assertTrue(result.size <= 16)
@@ -69,7 +83,7 @@ class MessageCompactionServiceTest {
 
         val conversationMessages = emptyList<org.springframework.ai.chat.messages.Message>()
 
-        val result = service.compactMessages(systemMessages, conversationMessages)
+        val result = serviceWithoutSummarization.compactMessages(systemMessages, conversationMessages)
 
         assertEquals(1, result.size)
         assertTrue(result.first() is SystemMessage)
@@ -89,7 +103,7 @@ class MessageCompactionServiceTest {
             AssistantMessage("Second assistant message")
         )
 
-        val result = service.compactMessages(systemMessages, conversationMessages)
+        val result = serviceWithoutSummarization.compactMessages(systemMessages, conversationMessages)
 
         // System messages should come first
         assertEquals(6, result.size)
@@ -107,7 +121,9 @@ class MessageCompactionServiceTest {
     fun `compactMessages should handle very large messages`() {
         val service = MessageCompactionService(
             maxTokens = 1000, // Small limit
-            recentMessageCount = 5
+            recentMessageCount = 5,
+            summarizationEnabled = false,
+            summarizationService = mockSummarizationService
         )
 
         val systemMessages = listOf(
@@ -135,7 +151,9 @@ class MessageCompactionServiceTest {
     fun `compactMessages should keep exactly recentMessageCount when possible`() {
         val service = MessageCompactionService(
             maxTokens = 100000,
-            recentMessageCount = 3 // Very small window
+            recentMessageCount = 3, // Very small window
+            summarizationEnabled = false,
+            summarizationService = mockSummarizationService
         )
 
         val systemMessages = listOf(
@@ -160,7 +178,9 @@ class MessageCompactionServiceTest {
     fun `compactMessages should handle system messages exceeding budget`() {
         val service = MessageCompactionService(
             maxTokens = 10, // Very small limit (about 40 chars = 10 tokens)
-            recentMessageCount = 5
+            recentMessageCount = 5,
+            summarizationEnabled = false,
+            summarizationService = mockSummarizationService
         )
 
         // Create very large system messages that exceed the token budget
@@ -184,7 +204,9 @@ class MessageCompactionServiceTest {
     fun `compactMessages should handle messages with null text`() {
         val service = MessageCompactionService(
             maxTokens = 100000,
-            recentMessageCount = 10
+            recentMessageCount = 10,
+            summarizationEnabled = false,
+            summarizationService = mockSummarizationService
         )
 
         val systemMessages = listOf(
@@ -198,7 +220,7 @@ class MessageCompactionServiceTest {
             UserMessage("Valid message")
         )
 
-        val result = service.compactMessages(systemMessages, conversationMessages)
+        val result = serviceWithoutSummarization.compactMessages(systemMessages, conversationMessages)
 
         // Should handle empty messages gracefully
         assertEquals(4, result.size) // 1 system + 3 conversation
@@ -209,7 +231,9 @@ class MessageCompactionServiceTest {
     fun `compactMessages should preserve message types in order`() {
         val service = MessageCompactionService(
             maxTokens = 100000,
-            recentMessageCount = 10
+            recentMessageCount = 10,
+            summarizationEnabled = false,
+            summarizationService = mockSummarizationService
         )
 
         val systemMessages = listOf(
@@ -225,7 +249,7 @@ class MessageCompactionServiceTest {
             AssistantMessage("Assistant 2")
         )
 
-        val result = service.compactMessages(systemMessages, conversationMessages)
+        val result = serviceWithoutSummarization.compactMessages(systemMessages, conversationMessages)
 
         // Verify order: all system messages first, then conversation messages
         assertEquals(7, result.size)
@@ -242,7 +266,9 @@ class MessageCompactionServiceTest {
     fun `compactMessages should handle edge case with exactly budget-sized messages`() {
         val service = MessageCompactionService(
             maxTokens = 100, // 100 tokens = ~400 chars
-            recentMessageCount = 5
+            recentMessageCount = 5,
+            summarizationEnabled = false,
+            summarizationService = mockSummarizationService
         )
 
         val systemMessages = listOf(
@@ -255,11 +281,93 @@ class MessageCompactionServiceTest {
             UserMessage("Message number $i with some additional text to reach the size limit here now")
         }
 
-        val result = service.compactMessages(systemMessages, conversationMessages)
+        val result = serviceWithoutSummarization.compactMessages(systemMessages, conversationMessages)
 
         // Should have system message + some conversation messages
         assertTrue(result.size >= 1) // At least system message
         assertTrue(result.size <= 6) // System + up to 5 conversation
+        assertTrue(result.first() is SystemMessage)
+    }
+
+    // === Summarization Tests ===
+
+    @Test
+    fun `compactMessages with summarization should summarize old messages and keep recent`() {
+        val systemMessages = listOf(SystemMessage("System"))
+
+        // Create 20 messages: 5 old + 15 recent
+        val conversationMessages = (1..20).map { i ->
+            if (i % 2 == 1) UserMessage("User $i") else AssistantMessage("Assistant $i")
+        }
+
+        // Mock summarization service
+        every { mockSummarizationService.summarizeMessages(any()) } returns "Summary of old conversation"
+
+        val result = serviceWithSummarization.compactMessages(systemMessages, conversationMessages)
+
+        // Should have: system + summary + recent messages
+        verify(exactly = 1) { mockSummarizationService.summarizeMessages(any()) }
+        assertTrue(result.size >= 2) // At least system + summary
+        assertTrue(result.first() is SystemMessage)
+        // Second message should be the summary
+        assertTrue(result[1] is SystemMessage)
+        assertTrue((result[1] as SystemMessage).text.contains("Previous conversation summary"))
+    }
+
+    @Test
+    fun `compactMessages with summarization disabled should not call summarization service`() {
+        val systemMessages = listOf(SystemMessage("System"))
+        val conversationMessages = (1..20).map { i ->
+            UserMessage("Message $i")
+        }
+
+        val result = serviceWithoutSummarization.compactMessages(systemMessages, conversationMessages)
+
+        // Should NOT call summarization service
+        verify(exactly = 0) { mockSummarizationService.summarizeMessages(any()) }
+        assertTrue(result.size <= 16) // System + up to 15 recent
+    }
+
+    @Test
+    fun `compactMessages with summarization should handle no old messages`() {
+        val systemMessages = listOf(SystemMessage("System"))
+
+        // Only 10 messages, all will be "recent"
+        val conversationMessages = (1..10).map { i ->
+            UserMessage("Message $i")
+        }
+
+        val result = serviceWithSummarization.compactMessages(systemMessages, conversationMessages)
+
+        // Should NOT call summarization service (no old messages)
+        verify(exactly = 0) { mockSummarizationService.summarizeMessages(any()) }
+        assertEquals(11, result.size) // System + 10 messages
+    }
+
+    @Test
+    fun `compactMessages with summarization should trim recent if summary too large`() {
+        val service = MessageCompactionService(
+            maxTokens = 100, // Very small limit
+            recentMessageCount = 10,
+            summarizationEnabled = true,
+            summarizationService = mockSummarizationService
+        )
+
+        val systemMessages = listOf(SystemMessage("System"))
+
+        // Create many large messages
+        val conversationMessages = (1..20).map { i ->
+            UserMessage("This is a very long message ".repeat(20)) // ~540 chars each
+        }
+
+        // Mock a large summary
+        every { mockSummarizationService.summarizeMessages(any()) } returns "Large summary ".repeat(50)
+
+        val result = service.compactMessages(systemMessages, conversationMessages)
+
+        // Should call summarization and trim recent messages to fit
+        verify(exactly = 1) { mockSummarizationService.summarizeMessages(any()) }
+        assertTrue(result.size >= 2) // At least system + summary
         assertTrue(result.first() is SystemMessage)
     }
 }
