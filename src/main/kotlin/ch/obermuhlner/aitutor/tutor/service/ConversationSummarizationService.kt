@@ -134,8 +134,8 @@ class ConversationSummarizationService(
      */
     private fun getMessageText(message: Message): String {
         return when (message) {
-            is SystemMessage -> message.text ?: ""
-            is UserMessage -> message.text ?: ""
+            is SystemMessage -> message.text
+            is UserMessage -> message.text
             is AssistantMessage -> message.text ?: ""
             else -> ""
         }

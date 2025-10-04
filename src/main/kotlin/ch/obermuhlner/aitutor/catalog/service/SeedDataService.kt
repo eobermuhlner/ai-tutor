@@ -8,6 +8,7 @@ import ch.obermuhlner.aitutor.catalog.repository.TutorProfileRepository
 import ch.obermuhlner.aitutor.tutor.domain.ConversationPhase
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.annotation.PostConstruct
+import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
 
@@ -19,6 +20,7 @@ class SeedDataService(
     private val catalogProperties: CatalogProperties,
     private val objectMapper: ObjectMapper
 ) {
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     @PostConstruct
     fun seedData() {
@@ -28,12 +30,12 @@ class SeedDataService(
             return
         }
 
-        println("Seeding catalog data from configuration...")
+        logger.debug("Seeding catalog data from configuration...")
 
         val tutors = seedTutors()
         val courses = seedCourses(tutors)
 
-        println("Seeded ${tutors.size} tutors and ${courses.size} courses")
+        logger.info("Seeded ${tutors.size} tutors and ${courses.size} courses")
     }
 
     private fun seedTutors(): Map<String, List<TutorProfileEntity>> {

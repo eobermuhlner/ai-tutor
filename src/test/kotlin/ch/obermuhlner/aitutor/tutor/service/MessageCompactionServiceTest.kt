@@ -209,14 +209,6 @@ class MessageCompactionServiceTest {
 
     @Test
     fun `compactMessages should handle messages with null text`() {
-        val service = MessageCompactionService(
-            maxTokens = 100000,
-            recentMessageCount = 10,
-            summarizationEnabled = false,
-            summaryPrefixPrompt = "Previous conversation summary: {summary}",
-            summarizationService = mockSummarizationService
-        )
-
         val systemMessages = listOf(
             SystemMessage("System prompt")
         )
@@ -237,14 +229,6 @@ class MessageCompactionServiceTest {
 
     @Test
     fun `compactMessages should preserve message types in order`() {
-        val service = MessageCompactionService(
-            maxTokens = 100000,
-            recentMessageCount = 10,
-            summarizationEnabled = false,
-            summaryPrefixPrompt = "Previous conversation summary: {summary}",
-            summarizationService = mockSummarizationService
-        )
-
         val systemMessages = listOf(
             SystemMessage("System 1"),
             SystemMessage("System 2"),
@@ -273,22 +257,14 @@ class MessageCompactionServiceTest {
 
     @Test
     fun `compactMessages should handle edge case with exactly budget-sized messages`() {
-        val service = MessageCompactionService(
-            maxTokens = 100, // 100 tokens = ~400 chars
-            recentMessageCount = 5,
-            summarizationEnabled = false,
-            summaryPrefixPrompt = "Previous conversation summary: {summary}",
-            summarizationService = mockSummarizationService
-        )
-
         val systemMessages = listOf(
             SystemMessage("Short system") // ~12 chars = ~3 tokens
         )
 
         // Create messages that are exactly at the budget boundary
         // Each message ~80 chars = ~20 tokens, 5 messages = ~100 tokens
-        val conversationMessages = (1..5).map { i ->
-            UserMessage("Message number $i with some additional text to reach the size limit here now")
+        val conversationMessages = (1..5).map { _ ->
+            UserMessage("Message number with some additional text to reach the size limit here now")
         }
 
         val result = serviceWithoutSummarization.compactMessages(systemMessages, conversationMessages)

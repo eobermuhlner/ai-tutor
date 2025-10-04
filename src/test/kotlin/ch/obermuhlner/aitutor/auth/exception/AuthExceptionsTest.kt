@@ -1,7 +1,6 @@
 package ch.obermuhlner.aitutor.auth.exception
 
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class AuthExceptionsTest {
@@ -12,7 +11,6 @@ class AuthExceptionsTest {
         val exception = UserNotFoundException(message)
 
         assertEquals(message, exception.message)
-        assertTrue(exception is RuntimeException)
     }
 
     @Test
@@ -21,7 +19,6 @@ class AuthExceptionsTest {
         val exception = DuplicateUsernameException(message)
 
         assertEquals(message, exception.message)
-        assertTrue(exception is RuntimeException)
     }
 
     @Test
@@ -30,7 +27,6 @@ class AuthExceptionsTest {
         val exception = DuplicateEmailException(message)
 
         assertEquals(message, exception.message)
-        assertTrue(exception is RuntimeException)
     }
 
     @Test
@@ -38,7 +34,6 @@ class AuthExceptionsTest {
         val exception = InvalidCredentialsException()
 
         assertEquals("Invalid username or password", exception.message)
-        assertTrue(exception is RuntimeException)
     }
 
     @Test
@@ -54,7 +49,6 @@ class AuthExceptionsTest {
         val exception = InvalidTokenException()
 
         assertEquals("Invalid or malformed token", exception.message)
-        assertTrue(exception is RuntimeException)
     }
 
     @Test
@@ -70,7 +64,6 @@ class AuthExceptionsTest {
         val exception = ExpiredTokenException()
 
         assertEquals("Token has expired", exception.message)
-        assertTrue(exception is RuntimeException)
     }
 
     @Test
@@ -86,7 +79,6 @@ class AuthExceptionsTest {
         val exception = InsufficientPermissionsException()
 
         assertEquals("Insufficient permissions to perform this action", exception.message)
-        assertTrue(exception is RuntimeException)
     }
 
     @Test
@@ -103,7 +95,6 @@ class AuthExceptionsTest {
         val exception = WeakPasswordException(message)
 
         assertEquals(message, exception.message)
-        assertTrue(exception is RuntimeException)
     }
 
     @Test
@@ -111,7 +102,6 @@ class AuthExceptionsTest {
         val exception = AccountDisabledException()
 
         assertEquals("Account is disabled", exception.message)
-        assertTrue(exception is RuntimeException)
     }
 
     @Test
@@ -127,7 +117,6 @@ class AuthExceptionsTest {
         val exception = AccountLockedException()
 
         assertEquals("Account is locked", exception.message)
-        assertTrue(exception is RuntimeException)
     }
 
     @Test
