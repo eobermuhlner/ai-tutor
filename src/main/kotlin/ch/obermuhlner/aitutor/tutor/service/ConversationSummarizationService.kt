@@ -86,7 +86,7 @@ class ConversationSummarizationService(
         val response = chatModel.call(Prompt(promptMessages))
         val summary = response.result.output.text ?: ""
         logger.debug("Summary generated: ${summary.length} chars")
-        logger.trace("Summary: $summary")
+        logger.trace("Summary: {}", summary)
         return summary
     }
 

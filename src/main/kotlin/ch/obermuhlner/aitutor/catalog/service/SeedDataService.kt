@@ -26,7 +26,7 @@ class SeedDataService(
     fun seedData() {
         // Only seed if database is empty
         if (tutorProfileRepository.count() > 0) {
-            println("Seed data already exists, skipping...")
+            logger.info("Seed data already exists, skipping...")
             return
         }
 

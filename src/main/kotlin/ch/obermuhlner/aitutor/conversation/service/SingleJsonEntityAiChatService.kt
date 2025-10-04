@@ -2,6 +2,7 @@ package ch.obermuhlner.aitutor.conversation.service
 
 import ch.obermuhlner.aitutor.conversation.dto.AiChatRequest
 import ch.obermuhlner.aitutor.conversation.dto.AiChatResponse
+import org.slf4j.LoggerFactory
 import org.springframework.ai.chat.client.ChatClient
 import org.springframework.ai.chat.model.ChatModel
 import org.springframework.ai.chat.prompt.Prompt
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service
 class SingleJsonEntityAiChatService(
     val chatModel: ChatModel
 ) : AiChatService {
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     override fun call(
         request: AiChatRequest,
@@ -25,6 +27,7 @@ class SingleJsonEntityAiChatService(
 
         onReplyText(result?.reply ?: "")
 
+        logger.trace("Response: {}", result)
         return result
     }
 }

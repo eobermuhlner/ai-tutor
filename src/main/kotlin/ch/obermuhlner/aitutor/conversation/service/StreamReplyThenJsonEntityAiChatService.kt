@@ -45,6 +45,7 @@ class StreamReplyThenJsonEntityAiChatService(
         }
 
         logger.debug("AI response JSON received (${json.length} chars)")
+        logger.trace("Response: $json")
         return LlmJson.parseAs<AiChatResponse>(json)
     }
 
