@@ -103,7 +103,6 @@ class TutorService(
             SystemMessage(conversationState.toString()),
         )
 
-        // Compact messages to fit within token limits
         val compactedMessages = messageCompactionService.compactMessages(systemMessages, messages)
 
         val response = aiChatService.call(AiChatRequest(compactedMessages), onReplyChunk)

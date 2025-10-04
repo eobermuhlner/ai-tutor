@@ -54,32 +54,36 @@ class MessageCompactionService(
         logger.debug("Split: ${oldMessages.size} old messages, ${recentMessages.size} recent messages")
 
         // LLM-based summarization path
-        if (summarizationEnabled && oldMessages.isNotEmpty()) {
-            logger.debug("Summarization enabled, summarizing ${oldMessages.size} old messages")
-            val summary = summarizationService.summarizeMessages(oldMessages)
-            val summaryText = PromptTemplate(summaryPrefixPrompt).render(mapOf(
-                "summary" to summary
-            ))
-            val summaryMessage = SystemMessage(summaryText)
-
-            val recentTokens = estimateTokens(recentMessages)
-            val summaryTokens = estimateTokens(listOf(summaryMessage))
-
-            logger.debug("Summary: ${summaryTokens} tokens, recent: ${recentTokens} tokens, budget: ${conversationBudget}")
-
-            return if (summaryTokens + recentTokens <= conversationBudget) {
-                logger.info("Compaction complete: summary + ${recentMessages.size} recent messages")
-                systemMessages + summaryMessage + recentMessages
+        if (summarizationEnabled) {
+            if (oldMessages.isEmpty()) {
+                logger.debug("Summarization enabled but no old messages to summarize, using sliding window")
             } else {
-                val availableForRecent = (conversationBudget - summaryTokens).coerceAtLeast(0)
-                val trimmedRecent = trimToTokenBudget(recentMessages, availableForRecent)
-                logger.info("Compaction complete: summary + ${trimmedRecent.size} trimmed recent messages (${recentMessages.size - trimmedRecent.size} dropped)")
-                systemMessages + summaryMessage + trimmedRecent
+                logger.debug("Summarization enabled, summarizing ${oldMessages.size} old messages")
+                val summary = summarizationService.summarizeMessages(oldMessages)
+                val summaryText = PromptTemplate(summaryPrefixPrompt).render(mapOf(
+                    "summary" to summary
+                ))
+                val summaryMessage = SystemMessage(summaryText)
+
+                val recentTokens = estimateTokens(recentMessages)
+                val summaryTokens = estimateTokens(listOf(summaryMessage))
+
+                logger.debug("Summary: ${summaryTokens} tokens, recent: ${recentTokens} tokens, budget: ${conversationBudget}")
+
+                return if (summaryTokens + recentTokens <= conversationBudget) {
+                    logger.info("Compaction complete: summary + ${recentMessages.size} recent messages")
+                    systemMessages + summaryMessage + recentMessages
+                } else {
+                    val availableForRecent = (conversationBudget - summaryTokens).coerceAtLeast(0)
+                    val trimmedRecent = trimToTokenBudget(recentMessages, availableForRecent)
+                    logger.info("Compaction complete: summary + ${trimmedRecent.size} trimmed recent messages (${recentMessages.size - trimmedRecent.size} dropped)")
+                    systemMessages + summaryMessage + trimmedRecent
+                }
             }
         }
 
         // Fallback: sliding window (original behavior)
-        logger.debug("Using sliding window (summarization disabled or no old messages)")
+        logger.debug("Using sliding window (summarization disabled)")
         val recentTokens = estimateTokens(recentMessages)
         return if (recentTokens <= conversationBudget) {
             logger.info("Compaction complete: ${recentMessages.size} recent messages fit within budget")

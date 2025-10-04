@@ -32,9 +32,18 @@ class StreamReplyThenJsonEntityAiChatService(
             "schema" to schema
         ))
 
+        val allMessages = request.messages + SystemMessage(promptText)
+
+        logger.debug("Request: ${allMessages.size} messages")
+        if (logger.isTraceEnabled) {
+            allMessages.forEach { message ->
+                logger.trace("Message: $message")
+            }
+        }
+
         val json = streamUntilJsonAndParse(
             chatModel,
-            request.messages + SystemMessage(promptText)
+            allMessages,
         ) { chunk ->
             onReplyText(chunk)
         }

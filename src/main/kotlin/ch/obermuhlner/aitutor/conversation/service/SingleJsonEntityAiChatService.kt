@@ -20,6 +20,12 @@ class SingleJsonEntityAiChatService(
         request: AiChatRequest,
         onReplyText: (String) -> Unit
     ): AiChatResponse? {
+        logger.debug("Request: ${request.messages.size} messages")
+        if (logger.isTraceEnabled) {
+            request.messages.forEach { message ->
+                logger.trace("Message: $message")
+            }
+        }
         val result = ChatClient.create(chatModel)
             .prompt(Prompt(request.messages))
             .call()
