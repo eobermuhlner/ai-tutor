@@ -27,6 +27,8 @@ app:
 ai-tutor:
   images:
     seed-directory: seed-images
+  imagestore:
+    base-url: ${IMAGESTORE_BASE_URL:http://localhost:7080}
   catalog:
     tutorArchetypes:
       - id: encouraging-general

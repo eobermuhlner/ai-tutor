@@ -1,6 +1,6 @@
 package ch.obermuhlner.aitutor.image.controller
 
-import ch.obermuhlner.aitutor.image.domain.ImageEntity
+import ch.obermuhlner.aitutor.image.service.ImageData
 import ch.obermuhlner.aitutor.image.service.ImageService
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
@@ -11,7 +11,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
 import org.springframework.security.test.context.support.WithMockUser
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
@@ -36,22 +35,20 @@ class ImageControllerTest {
     @WithMockUser
     fun `getImageData should return image when found`() {
         val concept = "apple"
-        val imageData = ByteArray(100) { it.toByte() }
-        val entity = ImageEntity(
-            concept = concept,
-            data = imageData,
+        val imageBytes = ByteArray(100) { it.toByte() }
+        val imageData = ImageData(
+            data = imageBytes,
             format = "png",
-            widthPx = 100,
-            heightPx = 100
+            contentType = "image/png"
         )
 
-        every { imageService.getImageByConcept(concept) } returns entity
+        every { imageService.getImageByConcept(concept) } returns imageData
 
         mockMvc.perform(get("/api/v1/images/concept/$concept/data"))
             .andExpect(status().isOk)
             .andExpect(content().contentType(MediaType.IMAGE_PNG))
             .andExpect(header().string("Cache-Control", "public, max-age=31536000"))
-            .andExpect(content().bytes(imageData))
+            .andExpect(content().bytes(imageBytes))
 
         verify(exactly = 1) { imageService.getImageByConcept(concept) }
     }
@@ -67,30 +64,5 @@ class ImageControllerTest {
             .andExpect(status().isNotFound)
 
         verify(exactly = 1) { imageService.getImageByConcept(concept) }
-    }
-
-    @Test
-    @WithMockUser(roles = ["ADMIN"])
-    fun `deleteImage should delete image as admin`() {
-        val concept = "water"
-
-        every { imageService.deleteImage(concept) } returns Unit
-
-        mockMvc.perform(delete("/api/v1/images/concept/$concept")
-            .with(csrf()))
-            .andExpect(status().isOk)
-
-        verify(exactly = 1) { imageService.deleteImage(concept) }
-    }
-
-    @Test
-    fun `deleteImage should return 403 when not authenticated`() {
-        val concept = "water"
-
-        mockMvc.perform(delete("/api/v1/images/concept/$concept")
-            .with(csrf()))
-            .andExpect(status().isForbidden)
-
-        verify(exactly = 0) { imageService.deleteImage(any()) }
     }
 }
