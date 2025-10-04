@@ -1,12 +1,20 @@
 package ch.obermuhlner.aitutor.catalog.controller
 
-import ch.obermuhlner.aitutor.catalog.dto.*
+import ch.obermuhlner.aitutor.catalog.dto.CourseDetailResponse
+import ch.obermuhlner.aitutor.catalog.dto.CourseResponse
+import ch.obermuhlner.aitutor.catalog.dto.LanguageResponse
+import ch.obermuhlner.aitutor.catalog.dto.TutorDetailResponse
+import ch.obermuhlner.aitutor.catalog.dto.TutorResponse
 import ch.obermuhlner.aitutor.catalog.service.CatalogService
 import ch.obermuhlner.aitutor.language.service.LocalizationService
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import org.springframework.web.bind.annotation.*
 import java.util.UUID
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/v1/catalog")

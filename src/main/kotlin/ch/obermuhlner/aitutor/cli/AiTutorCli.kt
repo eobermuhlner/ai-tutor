@@ -2,7 +2,7 @@ package ch.obermuhlner.aitutor.cli
 
 import java.io.BufferedReader
 import java.io.InputStreamReader
-import java.util.*
+import java.util.UUID
 
 class AiTutorCli(private val config: CliConfig) {
     private val apiClient = HttpApiClient(config.apiUrl)

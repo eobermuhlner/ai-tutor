@@ -6,11 +6,16 @@ import ch.obermuhlner.aitutor.core.model.catalog.LanguageProficiencyType
 import ch.obermuhlner.aitutor.tutor.domain.ConversationPhase
 import ch.obermuhlner.aitutor.user.domain.UserLanguageProficiencyEntity
 import ch.obermuhlner.aitutor.user.repository.UserLanguageProficiencyRepository
-import io.mockk.*
-import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.Test
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import java.time.Instant
-import java.util.*
+import java.util.UUID
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Test
 
 class UserLanguageServiceImplTest {
 

@@ -1,6 +1,11 @@
 package ch.obermuhlner.aitutor.auth.controller
 
-import ch.obermuhlner.aitutor.auth.dto.*
+import ch.obermuhlner.aitutor.auth.dto.ChangePasswordRequest
+import ch.obermuhlner.aitutor.auth.dto.LoginRequest
+import ch.obermuhlner.aitutor.auth.dto.LoginResponse
+import ch.obermuhlner.aitutor.auth.dto.RefreshTokenRequest
+import ch.obermuhlner.aitutor.auth.dto.RegisterRequest
+import ch.obermuhlner.aitutor.auth.dto.UserResponse
 import ch.obermuhlner.aitutor.auth.service.AuthService
 import ch.obermuhlner.aitutor.user.domain.UserRole
 import ch.obermuhlner.aitutor.user.service.UserService
@@ -8,6 +13,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.verify
+import java.time.Instant
+import java.util.UUID
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
@@ -16,10 +23,10 @@ import org.springframework.http.MediaType
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
-import java.time.Instant
-import java.util.UUID
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @WebMvcTest(AuthController::class)
 @Import(ch.obermuhlner.aitutor.auth.config.SecurityConfig::class)

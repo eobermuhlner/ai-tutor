@@ -1,19 +1,32 @@
 package ch.obermuhlner.aitutor.auth.service
 
 import ch.obermuhlner.aitutor.auth.config.JwtProperties
-import ch.obermuhlner.aitutor.auth.dto.*
-import ch.obermuhlner.aitutor.auth.exception.*
+import ch.obermuhlner.aitutor.auth.dto.ChangePasswordRequest
+import ch.obermuhlner.aitutor.auth.dto.LoginRequest
+import ch.obermuhlner.aitutor.auth.dto.LoginResponse
+import ch.obermuhlner.aitutor.auth.dto.RefreshTokenRequest
+import ch.obermuhlner.aitutor.auth.dto.RegisterRequest
+import ch.obermuhlner.aitutor.auth.dto.UserResponse
+import ch.obermuhlner.aitutor.auth.exception.AccountDisabledException
+import ch.obermuhlner.aitutor.auth.exception.AccountLockedException
+import ch.obermuhlner.aitutor.auth.exception.DuplicateEmailException
+import ch.obermuhlner.aitutor.auth.exception.DuplicateUsernameException
+import ch.obermuhlner.aitutor.auth.exception.ExpiredTokenException
+import ch.obermuhlner.aitutor.auth.exception.InvalidCredentialsException
+import ch.obermuhlner.aitutor.auth.exception.InvalidTokenException
+import ch.obermuhlner.aitutor.auth.exception.UserNotFoundException
+import ch.obermuhlner.aitutor.auth.exception.WeakPasswordException
 import ch.obermuhlner.aitutor.user.domain.RefreshTokenEntity
 import ch.obermuhlner.aitutor.user.domain.UserEntity
 import ch.obermuhlner.aitutor.user.domain.UserRole
 import ch.obermuhlner.aitutor.user.repository.RefreshTokenRepository
 import ch.obermuhlner.aitutor.user.service.UserService
+import java.time.Instant
+import java.util.UUID
 import org.slf4j.LoggerFactory
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.Instant
-import java.util.UUID
 
 @Service
 @Transactional

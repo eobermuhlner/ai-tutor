@@ -2,7 +2,9 @@ package ch.obermuhlner.aitutor.user.service
 
 import ch.obermuhlner.aitutor.user.domain.UserEntity
 import ch.obermuhlner.aitutor.user.domain.UserRole
-import io.mockk.*
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import org.junit.jupiter.api.Test
 
 class DemoUserInitializerTest {

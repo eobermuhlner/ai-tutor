@@ -1,13 +1,13 @@
 package ch.obermuhlner.aitutor.cli
 
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.time.Duration
-import java.util.*
+import java.util.UUID
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 
 class HttpApiClient(private val baseUrl: String) {
     private val client = HttpClient.newBuilder()

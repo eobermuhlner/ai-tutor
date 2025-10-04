@@ -4,8 +4,8 @@ import ch.obermuhlner.aitutor.vocabulary.domain.VocabularyContextEntity
 import ch.obermuhlner.aitutor.vocabulary.domain.VocabularyItemEntity
 import ch.obermuhlner.aitutor.vocabulary.repository.VocabularyContextRepository
 import ch.obermuhlner.aitutor.vocabulary.repository.VocabularyItemRepository
+import java.util.UUID
 import org.springframework.stereotype.Service
-import java.util.*
 
 @Service
 class VocabularyQueryService(

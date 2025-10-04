@@ -6,26 +6,25 @@ import ch.obermuhlner.aitutor.chat.repository.ChatSessionRepository
 import ch.obermuhlner.aitutor.chat.service.ChatService
 import ch.obermuhlner.aitutor.fixtures.TestDataFactory
 import ch.obermuhlner.aitutor.tutor.service.TutorService
-import ch.obermuhlner.aitutor.vocabulary.dto.VocabularyContextResponse
-import ch.obermuhlner.aitutor.vocabulary.dto.VocabularyItemResponse
-import ch.obermuhlner.aitutor.vocabulary.dto.VocabularyItemWithContextsResponse
 import ch.obermuhlner.aitutor.vocabulary.repository.VocabularyContextRepository
 import ch.obermuhlner.aitutor.vocabulary.repository.VocabularyItemRepository
 import ch.obermuhlner.aitutor.vocabulary.service.VocabularyQueryService
 import ch.obermuhlner.aitutor.vocabulary.service.VocabularyService
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
+import java.time.Instant
+import java.util.UUID
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.autoconfigure.json.AutoConfigureJsonTesters
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.context.annotation.Import
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
-import java.time.Instant
-import java.util.*
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @WebMvcTest(controllers = [VocabularyController::class])
 @AutoConfigureJsonTesters

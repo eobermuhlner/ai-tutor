@@ -4,21 +4,31 @@ import ch.obermuhlner.aitutor.auth.config.JwtProperties
 import ch.obermuhlner.aitutor.auth.dto.ChangePasswordRequest
 import ch.obermuhlner.aitutor.auth.dto.LoginRequest
 import ch.obermuhlner.aitutor.auth.dto.RegisterRequest
-import ch.obermuhlner.aitutor.auth.exception.*
+import ch.obermuhlner.aitutor.auth.exception.AccountDisabledException
+import ch.obermuhlner.aitutor.auth.exception.AccountLockedException
+import ch.obermuhlner.aitutor.auth.exception.DuplicateEmailException
+import ch.obermuhlner.aitutor.auth.exception.DuplicateUsernameException
+import ch.obermuhlner.aitutor.auth.exception.InvalidCredentialsException
+import ch.obermuhlner.aitutor.auth.exception.WeakPasswordException
 import ch.obermuhlner.aitutor.user.domain.AuthProvider
 import ch.obermuhlner.aitutor.user.domain.RefreshTokenEntity
 import ch.obermuhlner.aitutor.user.domain.UserEntity
 import ch.obermuhlner.aitutor.user.domain.UserRole
 import ch.obermuhlner.aitutor.user.repository.RefreshTokenRepository
 import ch.obermuhlner.aitutor.user.service.UserService
-import io.mockk.*
-import org.junit.jupiter.api.Assertions.*
+import io.mockk.Runs
+import io.mockk.every
+import io.mockk.just
+import io.mockk.mockk
+import io.mockk.verify
+import java.time.Instant
+import java.util.UUID
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.security.crypto.password.PasswordEncoder
-import java.time.Instant
-import java.util.UUID
 
 class AuthServiceTest {
 

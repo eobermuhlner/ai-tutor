@@ -1,10 +1,10 @@
 package ch.obermuhlner.aitutor.vocabulary.service
 
 import ch.obermuhlner.aitutor.vocabulary.repository.VocabularyItemRepository
-import org.springframework.stereotype.Service
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.util.*
+import java.util.UUID
+import org.springframework.stereotype.Service
 
 data class VocabularyContext(
     val wordsForReinforcement: List<String>,

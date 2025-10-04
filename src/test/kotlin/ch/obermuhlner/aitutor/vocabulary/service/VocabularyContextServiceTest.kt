@@ -4,12 +4,13 @@ import ch.obermuhlner.aitutor.vocabulary.domain.VocabularyItemEntity
 import ch.obermuhlner.aitutor.vocabulary.repository.VocabularyItemRepository
 import io.mockk.every
 import io.mockk.mockk
-import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.util.*
+import java.util.UUID
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 
 class VocabularyContextServiceTest {
 

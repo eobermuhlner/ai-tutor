@@ -5,12 +5,12 @@ import ch.obermuhlner.aitutor.vocabulary.domain.VocabularyItemEntity
 import ch.obermuhlner.aitutor.vocabulary.dto.NewVocabularyDTO
 import ch.obermuhlner.aitutor.vocabulary.repository.VocabularyContextRepository
 import ch.obermuhlner.aitutor.vocabulary.repository.VocabularyItemRepository
+import java.text.Normalizer
+import java.time.Instant
+import java.util.UUID
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.text.Normalizer
-import java.time.Instant
-import java.util.*
 
 @Service
 class VocabularyService(

@@ -1,7 +1,9 @@
 package ch.obermuhlner.aitutor.core.util
 
-import com.fasterxml.jackson.databind.JsonNode
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class LlmJsonTest {

@@ -1,10 +1,10 @@
 package ch.obermuhlner.aitutor.tutor.service
 
 import org.slf4j.LoggerFactory
+import org.springframework.ai.chat.messages.AssistantMessage
 import org.springframework.ai.chat.messages.Message
 import org.springframework.ai.chat.messages.SystemMessage
 import org.springframework.ai.chat.messages.UserMessage
-import org.springframework.ai.chat.messages.AssistantMessage
 import org.springframework.ai.chat.prompt.PromptTemplate
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service

@@ -5,7 +5,7 @@ import ch.obermuhlner.aitutor.catalog.domain.TutorProfileEntity
 import ch.obermuhlner.aitutor.core.model.CEFRLevel
 import ch.obermuhlner.aitutor.core.model.catalog.CourseCategory
 import ch.obermuhlner.aitutor.core.model.catalog.LanguageMetadata
-import java.util.*
+import java.util.UUID
 
 interface CatalogService {
     // Language metadata from configuration

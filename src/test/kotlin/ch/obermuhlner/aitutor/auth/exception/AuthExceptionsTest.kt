@@ -1,6 +1,7 @@
 package ch.obermuhlner.aitutor.auth.exception
 
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class AuthExceptionsTest {

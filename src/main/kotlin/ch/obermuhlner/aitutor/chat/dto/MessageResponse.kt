@@ -1,8 +1,6 @@
 package ch.obermuhlner.aitutor.chat.dto
 
 import ch.obermuhlner.aitutor.core.model.Correction
-import ch.obermuhlner.aitutor.core.model.NewVocabulary
-import ch.obermuhlner.aitutor.core.model.WordCard
 import java.time.Instant
 import java.util.UUID
 

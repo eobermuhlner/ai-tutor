@@ -5,11 +5,11 @@ import ch.obermuhlner.aitutor.core.model.CEFRLevel
 import ch.obermuhlner.aitutor.core.model.catalog.LanguageProficiencyType
 import ch.obermuhlner.aitutor.user.domain.UserLanguageProficiencyEntity
 import ch.obermuhlner.aitutor.user.repository.UserLanguageProficiencyRepository
+import java.time.Instant
+import java.util.UUID
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.Instant
-import java.util.*
 
 @Service
 class UserLanguageServiceImpl(

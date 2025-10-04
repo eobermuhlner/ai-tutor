@@ -2,9 +2,9 @@ package ch.obermuhlner.aitutor.user.repository
 
 import ch.obermuhlner.aitutor.core.model.catalog.LanguageProficiencyType
 import ch.obermuhlner.aitutor.user.domain.UserLanguageProficiencyEntity
+import java.util.UUID
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
-import java.util.*
 
 @Repository
 interface UserLanguageProficiencyRepository : JpaRepository<UserLanguageProficiencyEntity, UUID> {

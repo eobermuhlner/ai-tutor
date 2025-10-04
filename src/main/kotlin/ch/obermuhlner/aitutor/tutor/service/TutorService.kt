@@ -2,19 +2,19 @@ package ch.obermuhlner.aitutor.tutor.service
 
 import ch.obermuhlner.aitutor.conversation.dto.AiChatRequest
 import ch.obermuhlner.aitutor.conversation.service.AiChatService
+import ch.obermuhlner.aitutor.language.service.LanguageService
 import ch.obermuhlner.aitutor.tutor.domain.ConversationPhase
 import ch.obermuhlner.aitutor.tutor.domain.ConversationResponse
 import ch.obermuhlner.aitutor.tutor.domain.ConversationState
 import ch.obermuhlner.aitutor.tutor.domain.Tutor
-import ch.obermuhlner.aitutor.language.service.LanguageService
 import ch.obermuhlner.aitutor.vocabulary.service.VocabularyContextService
+import java.util.UUID
 import org.slf4j.LoggerFactory
 import org.springframework.ai.chat.messages.Message
 import org.springframework.ai.chat.messages.SystemMessage
 import org.springframework.ai.chat.prompt.PromptTemplate
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
-import java.util.*
 
 @Service
 class TutorService(

@@ -4,11 +4,11 @@ import ch.obermuhlner.aitutor.auth.exception.InsufficientPermissionsException
 import ch.obermuhlner.aitutor.user.domain.UserEntity
 import ch.obermuhlner.aitutor.user.domain.UserRole
 import ch.obermuhlner.aitutor.user.service.UserService
+import java.util.UUID
 import org.slf4j.LoggerFactory
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
-import java.util.UUID
 
 @Service
 class AuthorizationService(

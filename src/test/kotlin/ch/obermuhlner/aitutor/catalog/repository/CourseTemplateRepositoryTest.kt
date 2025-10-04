@@ -4,12 +4,14 @@ import ch.obermuhlner.aitutor.catalog.domain.CourseTemplateEntity
 import ch.obermuhlner.aitutor.core.model.CEFRLevel
 import ch.obermuhlner.aitutor.core.model.catalog.CourseCategory
 import ch.obermuhlner.aitutor.tutor.domain.ConversationPhase
-import org.junit.jupiter.api.Assertions.*
+import java.util.UUID
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager
-import java.util.*
 
 @DataJpaTest
 class CourseTemplateRepositoryTest {

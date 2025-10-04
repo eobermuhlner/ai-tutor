@@ -5,15 +5,21 @@ import ch.obermuhlner.aitutor.catalog.domain.TutorProfileEntity
 import ch.obermuhlner.aitutor.catalog.repository.CourseTemplateRepository
 import ch.obermuhlner.aitutor.catalog.repository.TutorProfileRepository
 import ch.obermuhlner.aitutor.core.model.CEFRLevel
-import ch.obermuhlner.aitutor.core.model.catalog.*
-import ch.obermuhlner.aitutor.tutor.domain.ConversationPhase
+import ch.obermuhlner.aitutor.core.model.catalog.CourseCategory
+import ch.obermuhlner.aitutor.core.model.catalog.Difficulty
+import ch.obermuhlner.aitutor.core.model.catalog.LanguageMetadata
+import ch.obermuhlner.aitutor.core.model.catalog.TutorPersonality
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.junit.jupiter.api.Assertions.*
+import java.util.Optional
+import java.util.UUID
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import java.util.*
 
 class CatalogServiceImplTest {
 

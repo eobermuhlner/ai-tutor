@@ -6,10 +6,11 @@ import ch.obermuhlner.aitutor.user.domain.UserRole
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
-import org.springframework.stereotype.Service
 import java.time.Instant
-import java.util.*
+import java.util.Date
+import java.util.UUID
 import javax.crypto.SecretKey
+import org.springframework.stereotype.Service
 
 @Service
 class JwtTokenService(

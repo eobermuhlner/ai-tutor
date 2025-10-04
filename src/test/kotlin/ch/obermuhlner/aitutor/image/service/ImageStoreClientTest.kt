@@ -1,7 +1,8 @@
 package ch.obermuhlner.aitutor.image.service
 
 import ch.obermuhlner.aitutor.image.config.ImageStoreProperties
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertDoesNotThrow
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
 class ImageStoreClientTest {

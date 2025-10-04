@@ -1,10 +1,10 @@
 package ch.obermuhlner.aitutor.cli
 
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 import java.io.File
 import java.nio.file.Paths
-import java.util.*
+import java.util.UUID
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 
 @Serializable
 data class CliConfig(

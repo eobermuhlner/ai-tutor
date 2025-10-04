@@ -3,7 +3,13 @@ package ch.obermuhlner.aitutor.chat.service
 import ch.obermuhlner.aitutor.chat.domain.ChatMessageEntity
 import ch.obermuhlner.aitutor.chat.domain.ChatSessionEntity
 import ch.obermuhlner.aitutor.chat.domain.MessageRole
-import ch.obermuhlner.aitutor.chat.dto.*
+import ch.obermuhlner.aitutor.chat.dto.CreateSessionRequest
+import ch.obermuhlner.aitutor.chat.dto.MessageResponse
+import ch.obermuhlner.aitutor.chat.dto.SessionProgressResponse
+import ch.obermuhlner.aitutor.chat.dto.SessionResponse
+import ch.obermuhlner.aitutor.chat.dto.SessionWithMessagesResponse
+import ch.obermuhlner.aitutor.chat.dto.SessionWithProgressResponse
+import ch.obermuhlner.aitutor.chat.dto.TopicHistoryResponse
 import ch.obermuhlner.aitutor.chat.repository.ChatMessageRepository
 import ch.obermuhlner.aitutor.chat.repository.ChatSessionRepository
 import ch.obermuhlner.aitutor.core.model.Correction
@@ -17,13 +23,13 @@ import ch.obermuhlner.aitutor.vocabulary.dto.NewVocabularyDTO
 import ch.obermuhlner.aitutor.vocabulary.service.VocabularyService
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import java.util.UUID
 import org.slf4j.LoggerFactory
 import org.springframework.ai.chat.messages.AssistantMessage
 import org.springframework.ai.chat.messages.Message
 import org.springframework.ai.chat.messages.UserMessage
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.util.*
 
 @Service
 class ChatService(

@@ -4,7 +4,7 @@ import ch.obermuhlner.aitutor.chat.domain.ChatSessionEntity
 import ch.obermuhlner.aitutor.core.model.CEFRLevel
 import ch.obermuhlner.aitutor.core.model.catalog.LanguageProficiencyType
 import ch.obermuhlner.aitutor.user.domain.UserLanguageProficiencyEntity
-import java.util.*
+import java.util.UUID
 
 interface UserLanguageService {
     fun addLanguage(

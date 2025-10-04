@@ -2,7 +2,10 @@ package ch.obermuhlner.aitutor.tutor.service
 
 import ch.obermuhlner.aitutor.conversation.dto.AiChatResponse
 import ch.obermuhlner.aitutor.conversation.service.AiChatService
-import ch.obermuhlner.aitutor.core.model.*
+import ch.obermuhlner.aitutor.core.model.CEFRLevel
+import ch.obermuhlner.aitutor.core.model.Correction
+import ch.obermuhlner.aitutor.core.model.ErrorSeverity
+import ch.obermuhlner.aitutor.core.model.ErrorType
 import ch.obermuhlner.aitutor.language.service.LanguageService
 import ch.obermuhlner.aitutor.tutor.domain.ConversationPhase
 import ch.obermuhlner.aitutor.tutor.domain.ConversationResponse
@@ -13,12 +16,14 @@ import ch.obermuhlner.aitutor.vocabulary.service.VocabularyContextService
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.junit.jupiter.api.Assertions.*
+import java.util.UUID
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.ai.chat.messages.Message
 import org.springframework.ai.chat.messages.UserMessage
-import java.util.*
 
 class TutorServiceTest {
 
