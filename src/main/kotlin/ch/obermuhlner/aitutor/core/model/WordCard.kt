@@ -10,5 +10,7 @@ data class WordCard(
     @field:JsonPropertyDescription("Description or explanation in the learner's source language.")
     val descriptionSourceLanguage: String,
     @field:JsonPropertyDescription("Description or explanation in the target language being learned.")
-    val descriptionTargetLanguage: String
+    val descriptionTargetLanguage: String,
+    @field:JsonPropertyDescription("Simple English concept identifier for image lookup (e.g., 'apple', 'running', 'coffee-cup').")
+    val conceptName: String? = null
 )

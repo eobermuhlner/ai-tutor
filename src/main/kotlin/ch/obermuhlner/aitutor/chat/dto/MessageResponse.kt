@@ -11,7 +11,7 @@ data class MessageResponse(
     val role: String,
     val content: String,
     val corrections: List<Correction>?,
-    val newVocabulary: List<NewVocabulary>?,
-    val wordCards: List<WordCard>?,
+    val newVocabulary: List<VocabularyWithImageResponse>?,
+    val wordCards: List<WordCardResponse>?,
     val createdAt: Instant
 )

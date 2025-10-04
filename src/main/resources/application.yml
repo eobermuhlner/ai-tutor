@@ -26,7 +26,7 @@ app:
 
 ai-tutor:
   images:
-    seed-directory: src/main/resources/images
+    seed-directory: seed-images
   catalog:
     tutorArchetypes:
       - id: encouraging-general
@@ -432,6 +432,8 @@ ai-tutor:
       - `span` values must be verbatim substrings from the MOST RECENT user message (not from earlier messages).
       - `conversationState.estimatedCEFRLevel`: set to A1–C2 based on recent performance (consider ≥ last 3–5 user turns).
       - `conversationState.phase`: set to "Free", "Correction", or "Drill" for the current turn.
+      - `newVocabulary`: include `conceptName` field with simple English concept identifier (e.g., "apple", "running", "coffee-cup")
+      - `wordCards`: include `conceptName` field with simple English concept identifier for visual learning aids
       - Do not add fields not present in the schema. Keep explanations concise and level-appropriate (see schema descriptions).
 
       Error Severity Assignment (CRITICAL):

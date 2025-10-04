@@ -258,7 +258,9 @@ class ChatService(
             vocabularyService.addNewVocabulary(
                 userId = session.userId,
                 lang = session.targetLanguageCode,
-                items = tutorResponse.conversationResponse.newVocabulary.map { NewVocabularyDTO(it.lemma, it.context) },
+                items = tutorResponse.conversationResponse.newVocabulary.map {
+                    NewVocabularyDTO(it.lemma, it.context, it.conceptName)
+                },
                 turnId = savedAssistantMessage.id
             )
         }
@@ -388,11 +390,31 @@ class ChatService(
         val corrections: List<Correction>? = entity.correctionsJson?.let {
             objectMapper.readValue(it)
         }
+
         val vocabulary: List<NewVocabulary>? = entity.vocabularyJson?.let {
             objectMapper.readValue(it)
         }
+        val vocabularyWithImages = vocabulary?.map { vocab ->
+            ch.obermuhlner.aitutor.chat.dto.VocabularyWithImageResponse(
+                lemma = vocab.lemma,
+                context = vocab.context,
+                conceptName = vocab.conceptName,
+                imageUrl = vocab.conceptName?.let { "/api/v1/images/concept/$it/data" }
+            )
+        }
+
         val wordCards: List<WordCard>? = entity.wordCardsJson?.let {
             objectMapper.readValue(it)
+        }
+        val wordCardsWithImages = wordCards?.map { card ->
+            ch.obermuhlner.aitutor.chat.dto.WordCardResponse(
+                titleSourceLanguage = card.titleSourceLanguage,
+                titleTargetLanguage = card.titleTargetLanguage,
+                descriptionSourceLanguage = card.descriptionSourceLanguage,
+                descriptionTargetLanguage = card.descriptionTargetLanguage,
+                conceptName = card.conceptName,
+                imageUrl = card.conceptName?.let { "/api/v1/images/concept/$it/data" }
+            )
         }
 
         return MessageResponse(
@@ -400,8 +422,8 @@ class ChatService(
             role = entity.role.name,
             content = entity.content,
             corrections = corrections,
-            newVocabulary = vocabulary,
-            wordCards = wordCards,
+            newVocabulary = vocabularyWithImages,
+            wordCards = wordCardsWithImages,
             createdAt = entity.createdAt ?: java.time.Instant.now()
         )
     }
