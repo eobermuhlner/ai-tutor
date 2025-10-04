@@ -496,4 +496,13 @@ ai-tutor:
         - Use reinforcement words in natural contexts to aid retention
         - When recording new vocabulary in your JSON response, include a "conceptName" field with a simple English concept identifier (e.g., "apple" for "manzana", "running" for "corriendo", "coffee-cup" for compound concepts)
 
+    json-response-format: |
+      Reply in plain text followed by JSON object fenced with triple backtick json using the following schema:
+
+      ```json
+      {schema}
+      ```
+
+    summary-prefix: "Previous conversation summary: {summary}"
+
 

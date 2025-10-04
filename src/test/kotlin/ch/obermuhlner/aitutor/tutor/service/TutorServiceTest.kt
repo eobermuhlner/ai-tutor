@@ -45,6 +45,7 @@ class TutorServiceTest {
             maxTokens = 100000,
             recentMessageCount = 15,
             summarizationEnabled = false, // Disable for tests to avoid mocking
+            summaryPrefixPrompt = "Previous conversation summary: {summary}",
             summarizationService = mockSummarizationService
         )
 

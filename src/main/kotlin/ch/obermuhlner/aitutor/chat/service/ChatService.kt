@@ -221,8 +221,6 @@ class ChatService(
         val tutorResponse = tutorService.respond(tutor, conversationState, session.userId, messageHistory, onReplyChunk)
             ?: return null
 
-        println(tutorResponse)
-
         // Update session state
         // Don't overwrite phase if in Auto mode - keep it as Auto
         if (session.conversationPhase != ConversationPhase.Auto) {

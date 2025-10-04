@@ -5,6 +5,7 @@ import org.springframework.ai.chat.messages.Message
 import org.springframework.ai.chat.messages.SystemMessage
 import org.springframework.ai.chat.messages.UserMessage
 import org.springframework.ai.chat.messages.AssistantMessage
+import org.springframework.ai.chat.prompt.PromptTemplate
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 
@@ -13,6 +14,7 @@ class MessageCompactionService(
     @Value("\${ai-tutor.context.max-tokens}") private val maxTokens: Int,
     @Value("\${ai-tutor.context.recent-messages}") private val recentMessageCount: Int,
     @Value("\${ai-tutor.context.summarization.enabled}") private val summarizationEnabled: Boolean,
+    @Value("\${ai-tutor.prompts.summary-prefix}") private val summaryPrefixPrompt: String,
     private val summarizationService: ConversationSummarizationService
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -41,8 +43,8 @@ class MessageCompactionService(
         val conversationBudget = maxTokens - systemTokens
 
         if (conversationBudget <= 0) {
-            logger.warn("System messages alone exceed budget (${systemTokens} tokens), returning only system messages")
-            return systemMessages
+            logger.warn("System messages alone exceed budget (${systemTokens} tokens), returning minimal messages")
+            return systemMessages + conversationMessages.takeLast(1)
         }
 
         // Separate recent and old messages
@@ -55,7 +57,10 @@ class MessageCompactionService(
         if (summarizationEnabled && oldMessages.isNotEmpty()) {
             logger.debug("Summarization enabled, summarizing ${oldMessages.size} old messages")
             val summary = summarizationService.summarizeMessages(oldMessages)
-            val summaryMessage = SystemMessage("Previous conversation summary: $summary")
+            val summaryText = PromptTemplate(summaryPrefixPrompt).render(mapOf(
+                "summary" to summary
+            ))
+            val summaryMessage = SystemMessage(summaryText)
 
             val recentTokens = estimateTokens(recentMessages)
             val summaryTokens = estimateTokens(listOf(summaryMessage))

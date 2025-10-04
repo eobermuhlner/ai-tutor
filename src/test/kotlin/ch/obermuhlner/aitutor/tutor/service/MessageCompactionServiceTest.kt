@@ -18,6 +18,7 @@ class MessageCompactionServiceTest {
         maxTokens = 100000,
         recentMessageCount = 15,
         summarizationEnabled = true,
+        summaryPrefixPrompt = "Previous conversation summary: {summary}",
         summarizationService = mockSummarizationService
     )
 
@@ -25,6 +26,7 @@ class MessageCompactionServiceTest {
         maxTokens = 100000,
         recentMessageCount = 15,
         summarizationEnabled = false,
+        summaryPrefixPrompt = "Previous conversation summary: {summary}",
         summarizationService = mockSummarizationService
     )
 
@@ -123,6 +125,7 @@ class MessageCompactionServiceTest {
             maxTokens = 1000, // Small limit
             recentMessageCount = 5,
             summarizationEnabled = false,
+            summaryPrefixPrompt = "Previous conversation summary: {summary}",
             summarizationService = mockSummarizationService
         )
 
@@ -153,6 +156,7 @@ class MessageCompactionServiceTest {
             maxTokens = 100000,
             recentMessageCount = 3, // Very small window
             summarizationEnabled = false,
+            summaryPrefixPrompt = "Previous conversation summary: {summary}",
             summarizationService = mockSummarizationService
         )
 
@@ -180,6 +184,7 @@ class MessageCompactionServiceTest {
             maxTokens = 10, // Very small limit (about 40 chars = 10 tokens)
             recentMessageCount = 5,
             summarizationEnabled = false,
+            summaryPrefixPrompt = "Previous conversation summary: {summary}",
             summarizationService = mockSummarizationService
         )
 
@@ -195,9 +200,11 @@ class MessageCompactionServiceTest {
 
         val result = service.compactMessages(systemMessages, conversationMessages)
 
-        // Should only have system messages, no conversation messages
-        assertEquals(2, result.size)
-        assertTrue(result.all { it is SystemMessage })
+        // Should have system messages + last conversation message as fallback
+        assertEquals(3, result.size)
+        assertTrue(result[0] is SystemMessage)
+        assertTrue(result[1] is SystemMessage)
+        assertTrue(result[2] is UserMessage)
     }
 
     @Test
@@ -206,6 +213,7 @@ class MessageCompactionServiceTest {
             maxTokens = 100000,
             recentMessageCount = 10,
             summarizationEnabled = false,
+            summaryPrefixPrompt = "Previous conversation summary: {summary}",
             summarizationService = mockSummarizationService
         )
 
@@ -233,6 +241,7 @@ class MessageCompactionServiceTest {
             maxTokens = 100000,
             recentMessageCount = 10,
             summarizationEnabled = false,
+            summaryPrefixPrompt = "Previous conversation summary: {summary}",
             summarizationService = mockSummarizationService
         )
 
@@ -268,6 +277,7 @@ class MessageCompactionServiceTest {
             maxTokens = 100, // 100 tokens = ~400 chars
             recentMessageCount = 5,
             summarizationEnabled = false,
+            summaryPrefixPrompt = "Previous conversation summary: {summary}",
             summarizationService = mockSummarizationService
         )
 
@@ -350,6 +360,7 @@ class MessageCompactionServiceTest {
             maxTokens = 100, // Very small limit
             recentMessageCount = 10,
             summarizationEnabled = true,
+            summaryPrefixPrompt = "Previous conversation summary: {summary}",
             summarizationService = mockSummarizationService
         )
 

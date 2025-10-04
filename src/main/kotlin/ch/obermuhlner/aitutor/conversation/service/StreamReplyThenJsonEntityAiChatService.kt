@@ -8,12 +8,15 @@ import org.springframework.ai.chat.messages.Message
 import org.springframework.ai.chat.messages.SystemMessage
 import org.springframework.ai.chat.model.ChatModel
 import org.springframework.ai.chat.prompt.Prompt
+import org.springframework.ai.chat.prompt.PromptTemplate
 import org.springframework.ai.util.json.schema.JsonSchemaGenerator
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 
 @Service
 class StreamReplyThenJsonEntityAiChatService(
-    val chatModel: ChatModel
+    val chatModel: ChatModel,
+    @Value("\${ai-tutor.prompts.json-response-format}") private val jsonResponseFormatPrompt: String
 ) : AiChatService {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -25,16 +28,13 @@ class StreamReplyThenJsonEntityAiChatService(
 
         val schema = JsonSchemaGenerator.generateForType(AiChatResponse::class.java)
 
+        val promptText = PromptTemplate(jsonResponseFormatPrompt).render(mapOf(
+            "schema" to schema
+        ))
 
         val json = streamUntilJsonAndParse(
             chatModel,
-            request.messages + SystemMessage("""
-Reply in plain text followed by JSON object fenced with triple backtick json using the following schema:
-
-```json
-$schema
-```
-            """.trimIndent())
+            request.messages + SystemMessage(promptText)
         ) { chunk ->
             onReplyText(chunk)
         }
