@@ -238,4 +238,131 @@ class VocabularyControllerTest {
             .andExpect(jsonPath("$[0].lemma").value("word"))
             .andExpect(jsonPath("$[0].imageUrl").doesNotExist())
     }
+
+    @Test
+    @WithMockUser
+    fun `getUserVocabulary should return multiple items with details`() {
+        val item1 = io.mockk.mockk<ch.obermuhlner.aitutor.vocabulary.domain.VocabularyItemEntity>()
+        every { item1.id } returns UUID.randomUUID()
+        every { item1.lemma } returns "hello"
+        every { item1.lang } returns "Spanish"
+        every { item1.exposures } returns 3
+        every { item1.lastSeenAt } returns Instant.now()
+        every { item1.createdAt } returns Instant.now()
+        every { item1.conceptName } returns "hello"
+
+        val item2 = io.mockk.mockk<ch.obermuhlner.aitutor.vocabulary.domain.VocabularyItemEntity>()
+        every { item2.id } returns UUID.randomUUID()
+        every { item2.lemma } returns "goodbye"
+        every { item2.lang } returns "Spanish"
+        every { item2.exposures } returns 1
+        every { item2.lastSeenAt } returns Instant.now()
+        every { item2.createdAt } returns Instant.now()
+        every { item2.conceptName } returns "goodbye"
+
+        every { authorizationService.resolveUserId(TestDataFactory.TEST_USER_ID) } returns TestDataFactory.TEST_USER_ID
+        every { vocabularyQueryService.getUserVocabulary(TestDataFactory.TEST_USER_ID, null) } returns listOf(item1, item2)
+
+        mockMvc.perform(
+            get("/api/v1/vocabulary")
+                .param("userId", TestDataFactory.TEST_USER_ID.toString())
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$").isArray)
+            .andExpect(jsonPath("$.length()").value(2))
+            .andExpect(jsonPath("$[0].lemma").value("hello"))
+            .andExpect(jsonPath("$[0].exposures").value(3))
+            .andExpect(jsonPath("$[1].lemma").value("goodbye"))
+    }
+
+    @Test
+    @WithMockUser
+    fun `getUserVocabulary should filter by language correctly`() {
+        val spanishItem = io.mockk.mockk<ch.obermuhlner.aitutor.vocabulary.domain.VocabularyItemEntity>()
+        every { spanishItem.id } returns UUID.randomUUID()
+        every { spanishItem.lemma } returns "hola"
+        every { spanishItem.lang } returns "Spanish"
+        every { spanishItem.exposures } returns 1
+        every { spanishItem.lastSeenAt } returns Instant.now()
+        every { spanishItem.createdAt } returns Instant.now()
+        every { spanishItem.conceptName } returns "hello"
+
+        every { authorizationService.resolveUserId(TestDataFactory.TEST_USER_ID) } returns TestDataFactory.TEST_USER_ID
+        every { vocabularyQueryService.getUserVocabulary(TestDataFactory.TEST_USER_ID, "Spanish") } returns listOf(spanishItem)
+
+        mockMvc.perform(
+            get("/api/v1/vocabulary")
+                .param("userId", TestDataFactory.TEST_USER_ID.toString())
+                .param("lang", "Spanish")
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$").isArray)
+            .andExpect(jsonPath("$.length()").value(1))
+            .andExpect(jsonPath("$[0].lang").value("Spanish"))
+    }
+
+    @Test
+    @WithMockUser
+    fun `getVocabularyItem should return item with multiple contexts`() {
+        val itemId = UUID.randomUUID()
+        val item = io.mockk.mockk<ch.obermuhlner.aitutor.vocabulary.domain.VocabularyItemEntity>()
+        every { item.id } returns itemId
+        every { item.lemma } returns "hello"
+        every { item.lang } returns "Spanish"
+        every { item.exposures } returns 2
+        every { item.lastSeenAt } returns Instant.now()
+        every { item.createdAt } returns Instant.now()
+        every { item.conceptName } returns "hello"
+
+        val context1 = io.mockk.mockk<ch.obermuhlner.aitutor.vocabulary.domain.VocabularyContextEntity>()
+        every { context1.context } returns "Hello world"
+        every { context1.turnId } returns UUID.randomUUID()
+
+        val context2 = io.mockk.mockk<ch.obermuhlner.aitutor.vocabulary.domain.VocabularyContextEntity>()
+        every { context2.context } returns "Hello friend"
+        every { context2.turnId } returns UUID.randomUUID()
+
+        val result = ch.obermuhlner.aitutor.vocabulary.service.VocabularyQueryService.VocabularyItemWithContexts(
+            item = item,
+            contexts = listOf(context1, context2)
+        )
+
+        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
+        every { vocabularyQueryService.getVocabularyItemWithContexts(itemId, TestDataFactory.TEST_USER_ID) } returns result
+
+        mockMvc.perform(get("/api/v1/vocabulary/$itemId"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.lemma").value("hello"))
+            .andExpect(jsonPath("$.contexts").isArray)
+            .andExpect(jsonPath("$.contexts.length()").value(2))
+            .andExpect(jsonPath("$.contexts[0].context").value("Hello world"))
+            .andExpect(jsonPath("$.contexts[1].context").value("Hello friend"))
+    }
+
+    @Test
+    @WithMockUser
+    fun `getUserVocabulary should return empty list when no items exist`() {
+        every { authorizationService.resolveUserId(TestDataFactory.TEST_USER_ID) } returns TestDataFactory.TEST_USER_ID
+        every { vocabularyQueryService.getUserVocabulary(TestDataFactory.TEST_USER_ID, null) } returns emptyList()
+
+        mockMvc.perform(
+            get("/api/v1/vocabulary")
+                .param("userId", TestDataFactory.TEST_USER_ID.toString())
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$").isArray)
+            .andExpect(jsonPath("$.length()").value(0))
+    }
+
+    @Test
+    @WithMockUser
+    fun `getVocabularyItem should return 404 when item does not exist`() {
+        val itemId = UUID.randomUUID()
+
+        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
+        every { vocabularyQueryService.getVocabularyItemWithContexts(itemId, TestDataFactory.TEST_USER_ID) } returns null
+
+        mockMvc.perform(get("/api/v1/vocabulary/$itemId"))
+            .andExpect(status().isNotFound)
+    }
 }
