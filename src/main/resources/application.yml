@@ -8,6 +8,15 @@ spring:
 
 spring.ai.openai.chat.options.model: gpt-4o
 
+logging:
+  level:
+    root: INFO
+    ch.obermuhlner.aitutor: DEBUG
+    org.springframework.web: INFO
+    org.springframework.security: INFO
+    org.hibernate.SQL: INFO
+    org.hibernate.type.descriptor.sql.BasicBinder: INFO
+
 jwt:
   secret: ${JWT_SECRET:changeme-generate-secure-random-key-min-256-bits-for-production}
   expiration-ms: ${JWT_EXPIRATION_MS:3600000}  # 1 hour

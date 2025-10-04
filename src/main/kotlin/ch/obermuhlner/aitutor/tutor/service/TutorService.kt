@@ -8,6 +8,7 @@ import ch.obermuhlner.aitutor.tutor.domain.ConversationState
 import ch.obermuhlner.aitutor.tutor.domain.Tutor
 import ch.obermuhlner.aitutor.language.service.LanguageService
 import ch.obermuhlner.aitutor.vocabulary.service.VocabularyContextService
+import org.slf4j.LoggerFactory
 import org.springframework.ai.chat.messages.Message
 import org.springframework.ai.chat.messages.SystemMessage
 import org.springframework.ai.chat.prompt.PromptTemplate
@@ -29,6 +30,7 @@ class TutorService(
     @Value("\${ai-tutor.prompts.vocabulary.no-tracking}") private val vocabularyNoTrackingTemplate: String,
     @Value("\${ai-tutor.prompts.vocabulary.with-tracking}") private val vocabularyWithTrackingTemplate: String
 ) {
+    private val logger = LoggerFactory.getLogger(javaClass)
     data class TutorResponse(
         val reply: String,
         val conversationResponse: ConversationResponse
@@ -41,12 +43,15 @@ class TutorService(
         messages: List<Message>,
         onReplyChunk: (String) -> Unit = { print(it) }
     ): TutorResponse? {
+        logger.debug("Tutor respond: user=$userId, phase=${conversationState.phase}, topic=${conversationState.currentTopic}")
 
         val sourceLanguageCode = tutor.sourceLanguageCode
         val targetLanguageCode = tutor.targetLanguageCode
 
         val sourceLanguage = languageService.getLanguageName(sourceLanguageCode)
         val targetLanguage = languageService.getLanguageName(targetLanguageCode)
+
+        logger.debug("Language pair: $sourceLanguage -> $targetLanguage")
 
         // Get vocabulary context for the user
         val vocabContext = vocabularyContextService.getVocabularyContext(userId, targetLanguageCode)

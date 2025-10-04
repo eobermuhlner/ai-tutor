@@ -4,6 +4,7 @@ import ch.obermuhlner.aitutor.auth.exception.InsufficientPermissionsException
 import ch.obermuhlner.aitutor.user.domain.UserEntity
 import ch.obermuhlner.aitutor.user.domain.UserRole
 import ch.obermuhlner.aitutor.user.service.UserService
+import org.slf4j.LoggerFactory
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
@@ -13,6 +14,7 @@ import java.util.UUID
 class AuthorizationService(
     private val userService: UserService
 ) {
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     /**
      * Get the currently authenticated user's ID from SecurityContext
@@ -78,6 +80,7 @@ class AuthorizationService(
      */
     fun requireAccessToUser(targetUserId: UUID) {
         if (!canAccessUser(targetUserId)) {
+            logger.warn("Access denied: user ${getCurrentUserId()} attempted to access user $targetUserId")
             throw InsufficientPermissionsException("You do not have permission to access this user's data")
         }
     }

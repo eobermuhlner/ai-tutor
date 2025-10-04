@@ -8,6 +8,7 @@ import ch.obermuhlner.aitutor.user.domain.UserEntity
 import ch.obermuhlner.aitutor.user.domain.UserRole
 import ch.obermuhlner.aitutor.user.repository.RefreshTokenRepository
 import ch.obermuhlner.aitutor.user.service.UserService
+import org.slf4j.LoggerFactory
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -23,13 +24,18 @@ class AuthService(
     private val passwordEncoder: PasswordEncoder,
     private val jwtProperties: JwtProperties
 ) {
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     fun register(request: RegisterRequest): UserResponse {
+        logger.info("Registration attempt for username: ${request.username}, email: ${request.email}")
+
         // Validate username and email uniqueness
         if (userService.existsByUsername(request.username)) {
+            logger.warn("Registration failed: username '${request.username}' already exists")
             throw DuplicateUsernameException("Username '${request.username}' is already taken")
         }
         if (userService.existsByEmail(request.email)) {
+            logger.warn("Registration failed: email '${request.email}' already registered")
             throw DuplicateEmailException("Email '${request.email}' is already registered")
         }
 
@@ -52,25 +58,34 @@ class AuthService(
         )
 
         val savedUser = userService.createUser(user)
+        logger.info("User registered successfully: ${savedUser.username} (id: ${savedUser.id})")
         return toUserResponse(savedUser)
     }
 
     fun login(request: LoginRequest): LoginResponse {
+        logger.debug("Login attempt for: ${request.username}")
+
         // Find user by username or email
         val user = userService.findByUsername(request.username)
             ?: userService.findByEmail(request.username)
-            ?: throw InvalidCredentialsException()
+            ?: run {
+                logger.warn("Login failed: user not found for '${request.username}'")
+                throw InvalidCredentialsException()
+            }
 
         // Check account status
         if (!user.enabled) {
+            logger.warn("Login failed: account disabled for user '${user.username}'")
             throw AccountDisabledException()
         }
         if (user.locked) {
+            logger.warn("Login failed: account locked for user '${user.username}'")
             throw AccountLockedException()
         }
 
         // Verify password
         if (user.passwordHash == null || !passwordEncoder.matches(request.password, user.passwordHash)) {
+            logger.warn("Login failed: invalid password for user '${user.username}'")
             throw InvalidCredentialsException()
         }
 
@@ -90,6 +105,8 @@ class AuthService(
         user.lastLoginAt = Instant.now()
         userService.updateUser(user)
 
+        logger.info("User logged in successfully: ${user.username} (id: ${user.id})")
+
         return LoginResponse(
             accessToken = accessToken,
             refreshToken = refreshToken,
@@ -100,20 +117,28 @@ class AuthService(
     }
 
     fun refreshAccessToken(request: RefreshTokenRequest): LoginResponse {
+        logger.debug("Token refresh attempt")
+
         // Validate refresh token
         if (!jwtTokenService.validateToken(request.refreshToken)) {
+            logger.warn("Token refresh failed: invalid or expired token")
             throw InvalidTokenException("Invalid or expired refresh token")
         }
 
         // Check if token exists and is not revoked
         val tokenEntity = refreshTokenRepository.findByToken(request.refreshToken)
-            ?: throw InvalidTokenException("Refresh token not found")
+            ?: run {
+                logger.warn("Token refresh failed: token not found in database")
+                throw InvalidTokenException("Refresh token not found")
+            }
 
         if (tokenEntity.revoked) {
+            logger.warn("Token refresh failed: token already revoked for user ${tokenEntity.userId}")
             throw InvalidTokenException("Refresh token has been revoked")
         }
 
         if (tokenEntity.expiresAt.isBefore(Instant.now())) {
+            logger.warn("Token refresh failed: token expired for user ${tokenEntity.userId}")
             throw ExpiredTokenException("Refresh token has expired")
         }
 
@@ -138,6 +163,8 @@ class AuthService(
         )
         refreshTokenRepository.save(newTokenEntity)
 
+        logger.info("Token refreshed successfully for user: ${user.username}")
+
         return LoginResponse(
             accessToken = newAccessToken,
             refreshToken = newRefreshToken,
@@ -148,18 +175,25 @@ class AuthService(
     }
 
     fun logout(userId: UUID) {
+        logger.info("Logout for user: $userId")
+
         // Revoke all refresh tokens for user
         val tokens = refreshTokenRepository.findAllByUserId(userId)
         tokens.forEach { it.revoked = true }
         refreshTokenRepository.saveAll(tokens)
+
+        logger.debug("Revoked ${tokens.size} refresh token(s) for user: $userId")
     }
 
     fun changePassword(userId: UUID, request: ChangePasswordRequest) {
+        logger.info("Password change request for user: $userId")
+
         val user = userService.findById(userId)
             ?: throw UserNotFoundException("User not found: $userId")
 
         // Verify current password
         if (user.passwordHash == null || !passwordEncoder.matches(request.currentPassword, user.passwordHash)) {
+            logger.warn("Password change failed: incorrect current password for user ${user.username}")
             throw InvalidCredentialsException("Current password is incorrect")
         }
 
@@ -173,6 +207,8 @@ class AuthService(
         val tokens = refreshTokenRepository.findAllByUserId(userId)
         tokens.forEach { it.revoked = true }
         refreshTokenRepository.saveAll(tokens)
+
+        logger.info("Password changed successfully for user: ${user.username}")
     }
 
     private fun validateUsername(username: String) {

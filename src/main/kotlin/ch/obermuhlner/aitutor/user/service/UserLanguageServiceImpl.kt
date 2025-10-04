@@ -5,6 +5,7 @@ import ch.obermuhlner.aitutor.core.model.CEFRLevel
 import ch.obermuhlner.aitutor.core.model.catalog.LanguageProficiencyType
 import ch.obermuhlner.aitutor.user.domain.UserLanguageProficiencyEntity
 import ch.obermuhlner.aitutor.user.repository.UserLanguageProficiencyRepository
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
@@ -14,6 +15,7 @@ import java.util.*
 class UserLanguageServiceImpl(
     private val userLanguageProficiencyRepository: UserLanguageProficiencyRepository
 ) : UserLanguageService {
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     @Transactional
     override fun addLanguage(
@@ -23,9 +25,12 @@ class UserLanguageServiceImpl(
         cefrLevel: CEFRLevel?,
         isNative: Boolean
     ): UserLanguageProficiencyEntity {
+        logger.info("Adding language for user $userId: $languageCode (type=$type, level=$cefrLevel, native=$isNative)")
+
         // Check if already exists
         val existing = userLanguageProficiencyRepository.findByUserIdAndLanguageCode(userId, languageCode)
         if (existing != null) {
+            logger.debug("Language $languageCode already exists for user $userId")
             return existing
         }
 
@@ -40,7 +45,9 @@ class UserLanguageServiceImpl(
             lastAssessedAt = Instant.now()
         )
 
-        return userLanguageProficiencyRepository.save(entity)
+        val saved = userLanguageProficiencyRepository.save(entity)
+        logger.info("Language added successfully: ${saved.languageCode} for user $userId")
+        return saved
     }
 
     @Transactional

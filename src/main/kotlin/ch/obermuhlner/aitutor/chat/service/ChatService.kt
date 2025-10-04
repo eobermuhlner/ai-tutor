@@ -17,6 +17,7 @@ import ch.obermuhlner.aitutor.vocabulary.dto.NewVocabularyDTO
 import ch.obermuhlner.aitutor.vocabulary.service.VocabularyService
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import org.slf4j.LoggerFactory
 import org.springframework.ai.chat.messages.AssistantMessage
 import org.springframework.ai.chat.messages.Message
 import org.springframework.ai.chat.messages.UserMessage
@@ -35,9 +36,12 @@ class ChatService(
     private val catalogService: ch.obermuhlner.aitutor.catalog.service.CatalogService,
     private val objectMapper: ObjectMapper
 ) {
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     @Transactional
     fun createSession(request: CreateSessionRequest): SessionResponse {
+        logger.info("Creating chat session for user ${request.userId}: ${request.tutorName} (${request.targetLanguageCode})")
+
         val session = ChatSessionEntity(
             userId = request.userId,
             tutorName = request.tutorName,
@@ -50,6 +54,7 @@ class ChatService(
             currentTopic = request.currentTopic
         )
         val saved = chatSessionRepository.save(session)
+        logger.debug("Chat session created: ${saved.id}")
         return toSessionResponse(saved)
     }
 
@@ -83,10 +88,16 @@ class ChatService(
 
     @Transactional
     fun deleteSession(sessionId: UUID, currentUserId: UUID): Boolean {
-        val session = chatSessionRepository.findById(sessionId).orElse(null) ?: return false
+        logger.info("Delete session request: $sessionId by user $currentUserId")
+
+        val session = chatSessionRepository.findById(sessionId).orElse(null) ?: run {
+            logger.warn("Delete session failed: session $sessionId not found")
+            return false
+        }
 
         // Validate ownership
         if (session.userId != currentUserId) {
+            logger.warn("Delete session failed: user $currentUserId does not own session $sessionId")
             return false
         }
 
@@ -95,6 +106,7 @@ class ChatService(
         chatMessageRepository.deleteAll(messages)
 
         chatSessionRepository.deleteById(sessionId)
+        logger.info("Session deleted successfully: $sessionId")
         return true
     }
 

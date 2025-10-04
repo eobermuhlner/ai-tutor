@@ -3,6 +3,7 @@ package ch.obermuhlner.aitutor.conversation.service
 import ch.obermuhlner.aitutor.conversation.dto.AiChatRequest
 import ch.obermuhlner.aitutor.conversation.dto.AiChatResponse
 import ch.obermuhlner.aitutor.core.util.LlmJson
+import org.slf4j.LoggerFactory
 import org.springframework.ai.chat.messages.Message
 import org.springframework.ai.chat.messages.SystemMessage
 import org.springframework.ai.chat.model.ChatModel
@@ -14,18 +15,21 @@ import org.springframework.stereotype.Service
 class StreamReplyThenJsonEntityAiChatService(
     val chatModel: ChatModel
 ) : AiChatService {
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     override fun call(
         request: AiChatRequest,
         onReplyText: (String) -> Unit
     ): AiChatResponse? {
+        logger.debug("AI chat request with ${request.messages.size} messages")
+
         val schema = JsonSchemaGenerator.generateForType(AiChatResponse::class.java)
 
 
         val json = streamUntilJsonAndParse(
             chatModel,
             request.messages + SystemMessage("""
-Reply in plain text followed by JSON object fenced with triple backtick json using the following schema: 
+Reply in plain text followed by JSON object fenced with triple backtick json using the following schema:
 
 ```json
 $schema
@@ -35,6 +39,12 @@ $schema
             onReplyText(chunk)
         }
 
+        if (json == null) {
+            logger.warn("No JSON found in AI response")
+            return null
+        }
+
+        logger.debug("AI response JSON received (${json.length} chars)")
         return LlmJson.parseAs<AiChatResponse>(json)
     }
 

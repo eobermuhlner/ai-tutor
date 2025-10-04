@@ -9,6 +9,7 @@ import ch.obermuhlner.aitutor.core.model.catalog.CourseCategory
 import ch.obermuhlner.aitutor.core.model.catalog.LanguageMetadata
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -19,6 +20,7 @@ class CatalogServiceImpl(
     private val supportedLanguages: Map<String, LanguageMetadata>,
     private val objectMapper: ObjectMapper
 ) : CatalogService {
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     override fun getAvailableLanguages(): List<LanguageMetadata> {
         return supportedLanguages.values.toList()
@@ -29,14 +31,17 @@ class CatalogServiceImpl(
     }
 
     override fun getCoursesForLanguage(languageCode: String, userLevel: CEFRLevel?): List<CourseTemplateEntity> {
+        logger.debug("Fetching courses for language: $languageCode, userLevel: $userLevel")
         val courses = courseTemplateRepository.findByLanguageCodeAndIsActiveTrueOrderByDisplayOrder(languageCode)
 
         // Filter by user level if provided
-        return if (userLevel != null) {
+        val filtered = if (userLevel != null) {
             courses.filter { it.startingLevel.ordinal <= userLevel.ordinal }
         } else {
             courses
         }
+        logger.debug("Found ${filtered.size} courses for $languageCode")
+        return filtered
     }
 
     override fun getCourseById(courseId: UUID): CourseTemplateEntity? {

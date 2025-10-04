@@ -5,6 +5,7 @@ import ch.obermuhlner.aitutor.vocabulary.domain.VocabularyItemEntity
 import ch.obermuhlner.aitutor.vocabulary.dto.NewVocabularyDTO
 import ch.obermuhlner.aitutor.vocabulary.repository.VocabularyContextRepository
 import ch.obermuhlner.aitutor.vocabulary.repository.VocabularyItemRepository
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.text.Normalizer
@@ -16,6 +17,7 @@ class VocabularyService(
     private val vocabularyItemRepository: VocabularyItemRepository,
     private val vocabularyContextRepository: VocabularyContextRepository
 ) {
+    private val logger = LoggerFactory.getLogger(javaClass)
     @Transactional
     fun addNewVocabulary(
         userId: UUID,
@@ -23,6 +25,12 @@ class VocabularyService(
         items: List<NewVocabularyDTO>,
         turnId: UUID? = null
     ): List<VocabularyItemEntity> {
+        if (items.isEmpty()) {
+            return emptyList()
+        }
+
+        logger.debug("Adding ${items.size} vocabulary items for user $userId in $lang")
+
         val now = Instant.now()
         val saved = mutableListOf<VocabularyItemEntity>()
 
@@ -37,6 +45,7 @@ class VocabularyService(
                     if (conceptName == null && nv.conceptName != null) {
                         conceptName = nv.conceptName
                     }
+                    logger.debug("Updated vocabulary item: $lemmaNorm (exposures: $exposures)")
                 }
                 ?: VocabularyItemEntity(
                     userId = userId,
@@ -45,7 +54,9 @@ class VocabularyService(
                     exposures = 1,
                     lastSeenAt = now,
                     conceptName = nv.conceptName
-                )
+                ).also {
+                    logger.debug("Created new vocabulary item: $lemmaNorm")
+                }
 
             val persisted = vocabularyItemRepository.save(item)
             vocabularyContextRepository.save(
@@ -57,6 +68,8 @@ class VocabularyService(
             )
             saved += persisted
         }
+
+        logger.info("Saved ${saved.size} vocabulary items for user $userId in $lang")
         return saved
     }
 

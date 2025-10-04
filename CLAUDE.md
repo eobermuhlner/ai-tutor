@@ -7,7 +7,8 @@ Language learning assistant with conversational AI tutoring and vocabulary track
 - **Framework**: Spring Boot 3.5.6
 - **Database**: H2 (JPA)
 - **AI**: Spring AI 1.0.1 (OpenAI integration)
-- **Build**: Gradle, Java 17
+- **Build**: Gradle (build.gradle), Java 17
+- **Logging**: SLF4J (via Spring Boot starter)
 
 ## Architecture
 
