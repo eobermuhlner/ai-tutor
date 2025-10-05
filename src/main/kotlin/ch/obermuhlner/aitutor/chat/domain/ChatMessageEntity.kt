@@ -40,6 +40,9 @@ class ChatMessageEntity(
     @Column(name = "word_cards_json", columnDefinition = "TEXT")
     val wordCardsJson: String? = null,
 
+    @Column(name = "sequence_number", nullable = false)
+    var sequenceNumber: Int = 0,
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     val createdAt: Instant? = null
