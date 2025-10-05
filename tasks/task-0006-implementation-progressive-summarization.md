@@ -13,6 +13,49 @@ Design and implement a progressive summarization system that:
 - Persists summaries at multiple hierarchical levels
 - Replaces old messages in context with appropriate summaries
 - Preserves all raw messages for future RAG feature
+- **Runs asynchronously to avoid blocking user requests**
+
+---
+
+## Critical Review Findings
+
+### Issues Identified in Initial Design
+
+1. **❌ Synchronous blocking**: Summarization triggers in request path, causing 2-5s latency
+2. **❌ `getCompactedHistory()` bug**: Uses non-existent repository method
+3. **❌ Upward propagation bug**: Only processes first chunk, leaves dangling summaries
+4. **❌ Configuration structure**: Duplicate `summarization` keys at different YAML levels
+5. **❌ Missing imports**: `MessageRole` import missing in code examples
+
+### Design Decision: Asynchronous Background Summarization
+
+**Selected approach:** Hierarchical progressive summarization with **async execution**
+
+**Rationale:**
+- User never waits for summarization (happens in background)
+- Summaries eventually consistent (lag by 1-2 requests, acceptable)
+- Hierarchical structure handles unlimited conversation length
+- Better production UX than synchronous approach
+
+---
+
+## Alternative Solutions Considered
+
+### Alternative 1: Simple Rolling Summary
+**Concept:** Single summary per session, updated periodically
+**Verdict:** ❌ Too simple, degrades quality over 100+ messages
+
+### Alternative 2: Token-Based Chunking
+**Concept:** Chunk by token budget instead of message count
+**Verdict:** ⚠️ Interesting but adds complexity without clear benefit
+
+### Alternative 3: Hybrid Extraction
+**Concept:** LLM extracts key facts/vocabulary separately from summary
+**Verdict:** ⚠️ Over-engineered for current needs; consider for v2
+
+### Alternative 4: Hierarchical + Async (SELECTED)
+**Concept:** Proposed design with async execution and bug fixes
+**Verdict:** ✅ Best balance of scalability, UX, and maintainability
 
 ---
 
@@ -34,8 +77,9 @@ Level 3: Summary of level 2 [SSS1(SS1-SS2)]
 1. **Trigger by count**: Summarize every N messages (configurable, default 10)
 2. **Token-aware**: Summarize early if token count exceeds threshold
 3. **Persistent**: Store summaries in database with level metadata
-4. **Lazy upward propagation**: Create higher-level summaries when lower level has N entries
-5. **Retention policy**: **Keep all raw messages** for future RAG feature (no deletion/archiving)
+4. **Asynchronous**: Summarization runs in background, doesn't block requests
+5. **Complete chunk processing**: Process all complete chunks, not just first
+6. **Retention policy**: **Keep all raw messages** for future RAG feature (no deletion/archiving)
 
 ---
 
@@ -59,10 +103,15 @@ CREATE TABLE message_summaries (
     source_type VARCHAR(16) NOT NULL, -- 'MESSAGE' or 'SUMMARY'
     source_ids_json TEXT NOT NULL,    -- JSON array of source UUIDs
 
+    -- Track if summary has been superseded by higher level
+    superseded_by_id UUID,            -- Reference to higher-level summary that includes this
+    is_active BOOLEAN DEFAULT TRUE,   -- False if superseded
+
     UNIQUE(session_id, summary_level, start_sequence, end_sequence)
 );
 
 CREATE INDEX idx_summaries_session_level ON message_summaries(session_id, summary_level);
+CREATE INDEX idx_summaries_session_active ON message_summaries(session_id, is_active);
 ```
 
 **Update: `chat_messages` table**
@@ -116,6 +165,12 @@ class MessageSummaryEntity(
     @Column(name = "source_ids_json", nullable = false, columnDefinition = "TEXT")
     val sourceIdsJson: String,
 
+    @Column(name = "superseded_by_id")
+    var supersededById: UUID? = null,
+
+    @Column(name = "is_active", nullable = false)
+    var isActive: Boolean = true,
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     val createdAt: Instant? = null
@@ -141,40 +196,40 @@ package ch.obermuhlner.aitutor.chat.repository
 
 import ch.obermuhlner.aitutor.chat.domain.MessageSummaryEntity
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Modifying
+import org.springframework.data.jpa.repository.Query
 import java.util.UUID
 
 interface MessageSummaryRepository : JpaRepository<MessageSummaryEntity, UUID> {
     /**
-     * Get all summaries at a specific level for a session, ordered by sequence.
+     * Get all active summaries at a specific level for a session, ordered by sequence.
      */
-    fun findBySessionIdAndSummaryLevelOrderByStartSequenceAsc(
+    fun findBySessionIdAndSummaryLevelAndIsActiveTrueOrderByStartSequenceAsc(
         sessionId: UUID,
         summaryLevel: Int
     ): List<MessageSummaryEntity>
 
     /**
-     * Get all summaries for a session, ordered by level then sequence.
+     * Get all active summaries for a session, ordered by level then sequence.
      */
-    fun findBySessionIdOrderBySummaryLevelAscStartSequenceAsc(
+    fun findBySessionIdAndIsActiveTrueOrderBySummaryLevelAscStartSequenceAsc(
         sessionId: UUID
     ): List<MessageSummaryEntity>
 
     /**
-     * Get the most recent summary (highest end_sequence) for a session.
+     * Get the most recent summary (highest end_sequence) for a session at level 1.
      */
-    fun findTopBySessionIdOrderByEndSequenceDesc(
-        sessionId: UUID
+    fun findTopBySessionIdAndSummaryLevelAndIsActiveTrueOrderByEndSequenceDesc(
+        sessionId: UUID,
+        summaryLevel: Int
     ): MessageSummaryEntity?
 
     /**
-     * Get summaries covering a specific sequence range at a given level.
+     * Mark summaries as superseded.
      */
-    fun findBySessionIdAndSummaryLevelAndEndSequenceGreaterThanEqualAndStartSequenceLessThanEqualOrderByStartSequenceAsc(
-        sessionId: UUID,
-        summaryLevel: Int,
-        startSequence: Int,
-        endSequence: Int
-    ): List<MessageSummaryEntity>
+    @Modifying
+    @Query("UPDATE MessageSummaryEntity m SET m.isActive = false, m.supersededById = :supersededById WHERE m.id IN :ids")
+    fun markAsSuperseded(ids: List<UUID>, supersededById: UUID)
 }
 ```
 
@@ -189,7 +244,14 @@ fun findBySessionIdAndSequenceNumberGreaterThanEqualOrderBySequenceNumberAsc(
 ): List<ChatMessageEntity>
 
 /**
- * Count unsummarized messages (sequence > last summary's end_sequence).
+ * Find all messages by session, ordered by sequence.
+ */
+fun findBySessionIdOrderBySequenceNumberAsc(
+    sessionId: UUID
+): List<ChatMessageEntity>
+
+/**
+ * Count messages in a session starting from a sequence number.
  */
 fun countBySessionIdAndSequenceNumberGreaterThanEqual(
     sessionId: UUID,
@@ -203,23 +265,29 @@ fun countBySessionIdAndSequenceNumberGreaterThanEqual(
 
 **Responsibilities:**
 - Detect when to trigger summarization (message count or token threshold)
-- Create level-1 summaries from raw messages
-- Recursively create higher-level summaries
+- Create level-1 summaries from raw messages (async)
+- Recursively create higher-level summaries (async)
+- Process ALL complete chunks, not just first
 - Reconstruct conversation history from summaries + recent messages
 
 **Key Methods:**
 ```kotlin
 package ch.obermuhlner.aitutor.tutor.service
 
+import ch.obermuhlner.aitutor.chat.domain.ChatMessageEntity
+import ch.obermuhlner.aitutor.chat.domain.MessageRole
 import ch.obermuhlner.aitutor.chat.domain.MessageSummaryEntity
 import ch.obermuhlner.aitutor.chat.domain.SummarySourceType
 import ch.obermuhlner.aitutor.chat.repository.ChatMessageRepository
 import ch.obermuhlner.aitutor.chat.repository.MessageSummaryRepository
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.slf4j.LoggerFactory
+import org.springframework.ai.chat.messages.AssistantMessage
 import org.springframework.ai.chat.messages.Message
 import org.springframework.ai.chat.messages.SystemMessage
+import org.springframework.ai.chat.messages.UserMessage
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
@@ -229,68 +297,101 @@ class ProgressiveSummarizationService(
     private val summarizationService: ConversationSummarizationService,
     private val summaryRepository: MessageSummaryRepository,
     private val messageRepository: ChatMessageRepository,
-    @Value("\${ai-tutor.summarization.chunk-size}") private val chunkSize: Int,
-    @Value("\${ai-tutor.summarization.chunk-token-threshold}") private val chunkTokenThreshold: Int
+    @Value("\${ai-tutor.context.summarization.progressive.chunk-size}") private val chunkSize: Int,
+    @Value("\${ai-tutor.context.summarization.progressive.chunk-token-threshold}") private val chunkTokenThreshold: Int
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
     private val objectMapper = jacksonObjectMapper()
 
     /**
      * Check if summarization is needed after new messages, and trigger if so.
+     * Runs asynchronously to avoid blocking user requests.
      */
+    @Async
     @Transactional
     fun checkAndSummarize(sessionId: UUID) {
-        // 1. Find last summarized sequence
-        val lastSummary = summaryRepository.findTopBySessionIdOrderByEndSequenceDesc(sessionId)
-        val startSequence = (lastSummary?.endSequence ?: -1) + 1
+        try {
+            logger.debug("Async summarization check for session $sessionId")
 
-        // 2. Get unsummarized messages
-        val unsummarized = messageRepository
-            .findBySessionIdAndSequenceNumberGreaterThanEqualOrderBySequenceNumberAsc(
-                sessionId, startSequence
+            // 1. Find last summarized sequence
+            val lastSummary = summaryRepository
+                .findTopBySessionIdAndSummaryLevelAndIsActiveTrueOrderByEndSequenceDesc(sessionId, 1)
+            val startSequence = (lastSummary?.endSequence ?: -1) + 1
+
+            // 2. Get unsummarized messages
+            val unsummarized = messageRepository
+                .findBySessionIdAndSequenceNumberGreaterThanEqualOrderBySequenceNumberAsc(
+                    sessionId, startSequence
+                )
+
+            if (unsummarized.isEmpty()) {
+                logger.debug("No unsummarized messages for session $sessionId")
+                return
+            }
+
+            // 3. Check trigger conditions
+            val tokenCount = estimateTokens(unsummarized.map { it.content })
+            logger.debug(
+                "Session $sessionId: ${unsummarized.size} unsummarized messages, ~$tokenCount tokens"
             )
 
-        if (unsummarized.isEmpty()) {
-            logger.debug("No unsummarized messages for session $sessionId")
-            return
+            if (unsummarized.size < chunkSize && tokenCount < chunkTokenThreshold) {
+                logger.debug("Not yet ready to summarize (size: ${unsummarized.size}/$chunkSize, tokens: $tokenCount/$chunkTokenThreshold)")
+                return
+            }
+
+            // 4. Summarize all complete chunks (not just first!)
+            val chunks = unsummarized.chunked(chunkSize)
+            for ((index, chunk) in chunks.withIndex()) {
+                if (chunk.size == chunkSize || tokenCount >= chunkTokenThreshold) {
+                    logger.info("Summarizing chunk ${index + 1}/${chunks.size} for session $sessionId (${chunk.size} messages)")
+                    val level1Summary = summarizeMessageChunk(sessionId, chunk)
+                    summaryRepository.save(level1Summary)
+                } else {
+                    logger.debug("Skipping incomplete chunk ${index + 1} (${chunk.size}/$chunkSize messages)")
+                }
+            }
+
+            // 5. Recursively check if level-1 summaries need level-2 summarization
+            propagateUpward(sessionId, level = 1)
+
+        } catch (e: Exception) {
+            logger.error("Error during async summarization for session $sessionId", e)
         }
-
-        // 3. Check trigger conditions
-        val tokenCount = estimateTokens(unsummarized.map { it.content })
-        logger.debug(
-            "Session $sessionId: ${unsummarized.size} unsummarized messages, ~$tokenCount tokens"
-        )
-
-        if (unsummarized.size < chunkSize && tokenCount < chunkTokenThreshold) {
-            logger.debug("Not yet ready to summarize (size: ${unsummarized.size}/$chunkSize, tokens: $tokenCount/$chunkTokenThreshold)")
-            return
-        }
-
-        // 4. Summarize messages into level-1 summary
-        logger.info("Triggering level-1 summarization for session $sessionId (${unsummarized.size} messages)")
-        val level1Summary = summarizeMessageChunk(sessionId, unsummarized)
-        summaryRepository.save(level1Summary)
-
-        // 5. Recursively check if level-1 summaries need level-2 summarization
-        propagateUpward(sessionId, level = 1)
     }
 
     /**
      * Recursively create higher-level summaries when lower level has enough entries.
+     * Process ALL complete chunks, not just first.
      */
     @Transactional
     private fun propagateUpward(sessionId: UUID, level: Int) {
         val summaries = summaryRepository
-            .findBySessionIdAndSummaryLevelOrderByStartSequenceAsc(sessionId, level)
+            .findBySessionIdAndSummaryLevelAndIsActiveTrueOrderByStartSequenceAsc(sessionId, level)
 
-        // Check if we have enough summaries at this level to create next level
-        if (summaries.size >= chunkSize) {
-            val chunk = summaries.take(chunkSize)
-            logger.info("Propagating to level ${level + 1}: summarizing ${chunk.size} level-$level summaries")
-            val higherLevelSummary = summarizeSummaryChunk(sessionId, level + 1, chunk)
-            summaryRepository.save(higherLevelSummary)
+        if (summaries.size < chunkSize) {
+            logger.debug("Level $level: Only ${summaries.size} summaries, need $chunkSize to propagate")
+            return
+        }
 
-            // Recursively propagate
+        // Process ALL complete chunks
+        val chunks = summaries.chunked(chunkSize)
+        for ((index, chunk) in chunks.withIndex()) {
+            if (chunk.size == chunkSize) {
+                logger.info("Propagating to level ${level + 1}: chunk ${index + 1}, summarizing ${chunk.size} level-$level summaries")
+                val higherLevelSummary = summarizeSummaryChunk(sessionId, level + 1, chunk)
+                summaryRepository.save(higherLevelSummary)
+
+                // Mark child summaries as superseded
+                summaryRepository.markAsSuperseded(
+                    chunk.map { it.id },
+                    higherLevelSummary.id
+                )
+            }
+        }
+
+        // Recursively propagate to next level
+        if (chunks.any { it.size == chunkSize }) {
             propagateUpward(sessionId, level + 1)
         }
     }
@@ -305,8 +406,8 @@ class ProgressiveSummarizationService(
         // Convert to Spring AI Message objects
         val messageObjects = messages.map { entity ->
             when (entity.role) {
-                MessageRole.USER -> org.springframework.ai.chat.messages.UserMessage(entity.content)
-                MessageRole.ASSISTANT -> org.springframework.ai.chat.messages.AssistantMessage(entity.content)
+                MessageRole.USER -> UserMessage(entity.content)
+                MessageRole.ASSISTANT -> AssistantMessage(entity.content)
                 MessageRole.SYSTEM -> SystemMessage(entity.content)
             }
         }
@@ -366,12 +467,11 @@ class ProgressiveSummarizationService(
 
     /**
      * Get compacted conversation history: summaries + recent messages.
+     * Uses existing summaries (may be slightly stale if async summarization in progress).
      */
     fun getCompactedHistory(sessionId: UUID, recentMessageCount: Int): List<Message> {
         // Get all messages
-        val allMessages = messageRepository.findBySessionOrderByCreatedAtAsc(
-            messageRepository.getReferenceById(sessionId)
-        )
+        val allMessages = messageRepository.findBySessionIdOrderBySequenceNumberAsc(sessionId)
 
         if (allMessages.size <= recentMessageCount) {
             // Short conversation - return all messages
@@ -380,27 +480,29 @@ class ProgressiveSummarizationService(
 
         // Split into old and recent
         val recentMessages = allMessages.takeLast(recentMessageCount)
-        val oldMessageCount = allMessages.size - recentMessageCount
+        val lastOldMessageSequence = allMessages[allMessages.size - recentMessageCount - 1].sequenceNumber
 
-        // Get highest-level summary that covers old messages
-        val summary = findBestSummary(sessionId, endSequence = oldMessageCount - 1)
+        // Get highest-level active summary that covers old messages
+        val summary = findBestSummary(sessionId, endSequence = lastOldMessageSequence)
 
         return if (summary != null) {
             // Use summary + recent messages
+            logger.debug("Using level-${summary.summaryLevel} summary (sequences ${summary.startSequence}-${summary.endSequence}) + ${recentMessages.size} recent messages")
             listOf(SystemMessage("Previous conversation summary: ${summary.summaryText}")) +
                 recentMessages.map { toMessage(it) }
         } else {
             // No summary yet - return all messages
+            logger.debug("No summary available, returning all ${allMessages.size} messages")
             allMessages.map { toMessage(it) }
         }
     }
 
     /**
-     * Find the best (highest-level) summary covering a sequence range.
+     * Find the best (highest-level, active) summary covering a sequence range.
      */
     private fun findBestSummary(sessionId: UUID, endSequence: Int): MessageSummaryEntity? {
         val allSummaries = summaryRepository
-            .findBySessionIdOrderBySummaryLevelAscStartSequenceAsc(sessionId)
+            .findBySessionIdAndIsActiveTrueOrderBySummaryLevelAscStartSequenceAsc(sessionId)
 
         // Find highest-level summary that covers the range [0, endSequence]
         return allSummaries
@@ -413,8 +515,8 @@ class ProgressiveSummarizationService(
      */
     private fun toMessage(entity: ChatMessageEntity): Message {
         return when (entity.role) {
-            MessageRole.USER -> org.springframework.ai.chat.messages.UserMessage(entity.content)
-            MessageRole.ASSISTANT -> org.springframework.ai.chat.messages.AssistantMessage(entity.content)
+            MessageRole.USER -> UserMessage(entity.content)
+            MessageRole.ASSISTANT -> AssistantMessage(entity.content)
             MessageRole.SYSTEM -> SystemMessage(entity.content)
         }
     }
@@ -438,7 +540,9 @@ class MessageCompactionService(
     @Value("\${ai-tutor.context.max-tokens}") private val maxTokens: Int,
     @Value("\${ai-tutor.context.recent-messages}") private val recentMessageCount: Int,
     @Value("\${ai-tutor.context.summarization.enabled}") private val summarizationEnabled: Boolean,
-    private val progressiveSummarizationService: ProgressiveSummarizationService
+    @Value("\${ai-tutor.context.summarization.progressive.enabled}") private val progressiveEnabled: Boolean,
+    private val progressiveSummarizationService: ProgressiveSummarizationService,
+    private val summarizationService: ConversationSummarizationService
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -449,15 +553,15 @@ class MessageCompactionService(
     ): List<Message> {
         logger.debug("Compacting messages for session $sessionId")
 
-        if (!summarizationEnabled) {
-            // Fallback: sliding window
+        if (!summarizationEnabled || !progressiveEnabled) {
+            // Fallback: sliding window or old summarization
             return compactWithSlidingWindow(systemMessages, conversationMessages)
         }
 
-        // Trigger progressive summarization check
+        // Trigger async progressive summarization check (non-blocking)
         progressiveSummarizationService.checkAndSummarize(sessionId)
 
-        // Get compacted history (summaries + recent messages)
+        // Get compacted history using existing summaries (may be slightly stale)
         val compactedHistory = progressiveSummarizationService.getCompactedHistory(
             sessionId,
             recentMessageCount
@@ -473,7 +577,47 @@ class MessageCompactionService(
     }
 
     // Keep existing sliding window logic as fallback
-    private fun compactWithSlidingWindow(...) { ... }
+    private fun compactWithSlidingWindow(
+        systemMessages: List<Message>,
+        conversationMessages: List<Message>
+    ): List<Message> {
+        val recentMessages = conversationMessages.takeLast(recentMessageCount)
+        val systemTokens = estimateTokens(systemMessages)
+        val budget = maxTokens - systemTokens
+        val trimmed = trimToTokenBudget(recentMessages, budget)
+        return systemMessages + trimmed
+    }
+
+    private fun estimateTokens(messages: List<Message>): Int {
+        val totalChars = messages.sumOf { getMessageText(it).length }
+        return totalChars / 4
+    }
+
+    private fun trimToTokenBudget(messages: List<Message>, budget: Int): List<Message> {
+        val result = mutableListOf<Message>()
+        var currentTokens = 0
+
+        for (message in messages.reversed()) {
+            val messageTokens = getMessageText(message).length / 4
+            if (currentTokens + messageTokens <= budget) {
+                result.add(0, message)
+                currentTokens += messageTokens
+            } else {
+                break
+            }
+        }
+
+        return result
+    }
+
+    private fun getMessageText(message: Message): String {
+        return when (message) {
+            is SystemMessage -> message.text ?: ""
+            is UserMessage -> message.text ?: ""
+            is AssistantMessage -> message.text ?: ""
+            else -> ""
+        }
+    }
 }
 ```
 
@@ -490,7 +634,382 @@ val compactedMessages = messageCompactionService.compactMessages(
 )
 ```
 
-### 7. Configuration Updates (application.yml)
+### 7. Add REST Endpoints for Summary Information
+
+**Add SummaryController.kt:**
+```kotlin
+package ch.obermuhlner.aitutor.chat.controller
+
+import ch.obermuhlner.aitutor.auth.service.AuthorizationService
+import ch.obermuhlner.aitutor.chat.dto.SessionSummaryInfoResponse
+import ch.obermuhlner.aitutor.chat.dto.SummaryDetailResponse
+import ch.obermuhlner.aitutor.chat.service.SummaryQueryService
+import org.springframework.http.ResponseEntity
+import org.springframework.security.core.Authentication
+import org.springframework.web.bind.annotation.*
+import java.util.UUID
+
+/**
+ * REST endpoints for querying message summarization metadata.
+ * Useful for debugging, monitoring, and admin dashboards.
+ */
+@RestController
+@RequestMapping("/api/v1/summaries")
+class SummaryController(
+    private val summaryQueryService: SummaryQueryService,
+    private val authorizationService: AuthorizationService
+) {
+    /**
+     * Get summary statistics for a session.
+     * Shows how many summaries exist at each level, token savings, etc.
+     *
+     * Accessible by: session owner OR admin
+     */
+    @GetMapping("/sessions/{sessionId}/info")
+    fun getSessionSummaryInfo(
+        @PathVariable sessionId: UUID,
+        authentication: Authentication
+    ): ResponseEntity<SessionSummaryInfoResponse> {
+        authorizationService.requireSessionAccessOrAdmin(sessionId, authentication)
+        val info = summaryQueryService.getSessionSummaryInfo(sessionId)
+        return ResponseEntity.ok(info)
+    }
+
+    /**
+     * Get detailed view of all summaries for a session (hierarchical tree).
+     * Includes summary text, sequence ranges, tokens, etc.
+     *
+     * Accessible by: admin only (contains potentially sensitive summary content)
+     */
+    @GetMapping("/sessions/{sessionId}/details")
+    fun getSessionSummaryDetails(
+        @PathVariable sessionId: UUID,
+        authentication: Authentication
+    ): ResponseEntity<List<SummaryDetailResponse>> {
+        authorizationService.requireAdmin(authentication)
+        val details = summaryQueryService.getSessionSummaryDetails(sessionId)
+        return ResponseEntity.ok(details)
+    }
+
+    /**
+     * Trigger manual summarization for a session (admin only).
+     * Useful for backfilling or re-summarizing with updated prompts.
+     *
+     * Accessible by: admin only
+     */
+    @PostMapping("/sessions/{sessionId}/trigger")
+    fun triggerSummarization(
+        @PathVariable sessionId: UUID,
+        authentication: Authentication
+    ): ResponseEntity<Map<String, String>> {
+        authorizationService.requireAdmin(authentication)
+        summaryQueryService.triggerManualSummarization(sessionId)
+        return ResponseEntity.accepted().body(mapOf(
+            "status" to "accepted",
+            "message" to "Summarization triggered asynchronously for session $sessionId"
+        ))
+    }
+
+    /**
+     * Get global summarization statistics (all sessions).
+     * Shows total summaries, average compression ratio, etc.
+     *
+     * Accessible by: admin only
+     */
+    @GetMapping("/stats")
+    fun getGlobalStats(
+        authentication: Authentication
+    ): ResponseEntity<Map<String, Any>> {
+        authorizationService.requireAdmin(authentication)
+        val stats = summaryQueryService.getGlobalStats()
+        return ResponseEntity.ok(stats)
+    }
+}
+```
+
+**Add DTOs:**
+```kotlin
+package ch.obermuhlner.aitutor.chat.dto
+
+import java.time.Instant
+import java.util.UUID
+
+/**
+ * High-level summary statistics for a session.
+ */
+data class SessionSummaryInfoResponse(
+    val sessionId: UUID,
+    val totalMessages: Int,
+    val summaryLevels: List<SummaryLevelInfo>,
+    val lastSummarizedSequence: Int?,
+    val estimatedTokenSavings: Int,  // Tokens saved by using summaries vs full history
+    val compressionRatio: Double     // (original tokens) / (compacted tokens)
+)
+
+data class SummaryLevelInfo(
+    val level: Int,
+    val count: Int,          // Number of summaries at this level
+    val totalTokens: Int,    // Sum of tokens in all summaries at this level
+    val coveredSequences: IntRange?  // Range of message sequences covered
+)
+
+/**
+ * Detailed view of a single summary (for admin debugging).
+ */
+data class SummaryDetailResponse(
+    val id: UUID,
+    val summaryLevel: Int,
+    val startSequence: Int,
+    val endSequence: Int,
+    val summaryText: String,
+    val tokenCount: Int,
+    val sourceType: String,
+    val sourceIds: List<UUID>,
+    val supersededById: UUID?,
+    val isActive: Boolean,
+    val createdAt: Instant
+)
+```
+
+**Add SummaryQueryService.kt:**
+```kotlin
+package ch.obermuhlner.aitutor.chat.service
+
+import ch.obermuhlner.aitutor.chat.domain.ChatMessageEntity
+import ch.obermuhlner.aitutor.chat.dto.SessionSummaryInfoResponse
+import ch.obermuhlner.aitutor.chat.dto.SummaryDetailResponse
+import ch.obermuhlner.aitutor.chat.dto.SummaryLevelInfo
+import ch.obermuhlner.aitutor.chat.repository.ChatMessageRepository
+import ch.obermuhlner.aitutor.chat.repository.ChatSessionRepository
+import ch.obermuhlner.aitutor.chat.repository.MessageSummaryRepository
+import ch.obermuhlner.aitutor.tutor.service.ProgressiveSummarizationService
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
+import org.springframework.stereotype.Service
+import java.util.UUID
+
+@Service
+class SummaryQueryService(
+    private val summaryRepository: MessageSummaryRepository,
+    private val messageRepository: ChatMessageRepository,
+    private val sessionRepository: ChatSessionRepository,
+    private val progressiveSummarizationService: ProgressiveSummarizationService
+) {
+    private val objectMapper = jacksonObjectMapper()
+
+    /**
+     * Get summary statistics for a session.
+     */
+    fun getSessionSummaryInfo(sessionId: UUID): SessionSummaryInfoResponse {
+        val session = sessionRepository.findById(sessionId)
+            .orElseThrow { IllegalArgumentException("Session not found: $sessionId") }
+
+        val allSummaries = summaryRepository
+            .findBySessionIdAndIsActiveTrueOrderBySummaryLevelAscStartSequenceAsc(sessionId)
+
+        val allMessages = messageRepository.findBySessionIdOrderBySequenceNumberAsc(sessionId)
+
+        // Group summaries by level
+        val levelGroups = allSummaries.groupBy { it.summaryLevel }
+
+        val summaryLevels = levelGroups.map { (level, summaries) ->
+            SummaryLevelInfo(
+                level = level,
+                count = summaries.size,
+                totalTokens = summaries.sumOf { it.tokenCount },
+                coveredSequences = if (summaries.isNotEmpty()) {
+                    summaries.minOf { it.startSequence }..summaries.maxOf { it.endSequence }
+                } else null
+            )
+        }.sortedBy { it.level }
+
+        // Calculate token savings
+        val lastSummarizedSequence = allSummaries.maxOfOrNull { it.endSequence }
+        val originalTokens = estimateTokens(allMessages.map { it.content })
+        val compactedTokens = if (allSummaries.isNotEmpty()) {
+            val highestLevelSummary = allSummaries.maxByOrNull { it.summaryLevel }
+            highestLevelSummary?.tokenCount ?: originalTokens
+        } else {
+            originalTokens
+        }
+
+        return SessionSummaryInfoResponse(
+            sessionId = sessionId,
+            totalMessages = allMessages.size,
+            summaryLevels = summaryLevels,
+            lastSummarizedSequence = lastSummarizedSequence,
+            estimatedTokenSavings = originalTokens - compactedTokens,
+            compressionRatio = if (compactedTokens > 0) originalTokens.toDouble() / compactedTokens else 1.0
+        )
+    }
+
+    /**
+     * Get detailed view of all summaries for a session.
+     */
+    fun getSessionSummaryDetails(sessionId: UUID): List<SummaryDetailResponse> {
+        val allSummaries = summaryRepository
+            .findBySessionIdOrderBySummaryLevelAscStartSequenceAsc(sessionId)
+
+        return allSummaries.map { summary ->
+            val sourceIds: List<UUID> = objectMapper.readValue(summary.sourceIdsJson)
+            SummaryDetailResponse(
+                id = summary.id,
+                summaryLevel = summary.summaryLevel,
+                startSequence = summary.startSequence,
+                endSequence = summary.endSequence,
+                summaryText = summary.summaryText,
+                tokenCount = summary.tokenCount,
+                sourceType = summary.sourceType.name,
+                sourceIds = sourceIds,
+                supersededById = summary.supersededById,
+                isActive = summary.isActive,
+                createdAt = summary.createdAt ?: Instant.now()
+            )
+        }
+    }
+
+    /**
+     * Trigger manual summarization for a session.
+     */
+    fun triggerManualSummarization(sessionId: UUID) {
+        val session = sessionRepository.findById(sessionId)
+            .orElseThrow { IllegalArgumentException("Session not found: $sessionId") }
+
+        progressiveSummarizationService.checkAndSummarize(sessionId)
+    }
+
+    /**
+     * Get global summarization statistics.
+     */
+    fun getGlobalStats(): Map<String, Any> {
+        val allSummaries = summaryRepository.findAll()
+        val allMessages = messageRepository.findAll()
+
+        val summariesByLevel = allSummaries.groupBy { it.summaryLevel }
+
+        val totalTokensOriginal = estimateTokens(allMessages.map { it.content })
+        val totalTokensCompacted = allSummaries
+            .filter { it.isActive }
+            .sumOf { it.tokenCount }
+
+        return mapOf(
+            "totalSummaries" to allSummaries.size,
+            "activeSummaries" to allSummaries.count { it.isActive },
+            "summariesByLevel" to summariesByLevel.mapValues { it.value.size },
+            "totalMessages" to allMessages.size,
+            "totalTokensOriginal" to totalTokensOriginal,
+            "totalTokensCompacted" to totalTokensCompacted,
+            "globalCompressionRatio" to if (totalTokensCompacted > 0) {
+                totalTokensOriginal.toDouble() / totalTokensCompacted
+            } else 1.0
+        )
+    }
+
+    private fun estimateTokens(texts: List<String>): Int {
+        return texts.sumOf { it.length } / 4
+    }
+}
+```
+
+**Update AuthorizationService.kt:**
+```kotlin
+/**
+ * Check if user can access session (is owner OR is admin).
+ */
+fun requireSessionAccessOrAdmin(sessionId: UUID, authentication: Authentication) {
+    val session = sessionRepository.findById(sessionId)
+        .orElseThrow { IllegalArgumentException("Session not found") }
+
+    val userId = (authentication.principal as? UserEntity)?.id
+        ?: throw IllegalStateException("Invalid authentication principal")
+
+    val isOwner = session.userId == userId
+    val isAdmin = authentication.authorities.any { it.authority == "ROLE_ADMIN" }
+
+    if (!isOwner && !isAdmin) {
+        throw AccessDeniedException("Not authorized to access this session")
+    }
+}
+
+/**
+ * Require admin role.
+ */
+fun requireAdmin(authentication: Authentication) {
+    val isAdmin = authentication.authorities.any { it.authority == "ROLE_ADMIN" }
+    if (!isAdmin) {
+        throw AccessDeniedException("Admin role required")
+    }
+}
+```
+
+**REST Endpoint Summary:**
+
+| Endpoint | Method | Access | Description |
+|----------|--------|--------|-------------|
+| `/api/v1/summaries/sessions/{id}/info` | GET | Owner or Admin | Get summary statistics for session |
+| `/api/v1/summaries/sessions/{id}/details` | GET | Admin only | Get detailed summaries (including text) |
+| `/api/v1/summaries/sessions/{id}/trigger` | POST | Admin only | Manually trigger summarization |
+| `/api/v1/summaries/stats` | GET | Admin only | Get global summarization statistics |
+
+**Example Response: GET /api/v1/summaries/sessions/{id}/info**
+```json
+{
+  "sessionId": "123e4567-e89b-12d3-a456-426614174000",
+  "totalMessages": 45,
+  "summaryLevels": [
+    {
+      "level": 1,
+      "count": 4,
+      "totalTokens": 8000,
+      "coveredSequences": {
+        "start": 0,
+        "end": 39
+      }
+    },
+    {
+      "level": 2,
+      "count": 1,
+      "totalTokens": 2000,
+      "coveredSequences": {
+        "start": 0,
+        "end": 39
+      }
+    }
+  ],
+  "lastSummarizedSequence": 39,
+  "estimatedTokenSavings": 6000,
+  "compressionRatio": 4.0
+}
+```
+
+### 8. Enable Async Configuration
+
+**Add AsyncConfig.kt:**
+```kotlin
+package ch.obermuhlner.aitutor.config
+
+import org.springframework.context.annotation.Configuration
+import org.springframework.scheduling.annotation.EnableAsync
+import org.springframework.scheduling.annotation.AsyncConfigurer
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor
+import java.util.concurrent.Executor
+
+@Configuration
+@EnableAsync
+class AsyncConfig : AsyncConfigurer {
+    override fun getAsyncExecutor(): Executor {
+        val executor = ThreadPoolTaskExecutor()
+        executor.corePoolSize = 2
+        executor.maxPoolSize = 5
+        executor.queueCapacity = 100
+        executor.setThreadNamePrefix("summarization-")
+        executor.initialize()
+        return executor
+    }
+}
+```
+
+### 8. Configuration Updates (application.yml)
 
 ```yaml
 ai-tutor:
@@ -499,18 +1018,19 @@ ai-tutor:
     recent-messages: 15
     summarization:
       enabled: true
-      batch-size-tokens: 50000    # Existing - max tokens per LLM batch
-      summary-token-budget: 2000  # Existing - target tokens per summary
-      prompt: |                    # Existing - summarization prompt
+      batch-size-tokens: 50000    # Max tokens per LLM batch when summarizing
+      summary-token-budget: 2000  # Target tokens for each summary output
+      prompt: |
         Summarize this conversation history between a language tutor and learner.
         Preserve: key topics discussed, vocabulary introduced, learner progress and errors, pedagogical context.
         Be concise but comprehensive. Target length: approximately 500 words.
-  summarization:
-    chunk-size: 10                  # NEW - messages per level-1 summary
-    chunk-token-threshold: 8000     # NEW - summarize early if tokens exceed this
+      progressive:
+        enabled: true               # Enable progressive summarization (feature flag)
+        chunk-size: 10              # Messages per level-1 summary
+        chunk-token-threshold: 8000 # Summarize early if tokens exceed this
 ```
 
-### 8. Database Migration
+### 9. Database Migration
 
 **Create migration file:** `src/main/resources/db/migration/V6__progressive_summarization.sql`
 
@@ -541,6 +1061,8 @@ CREATE TABLE message_summaries (
     token_count INT NOT NULL,
     source_type VARCHAR(16) NOT NULL,
     source_ids_json TEXT NOT NULL,
+    superseded_by_id UUID,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMP NOT NULL,
     CONSTRAINT fk_summary_session FOREIGN KEY (session_id) REFERENCES chat_sessions(id) ON DELETE CASCADE,
     CONSTRAINT uq_summary_range UNIQUE(session_id, summary_level, start_sequence, end_sequence)
@@ -548,10 +1070,11 @@ CREATE TABLE message_summaries (
 
 -- Create indexes for efficient summary queries
 CREATE INDEX idx_summaries_session_level ON message_summaries(session_id, summary_level);
+CREATE INDEX idx_summaries_session_active ON message_summaries(session_id, is_active);
 CREATE INDEX idx_summaries_end_seq ON message_summaries(session_id, end_sequence DESC);
 ```
 
-### 9. Testing Strategy
+### 10. Testing Strategy
 
 **Unit Tests:**
 - `ProgressiveSummarizationServiceTest.kt`
@@ -559,49 +1082,107 @@ CREATE INDEX idx_summaries_end_seq ON message_summaries(session_id, end_sequence
   - Test chunk detection (token threshold)
   - Test level-1 summarization from messages
   - Test level-2 summarization from summaries
-  - Test upward propagation logic
+  - Test complete chunk processing (all chunks, not just first)
+  - Test superseding logic (marking old summaries inactive)
+  - Test async behavior (mock async execution)
 
 **Integration Tests:**
 - `ProgressiveSummarizationIntegrationTest.kt`
   - Simulate conversation with 50+ messages
   - Verify summaries created at correct points
+  - Verify ALL complete chunks processed (not just first)
   - Verify higher-level summaries created
+  - Verify superseding works correctly
   - Verify `getCompactedHistory()` returns correct mix of summaries + recent messages
   - Verify token usage reduction compared to full history
+  - Test async execution (wait for completion, verify non-blocking)
 
-### 10. Rollout Strategy
+**Load Tests:**
+- Test 100+ message conversation
+- Verify performance under concurrent summarization requests
+- Measure latency impact (should be near-zero with async)
 
-**Phase 1: Add infrastructure (non-breaking)**
+### 11. Rollout Strategy
+
+**Phase 1: Add infrastructure (non-breaking) - Week 1**
 - Add database schema (migration)
-- Add entities, repositories, service
-- Deploy with `ai-tutor.summarization.chunk-size: 999999` (effectively disabled)
+- Add entities, repositories, service, async config
+- Deploy with `progressive.enabled: false` (use old summarization)
+- Run for 3 days, monitor for regressions
 
-**Phase 2: Enable for new sessions**
-- Set `chunk-size: 10` in production
+**Phase 2: Enable for new sessions - Week 2**
+- Set `progressive.enabled: true` with `chunk-size: 20` (conservative)
+- Monitor for 3 days
+- Check summary quality (manual review of 10 sessions)
+- Check token usage (should drop ~30-50% for long sessions)
+- Check latency (should be unchanged due to async)
+
+**Phase 3: Tune and optimize - Week 3-4**
+- Gradually lower `chunk-size` to 10 if quality acceptable
 - Monitor for 1 week
-- Check summary quality, token usage, latency
+- Adjust `chunk-token-threshold` if needed
+- Remove old summarization code if stable
 
-**Phase 3: Backfill existing sessions (optional)**
+**Phase 4: Backfill existing sessions (optional) - Week 5+**
 - Background job to create summaries for old sessions
 - Run during low-traffic hours
+- Process 100 sessions/hour max
 
 ---
 
 ## Benefits
 
 ✅ **Efficiency**: Summaries computed once and reused
+✅ **Zero latency**: Async execution doesn't block user requests
 ✅ **Scalability**: Hierarchical structure handles unlimited history
 ✅ **Token optimization**: Aggressive compaction with preserved context
 ✅ **Debugging**: Audit trail of summarization decisions
 ✅ **RAG-ready**: All raw messages preserved for future retrieval feature
 ✅ **Configurable**: Tune chunk size and token thresholds per deployment
+✅ **Graceful degradation**: Falls back to old behavior if progressive disabled
 
 ## Trade-offs
 
 ⚠️ **Storage**: Additional database storage for summaries (~10-20% overhead)
-⚠️ **Complexity**: More complex than sliding window approach
-⚠️ **Latency**: First message after chunk threshold triggers LLM call (~2-5s)
+⚠️ **Complexity**: More complex than sliding window approach (~500 LOC)
+⚠️ **Eventual consistency**: Summaries lag by 1-2 requests after threshold (acceptable)
 ⚠️ **Information loss**: Summaries lose some fidelity (acceptable for old history)
+⚠️ **Async infrastructure**: Requires thread pool management and monitoring
+
+---
+
+## Monitoring and Observability
+
+### Key Metrics to Track
+
+1. **Summarization Rate**
+   - Summaries created per hour
+   - Average time per summarization
+   - Failures and retries
+
+2. **Token Efficiency**
+   - Average token reduction (before/after compaction)
+   - Percentage of sessions using summaries
+   - Token budget utilization
+
+3. **Latency**
+   - p50/p95/p99 request latency (should be unchanged)
+   - Async executor queue depth
+   - Thread pool utilization
+
+4. **Quality**
+   - Manual review sample (10 summaries/week)
+   - User feedback on conversation coherence
+
+### Logging
+
+```kotlin
+// Key log statements to include:
+logger.info("Summarizing chunk ${index + 1}/${chunks.size} for session $sessionId (${chunk.size} messages)")
+logger.info("Propagating to level ${level + 1}: chunk ${index + 1}, summarizing ${chunk.size} level-$level summaries")
+logger.error("Error during async summarization for session $sessionId", e)
+logger.debug("Using level-${summary.summaryLevel} summary (sequences ${summary.startSequence}-${summary.endSequence})")
+```
 
 ---
 
@@ -611,3 +1192,19 @@ CREATE INDEX idx_summaries_end_seq ON message_summaries(session_id, end_sequence
 2. **Summary regeneration**: Admin endpoint to rebuild summaries with improved prompts
 3. **Adaptive chunk size**: Dynamically adjust based on conversation density
 4. **Summary caching**: Cache reconstructed histories in Redis for hot sessions
+5. **Compression**: GZIP summary_text to reduce storage by ~50%
+6. **Smart selection**: Use embeddings to find most relevant summary level for context
+
+---
+
+## Risks and Mitigations
+
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| Async summarization fails silently | Users get full history (inefficient) | Comprehensive error logging + monitoring alerts |
+| Thread pool exhaustion | Summarization pauses | Bounded queue (100), reject policy logs errors |
+| Summary quality degrades | Tutor context poor | Manual review + rollback to old system if needed |
+| Database migration fails | Deployment blocked | Test migration on staging, have rollback script |
+| Concurrent summarization conflict | Duplicate summaries | Use unique constraint, handle gracefully |
+
+**Rollback plan:** Set `progressive.enabled: false`, redeploy. Old system remains functional.
