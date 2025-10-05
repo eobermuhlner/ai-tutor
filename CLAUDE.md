@@ -184,6 +184,20 @@ If tests fail, investigate and fix the root cause. Common issues:
 - Test data doesn't match new validation rules
 - Missing or incorrect test configuration
 
+### Git Commit Guidelines
+**Commit message format:**
+- **First line**: Concise summary (imperative mood, no period)
+- **Body** (optional): Brief explanation of what and why (one sentence per line)
+- **No attribution**: Don't include "Generated with Claude Code" or similar references
+
+**Example:**
+```
+Add effectivePhase to separate user preference from active phase
+
+User-controlled conversationPhase (Auto/Free/Correction/Drill) now separate from effectivePhase (actual active phase).
+LLM suggestions only update effectivePhase when in Auto mode, never override manual user choices.
+```
+
 ### Preserving Existing Functionality
 **CRITICAL: Never remove or break existing features without explicit user approval.**
 
