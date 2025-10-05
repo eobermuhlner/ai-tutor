@@ -43,6 +43,10 @@ class ChatSessionEntity(
     var conversationPhase: ConversationPhase = ConversationPhase.Free,
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "effective_phase", nullable = true, length = 16)
+    var effectivePhase: ConversationPhase? = null,
+
+    @Enumerated(EnumType.STRING)
     @Column(name = "estimated_cefr_level", nullable = false, length = 8)
     var estimatedCEFRLevel: CEFRLevel = CEFRLevel.A1,
 

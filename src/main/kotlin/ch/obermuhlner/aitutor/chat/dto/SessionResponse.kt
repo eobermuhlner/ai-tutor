@@ -14,6 +14,7 @@ data class SessionResponse(
     val sourceLanguageCode: String,
     val targetLanguageCode: String,
     val conversationPhase: ConversationPhase,
+    val effectivePhase: ConversationPhase,
     val estimatedCEFRLevel: CEFRLevel,
     val currentTopic: String? = null,
     val courseTemplateId: UUID? = null,

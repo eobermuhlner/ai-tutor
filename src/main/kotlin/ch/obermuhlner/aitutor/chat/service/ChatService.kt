@@ -56,6 +56,7 @@ class ChatService(
             sourceLanguageCode = request.sourceLanguageCode,
             targetLanguageCode = request.targetLanguageCode,
             conversationPhase = request.conversationPhase,
+            effectivePhase = if (request.conversationPhase == ConversationPhase.Auto) ConversationPhase.Correction else request.conversationPhase,
             estimatedCEFRLevel = request.estimatedCEFRLevel,
             currentTopic = request.currentTopic
         )
@@ -209,17 +210,26 @@ class ChatService(
             targetLanguageCode = session.targetLanguageCode
         )
 
-        // Resolve phase: if Auto, decide based on history
+        // Initialize effectivePhase if null (migration case)
+        if (session.effectivePhase == null) {
+            session.effectivePhase = if (session.conversationPhase == ConversationPhase.Auto) {
+                ConversationPhase.Correction  // Default for Auto mode
+            } else {
+                session.conversationPhase
+            }
+        }
+
+        // Resolve effective phase: if Auto, decide based on history; otherwise use user preference
         val allMessages = chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(sessionId)
-        val resolvedPhase = if (session.conversationPhase == ConversationPhase.Auto) {
+        val effectivePhase = if (session.conversationPhase == ConversationPhase.Auto) {
             phaseDecisionService.decidePhase(session.conversationPhase, allMessages)
         } else {
             session.conversationPhase
         }
 
-        // Pass current topic to LLM - it will propose any changes
+        // Pass effective phase to LLM (never pass Auto - always resolved Free/Correction/Drill)
         val conversationState = ConversationState(
-            phase = resolvedPhase,
+            phase = effectivePhase,
             estimatedCEFRLevel = session.estimatedCEFRLevel,
             currentTopic = session.currentTopic
         )
@@ -227,10 +237,13 @@ class ChatService(
         val tutorResponse = tutorService.respond(tutor, conversationState, session.userId, messageHistory, onReplyChunk)
             ?: return null
 
-        // Update session state
-        // Don't overwrite phase if in Auto mode - keep it as Auto
-        if (session.conversationPhase != ConversationPhase.Auto) {
-            session.conversationPhase = tutorResponse.conversationResponse.conversationState.phase
+        // Update effective phase from LLM response only if in Auto mode
+        // User-controlled phase (conversationPhase) never changes automatically
+        if (session.conversationPhase == ConversationPhase.Auto) {
+            session.effectivePhase = tutorResponse.conversationResponse.conversationState.phase
+        } else {
+            // When user has explicit phase preference, effective phase matches it
+            session.effectivePhase = session.conversationPhase
         }
         session.estimatedCEFRLevel = tutorResponse.conversationResponse.conversationState.estimatedCEFRLevel
 
@@ -305,6 +318,7 @@ class ChatService(
             sourceLanguageCode = sourceLanguageCode,
             targetLanguageCode = tutor.targetLanguageCode,
             conversationPhase = course.defaultPhase,
+            effectivePhase = if (course.defaultPhase == ConversationPhase.Auto) ConversationPhase.Correction else course.defaultPhase,
             estimatedCEFRLevel = course.startingLevel,
             courseTemplateId = courseTemplateId,
             tutorProfileId = tutorProfileId,
@@ -384,6 +398,15 @@ class ChatService(
     }
 
     private fun toSessionResponse(entity: ChatSessionEntity): SessionResponse {
+        // Handle migration case: if effectivePhase is null, derive it from conversationPhase
+        val effectivePhase = entity.effectivePhase ?: run {
+            if (entity.conversationPhase == ConversationPhase.Auto) {
+                ConversationPhase.Correction
+            } else {
+                entity.conversationPhase
+            }
+        }
+
         return SessionResponse(
             id = entity.id,
             userId = entity.userId,
@@ -393,6 +416,7 @@ class ChatService(
             sourceLanguageCode = entity.sourceLanguageCode,
             targetLanguageCode = entity.targetLanguageCode,
             conversationPhase = entity.conversationPhase,
+            effectivePhase = effectivePhase,
             estimatedCEFRLevel = entity.estimatedCEFRLevel,
             currentTopic = entity.currentTopic,
             courseTemplateId = entity.courseTemplateId,

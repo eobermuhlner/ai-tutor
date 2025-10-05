@@ -84,6 +84,8 @@ class ChatControllerTest {
             sourceLanguageCode = request.sourceLanguageCode,
             targetLanguageCode = request.targetLanguageCode,
             conversationPhase = ConversationPhase.Free,
+
+            effectivePhase = ConversationPhase.Free,
             estimatedCEFRLevel = CEFRLevel.A1,
             createdAt = Instant.now(),
             updatedAt = Instant.now()
@@ -127,6 +129,8 @@ class ChatControllerTest {
                 sourceLanguageCode = "en",
                 targetLanguageCode = "es",
                 conversationPhase = ConversationPhase.Free,
+
+                effectivePhase = ConversationPhase.Free,
                 estimatedCEFRLevel = CEFRLevel.A1,
                 createdAt = Instant.now(),
                 updatedAt = Instant.now()
@@ -158,6 +162,8 @@ class ChatControllerTest {
                 sourceLanguageCode = "en",
                 targetLanguageCode = "es",
                 conversationPhase = ConversationPhase.Free,
+
+                effectivePhase = ConversationPhase.Free,
                 estimatedCEFRLevel = CEFRLevel.A1,
                 createdAt = Instant.now(),
                 updatedAt = Instant.now()
@@ -252,6 +258,8 @@ class ChatControllerTest {
             sourceLanguageCode = "en",
             targetLanguageCode = "es",
             conversationPhase = ConversationPhase.Correction,
+
+            effectivePhase = ConversationPhase.Correction,
             estimatedCEFRLevel = CEFRLevel.A1,
             currentTopic = "cooking",
             createdAt = Instant.now(),
@@ -285,6 +293,8 @@ class ChatControllerTest {
             sourceLanguageCode = "en",
             targetLanguageCode = "es",
             conversationPhase = ConversationPhase.Correction,
+
+            effectivePhase = ConversationPhase.Correction,
             estimatedCEFRLevel = CEFRLevel.A1,
             currentTopic = null,
             createdAt = Instant.now(),
@@ -368,6 +378,8 @@ class ChatControllerTest {
             sourceLanguageCode = "en",
             targetLanguageCode = "es",
             conversationPhase = ConversationPhase.Drill,
+
+            effectivePhase = ConversationPhase.Drill,
             estimatedCEFRLevel = CEFRLevel.A1,
             createdAt = Instant.now(),
             updatedAt = Instant.now()
@@ -421,6 +433,8 @@ class ChatControllerTest {
                 sourceLanguageCode = "en",
                 targetLanguageCode = "es",
                 conversationPhase = ConversationPhase.Free,
+
+                effectivePhase = ConversationPhase.Free,
                 estimatedCEFRLevel = CEFRLevel.A1,
                 createdAt = Instant.now(),
                 updatedAt = Instant.now()
@@ -452,6 +466,8 @@ class ChatControllerTest {
             sourceLanguageCode = "en",
             targetLanguageCode = "es",
             conversationPhase = ConversationPhase.Free,
+
+            effectivePhase = ConversationPhase.Free,
             estimatedCEFRLevel = CEFRLevel.A1,
             createdAt = Instant.now(),
             updatedAt = Instant.now()
@@ -516,6 +532,8 @@ class ChatControllerTest {
             sourceLanguageCode = "en",
             targetLanguageCode = "es",
             conversationPhase = ConversationPhase.Correction,
+
+            effectivePhase = ConversationPhase.Correction,
             estimatedCEFRLevel = CEFRLevel.B1,
             courseTemplateId = courseTemplateId,
             tutorProfileId = tutorProfileId,
@@ -557,6 +575,8 @@ class ChatControllerTest {
             sourceLanguageCode = "en",
             targetLanguageCode = "es",
             conversationPhase = ConversationPhase.Correction,
+
+            effectivePhase = ConversationPhase.Correction,
             estimatedCEFRLevel = CEFRLevel.B1,
             createdAt = Instant.now(),
             updatedAt = Instant.now()
@@ -590,6 +610,8 @@ class ChatControllerTest {
             sourceLanguageCode = "en",
             targetLanguageCode = "es",
             conversationPhase = ConversationPhase.Drill,
+
+            effectivePhase = ConversationPhase.Drill,
             estimatedCEFRLevel = CEFRLevel.B1,
             createdAt = Instant.now(),
             updatedAt = Instant.now()
@@ -620,6 +642,8 @@ class ChatControllerTest {
             sourceLanguageCode = "en",
             targetLanguageCode = "es",
             conversationPhase = ConversationPhase.Correction,
+
+            effectivePhase = ConversationPhase.Correction,
             estimatedCEFRLevel = CEFRLevel.B1,
             currentTopic = "food",
             createdAt = Instant.now(),
@@ -677,6 +701,8 @@ class ChatControllerTest {
                 sourceLanguageCode = "en",
                 targetLanguageCode = "es",
                 conversationPhase = ConversationPhase.Correction,
+
+                effectivePhase = ConversationPhase.Correction,
                 estimatedCEFRLevel = CEFRLevel.B1,
                 createdAt = Instant.now(),
                 updatedAt = Instant.now()
@@ -736,6 +762,8 @@ class ChatControllerTest {
             sourceLanguageCode = "en",
             targetLanguageCode = "es",
             conversationPhase = ConversationPhase.Correction,
+
+            effectivePhase = ConversationPhase.Correction,
             estimatedCEFRLevel = CEFRLevel.B1,
             createdAt = Instant.now(),
             updatedAt = Instant.now()
@@ -749,6 +777,8 @@ class ChatControllerTest {
             sourceLanguageCode = "en",
             targetLanguageCode = "es",
             conversationPhase = ConversationPhase.Free,
+
+            effectivePhase = ConversationPhase.Free,
             estimatedCEFRLevel = CEFRLevel.B2,
             createdAt = Instant.now(),
             updatedAt = Instant.now()

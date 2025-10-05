@@ -219,15 +219,16 @@ class ChatServiceTest {
     }
 
     @Test
-    fun `should update session phase when not in Auto mode`() {
+    fun `should not update user-controlled phase when not in Auto mode`() {
         val session = TestDataFactory.createSessionEntity()
         session.conversationPhase = ConversationPhase.Correction
+        session.effectivePhase = ConversationPhase.Correction
 
         val tutorResponse = TutorService.TutorResponse(
             reply = "Reply",
             conversationResponse = ConversationResponse(
                 conversationState = ConversationState(
-                    phase = ConversationPhase.Drill,
+                    phase = ConversationPhase.Drill,  // LLM suggests Drill
                     estimatedCEFRLevel = CEFRLevel.A2,
                     currentTopic = null
                 ),
@@ -248,7 +249,11 @@ class ChatServiceTest {
 
         chatService.sendMessage(TestDataFactory.TEST_SESSION_ID, "Test", TestDataFactory.TEST_USER_ID)
 
-        verify { chatSessionRepository.save(match { it.conversationPhase == ConversationPhase.Drill }) }
+        // User-controlled phase should NOT change from LLM suggestion
+        verify { chatSessionRepository.save(match {
+            it.conversationPhase == ConversationPhase.Correction &&
+            it.effectivePhase == ConversationPhase.Correction
+        }) }
     }
 
     @Test
