@@ -8,14 +8,17 @@ import org.springframework.ai.chat.messages.UserMessage
 import org.springframework.ai.chat.prompt.PromptTemplate
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
+import java.util.UUID
 
 @Service
 class MessageCompactionService(
     @Value("\${ai-tutor.context.max-tokens}") private val maxTokens: Int,
     @Value("\${ai-tutor.context.recent-messages}") private val recentMessageCount: Int,
     @Value("\${ai-tutor.context.summarization.enabled}") private val summarizationEnabled: Boolean,
+    @Value("\${ai-tutor.context.summarization.progressive.enabled}") private val progressiveEnabled: Boolean,
     @Value("\${ai-tutor.prompts.summary-prefix}") private val summaryPrefixPrompt: String,
-    private val summarizationService: ConversationSummarizationService
+    private val summarizationService: ConversationSummarizationService,
+    private val progressiveSummarizationService: ProgressiveSummarizationService
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -23,18 +26,43 @@ class MessageCompactionService(
      * Compacts message history to fit within token limits.
      *
      * Strategy:
-     * - If summarization enabled: System + LLM Summary of old messages + Recent N messages
+     * - If progressive summarization enabled: Trigger async summarization check, use existing summaries + recent messages
+     * - Else if summarization enabled: System + LLM Summary of old messages + Recent N messages
      * - Otherwise: System + Recent N messages (sliding window)
      *
      * @param systemMessages System prompts that must always be included
      * @param conversationMessages Historical user/assistant messages
+     * @param sessionId Session ID for progressive summarization (null to disable progressive)
      * @return Compacted list of messages that fits within token limits
      */
     fun compactMessages(
         systemMessages: List<Message>,
-        conversationMessages: List<Message>
+        conversationMessages: List<Message>,
+        sessionId: UUID? = null
     ): List<Message> {
-        logger.debug("Compacting messages: ${conversationMessages.size} conversation messages, max tokens: $maxTokens")
+        logger.debug("Compacting messages for session $sessionId: ${conversationMessages.size} conversation messages, max tokens: $maxTokens")
+
+        // Progressive summarization path (preferred)
+        if (summarizationEnabled && progressiveEnabled && sessionId != null) {
+            logger.debug("Using progressive summarization for session $sessionId")
+
+            // Trigger async summarization check (non-blocking)
+            progressiveSummarizationService.checkAndSummarize(sessionId)
+
+            // Get compacted history using existing summaries (may be slightly stale)
+            val compactedHistory = progressiveSummarizationService.getCompactedHistory(
+                sessionId,
+                recentMessageCount
+            )
+
+            // Fit within token budget
+            val systemTokens = estimateTokens(systemMessages)
+            val budget = maxTokens - systemTokens
+            val trimmed = trimToTokenBudget(compactedHistory, budget)
+
+            logger.info("Progressive compaction complete: ${trimmed.size} messages within budget")
+            return systemMessages + trimmed
+        }
 
         // Estimate tokens for system messages (rough: 4 chars ≈ 1 token)
         val systemTokens = estimateTokens(systemMessages)

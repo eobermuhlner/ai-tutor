@@ -234,7 +234,7 @@ class ChatService(
             currentTopic = session.currentTopic
         )
 
-        val tutorResponse = tutorService.respond(tutor, conversationState, session.userId, messageHistory, onReplyChunk)
+        val tutorResponse = tutorService.respond(tutor, conversationState, session.userId, messageHistory, session.id, onReplyChunk)
             ?: return null
 
         // Update effective phase from LLM response only if in Auto mode

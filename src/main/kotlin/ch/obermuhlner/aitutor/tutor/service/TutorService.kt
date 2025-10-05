@@ -41,9 +41,10 @@ class TutorService(
         conversationState: ConversationState,
         userId: UUID,
         messages: List<Message>,
+        sessionId: UUID? = null,
         onReplyChunk: (String) -> Unit = { print(it) }
     ): TutorResponse? {
-        logger.debug("Tutor respond: user=$userId, phase=${conversationState.phase}, topic=${conversationState.currentTopic}")
+        logger.debug("Tutor respond: user=$userId, session=$sessionId, phase=${conversationState.phase}, topic=${conversationState.currentTopic}")
 
         val sourceLanguageCode = tutor.sourceLanguageCode
         val targetLanguageCode = tutor.targetLanguageCode
@@ -103,7 +104,7 @@ class TutorService(
             SystemMessage(conversationState.toString()),
         )
 
-        val compactedMessages = messageCompactionService.compactMessages(systemMessages, messages)
+        val compactedMessages = messageCompactionService.compactMessages(systemMessages, messages, sessionId)
 
         val response = aiChatService.call(AiChatRequest(compactedMessages), onReplyChunk)
 
