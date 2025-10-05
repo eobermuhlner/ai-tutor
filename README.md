@@ -145,6 +145,15 @@ curl http://localhost:8080/api/v1/chat/sessions/{sessionId} \
 | GET | `/api/v1/vocabulary?userId={uuid}&lang={code}` | Get user's vocabulary (optional language filter) |
 | GET | `/api/v1/vocabulary/{itemId}` | Get vocabulary item with all contexts |
 
+#### Summarization Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/v1/summaries/sessions/{id}/info` | Get summary statistics for session (owner or admin) |
+| GET | `/api/v1/summaries/sessions/{id}/details` | Get detailed summaries with text (admin only) |
+| POST | `/api/v1/summaries/sessions/{id}/trigger` | Manually trigger summarization (admin only) |
+| GET | `/api/v1/summaries/stats` | Get global summarization statistics (admin only) |
+
 ## Testing with IntelliJ HTTP Client
 
 The project includes HTTP request examples in `src/test/http/http-client-requests.http`.

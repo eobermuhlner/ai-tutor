@@ -13,21 +13,26 @@ import org.springframework.ai.chat.messages.UserMessage
 class MessageCompactionServiceTest {
 
     private val mockSummarizationService = mockk<ConversationSummarizationService>()
+    private val mockProgressiveSummarizationService = mockk<ProgressiveSummarizationService>(relaxed = true)
 
     private val serviceWithSummarization = MessageCompactionService(
         maxTokens = 100000,
         recentMessageCount = 15,
         summarizationEnabled = true,
+        progressiveEnabled = false,
         summaryPrefixPrompt = "Previous conversation summary: {summary}",
-        summarizationService = mockSummarizationService
+        summarizationService = mockSummarizationService,
+        progressiveSummarizationService = mockProgressiveSummarizationService
     )
 
     private val serviceWithoutSummarization = MessageCompactionService(
         maxTokens = 100000,
         recentMessageCount = 15,
         summarizationEnabled = false,
+        progressiveEnabled = false,
         summaryPrefixPrompt = "Previous conversation summary: {summary}",
-        summarizationService = mockSummarizationService
+        summarizationService = mockSummarizationService,
+        progressiveSummarizationService = mockProgressiveSummarizationService
     )
 
     @Test
@@ -125,8 +130,10 @@ class MessageCompactionServiceTest {
             maxTokens = 1000, // Small limit
             recentMessageCount = 5,
             summarizationEnabled = false,
+            progressiveEnabled = false,
             summaryPrefixPrompt = "Previous conversation summary: {summary}",
-            summarizationService = mockSummarizationService
+            summarizationService = mockSummarizationService,
+            progressiveSummarizationService = mockProgressiveSummarizationService
         )
 
         val systemMessages = listOf(
@@ -156,8 +163,10 @@ class MessageCompactionServiceTest {
             maxTokens = 100000,
             recentMessageCount = 3, // Very small window
             summarizationEnabled = false,
+            progressiveEnabled = false,
             summaryPrefixPrompt = "Previous conversation summary: {summary}",
-            summarizationService = mockSummarizationService
+            summarizationService = mockSummarizationService,
+            progressiveSummarizationService = mockProgressiveSummarizationService
         )
 
         val systemMessages = listOf(
@@ -184,8 +193,10 @@ class MessageCompactionServiceTest {
             maxTokens = 10, // Very small limit (about 40 chars = 10 tokens)
             recentMessageCount = 5,
             summarizationEnabled = false,
+            progressiveEnabled = false,
             summaryPrefixPrompt = "Previous conversation summary: {summary}",
-            summarizationService = mockSummarizationService
+            summarizationService = mockSummarizationService,
+            progressiveSummarizationService = mockProgressiveSummarizationService
         )
 
         // Create very large system messages that exceed the token budget
@@ -336,8 +347,10 @@ class MessageCompactionServiceTest {
             maxTokens = 100, // Very small limit
             recentMessageCount = 10,
             summarizationEnabled = true,
+            progressiveEnabled = false,
             summaryPrefixPrompt = "Previous conversation summary: {summary}",
-            summarizationService = mockSummarizationService
+            summarizationService = mockSummarizationService,
+            progressiveSummarizationService = mockProgressiveSummarizationService
         )
 
         val systemMessages = listOf(SystemMessage("System"))

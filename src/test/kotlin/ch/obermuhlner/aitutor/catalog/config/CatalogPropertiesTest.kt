@@ -44,10 +44,11 @@ class CatalogPropertiesTest {
         // Verify Spanish tutors
         val spanish = languages.find { it.code == "es-ES" }
         assertNotNull(spanish)
-        assertEquals(3, spanish?.tutorVariants?.size, "Should have 3 Spanish tutor variants")
+        assertEquals(4, spanish?.tutorVariants?.size, "Should have 4 Spanish tutor variants")
         assertTrue(spanish?.tutorVariants?.any { it.name == "María" } ?: false)
         assertTrue(spanish?.tutorVariants?.any { it.name == "Professor Rodríguez" } ?: false)
         assertTrue(spanish?.tutorVariants?.any { it.name == "Carlos" } ?: false)
+        assertTrue(spanish?.tutorVariants?.any { it.name == "Laura" } ?: false)
 
         // Verify French tutors
         val french = languages.find { it.code == "fr-FR" }

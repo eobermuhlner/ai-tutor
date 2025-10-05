@@ -48,6 +48,11 @@ Language learning assistant with conversational AI tutoring and vocabulary track
 - **VocabularyController** - Vocabulary REST endpoints (`/api/v1/vocabulary/*`)
   - GET `/?userId={id}&lang={lang}` - Get user's vocabulary (optionally filtered by language)
   - GET `/{itemId}` - Get vocabulary item with all contexts
+- **SummaryController** - Summarization monitoring REST endpoints (`/api/v1/summaries/*`)
+  - GET `/sessions/{id}/info` - Get summary statistics for session (owner or admin)
+  - GET `/sessions/{id}/details` - Get detailed summaries with text (admin only)
+  - POST `/sessions/{id}/trigger` - Manually trigger summarization (admin only)
+  - GET `/stats` - Get global summarization statistics (admin only)
 - **ChatService** - Session/message orchestration, integrates TutorService
 - **CatalogService** - Browse languages, courses, and tutors with localization
 - **UserLanguageService** - Manage user's language proficiency profiles
@@ -63,6 +68,9 @@ Language learning assistant with conversational AI tutoring and vocabulary track
 - `TutorService` - Main tutoring logic with adaptive conversation phases (Free/Correction/Drill/Auto)
 - `PhaseDecisionService` - Automatic phase selection based on learner error patterns
 - `TopicDecisionService` - Conversation topic tracking with hysteresis (prevents topic thrashing)
+- `ProgressiveSummarizationService` - Hierarchical message summarization with async execution
+- `MessageCompactionService` - Context compaction using progressive summaries
+- `SummaryQueryService` - Query and monitor summarization statistics
 - `AiChatService` - AI chat integration with streaming responses
 - `VocabularyService` - Vocabulary tracking with context and exposure counting
 - `AuthService` / `AuthorizationService` / `JwtTokenService` - JWT-based authentication
@@ -91,6 +99,12 @@ Language learning assistant with conversational AI tutoring and vocabulary track
 - **UI Integration**: Corrections displayed as hover tooltips with severity indicators
 - **Session Persistence**: Chat sessions and messages stored in H2 database
 - **Authentication**: JWT-based with access/refresh tokens, Spring Security integration
+- **Progressive Summarization**: Hierarchical message summarization for long conversations
+  - Level-1 summaries: Chunks of N messages (configurable, default 10)
+  - Level-2+ summaries: Recursive summarization of lower-level summaries
+  - Async execution: Summarization runs in background, doesn't block requests
+  - Token optimization: Aggressive compaction with preserved context quality
+  - Monitoring: REST endpoints for tracking summary statistics and compression ratios
 
 ## Commands
 - `./gradlew runServer` - Run REST API server (requires OPENAI_API_KEY)
@@ -118,14 +132,16 @@ ch.obermuhlner.aitutor
 │   │                       # UserLanguageProficiencyEntity
 │   └── dto/                # UserLanguageProficiencyResponse, AddLanguageRequest, UpdateLanguageRequest
 ├── chat/                   # Chat REST API layer
-│   ├── controller/         # ChatController (/api/v1/chat)
-│   ├── service/            # ChatService
-│   ├── repository/         # ChatSessionRepository, ChatMessageRepository
-│   ├── domain/             # ChatSessionEntity (extended with course fields), ChatMessageEntity, MessageRole
+│   ├── controller/         # ChatController (/api/v1/chat), SummaryController (/api/v1/summaries)
+│   ├── service/            # ChatService, SummaryQueryService
+│   ├── repository/         # ChatSessionRepository, ChatMessageRepository, MessageSummaryRepository
+│   ├── domain/             # ChatSessionEntity (extended with course fields), ChatMessageEntity, MessageRole,
+│   │                       # MessageSummaryEntity, SummarySourceType
 │   └── dto/                # CreateSessionRequest, SessionResponse, SendMessageRequest,
 │                           # MessageResponse, SessionWithMessagesResponse, UpdatePhaseRequest,
 │                           # UpdateTopicRequest, TopicHistoryResponse, CreateSessionFromCourseRequest,
-│                           # SessionWithProgressResponse, SessionProgressResponse
+│                           # SessionWithProgressResponse, SessionProgressResponse,
+│                           # SessionSummaryInfoResponse, SummaryLevelInfo, SummaryDetailResponse
 ├── catalog/                # Catalog-based tutor/course management
 │   ├── controller/         # CatalogController (/api/v1/catalog)
 │   ├── service/            # CatalogService, SeedDataService
@@ -141,7 +157,9 @@ ch.obermuhlner.aitutor
 │   └── dto/                # NewVocabularyDTO, VocabularyItemResponse,
 │                           # VocabularyContextResponse, VocabularyItemWithContextsResponse
 ├── tutor/                  # Tutoring logic and domain
-│   ├── service/            # TutorService, PhaseDecisionService, TopicDecisionService
+│   ├── service/            # TutorService, PhaseDecisionService, TopicDecisionService,
+│   │                       # ProgressiveSummarizationService, MessageCompactionService,
+│   │                       # ConversationSummarizationService
 │   └── domain/             # Tutor, ConversationState, ConversationResponse, ConversationPhase
 ├── conversation/           # AI chat integration
 │   ├── service/            # AiChatService (interface), SingleJsonEntityAiChatService,
@@ -185,18 +203,38 @@ If tests fail, investigate and fix the root cause. Common issues:
 - Missing or incorrect test configuration
 
 ### Git Commit Guidelines
-**Commit message format:**
+
+⚠️ **CRITICAL: FOLLOW THESE RULES EXACTLY - NO EXCEPTIONS** ⚠️
+
+**Commit message format (MANDATORY):**
 - **First line**: Concise summary (imperative mood, no period)
 - **Body** (optional): Brief explanation of what and why (one sentence per line)
-- **No attribution**: Don't include "Generated with Claude Code" or similar references
+- **❌ NEVER include attribution**: ABSOLUTELY NO "Generated with Claude Code", "Co-Authored-By: Claude", or ANY similar AI attribution
 
-**Example:**
+**✅ CORRECT Example:**
 ```
 Add effectivePhase to separate user preference from active phase
 
 User-controlled conversationPhase (Auto/Free/Correction/Drill) now separate from effectivePhase (actual active phase).
 LLM suggestions only update effectivePhase when in Auto mode, never override manual user choices.
 ```
+
+**❌ WRONG Example (DO NOT DO THIS):**
+```
+Add effectivePhase to separate user preference from active phase
+
+User-controlled conversationPhase now separate from effectivePhase.
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+```
+
+**Before every commit, verify:**
+1. ✅ No "Generated with" or "Co-Authored-By" lines
+2. ✅ Imperative mood ("Add" not "Added", "Fix" not "Fixed")
+3. ✅ No period at end of first line
+4. ✅ Blank line between subject and body (if body exists)
 
 ### Preserving Existing Functionality
 **CRITICAL: Never remove or break existing features without explicit user approval.**

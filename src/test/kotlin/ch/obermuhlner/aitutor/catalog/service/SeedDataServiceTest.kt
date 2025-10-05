@@ -53,13 +53,14 @@ class SeedDataServiceTest {
         val allTutors = tutorProfileRepository.findAll()
 
         // Then - should have tutors for Spanish, French, German, and Japanese
-        assertTrue(allTutors.size >= 12, "Should have at least 12 tutors (3 Spanish, 2 French, 3 German, 4 Japanese)")
+        assertTrue(allTutors.size >= 12, "Should have at least 12 tutors (4 Spanish, 2 French, 2 German, 4 Japanese)")
 
         val spanishTutors = tutorProfileRepository.findByTargetLanguageCodeAndIsActiveTrueOrderByDisplayOrder("es-ES")
-        assertEquals(3, spanishTutors.size, "Should have 3 Spanish tutors")
+        assertEquals(4, spanishTutors.size, "Should have 4 Spanish tutors")
         assertTrue(spanishTutors.any { it.name == "María" })
         assertTrue(spanishTutors.any { it.name == "Professor Rodríguez" })
         assertTrue(spanishTutors.any { it.name == "Carlos" })
+        assertTrue(spanishTutors.any { it.name == "Laura" })
 
         val frenchTutors = tutorProfileRepository.findByTargetLanguageCodeAndIsActiveTrueOrderByDisplayOrder("fr-FR")
         assertEquals(2, frenchTutors.size, "Should have 2 French tutors")
@@ -140,7 +141,7 @@ class SeedDataServiceTest {
         conversationalSpanish?.let {
             assertNotNull(it.suggestedTutorIdsJson)
             val tutorIds = objectMapper.readValue(it.suggestedTutorIdsJson, List::class.java)
-            assertEquals(3, tutorIds.size, "Conversational Spanish should suggest all 3 Spanish tutors")
+            assertEquals(4, tutorIds.size, "Conversational Spanish should suggest all 4 Spanish tutors")
         }
     }
 
