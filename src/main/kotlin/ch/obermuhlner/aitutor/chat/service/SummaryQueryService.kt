@@ -51,9 +51,20 @@ class SummaryQueryService(
         // Calculate token savings
         val lastSummarizedSequence = allSummaries.maxOfOrNull { it.endSequence }
         val originalTokens = estimateTokens(allMessages.map { it.content })
-        val compactedTokens = if (allSummaries.isNotEmpty()) {
-            val highestLevelSummary = allSummaries.maxByOrNull { it.summaryLevel }
-            highestLevelSummary?.tokenCount ?: originalTokens
+
+        // Compacted tokens = tokens from ONLY the highest level summaries that would be used in practice
+        // In a hierarchical system, we use summaries from a single level, not all levels summed together
+        val compactedTokens = if (allSummaries.isNotEmpty() && lastSummarizedSequence != null) {
+            // Use only the highest level summaries (most compressed)
+            val highestLevel = allSummaries.maxOf { it.summaryLevel }
+            val highestLevelSummaries = allSummaries.filter { it.summaryLevel == highestLevel }
+            val summaryTokens = highestLevelSummaries.sumOf { it.tokenCount }
+
+            // Add tokens from messages after the last summarized sequence
+            val unsummarizedMessages = allMessages.filter { it.sequenceNumber > lastSummarizedSequence }
+            val unsummarizedTokens = estimateTokens(unsummarizedMessages.map { it.content })
+
+            summaryTokens + unsummarizedTokens
         } else {
             originalTokens
         }

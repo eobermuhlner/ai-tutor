@@ -39,14 +39,14 @@ class SummaryController(
      * Get detailed view of all summaries for a session (hierarchical tree).
      * Includes summary text, sequence ranges, tokens, etc.
      *
-     * Accessible by: admin only (contains potentially sensitive summary content)
+     * Accessible by: session owner OR admin
      */
     @GetMapping("/sessions/{sessionId}/details")
     fun getSessionSummaryDetails(
         @PathVariable sessionId: UUID,
         authentication: Authentication
     ): ResponseEntity<List<SummaryDetailResponse>> {
-        authorizationService.requireAdmin(authentication)
+        authorizationService.requireSessionAccessOrAdmin(sessionId, authentication)
         val details = summaryQueryService.getSessionSummaryDetails(sessionId)
         return ResponseEntity.ok(details)
     }

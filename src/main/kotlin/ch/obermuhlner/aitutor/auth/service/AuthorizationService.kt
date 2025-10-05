@@ -115,10 +115,13 @@ class AuthorizationService(
         val session = sessionRepository.findById(sessionId)
             .orElseThrow { IllegalArgumentException("Session not found") }
 
-        val userId = (authentication.principal as? UserEntity)?.id
-            ?: throw IllegalStateException("Invalid authentication principal")
+        val userDetails = authentication.principal as? UserDetails
+            ?: throw IllegalStateException("Authentication principal is not UserDetails")
 
-        val isOwner = session.userId == userId
+        val user = userService.findByUsername(userDetails.username)
+            ?: throw IllegalStateException("Authenticated user not found: ${userDetails.username}")
+
+        val isOwner = session.userId == user.id
         val isAdmin = authentication.authorities.any { it.authority == "ROLE_ADMIN" }
 
         if (!isOwner && !isAdmin) {
