@@ -21,8 +21,10 @@ class ConversationSummarizationServiceTest {
     private val service = ConversationSummarizationService(
         chatModel = mockChatModel,
         batchSizeTokens = 100, // Small batch size for testing
-        summaryTokenBudget = 50,
-        summarizationPrompt = "Summarize this conversation"
+        compressionRatio = 0.4,
+        minSummaryTokens = 100,
+        maxSummaryTokens = 2000,
+        summarizationPrompt = "Summarize this conversation. Target length: approximately {targetWords} words."
     )
 
     @Test

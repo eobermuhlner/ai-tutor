@@ -12,6 +12,9 @@ import org.springframework.ai.chat.messages.AssistantMessage
 import org.springframework.ai.chat.messages.Message
 import org.springframework.ai.chat.messages.SystemMessage
 import org.springframework.ai.chat.messages.UserMessage
+import org.springframework.ai.chat.model.ChatModel
+import org.springframework.ai.chat.prompt.Prompt
+import org.springframework.ai.chat.prompt.PromptTemplate
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
@@ -20,11 +23,15 @@ import java.util.UUID
 
 @Service
 class ProgressiveSummarizationService(
-    private val summarizationService: ConversationSummarizationService,
+    private val chatModel: ChatModel,
     private val summaryRepository: MessageSummaryRepository,
     private val messageRepository: ChatMessageRepository,
     @Value("\${ai-tutor.context.summarization.progressive.chunk-size}") private val chunkSize: Int,
-    @Value("\${ai-tutor.context.summarization.progressive.chunk-token-threshold}") private val chunkTokenThreshold: Int
+    @Value("\${ai-tutor.context.summarization.progressive.chunk-token-threshold}") private val chunkTokenThreshold: Int,
+    @Value("\${ai-tutor.context.summarization.progressive.prompt}") private val progressivePrompt: String,
+    @Value("\${ai-tutor.context.summarization.compression-ratio}") private val compressionRatio: Double,
+    @Value("\${ai-tutor.context.summarization.min-summary-tokens}") private val minSummaryTokens: Int,
+    @Value("\${ai-tutor.context.summarization.max-summary-tokens}") private val maxSummaryTokens: Int
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
     private val objectMapper = jacksonObjectMapper()
@@ -129,17 +136,38 @@ class ProgressiveSummarizationService(
         sessionId: UUID,
         messages: List<ChatMessageEntity>
     ): MessageSummaryEntity {
-        // Convert to Spring AI Message objects
-        val messageObjects = messages.map { entity ->
-            when (entity.role) {
-                MessageRole.USER -> UserMessage(entity.content)
-                MessageRole.ASSISTANT -> AssistantMessage(entity.content)
+        // Convert to conversation text
+        val conversationText = messages.joinToString("\n") { entity ->
+            val role = when (entity.role) {
+                MessageRole.USER -> "Learner"
+                MessageRole.ASSISTANT -> "Tutor"
             }
+            "$role: ${entity.content}"
         }
 
+        // Calculate dynamic token budget
+        val inputTokens = estimateTokens(messages.map { it.content })
+        val targetSummaryTokens = (inputTokens * compressionRatio).toInt()
+        val budgetTokens = targetSummaryTokens.coerceIn(minSummaryTokens, maxSummaryTokens)
+        val targetWords = (budgetTokens * 0.75).toInt()
+
+        logger.debug("Level-1 summarization: input $inputTokens tokens, target $budgetTokens tokens ($targetWords words)")
+
+        // Build prompt with dynamic target
+        val promptText = PromptTemplate(progressivePrompt).render(mapOf(
+            "targetWords" to targetWords.toString()
+        ))
+        val promptMessages = listOf(
+            SystemMessage(promptText),
+            UserMessage("Conversation to summarize:\n\n$conversationText")
+        )
+
         // Call LLM to summarize
-        val summaryText = summarizationService.summarizeMessages(messageObjects)
+        val response = chatModel.call(Prompt(promptMessages))
+        val summaryText = response.result.output.text ?: ""
         val tokenCount = estimateTokens(listOf(summaryText))
+
+        logger.debug("Level-1 summary generated: ${summaryText.length} chars (~$tokenCount tokens)")
 
         // Store source message IDs
         val sourceIds = messages.map { it.id.toString() }
@@ -165,14 +193,34 @@ class ProgressiveSummarizationService(
         level: Int,
         summaries: List<MessageSummaryEntity>
     ): MessageSummaryEntity {
-        // Convert summaries to messages for LLM
-        val summaryMessages = summaries.mapIndexed { index, summary ->
-            SystemMessage("Summary ${index + 1}: ${summary.summaryText}")
-        }
+        // Convert summaries to text
+        val summariesText = summaries.mapIndexed { index, summary ->
+            "Summary ${index + 1}: ${summary.summaryText}"
+        }.joinToString("\n\n")
+
+        // Calculate dynamic token budget
+        val inputTokens = summaries.sumOf { it.tokenCount }
+        val targetSummaryTokens = (inputTokens * compressionRatio).toInt()
+        val budgetTokens = targetSummaryTokens.coerceIn(minSummaryTokens, maxSummaryTokens)
+        val targetWords = (budgetTokens * 0.75).toInt()
+
+        logger.debug("Level-$level summarization: input $inputTokens tokens, target $budgetTokens tokens ($targetWords words)")
+
+        // Build prompt with dynamic target
+        val promptText = PromptTemplate(progressivePrompt).render(mapOf(
+            "targetWords" to targetWords.toString()
+        ))
+        val promptMessages = listOf(
+            SystemMessage(promptText),
+            UserMessage("Summaries to combine:\n\n$summariesText")
+        )
 
         // Call LLM to summarize summaries
-        val summaryText = summarizationService.summarizeMessages(summaryMessages)
+        val response = chatModel.call(Prompt(promptMessages))
+        val summaryText = response.result.output.text ?: ""
         val tokenCount = estimateTokens(listOf(summaryText))
+
+        logger.debug("Level-$level summary generated: ${summaryText.length} chars (~$tokenCount tokens)")
 
         // Store source summary IDs
         val sourceIds = summaries.map { it.id.toString() }

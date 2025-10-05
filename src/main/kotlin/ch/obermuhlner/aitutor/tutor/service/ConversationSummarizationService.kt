@@ -7,6 +7,7 @@ import org.springframework.ai.chat.messages.SystemMessage
 import org.springframework.ai.chat.messages.UserMessage
 import org.springframework.ai.chat.model.ChatModel
 import org.springframework.ai.chat.prompt.Prompt
+import org.springframework.ai.chat.prompt.PromptTemplate
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 
@@ -14,7 +15,9 @@ import org.springframework.stereotype.Service
 class ConversationSummarizationService(
     private val chatModel: ChatModel,
     @Value("\${ai-tutor.context.summarization.batch-size-tokens}") private val batchSizeTokens: Int,
-    @Value("\${ai-tutor.context.summarization.summary-token-budget}") private val summaryTokenBudget: Int,
+    @Value("\${ai-tutor.context.summarization.compression-ratio}") private val compressionRatio: Double,
+    @Value("\${ai-tutor.context.summarization.min-summary-tokens}") private val minSummaryTokens: Int,
+    @Value("\${ai-tutor.context.summarization.max-summary-tokens}") private val maxSummaryTokens: Int,
     @Value("\${ai-tutor.context.summarization.prompt}") private val summarizationPrompt: String
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -75,9 +78,20 @@ class ConversationSummarizationService(
             "$role: $text"
         }
 
-        // Build prompt for summarization
+        // Calculate dynamic token budget based on input size
+        val inputTokens = estimateTokens(messages)
+        val targetSummaryTokens = (inputTokens * compressionRatio).toInt()
+        val budgetTokens = targetSummaryTokens.coerceIn(minSummaryTokens, maxSummaryTokens)
+        val targetWords = (budgetTokens * 0.75).toInt() // ~0.75 words per token
+
+        logger.debug("Input: $inputTokens tokens, target summary: $budgetTokens tokens ($targetWords words)")
+
+        // Build prompt with dynamic target using PromptTemplate
+        val promptText = PromptTemplate(summarizationPrompt).render(mapOf(
+            "targetWords" to targetWords.toString()
+        ))
         val promptMessages = listOf(
-            SystemMessage(summarizationPrompt),
+            SystemMessage(promptText),
             UserMessage("Conversation to summarize:\n\n$conversationText")
         )
 
@@ -85,7 +99,7 @@ class ConversationSummarizationService(
         logger.debug("Calling LLM for summary generation")
         val response = chatModel.call(Prompt(promptMessages))
         val summary = response.result.output.text ?: ""
-        logger.debug("Summary generated: ${summary.length} chars")
+        logger.debug("Summary generated: ${summary.length} chars (~${estimateTokens(listOf(SystemMessage(summary)))} tokens)")
         logger.trace("Summary: {}", summary)
         return summary
     }
