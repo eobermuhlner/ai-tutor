@@ -22,6 +22,7 @@ class ConversationSummarizationServiceTest {
         chatModel = mockChatModel,
         batchSizeTokens = 100, // Small batch size for testing
         compressionRatio = 0.4,
+        tokensPerWord = 0.75,
         minSummaryTokens = 100,
         maxSummaryTokens = 2000,
         summarizationPrompt = "Summarize this conversation. Target length: approximately {targetWords} words."

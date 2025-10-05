@@ -40,7 +40,8 @@ ai-tutor:
     summarization:
       enabled: true  # Enable LLM-based summarization of old messages
       batch-size-tokens: 50000  # Max tokens per batch when summarizing
-      compression-ratio: 0.4  # Target compression ratio (0.4 = 40% of input size)
+      compression-ratio: 0.1  # Target compression ratio (0.1 = 10% of input size)
+      tokens-per-word: 0.75  # Average tokens per word for OpenAI models
       min-summary-tokens: 100  # Minimum tokens for a summary
       max-summary-tokens: 2000  # Maximum tokens for a summary
       prompt: |
@@ -52,9 +53,13 @@ ai-tutor:
         chunk-size: 10  # Number of messages to summarize at once (Level 1)
         chunk-token-threshold: 5000  # Trigger summarization when old messages exceed this token count
         prompt: |
-          Summarize the following conversation segment between a language tutor and learner.
-          Preserve: key topics, vocabulary introduced, learner errors and progress, pedagogical context.
-          Be concise but comprehensive. Target length: approximately {targetWords} words.
+          Summarize the following conversation segment between a language tutor and learner for context retention.
+          Preserve only:
+          - Main topics discussed
+          - Learner errors (grammar, spelling, pronunciation, or usage)
+          Exclude: tutor behavior, learner progress, emotional tone, vocabulary lists, or generic feedback.
+          Output should be concise, factual, and token-efficient — use bulletpoints or short sentences if appropriate.
+          Target length: approximately {targetWords} words.
   images:
     seed-directory: seed-images
   imagestore:

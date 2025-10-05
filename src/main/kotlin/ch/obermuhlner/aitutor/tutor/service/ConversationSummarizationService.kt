@@ -16,6 +16,7 @@ class ConversationSummarizationService(
     private val chatModel: ChatModel,
     @Value("\${ai-tutor.context.summarization.batch-size-tokens}") private val batchSizeTokens: Int,
     @Value("\${ai-tutor.context.summarization.compression-ratio}") private val compressionRatio: Double,
+    @Value("\${ai-tutor.context.summarization.tokens-per-word}") private val tokensPerWord: Double,
     @Value("\${ai-tutor.context.summarization.min-summary-tokens}") private val minSummaryTokens: Int,
     @Value("\${ai-tutor.context.summarization.max-summary-tokens}") private val maxSummaryTokens: Int,
     @Value("\${ai-tutor.context.summarization.prompt}") private val summarizationPrompt: String
@@ -82,7 +83,7 @@ class ConversationSummarizationService(
         val inputTokens = estimateTokens(messages)
         val targetSummaryTokens = (inputTokens * compressionRatio).toInt()
         val budgetTokens = targetSummaryTokens.coerceIn(minSummaryTokens, maxSummaryTokens)
-        val targetWords = (budgetTokens * 0.75).toInt() // ~0.75 words per token
+        val targetWords = (budgetTokens / tokensPerWord).toInt() // Convert tokens to words
 
         logger.debug("Input: $inputTokens tokens, target summary: $budgetTokens tokens ($targetWords words)")
 
