@@ -45,6 +45,14 @@ ai-tutor:
         Summarize this conversation history between a language tutor and learner.
         Preserve: key topics discussed, vocabulary introduced, learner progress and errors, pedagogical context.
         Be concise but comprehensive. Target length: approximately 500 words.
+      progressive:
+        enabled: true  # Enable progressive/hierarchical summarization
+        chunk-size: 10  # Number of messages to summarize at once (Level 1)
+        chunk-token-threshold: 30000  # Trigger summarization when old messages exceed this token count
+        prompt: |
+          Summarize the following conversation segment between a language tutor and learner.
+          Preserve: key topics, vocabulary introduced, learner errors and progress, pedagogical context.
+          Be concise but comprehensive. Target ~500 words.
   images:
     seed-directory: seed-images
   imagestore:
@@ -118,6 +126,9 @@ ai-tutor:
           - archetypeId: casual-friend
             name: Carlos
             culturalNotes: from Barcelona
+          - archetypeId: casual-friend
+            name: Laura
+            culturalNotes: from Valencia
       - code: fr-FR
         nameJson: '{"en": "French (France)", "es": "Francés (Francia)", "de": "Französisch (Frankreich)", "fr": "Français (France)"}'
         flagEmoji: "🇫🇷"

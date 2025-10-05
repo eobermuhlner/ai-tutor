@@ -354,3 +354,27 @@ Accept: application/json
 GET {{host}}/api/v1/images/concept/vacation/data
 Authorization: Bearer {{accessToken}}
 Accept: application/json
+
+###########################
+### Summarization Examples
+###########################
+
+### Get Session Summary Info (owner or admin)
+GET {{host}}/api/v1/summaries/sessions/{{sessionId}}/info
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+### Get Session Summary Details (admin only)
+GET {{host}}/api/v1/summaries/sessions/{{sessionId}}/details
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+### Trigger Manual Summarization (admin only)
+POST {{host}}/api/v1/summaries/sessions/{{sessionId}}/trigger
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+### Get Global Summarization Stats (admin only)
+GET {{host}}/api/v1/summaries/stats
+Authorization: Bearer {{accessToken}}
+Accept: application/json

@@ -1,18 +1,22 @@
 package ch.obermuhlner.aitutor.auth.service
 
 import ch.obermuhlner.aitutor.auth.exception.InsufficientPermissionsException
+import ch.obermuhlner.aitutor.chat.repository.ChatSessionRepository
 import ch.obermuhlner.aitutor.user.domain.UserEntity
 import ch.obermuhlner.aitutor.user.domain.UserRole
 import ch.obermuhlner.aitutor.user.service.UserService
 import java.util.UUID
 import org.slf4j.LoggerFactory
+import org.springframework.security.access.AccessDeniedException
+import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
 
 @Service
 class AuthorizationService(
-    private val userService: UserService
+    private val userService: UserService,
+    private val sessionRepository: ChatSessionRepository
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -100,6 +104,36 @@ class AuthorizationService(
             requestedUserId == currentUserId -> currentUserId
             isAdmin() -> requestedUserId
             else -> throw InsufficientPermissionsException("You do not have permission to access this user's data")
+        }
+    }
+
+    /**
+     * Check if user can access session (is owner OR is admin).
+     * @throws AccessDeniedException if user cannot access session
+     */
+    fun requireSessionAccessOrAdmin(sessionId: UUID, authentication: Authentication) {
+        val session = sessionRepository.findById(sessionId)
+            .orElseThrow { IllegalArgumentException("Session not found") }
+
+        val userId = (authentication.principal as? UserEntity)?.id
+            ?: throw IllegalStateException("Invalid authentication principal")
+
+        val isOwner = session.userId == userId
+        val isAdmin = authentication.authorities.any { it.authority == "ROLE_ADMIN" }
+
+        if (!isOwner && !isAdmin) {
+            throw AccessDeniedException("Not authorized to access this session")
+        }
+    }
+
+    /**
+     * Require admin role.
+     * @throws AccessDeniedException if user is not admin
+     */
+    fun requireAdmin(authentication: Authentication) {
+        val isAdmin = authentication.authorities.any { it.authority == "ROLE_ADMIN" }
+        if (!isAdmin) {
+            throw AccessDeniedException("Admin role required")
         }
     }
 }
