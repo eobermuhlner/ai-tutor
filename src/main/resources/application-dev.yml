@@ -1,4 +1,7 @@
 logging:
   level:
     ch.obermuhlner.aitutor: DEBUG
+    ch.obermuhlner.aitutor.conversation.service.SingleJsonEntityAiChatService: TRACE
+    ch.obermuhlner.aitutor.conversation.service.StreamReplyThenJsonEntityAiChatService: TRACE
+    ch.obermuhlner.aitutor.tutor.service.ConversationSummarizationService: TRACE
 
