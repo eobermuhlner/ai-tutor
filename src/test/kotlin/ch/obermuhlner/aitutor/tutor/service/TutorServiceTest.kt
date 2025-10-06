@@ -6,6 +6,8 @@ import ch.obermuhlner.aitutor.core.model.CEFRLevel
 import ch.obermuhlner.aitutor.core.model.Correction
 import ch.obermuhlner.aitutor.core.model.ErrorSeverity
 import ch.obermuhlner.aitutor.core.model.ErrorType
+import ch.obermuhlner.aitutor.core.model.catalog.Difficulty
+import ch.obermuhlner.aitutor.core.model.catalog.LanguageMetadata
 import ch.obermuhlner.aitutor.language.service.LanguageService
 import ch.obermuhlner.aitutor.tutor.domain.ConversationPhase
 import ch.obermuhlner.aitutor.tutor.domain.ConversationResponse
@@ -57,11 +59,23 @@ class TutorServiceTest {
             progressiveSummarizationService = mockProgressiveSummarizationService
         )
 
+        val supportedLanguages = mapOf(
+            "es" to LanguageMetadata(
+                code = "es",
+                nameJson = """{"en": "Spanish"}""",
+                flagEmoji = "🇪🇸",
+                nativeName = "Español",
+                difficulty = Difficulty.Easy,
+                descriptionJson = """{"en": "Romance language"}"""
+            )
+        )
+
         tutorService = TutorService(
             aiChatService = aiChatService,
             languageService = languageService,
             vocabularyContextService = vocabularyContextService,
             messageCompactionService = messageCompactionService,
+            supportedLanguages = supportedLanguages,
             systemPromptTemplate = systemPromptTemplate,
             phaseFreePromptTemplate = phaseFreePromptTemplate,
             phaseCorrectionPromptTemplate = phaseCorrectionPromptTemplate,

@@ -2,6 +2,7 @@ package ch.obermuhlner.aitutor.tutor.service
 
 import ch.obermuhlner.aitutor.conversation.dto.AiChatRequest
 import ch.obermuhlner.aitutor.conversation.service.AiChatService
+import ch.obermuhlner.aitutor.core.model.catalog.LanguageMetadata
 import ch.obermuhlner.aitutor.language.service.LanguageService
 import ch.obermuhlner.aitutor.tutor.domain.ConversationPhase
 import ch.obermuhlner.aitutor.tutor.domain.ConversationResponse
@@ -23,6 +24,7 @@ class TutorService(
     private val languageService: LanguageService,
     private val vocabularyContextService: VocabularyContextService,
     private val messageCompactionService: MessageCompactionService,
+    private val supportedLanguages: Map<String, LanguageMetadata>,
     @Value("\${ai-tutor.prompts.system}") private val systemPromptTemplate: String,
     @Value("\${ai-tutor.prompts.phase-free}") private val phaseFreePromptTemplate: String,
     @Value("\${ai-tutor.prompts.phase-correction}") private val phaseCorrectionPromptTemplate: String,
@@ -160,5 +162,14 @@ class TutorService(
             TeachingStyle.Directive -> teachingStyleDirectiveTemplate
         }
         return PromptTemplate(template).render(mapOf("targetLanguage" to targetLanguage))
+    }
+
+    private fun buildLanguageMetadataPrompt(languageCode: String): String {
+        val metadata = supportedLanguages[languageCode]
+        return if (metadata != null) {
+            "Target Language Difficulty: ${metadata.difficulty.name}"
+        } else {
+            "" // Fallback for languages not in catalog
+        }
     }
 }
