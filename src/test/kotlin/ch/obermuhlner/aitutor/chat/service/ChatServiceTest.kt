@@ -338,6 +338,32 @@ class ChatServiceTest {
     }
 
     @Test
+    fun `should update session teaching style for owned session`() {
+        val session = TestDataFactory.createSessionEntity()
+        session.tutorTeachingStyle = ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Reactive
+
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+        every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns session.apply { tutorTeachingStyle = ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Directive }
+
+        val result = chatService.updateSessionTeachingStyle(TestDataFactory.TEST_SESSION_ID, ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Directive, TestDataFactory.TEST_USER_ID)
+
+        assertNotNull(result)
+        assertEquals(ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Directive, result?.tutorTeachingStyle)
+        verify { chatSessionRepository.save(match { it.tutorTeachingStyle == ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Directive }) }
+    }
+
+    @Test
+    fun `should not update session teaching style for another user`() {
+        val session = TestDataFactory.createSessionEntity()
+        every { chatSessionRepository.findById(any()) } returns Optional.of(session)
+
+        val result = chatService.updateSessionTeachingStyle(TestDataFactory.TEST_SESSION_ID, ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Guided, UUID.randomUUID())
+
+        assertNull(result)
+        verify(exactly = 0) { chatSessionRepository.save(any()) }
+    }
+
+    @Test
     fun `should get topic history for owned session`() {
         val session = TestDataFactory.createSessionEntity()
         session.currentTopic = "cooking"

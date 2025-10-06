@@ -29,6 +29,7 @@ Language learning assistant with conversational AI tutoring and vocabulary track
   - GET `/sessions/{id}/progress` - Get session progress
   - PATCH `/sessions/{id}/phase` - Update conversation phase (Free/Correction/Drill/Auto)
   - PATCH `/sessions/{id}/topic` - Update current conversation topic
+  - PATCH `/sessions/{id}/teaching-style` - Update session teaching style (Reactive/Guided/Directive)
   - GET `/sessions/{id}/topics/history` - Get topic history
   - POST `/sessions/{id}/messages` - Send message
   - POST `/sessions/{id}/messages/stream` - Send message with SSE streaming
@@ -139,8 +140,8 @@ ch.obermuhlner.aitutor
 │   │                       # MessageSummaryEntity, SummarySourceType
 │   └── dto/                # CreateSessionRequest, SessionResponse, SendMessageRequest,
 │                           # MessageResponse, SessionWithMessagesResponse, UpdatePhaseRequest,
-│                           # UpdateTopicRequest, TopicHistoryResponse, CreateSessionFromCourseRequest,
-│                           # SessionWithProgressResponse, SessionProgressResponse,
+│                           # UpdateTopicRequest, UpdateTeachingStyleRequest, TopicHistoryResponse,
+│                           # CreateSessionFromCourseRequest, SessionWithProgressResponse, SessionProgressResponse,
 │                           # SessionSummaryInfoResponse, SummaryLevelInfo, SummaryDetailResponse
 ├── catalog/                # Catalog-based tutor/course management
 │   ├── controller/         # CatalogController (/api/v1/catalog)

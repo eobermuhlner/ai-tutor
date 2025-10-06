@@ -140,6 +140,33 @@ Content-Type: application/json
   "phase": "Auto"
 }
 
+### Update Session Teaching Style to Reactive (Follow learner's lead)
+PATCH {{host}}/api/v1/chat/sessions/{{chatSessionId}}/teaching-style
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "teachingStyle": "Reactive"
+}
+
+### Update Session Teaching Style to Guided (Strategic prompts)
+PATCH {{host}}/api/v1/chat/sessions/{{chatSessionId}}/teaching-style
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "teachingStyle": "Guided"
+}
+
+### Update Session Teaching Style to Directive (Explicit instruction)
+PATCH {{host}}/api/v1/chat/sessions/{{chatSessionId}}/teaching-style
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "teachingStyle": "Directive"
+}
+
 ### Send Message (Non-Streaming)
 POST {{host}}/api/v1/chat/sessions/{{chatSessionId}}/messages
 Authorization: Bearer {{accessToken}}

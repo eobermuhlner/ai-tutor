@@ -154,6 +154,20 @@ class ChatService(
         return toSessionResponse(saved)
     }
 
+    @Transactional
+    fun updateSessionTeachingStyle(sessionId: UUID, teachingStyle: ch.obermuhlner.aitutor.tutor.domain.TeachingStyle, currentUserId: UUID): SessionResponse? {
+        val session = chatSessionRepository.findById(sessionId).orElse(null) ?: return null
+
+        // Validate ownership
+        if (session.userId != currentUserId) {
+            return null
+        }
+
+        session.tutorTeachingStyle = teachingStyle
+        val saved = chatSessionRepository.save(session)
+        return toSessionResponse(saved)
+    }
+
     fun getTopicHistory(sessionId: UUID, currentUserId: UUID): TopicHistoryResponse? {
         val session = chatSessionRepository.findById(sessionId).orElse(null) ?: return null
 
@@ -422,6 +436,7 @@ class ChatService(
             tutorName = entity.tutorName,
             tutorPersona = entity.tutorPersona,
             tutorDomain = entity.tutorDomain,
+            tutorTeachingStyle = entity.tutorTeachingStyle,
             sourceLanguageCode = entity.sourceLanguageCode,
             targetLanguageCode = entity.targetLanguageCode,
             conversationPhase = entity.conversationPhase,

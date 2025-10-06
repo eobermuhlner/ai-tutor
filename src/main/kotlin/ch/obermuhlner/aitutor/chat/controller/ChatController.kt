@@ -159,6 +159,17 @@ class ChatController(
         return ResponseEntity.ok(session)
     }
 
+    @PatchMapping("/sessions/{sessionId}/teaching-style")
+    fun updateSessionTeachingStyle(
+        @PathVariable sessionId: UUID,
+        @RequestBody request: ch.obermuhlner.aitutor.chat.dto.UpdateTeachingStyleRequest
+    ): ResponseEntity<SessionResponse> {
+        val currentUserId = authorizationService.getCurrentUserId()
+        val session = chatService.updateSessionTeachingStyle(sessionId, request.teachingStyle, currentUserId)
+            ?: return ResponseEntity.notFound().build()
+        return ResponseEntity.ok(session)
+    }
+
     @GetMapping("/sessions/{sessionId}/topics/history")
     fun getTopicHistory(@PathVariable sessionId: UUID): ResponseEntity<TopicHistoryResponse> {
         val currentUserId = authorizationService.getCurrentUserId()

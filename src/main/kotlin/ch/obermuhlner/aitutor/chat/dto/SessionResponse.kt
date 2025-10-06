@@ -11,6 +11,7 @@ data class SessionResponse(
     val tutorName: String,
     val tutorPersona: String,
     val tutorDomain: String,
+    val tutorTeachingStyle: ch.obermuhlner.aitutor.tutor.domain.TeachingStyle,
     val sourceLanguageCode: String,
     val targetLanguageCode: String,
     val conversationPhase: ConversationPhase,

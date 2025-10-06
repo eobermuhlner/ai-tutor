@@ -81,6 +81,7 @@ class ChatControllerTest {
             tutorName = request.tutorName,
             tutorPersona = request.tutorPersona,
             tutorDomain = request.tutorDomain,
+            tutorTeachingStyle = ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Reactive,
             sourceLanguageCode = request.sourceLanguageCode,
             targetLanguageCode = request.targetLanguageCode,
             conversationPhase = ConversationPhase.Free,
@@ -126,6 +127,7 @@ class ChatControllerTest {
                 tutorName = "TestTutor",
                 tutorPersona = "patient coach",
                 tutorDomain = "general",
+                tutorTeachingStyle = ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Reactive,
                 sourceLanguageCode = "en",
                 targetLanguageCode = "es",
                 conversationPhase = ConversationPhase.Free,
@@ -159,6 +161,7 @@ class ChatControllerTest {
                 tutorName = "TestTutor",
                 tutorPersona = "patient coach",
                 tutorDomain = "general",
+                tutorTeachingStyle = ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Reactive,
                 sourceLanguageCode = "en",
                 targetLanguageCode = "es",
                 conversationPhase = ConversationPhase.Free,
@@ -255,6 +258,7 @@ class ChatControllerTest {
             tutorName = "TestTutor",
             tutorPersona = "patient coach",
             tutorDomain = "general conversation",
+            tutorTeachingStyle = ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Reactive,
             sourceLanguageCode = "en",
             targetLanguageCode = "es",
             conversationPhase = ConversationPhase.Correction,
@@ -290,6 +294,7 @@ class ChatControllerTest {
             tutorName = "TestTutor",
             tutorPersona = "patient coach",
             tutorDomain = "general conversation",
+            tutorTeachingStyle = ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Reactive,
             sourceLanguageCode = "en",
             targetLanguageCode = "es",
             conversationPhase = ConversationPhase.Correction,
@@ -375,6 +380,7 @@ class ChatControllerTest {
             tutorName = "TestTutor",
             tutorPersona = "patient coach",
             tutorDomain = "general conversation",
+            tutorTeachingStyle = ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Reactive,
             sourceLanguageCode = "en",
             targetLanguageCode = "es",
             conversationPhase = ConversationPhase.Drill,
@@ -398,6 +404,40 @@ class ChatControllerTest {
             .andExpect(jsonPath("$.conversationPhase").value("Drill"))
 
         verify(exactly = 1) { chatService.updateSessionPhase(TestDataFactory.TEST_SESSION_ID, ConversationPhase.Drill, TestDataFactory.TEST_USER_ID) }
+    }
+
+    @Test
+    @WithMockUser
+    fun `should update session teaching style`() {
+        val sessionResponse = SessionResponse(
+            id = TestDataFactory.TEST_SESSION_ID,
+            userId = TestDataFactory.TEST_USER_ID,
+            tutorName = "TestTutor",
+            tutorPersona = "patient coach",
+            tutorDomain = "general conversation",
+            tutorTeachingStyle = ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Directive,
+            sourceLanguageCode = "en",
+            targetLanguageCode = "es",
+            conversationPhase = ConversationPhase.Correction,
+            effectivePhase = ConversationPhase.Correction,
+            estimatedCEFRLevel = CEFRLevel.A1,
+            createdAt = Instant.now(),
+            updatedAt = Instant.now()
+        )
+
+        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
+        every { chatService.updateSessionTeachingStyle(TestDataFactory.TEST_SESSION_ID, ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Directive, TestDataFactory.TEST_USER_ID) } returns sessionResponse
+
+        mockMvc.perform(
+            patch("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}/teaching-style")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""{"teachingStyle": "Directive"}""")
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.tutorTeachingStyle").value("Directive"))
+
+        verify(exactly = 1) { chatService.updateSessionTeachingStyle(TestDataFactory.TEST_SESSION_ID, ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Directive, TestDataFactory.TEST_USER_ID) }
     }
 
     @Test
@@ -430,6 +470,7 @@ class ChatControllerTest {
                 tutorName = "TestTutor",
                 tutorPersona = "patient coach",
                 tutorDomain = "general",
+                tutorTeachingStyle = ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Reactive,
                 sourceLanguageCode = "en",
                 targetLanguageCode = "es",
                 conversationPhase = ConversationPhase.Free,
@@ -463,6 +504,7 @@ class ChatControllerTest {
             tutorName = "TestTutor",
             tutorPersona = "patient coach",
             tutorDomain = "general",
+            tutorTeachingStyle = ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Reactive,
             sourceLanguageCode = "en",
             targetLanguageCode = "es",
             conversationPhase = ConversationPhase.Free,
@@ -529,6 +571,7 @@ class ChatControllerTest {
             tutorName = "Maria",
             tutorPersona = "encouraging tutor",
             tutorDomain = "Beginner Spanish",
+            tutorTeachingStyle = ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Reactive,
             sourceLanguageCode = "en",
             targetLanguageCode = "es",
             conversationPhase = ConversationPhase.Correction,
@@ -572,6 +615,7 @@ class ChatControllerTest {
             tutorName = "Maria",
             tutorPersona = "patient tutor",
             tutorDomain = "general",
+            tutorTeachingStyle = ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Reactive,
             sourceLanguageCode = "en",
             targetLanguageCode = "es",
             conversationPhase = ConversationPhase.Correction,
@@ -607,6 +651,7 @@ class ChatControllerTest {
             tutorName = "Maria",
             tutorPersona = "patient tutor",
             tutorDomain = "general",
+            tutorTeachingStyle = ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Reactive,
             sourceLanguageCode = "en",
             targetLanguageCode = "es",
             conversationPhase = ConversationPhase.Drill,
@@ -639,6 +684,7 @@ class ChatControllerTest {
             tutorName = "Maria",
             tutorPersona = "patient tutor",
             tutorDomain = "general",
+            tutorTeachingStyle = ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Reactive,
             sourceLanguageCode = "en",
             targetLanguageCode = "es",
             conversationPhase = ConversationPhase.Correction,
@@ -698,6 +744,7 @@ class ChatControllerTest {
                 tutorName = "Maria",
                 tutorPersona = "encouraging",
                 tutorDomain = "general",
+                tutorTeachingStyle = ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Reactive,
                 sourceLanguageCode = "en",
                 targetLanguageCode = "es",
                 conversationPhase = ConversationPhase.Correction,
@@ -759,6 +806,7 @@ class ChatControllerTest {
             tutorName = "Maria",
             tutorPersona = "encouraging",
             tutorDomain = "general",
+            tutorTeachingStyle = ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Reactive,
             sourceLanguageCode = "en",
             targetLanguageCode = "es",
             conversationPhase = ConversationPhase.Correction,
@@ -774,6 +822,7 @@ class ChatControllerTest {
             tutorName = "Carlos",
             tutorPersona = "strict",
             tutorDomain = "business",
+            tutorTeachingStyle = ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Reactive,
             sourceLanguageCode = "en",
             targetLanguageCode = "es",
             conversationPhase = ConversationPhase.Free,
