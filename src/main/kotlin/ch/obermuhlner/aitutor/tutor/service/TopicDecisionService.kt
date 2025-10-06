@@ -17,6 +17,17 @@ data class TopicDecisionConfig(
     val recentTopicWindowSize: Int = 3     // Don't revisit topics from last N entries
 )
 
+/**
+ * Decision metadata returned by topic decision logic.
+ * Contains the validated topic plus context for LLM prompts.
+ */
+data class TopicDecision(
+    val topic: String?,
+    val turnCount: Int,
+    val eligibilityStatus: String,
+    val pastTopics: List<String>
+)
+
 @Service
 class TopicDecisionService(
     private val objectMapper: ObjectMapper
@@ -51,51 +62,72 @@ class TopicDecisionService(
         llmProposedTopic: String?,
         recentMessages: List<ChatMessageEntity>,
         pastTopicsJson: String? = null
-    ): String? {
+    ): TopicDecision {
         val turnCount = countTurnsInRecentMessages(recentMessages)
         val pastTopics = getPastTopicsFromJson(pastTopicsJson)
 
         // Rule 1: LLM keeps same topic → always accept
         if (llmProposedTopic == currentTopic) {
-            return currentTopic
+            val eligibility = buildEligibilityStatus(currentTopic, turnCount)
+            return TopicDecision(currentTopic, turnCount, eligibility, pastTopics)
         }
 
         // Rule 2: Too early to change topic → reject LLM proposal (hysteresis)
         if (currentTopic != null && turnCount < config.minTurnsBeforeChange) {
-            return currentTopic // Enforce stability
+            val eligibility = "Topic locked (turn $turnCount/${config.minTurnsBeforeChange})"
+            return TopicDecision(currentTopic, turnCount, eligibility, pastTopics) // Enforce stability
         }
 
         // Rule 3: LLM proposes recently discussed topic → reject to prevent repetition
         if (llmProposedTopic != null &&
             pastTopics.takeLast(config.recentTopicWindowSize).contains(llmProposedTopic)) {
-            return currentTopic // Prevent repetition
+            val eligibility = "Topic change rejected - recently discussed '$llmProposedTopic'"
+            return TopicDecision(currentTopic, turnCount, eligibility, pastTopics) // Prevent repetition
         }
 
         // Rule 4: Current topic is getting stale → accept any change from LLM
         if (currentTopic != null && turnCount >= config.maxTurnsForStagnation) {
-            return llmProposedTopic // Encourage variety
+            val eligibility = "Topic stale (turn $turnCount/${config.maxTurnsForStagnation}) - change encouraged"
+            return TopicDecision(llmProposedTopic, turnCount, eligibility, pastTopics) // Encourage variety
         }
 
         // Rule 5: Starting new topic from null → require minimum engagement
         if (currentTopic == null && llmProposedTopic != null) {
             return if (turnCount >= config.minTurnsToEstablish) {
-                llmProposedTopic // Establish new topic
+                val eligibility = "Establishing new topic '$llmProposedTopic'"
+                TopicDecision(llmProposedTopic, turnCount, eligibility, pastTopics) // Establish new topic
             } else {
-                null // Stay in free conversation
+                val eligibility = "Free conversation - establishing topic requires ${config.minTurnsToEstablish} turns"
+                TopicDecision(null, turnCount, eligibility, pastTopics) // Stay in free conversation
             }
         }
 
         // Rule 6: LLM wants to return to free conversation → allow if sufficient time
         if (llmProposedTopic == null && currentTopic != null) {
             return if (turnCount >= config.minTurnsBeforeChange) {
-                null // Natural conclusion
+                val eligibility = "Topic concluded naturally"
+                TopicDecision(null, turnCount, eligibility, pastTopics) // Natural conclusion
             } else {
-                currentTopic // Keep topic alive
+                val eligibility = "Topic locked (turn $turnCount/${config.minTurnsBeforeChange})"
+                TopicDecision(currentTopic, turnCount, eligibility, pastTopics) // Keep topic alive
             }
         }
 
         // Default: accept LLM proposal
-        return llmProposedTopic
+        val eligibility = buildEligibilityStatus(llmProposedTopic, turnCount)
+        return TopicDecision(llmProposedTopic, turnCount, eligibility, pastTopics)
+    }
+
+    /**
+     * Builds human-readable eligibility status based on current topic and turn count.
+     */
+    private fun buildEligibilityStatus(topic: String?, turnCount: Int): String {
+        return when {
+            topic == null -> "Free conversation - establishing topic"
+            turnCount < config.minTurnsBeforeChange -> "Topic locked (turn $turnCount/${config.minTurnsBeforeChange})"
+            turnCount >= config.maxTurnsForStagnation -> "Topic stale (turn $turnCount/${config.maxTurnsForStagnation}) - change encouraged"
+            else -> "Topic active (turn $turnCount) - stable conversation"
+        }
     }
 
     /**

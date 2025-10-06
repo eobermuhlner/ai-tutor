@@ -10,6 +10,8 @@ import ch.obermuhlner.aitutor.fixtures.TestDataFactory
 import ch.obermuhlner.aitutor.tutor.domain.ConversationPhase
 import ch.obermuhlner.aitutor.tutor.domain.ConversationResponse
 import ch.obermuhlner.aitutor.tutor.domain.ConversationState
+import ch.obermuhlner.aitutor.tutor.service.PhaseDecision
+import ch.obermuhlner.aitutor.tutor.service.TopicDecision
 import ch.obermuhlner.aitutor.tutor.service.TutorService
 import ch.obermuhlner.aitutor.vocabulary.service.VocabularyService
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -138,7 +140,7 @@ class ChatServiceTest {
         every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
         every { chatMessageRepository.save(any<ChatMessageEntity>()) } returns userMessage andThen assistantMessage
         every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(any()) } returns emptyList()
-        every { topicDecisionService.decideTopic(any(), any(), any(), any()) } returns null
+        every { topicDecisionService.decideTopic(any(), any(), any(), any()) } returns TopicDecision(null, 0, "Free conversation", emptyList())
         every { tutorService.respond(any(), any(), any(), any(), any(), any()) } returns tutorResponse
         every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns session
 
@@ -206,7 +208,7 @@ class ChatServiceTest {
         every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
         every { chatMessageRepository.save(any<ChatMessageEntity>()) } returns userMessage andThen assistantMessage
         every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(any()) } returns allMessages
-        every { topicDecisionService.decideTopic(any(), any(), any(), any()) } returns "new-topic"
+        every { topicDecisionService.decideTopic(any(), any(), any(), any()) } returns TopicDecision("new-topic", 10, "Topic changed", emptyList())
         every { topicDecisionService.countTurnsInRecentMessages(any()) } returns 10
         every { topicDecisionService.shouldArchiveTopic(any(), any()) } returns true
         every { tutorService.respond(any(), any(), any(), any(), any(), any()) } returns tutorResponse
@@ -243,7 +245,7 @@ class ChatServiceTest {
             TestDataFactory.createMessageEntity(session, MessageRole.ASSISTANT, "Reply")
         )
         every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(any()) } returns emptyList()
-        every { topicDecisionService.decideTopic(any(), any(), any(), any()) } returns null
+        every { topicDecisionService.decideTopic(any(), any(), any(), any()) } returns TopicDecision(null, 0, "Free conversation", emptyList())
         every { tutorService.respond(any(), any(), any(), any(), any(), any()) } returns tutorResponse
         every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns session
 

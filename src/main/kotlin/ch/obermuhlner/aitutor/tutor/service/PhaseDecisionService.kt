@@ -8,6 +8,16 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.springframework.stereotype.Service
 
+/**
+ * Decision metadata returned by phase decision logic.
+ * Contains the selected phase plus context for LLM prompts.
+ */
+data class PhaseDecision(
+    val phase: ConversationPhase,
+    val reason: String,
+    val severityScore: Double
+)
+
 @Service
 class PhaseDecisionService(
     private val objectMapper: ObjectMapper
@@ -40,18 +50,25 @@ class PhaseDecisionService(
     fun decidePhase(
         currentPhase: ConversationPhase,
         recentMessages: List<ChatMessageEntity>
-    ): ConversationPhase {
-        // If manually set to Free, Correction, or Drill, this shouldn't be called
-        // But handle gracefully anyway
+    ): PhaseDecision {
+        // If manually set to Free, Correction, or Drill, return as-is
         if (currentPhase != ConversationPhase.Auto) {
-            return currentPhase
+            return PhaseDecision(
+                phase = currentPhase,
+                reason = "User-selected phase",
+                severityScore = 0.0
+            )
         }
 
         val userMessages = recentMessages.filter { it.role == MessageRole.USER }
 
         // Start with Correction phase (balanced default)
         if (userMessages.size < 3) {
-            return ConversationPhase.Correction
+            return PhaseDecision(
+                phase = ConversationPhase.Correction,
+                reason = "Balanced default - insufficient history",
+                severityScore = 0.0
+            )
         }
 
         // Look at last 5 user messages
@@ -70,16 +87,28 @@ class PhaseDecisionService(
 
         // Switch to Drill if serious comprehension issues or fossilization risk
         if (criticalErrorsInLastThree >= 2 || highSeverityRepeatedErrors >= 3 || totalSeverityScore >= 6.0) {
-            return ConversationPhase.Drill
+            return PhaseDecision(
+                phase = ConversationPhase.Drill,
+                reason = "High error severity (score: %.1f) - explicit practice needed".format(totalSeverityScore),
+                severityScore = totalSeverityScore
+            )
         }
 
         // Switch to Free if very low severity consistently (confidence building)
         if (onlyLowSeverityInLastThree && totalSeverityScore < 1.0) {
-            return ConversationPhase.Free
+            return PhaseDecision(
+                phase = ConversationPhase.Free,
+                reason = "Low error rate (score: %.1f) - building fluency confidence".format(totalSeverityScore),
+                severityScore = totalSeverityScore
+            )
         }
 
         // Default to Correction (balanced middle ground)
-        return ConversationPhase.Correction
+        return PhaseDecision(
+            phase = ConversationPhase.Correction,
+            reason = "Balanced approach - tracking errors for learner awareness",
+            severityScore = totalSeverityScore
+        )
     }
 
     private fun countErrorsInMessage(

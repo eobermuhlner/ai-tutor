@@ -40,9 +40,9 @@ class PhaseDecisionServiceTest {
     fun `returns current phase if not Auto`() {
         val messages = emptyList<ChatMessageEntity>()
 
-        assertEquals(ConversationPhase.Free, phaseDecisionService.decidePhase(ConversationPhase.Free, messages))
-        assertEquals(ConversationPhase.Correction, phaseDecisionService.decidePhase(ConversationPhase.Correction, messages))
-        assertEquals(ConversationPhase.Drill, phaseDecisionService.decidePhase(ConversationPhase.Drill, messages))
+        assertEquals(ConversationPhase.Free, phaseDecisionService.decidePhase(ConversationPhase.Free, messages).phase)
+        assertEquals(ConversationPhase.Correction, phaseDecisionService.decidePhase(ConversationPhase.Correction, messages).phase)
+        assertEquals(ConversationPhase.Drill, phaseDecisionService.decidePhase(ConversationPhase.Drill, messages).phase)
     }
 
     @Test
@@ -52,8 +52,8 @@ class PhaseDecisionServiceTest {
             createAssistantMessage("Hi!", emptyList())
         )
 
-        val phase = phaseDecisionService.decidePhase(ConversationPhase.Auto, messages)
-        assertEquals(ConversationPhase.Correction, phase)
+        val decision = phaseDecisionService.decidePhase(ConversationPhase.Auto, messages)
+        assertEquals(ConversationPhase.Correction, decision.phase)
     }
 
     @Test
@@ -71,8 +71,8 @@ class PhaseDecisionServiceTest {
             createAssistantMessage("resp3", emptyList())
         )
 
-        val phase = phaseDecisionService.decidePhase(ConversationPhase.Auto, messages)
-        assertEquals(ConversationPhase.Drill, phase)
+        val decision = phaseDecisionService.decidePhase(ConversationPhase.Auto, messages)
+        assertEquals(ConversationPhase.Drill, decision.phase)
     }
 
     @Test
@@ -92,8 +92,8 @@ class PhaseDecisionServiceTest {
             ))
         )
 
-        val phase = phaseDecisionService.decidePhase(ConversationPhase.Auto, messages)
-        assertEquals(ConversationPhase.Drill, phase)
+        val decision = phaseDecisionService.decidePhase(ConversationPhase.Auto, messages)
+        assertEquals(ConversationPhase.Drill, decision.phase)
     }
 
     @Test
@@ -112,8 +112,8 @@ class PhaseDecisionServiceTest {
             createAssistantMessage("resp3", emptyList())
         )
 
-        val phase = phaseDecisionService.decidePhase(ConversationPhase.Auto, messages)
-        assertEquals(ConversationPhase.Drill, phase)
+        val decision = phaseDecisionService.decidePhase(ConversationPhase.Auto, messages)
+        assertEquals(ConversationPhase.Drill, decision.phase)
     }
 
     @Test
@@ -133,8 +133,8 @@ class PhaseDecisionServiceTest {
             ))
         )
 
-        val phase = phaseDecisionService.decidePhase(ConversationPhase.Auto, messages)
-        assertEquals(ConversationPhase.Free, phase)
+        val decision = phaseDecisionService.decidePhase(ConversationPhase.Auto, messages)
+        assertEquals(ConversationPhase.Free, decision.phase)
     }
 
     @Test
@@ -152,8 +152,8 @@ class PhaseDecisionServiceTest {
             createAssistantMessage("resp3", emptyList())
         )
 
-        val phase = phaseDecisionService.decidePhase(ConversationPhase.Auto, messages)
-        assertEquals(ConversationPhase.Correction, phase)
+        val decision = phaseDecisionService.decidePhase(ConversationPhase.Auto, messages)
+        assertEquals(ConversationPhase.Correction, decision.phase)
     }
 
     @Test
@@ -168,8 +168,8 @@ class PhaseDecisionServiceTest {
         )
 
         // With no errors at all (score = 0, onlyLowSeverity = true), should return Free
-        val phase = phaseDecisionService.decidePhase(ConversationPhase.Auto, messages)
-        assertEquals(ConversationPhase.Free, phase)
+        val decision = phaseDecisionService.decidePhase(ConversationPhase.Auto, messages)
+        assertEquals(ConversationPhase.Free, decision.phase)
     }
 
     @Test
@@ -181,8 +181,8 @@ class PhaseDecisionServiceTest {
         )
 
         // With no assistant responses, no corrections can be found, so score = 0 and should return Free
-        val phase = phaseDecisionService.decidePhase(ConversationPhase.Auto, messages)
-        assertEquals(ConversationPhase.Free, phase)
+        val decision = phaseDecisionService.decidePhase(ConversationPhase.Auto, messages)
+        assertEquals(ConversationPhase.Free, decision.phase)
     }
 
     @Test
@@ -198,8 +198,8 @@ class PhaseDecisionServiceTest {
         val messages = listOf(userMessage, assistantMessage)
 
         // Should not throw, treats as no corrections
-        val phase = phaseDecisionService.decidePhase(ConversationPhase.Auto, messages)
-        assertEquals(ConversationPhase.Correction, phase)
+        val decision = phaseDecisionService.decidePhase(ConversationPhase.Auto, messages)
+        assertEquals(ConversationPhase.Correction, decision.phase)
     }
 
     @Test
@@ -219,8 +219,8 @@ class PhaseDecisionServiceTest {
         )
 
         // Total score: 3.0 + 2.0 + 1.0 + 0.3 = 6.3, should trigger Drill
-        val phase = phaseDecisionService.decidePhase(ConversationPhase.Auto, messages)
-        assertEquals(ConversationPhase.Drill, phase)
+        val decision = phaseDecisionService.decidePhase(ConversationPhase.Auto, messages)
+        assertEquals(ConversationPhase.Drill, decision.phase)
     }
 
     private fun createUserMessage(content: String): ChatMessageEntity {

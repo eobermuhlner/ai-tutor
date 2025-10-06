@@ -29,9 +29,9 @@ class TopicDecisionServiceTest {
             TestDataFactory.createMessageEntity(session, MessageRole.ASSISTANT, "Cooking is...")
         )
 
-        val result = topicDecisionService.decideTopic("cooking", "cooking", messages)
+        val decision = topicDecisionService.decideTopic("cooking", "cooking", messages)
 
-        assertEquals("cooking", result)
+        assertEquals("cooking", decision.topic)
     }
 
     @Test
@@ -43,9 +43,9 @@ class TopicDecisionServiceTest {
         )
 
         // Only 1 turn, need 3 to change
-        val result = topicDecisionService.decideTopic("cooking", "sports", messages)
+        val decision = topicDecisionService.decideTopic("cooking", "sports", messages)
 
-        assertEquals("cooking", result) // Should keep current topic
+        assertEquals("cooking", decision.topic) // Should keep current topic
     }
 
     @Test
@@ -59,9 +59,9 @@ class TopicDecisionServiceTest {
         }
 
         // 4 turns, enough to change
-        val result = topicDecisionService.decideTopic("cooking", "sports", messages)
+        val decision = topicDecisionService.decideTopic("cooking", "sports", messages)
 
-        assertEquals("sports", result)
+        assertEquals("sports", decision.topic)
     }
 
     @Test
@@ -75,9 +75,9 @@ class TopicDecisionServiceTest {
         }
         val pastTopics = objectMapper.writeValueAsString(listOf("travel", "sports", "music"))
 
-        val result = topicDecisionService.decideTopic("cooking", "sports", messages, pastTopics)
+        val decision = topicDecisionService.decideTopic("cooking", "sports", messages, pastTopics)
 
-        assertEquals("cooking", result) // Should reject recently discussed topic
+        assertEquals("cooking", decision.topic) // Should reject recently discussed topic
     }
 
     @Test
@@ -91,9 +91,9 @@ class TopicDecisionServiceTest {
         }
 
         // 15 turns, stale (max is 12)
-        val result = topicDecisionService.decideTopic("cooking", "sports", messages)
+        val decision = topicDecisionService.decideTopic("cooking", "sports", messages)
 
-        assertEquals("sports", result) // Should encourage variety
+        assertEquals("sports", decision.topic) // Should encourage variety
     }
 
     @Test
@@ -104,9 +104,9 @@ class TopicDecisionServiceTest {
         )
 
         // Only 1 turn, need 2 to establish
-        val result = topicDecisionService.decideTopic(null, "cooking", messages)
+        val decision = topicDecisionService.decideTopic(null, "cooking", messages)
 
-        assertNull(result) // Should stay in free conversation
+        assertNull(decision.topic) // Should stay in free conversation
     }
 
     @Test
@@ -120,9 +120,9 @@ class TopicDecisionServiceTest {
         }
 
         // 3 turns, enough to establish
-        val result = topicDecisionService.decideTopic(null, "cooking", messages)
+        val decision = topicDecisionService.decideTopic(null, "cooking", messages)
 
-        assertEquals("cooking", result)
+        assertEquals("cooking", decision.topic)
     }
 
     @Test
@@ -135,9 +135,9 @@ class TopicDecisionServiceTest {
             )
         }
 
-        val result = topicDecisionService.decideTopic("cooking", null, messages)
+        val decision = topicDecisionService.decideTopic("cooking", null, messages)
 
-        assertNull(result) // Natural conclusion
+        assertNull(decision.topic) // Natural conclusion
     }
 
     @Test
@@ -148,9 +148,9 @@ class TopicDecisionServiceTest {
             TestDataFactory.createMessageEntity(session, MessageRole.ASSISTANT, "Reply 1")
         )
 
-        val result = topicDecisionService.decideTopic("cooking", null, messages)
+        val decision = topicDecisionService.decideTopic("cooking", null, messages)
 
-        assertEquals("cooking", result) // Keep topic alive
+        assertEquals("cooking", decision.topic) // Keep topic alive
     }
 
     @Test

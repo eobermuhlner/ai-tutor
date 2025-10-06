@@ -18,6 +18,8 @@ import ch.obermuhlner.aitutor.core.model.WordCard
 import ch.obermuhlner.aitutor.tutor.domain.ConversationPhase
 import ch.obermuhlner.aitutor.tutor.domain.ConversationState
 import ch.obermuhlner.aitutor.tutor.domain.Tutor
+import ch.obermuhlner.aitutor.tutor.service.PhaseDecision
+import ch.obermuhlner.aitutor.tutor.service.TopicDecision
 import ch.obermuhlner.aitutor.tutor.service.TutorService
 import ch.obermuhlner.aitutor.vocabulary.dto.NewVocabularyDTO
 import ch.obermuhlner.aitutor.vocabulary.service.VocabularyService
@@ -242,15 +244,20 @@ class ChatService(
 
         // Resolve effective phase: if Auto, decide based on history; otherwise use user preference
         val allMessages = chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(sessionId)
-        val effectivePhase = if (session.conversationPhase == ConversationPhase.Auto) {
+        val phaseDecision = if (session.conversationPhase == ConversationPhase.Auto) {
             phaseDecisionService.decidePhase(session.conversationPhase, allMessages)
         } else {
-            session.conversationPhase
+            // For manually set phases, create PhaseDecision wrapper
+            PhaseDecision(
+                phase = session.conversationPhase,
+                reason = "User-selected phase",
+                severityScore = 0.0
+            )
         }
 
         // Pass effective phase to LLM (never pass Auto - always resolved Free/Correction/Drill)
         val conversationState = ConversationState(
-            phase = effectivePhase,
+            phase = phaseDecision.phase,
             estimatedCEFRLevel = session.estimatedCEFRLevel,
             currentTopic = session.currentTopic
         )
@@ -270,7 +277,7 @@ class ChatService(
 
         // Validate and apply topic change from LLM with hysteresis
         val llmProposedTopic = tutorResponse.conversationResponse.conversationState.currentTopic
-        val validatedTopic = topicDecisionService.decideTopic(
+        val topicDecision = topicDecisionService.decideTopic(
             currentTopic = session.currentTopic,
             llmProposedTopic = llmProposedTopic,
             recentMessages = allMessages,
@@ -278,15 +285,14 @@ class ChatService(
         )
 
         // Handle topic changes
-        if (validatedTopic != session.currentTopic) {
+        if (topicDecision.topic != session.currentTopic) {
             // Topic changed - archive old topic if it was sustained long enough
             if (session.currentTopic != null) {
-                val turnCount = topicDecisionService.countTurnsInRecentMessages(allMessages)
-                if (topicDecisionService.shouldArchiveTopic(session.currentTopic, turnCount)) {
+                if (topicDecisionService.shouldArchiveTopic(session.currentTopic, topicDecision.turnCount)) {
                     archiveTopic(session, session.currentTopic!!)
                 }
             }
-            session.currentTopic = validatedTopic
+            session.currentTopic = topicDecision.topic
         }
 
         chatSessionRepository.save(session)
