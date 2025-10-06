@@ -12,7 +12,7 @@ The current prompt system in `TutorService` has pedagogical strengths but suffer
 6. **Redundant vocabulary guidance** - Repeats data already present in vocabulary context
 7. **Generic summarization prompts** - "Preserve pedagogical context" undefined, leading to bloated summaries
 
-## Phase 1: Analysis
+## Part 1: Analysis
 
 ### Current Architecture
 
@@ -68,7 +68,7 @@ val systemMessages = listOf(
 5. **TopicDecisionService** - Return decision metadata (reason, eligibility status)
 6. **PhaseDecisionService** - Return decision metadata (reason, severity scores)
 
-## Phase 2: Solution Design
+## Part 2: Solution Design
 
 ### Alternative 1: Minimal Consolidation (Low Complexity)
 
@@ -192,8 +192,8 @@ tutorService.respond(tutor, enrichedState, userId, messages, sessionId, onReplyC
 ### Alternative 4: Hybrid - Enhanced Context + Optional Persistence (Recommended)
 
 **Approach:**
-- Phase 1: Implement Alternative 2 (immediate LLM improvements)
-- Phase 2: Add persistence layer (Alternative 3) as optional enhancement
+- Stage 1: Implement Alternative 2 (immediate LLM improvements)
+- Stage 2: Add persistence layer (Alternative 3) as optional enhancement
 - Decouple prompt improvements from data model changes
 
 **Pros:**
@@ -203,11 +203,11 @@ tutorService.respond(tutor, enrichedState, userId, messages, sessionId, onReplyC
 - Flexibility to defer persistence if needed
 
 **Cons:**
-- Two-phase implementation
-- Some code revisited in Phase 2
+- Two-stage implementation
+- Some code revisited in Stage 2
 
-**Complexity:** Phase 1: 3-4 files (~150 LOC), Phase 2: +4 files (~150 LOC) + migration
-**Risk:** Low (Phase 1), Medium (Phase 2)
+**Complexity:** Stage 1: 3-4 files (~150 LOC), Stage 2: +4 files (~150 LOC) + migration
+**Risk:** Low (Stage 1), Medium (Stage 2)
 
 ---
 
@@ -240,12 +240,12 @@ tutorService.respond(tutor, enrichedState, userId, messages, sessionId, onReplyC
 
 **Rationale:**
 1. **Quick wins** - Alternative 2 improvements deliverable in 1-2 days
-2. **Low risk** - No database changes in Phase 1, easy rollback
+2. **Low risk** - No database changes in Stage 1, easy rollback
 3. **Significant impact** - Addresses 5 of 7 identified issues immediately
-4. **Flexibility** - Phase 2 can be deferred or cancelled based on Phase 1 results
-5. **Testing-friendly** - Can validate Phase 1 LLM improvements before committing to persistence
+4. **Flexibility** - Stage 2 can be deferred or cancelled based on Stage 1 results
+5. **Testing-friendly** - Can validate Stage 1 LLM improvements before committing to persistence
 
-**Phase 1 Impact:**
+**Stage 1 Impact:**
 - ✅ Fixes system message fragmentation
 - ✅ Adds phase transition reasoning (ephemeral)
 - ✅ Adds topic history context (ephemeral)
@@ -254,7 +254,7 @@ tutorService.respond(tutor, enrichedState, userId, messages, sessionId, onReplyC
 - ⚠️ Vocabulary guidance remains (minor issue, low priority)
 - ⚠️ Summarization improvements (low risk to refine)
 
-**Phase 2 Impact (optional):**
+**Stage 2 Impact (optional):**
 - ✅ Persists decision metadata for auditing
 - ✅ Enables UI features ("Why this phase?")
 - ✅ Provides analytics foundation
@@ -328,14 +328,14 @@ val enrichedState = conversationState.copy(
 tutorService.respond(tutor, enrichedState, ...)
 ```
 
-**Impact on Implementation Plan:**
+**Impact on Implementation Steps:**
 - Step 3 code needs adjustment - remove decision calls from TutorService
 - Add metadata fields to ConversationState OR add parameters to `respond()`
 - Update ChatService to compute metadata before calling TutorService
 
 ---
 
-## Phase 3: Critical Review
+## Part 3: Critical Review
 
 ### Self-Review Checklist
 
@@ -359,19 +359,19 @@ tutorService.respond(tutor, enrichedState, ...)
 - application.yml prompts are hot-reloadable (dev mode)
 - No conflict with existing tutor/catalog properties
 
-#### ✅ Database Concerns (Phase 1)
-- No migrations required for Phase 1
+#### ✅ Database Concerns (Part 4.1)
+- No migrations required for Part 4.1
 - Existing ChatSessionEntity columns sufficient
 - No schema conflicts
 
 ### Breaking Change Analysis
 
-**Phase 1 - No Breaking Changes:**
+**Part 4.1 - No Breaking Changes:**
 - REST API contracts unchanged
 - Database schema unchanged
 - Existing tests pass (prompt assembly refactored but behavior equivalent)
 
-**Phase 2 - Backward Compatible Changes:**
+**Part 4.2 - Backward Compatible Changes:**
 - New optional fields in ChatSessionEntity (nullable)
 - New optional fields in SessionResponse DTOs (clients ignore unknown fields)
 - No removal of existing fields or endpoints
@@ -425,7 +425,7 @@ tutorService.respond(tutor, enrichedState, ...)
 5. **Duplicate Method APIs**
    - **Issue:** `decidePhaseWithReason()` and `decideTopicWithMetadata()` parallel existing methods
    - **Risk:** Code duplication, maintenance burden, API confusion
-   - **Mitigation:** Phase 2 migration to single API with wrapper objects
+   - **Mitigation:** Stage 2 migration to single API with wrapper objects
 
 6. **Test Mock Updates**
    - **Issue:** All existing tests mocking decision services need wrapper object updates
@@ -437,7 +437,7 @@ tutorService.respond(tutor, enrichedState, ...)
 7. **Progressive Summarization Compatibility**
    - **Issue:** Changing summarization prompt may break existing summary chains
    - **Risk:** Loss of pedagogical context in long conversations
-   - **Mitigation:** Defer summarization changes to Phase 1.5, test thoroughly
+   - **Mitigation:** Defer summarization changes to deferred step, test thoroughly
 
 8. **No Baseline Token Measurements**
    - **Issue:** No automated baseline capture before changes
@@ -452,16 +452,16 @@ tutorService.respond(tutor, enrichedState, ...)
 | Hardcoded language metadata | Low | Future: move to catalog | Deferred |
 | Reason string localization | Low | Future: i18n support | Deferred |
 | Summarization placeholders | Medium | Verify before deploy OR use static | Required |
-| Duplicate APIs | Medium | Phase 2 consolidation | Planned |
+| Duplicate APIs | Medium | Stage 2 consolidation | Planned |
 | Test mock updates | High | Comprehensive test suite run | Required |
-| Summarization compatibility | High | Defer to Phase 1.5 | Implemented |
+| Summarization compatibility | High | Defer to separate step | Implemented |
 | No token baseline | Medium | Add integration test | Required |
 
 ---
 
-## Phase 4: Implementation Plan
+## Part 4: Implementation Plan
 
-### Phase 4.1: Immediate Improvements (Recommended First)
+### Part 4.1: Immediate Improvements (Recommended First)
 
 #### Step 1: Enhance Decision Services to Return Metadata
 
@@ -890,17 +890,17 @@ developer: |
   - Ask: "Would native speaker do this in texting?" → Yes = Low/ignore
 ```
 
-**Summarization Prompt Changes - Deferred to Phase 1.5:**
+**Summarization Prompt Changes - Deferred:**
 
-The summarization prompt improvements are **OUT OF SCOPE** for Phase 1 and should be implemented separately after core consolidation is validated. This reduces implementation risk and allows focused testing.
+The summarization prompt improvements are **OUT OF SCOPE** for Part 4.1 and should be implemented separately after core consolidation is validated. This reduces implementation risk and allows focused testing.
 
 **Rationale for deferral:**
 - Progressive summarization is complex with multi-level hierarchy
 - Changes could break existing summary chains in long conversations
 - Requires separate validation of compression quality
-- Phase 1 delivers 80% of value without this change
+- Part 4.1 delivers 80% of value without this change
 
-**Phase 1.5 Summarization Improvements (Optional Future Work):**
+**Deferred Summarization Improvements (Optional Future Work):**
 ```yaml
 progressive:
   prompt: |
@@ -919,18 +919,18 @@ progressive:
 - `ConversationSummarizationService.kt:92-93`
 - `ProgressiveSummarizationService.kt:164-165, 218-219`
 
-No placeholder implementation work needed - only prompt text changes when Phase 1.5 is executed.
+No placeholder implementation work needed - only prompt text changes when this deferred work is executed.
 
 **Testing:** Manual review of generated summaries for conciseness
 
 ---
 
-### Phase 4.2: Optional Persistence Layer (Future Enhancement)
+### Part 4.2: Optional Persistence Layer (Future Enhancement)
 
-**Decision Criteria:** Implement Phase 2 persistence ONLY IF ALL of the following are true:
+**Decision Criteria:** Implement Part 4.2 persistence ONLY IF ALL of the following are true:
 
 **Required Pre-Conditions:**
-1. ✅ **Phase 1 Success Validated**
+1. ✅ **Part 4.1 Success Validated**
    - Token reduction ≥8% confirmed (target 10-15%)
    - No increase in API error rates
    - LLM response quality maintained or improved
@@ -946,9 +946,9 @@ No placeholder implementation work needed - only prompt text changes when Phase 
    - Database migration window scheduled
    - QA resources for API contract testing
 
-**If ANY condition fails, DEFER Phase 2 indefinitely.**
+**If ANY condition fails, DEFER Part 4.2 indefinitely.**
 
-**Use Cases Enabled by Phase 2:**
+**Use Cases Enabled by Part 4.2:**
 - UI displaying "Why this phase?" to learners
 - Analytics on phase transition patterns over time
 - Audit trail for pedagogical decisions
@@ -1171,7 +1171,7 @@ every {
 
 ### Rollout Plan
 
-#### Phase 1: Non-Production Testing (Week 1)
+#### Rollout Stage 1: Non-Production Testing (Week 1)
 
 **Pre-Deployment Validation:**
 1. Verify all unit tests pass: `./gradlew test`
@@ -1191,13 +1191,13 @@ every {
 3. Monitor LLM response quality and token usage
 4. Compare token usage vs baseline (expect 10-15% reduction)
 
-#### Phase 2: Canary Release (Week 2)
+#### Rollout Stage 2: Canary Release (Week 2)
 1. Deploy to 10% of production sessions
 2. Monitor error rates and response times
 3. Compare token usage metrics vs baseline
 4. Gather qualitative feedback from demo users
 
-#### Phase 3: Full Rollout (Week 3)
+#### Rollout Stage 3: Full Rollout (Week 3)
 1. Deploy to 100% of production
 2. Monitor for 1 week
 3. Document token savings and quality improvements
@@ -1245,14 +1245,14 @@ logger.info("System prompt assembled: ${systemMessages.size} message(s)")
 
 ### Rollback Strategy
 
-**Phase 1 Rollback (if issues detected):**
+**Part 4.1 Rollback (if issues detected):**
 1. Revert `TutorService.kt` changes
 2. Revert `PhaseDecisionService.kt` changes
 3. Revert `TopicDecisionService.kt` changes
 4. Revert `application.yml` prompt changes
 5. Deploy previous version
 
-**No data loss risk** - Phase 1 has no database changes
+**No data loss risk** - Part 4.1 has no database changes
 
 **Rollback Triggers:**
 - Error rate increase >5%
@@ -1262,13 +1262,13 @@ logger.info("System prompt assembled: ${systemMessages.size} message(s)")
 
 ---
 
-## Phase 5: REST API Changes
+## Part 5: REST API Changes
 
-**Phase 1: No API Changes**
+**Part 4.1: No API Changes**
 
-All improvements in Phase 1 are internal to prompt assembly. REST API contracts remain identical.
+All improvements in Part 4.1 are internal to prompt assembly. REST API contracts remain identical.
 
-**Phase 2 (Optional Future Enhancement):**
+**Part 4.2 (Optional Future Enhancement):**
 
 If persistence layer is implemented, add optional fields to existing responses:
 
@@ -1358,7 +1358,7 @@ data class LanguageMetadata(
 - Progressive summarization is complex (multi-level hierarchy)
 - Changes could break existing summary chains
 - Requires separate validation of compression quality
-- Phase 1 delivers 80% of value without this change
+- Part 4.1 delivers 80% of value without this change
 
 **Acceptance Criteria:**
 - Baseline quality measurement of current summaries
@@ -1389,7 +1389,7 @@ data class LanguageMetadata(
 
 ## Summary
 
-**Recommended Approach:** Alternative 4 - Phase 1 Only (Immediate Improvements)
+**Recommended Approach:** Alternative 4 - Stage 1 Only (Immediate Improvements)
 
 **Why:**
 - Low risk, high impact
@@ -1405,7 +1405,7 @@ data class LanguageMetadata(
 - More coherent pedagogical signals
 - No breaking changes or data migrations
 
-**Phase 2 (Optional):**
-- Defer until Phase 1 validated
+**Stage 2 (Optional):**
+- Defer until Stage 1 validated
 - Only implement if user-facing features require decision metadata
 - Clear separation of concerns
