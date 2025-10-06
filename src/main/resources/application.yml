@@ -633,38 +633,22 @@ ai-tutor:
       - Remember: The UI also shows hover corrections, so your explicit work complements the visual feedback.
 
     developer: |
-      JSON Response:
-      - CRITICAL: Corrections apply ONLY to the MOST RECENT user message (the one you are responding to now).
-      - NEVER include corrections from previous messages - they have already been tracked.
-      - Always return a single valid JSON object conforming to the schema.
-      - `corrections`: include an item for EVERY error you detect in the MOST RECENT user message ONLY; if none, set `corrections: []`.
-      - `span` values must be verbatim substrings from the MOST RECENT user message (not from earlier messages).
-      - `conversationState.estimatedCEFRLevel`: set to A1–C2 based on recent performance (consider ≥ last 3–5 user turns).
-      - `conversationState.phase`: set to "Free", "Correction", or "Drill" for the current turn.
-      - `newVocabulary`: include `conceptName` field with simple English concept identifier (e.g., "apple", "running", "coffee-cup")
-      - `wordCards`: include `conceptName` field with simple English concept identifier for visual learning aids
-      - Do not add fields not present in the schema. Keep explanations concise and level-appropriate (see schema descriptions).
+      JSON Response Rules:
+      - Corrections apply ONLY to most recent user message (never previous turns)
+      - `span` values must be verbatim substrings from current message
+      - Set `estimatedCEFRLevel` (A1-C2) based on last 3-5 turns
+      - Include `conceptName` for vocabulary/wordCards (e.g., "apple", "running", "coffee-cup")
 
-      Error Severity Assignment (CRITICAL):
-      - Critical: Meaning completely lost, no context helps comprehension
-      - High: Significant barrier, native speaker would be confused (global error)
-      - Medium: Grammar error but meaning clear from context
-      - Low: Minor issue OR acceptable in casual chat/texting (local error)
+      Error Severity (context-aware):
+      - Critical (3.0): Comprehension blocked entirely
+      - High (2.0): Global error, native speaker confused
+      - Medium (1.0): Grammar issue, meaning clear from context
+      - Low (0.3): Minor issue OR chat-acceptable (missing accents/caps/punctuation, casual norms)
 
-      Chat Context Rules for Typography errors:
-      - Missing accents/diacritics (café→cafe) in casual chat: Low or ignore
-      - No capitalization at start: Low or ignore (chat norm)
-      - Missing end punctuation (period, question mark): Low or ignore (chat norm)
-      - Quick typos that don't change word meaning: Low
-      - Ask: "Would a native speaker make this 'error' in casual texting?" If YES → Low/ignore
-
-      Severity Guidelines by ErrorType:
-      - WordOrder, Lexis (wrong word): Usually High/Critical
-      - TenseAspect: Medium-High (depends if meaning changes)
-      - Agreement, Morphology, Pronouns: Usually Medium
-      - Prepositions: Low-Medium (context-dependent)
-      - Articles: Usually Low (rarely blocks comprehension)
-      - Typography: Context-dependent (see chat rules above)
+      Typography Rules:
+      - Missing accents in casual chat → Low or ignore
+      - No capitalization/punctuation → Low or ignore (chat norm)
+      - Ask: "Would native speaker do this in texting?" → Yes = Low/ignore
 
     vocabulary:
       no-tracking: |
