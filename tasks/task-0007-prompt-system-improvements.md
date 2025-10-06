@@ -102,18 +102,64 @@ val systemMessages = listOf(
 - Refactor developer/vocabulary prompts for conciseness
 - Keep existing data models unchanged
 
+**Implementation Options for Metadata Passing:**
+
+**Option A - Method Parameters:**
+```kotlin
+// TutorService.respond() with new parameters
+fun respond(
+    tutor: Tutor,
+    conversationState: ConversationState,
+    userId: UUID,
+    messages: List<Message>,
+    sessionId: UUID? = null,
+    phaseReason: String? = null,  // NEW
+    topicMetadata: String? = null, // NEW
+    pastTopics: List<String> = emptyList(), // NEW
+    onReplyChunk: (String) -> Unit = {}
+)
+```
+
+**Option B - Enriched ConversationState (Recommended):**
+```kotlin
+// Extend ConversationState data class
+data class ConversationState(
+    val phase: ConversationPhase,
+    val estimatedCEFRLevel: CEFRLevel,
+    val currentTopic: String?,
+
+    // NEW: Optional metadata fields (backward compatible)
+    val phaseReason: String? = null,
+    val topicEligibilityStatus: String? = null,
+    val pastTopics: List<String> = emptyList()
+)
+
+// ChatService enriches state before calling TutorService
+val enrichedState = conversationState.copy(
+    phaseReason = phaseDecision.reason,
+    topicEligibilityStatus = topicDecision.eligibilityStatus,
+    pastTopics = topicDecision.pastTopics
+)
+
+tutorService.respond(tutor, enrichedState, userId, messages, sessionId, onReplyChunk)
+```
+
+**Recommendation:** Use Option B (enriched ConversationState) for cleaner API and better cohesion.
+
 **Pros:**
 - Significant LLM context quality improvement
 - Language-specific scaffolding enabled
 - Better pedagogical signals
 - No database changes required
+- Clean separation: ChatService computes, TutorService formats
 
 **Cons:**
 - Requires coordination between multiple services
 - More complex prompt formatting logic
 - Needs thorough testing of decision services
+- ConversationState modification (low risk, backward compatible)
 
-**Complexity:** 3-4 files changed (~150 LOC), no migrations
+**Complexity:** 3-4 files changed (~150 LOC), no migrations, 1 data class update
 **Risk:** Medium
 
 ---
@@ -213,6 +259,82 @@ val systemMessages = listOf(
 - ✅ Enables UI features ("Why this phase?")
 - ✅ Provides analytics foundation
 
+---
+
+## Architecture Decision: Where to Compute Decision Metadata
+
+### Problem
+Decision metadata (phase reasons, topic eligibility) needs to be formatted for LLM prompts. Should this happen in:
+- **Option A:** TutorService (prompt assembly layer)
+- **Option B:** ChatService (orchestration layer)
+
+### Analysis
+
+**Option A - TutorService computes metadata:**
+```kotlin
+// TutorService.respond()
+val phaseDecision = phaseDecisionService.decidePhaseWithReason(...)
+val topicDecision = topicDecisionService.decideTopicWithMetadata(...)
+// Use metadata in prompt assembly
+```
+
+Pros:
+- Metadata close to usage point
+- TutorService fully self-contained
+
+Cons:
+- Duplicate phase decision logic (ChatService already calls `decidePhase()`)
+- TutorService needs session data it doesn't currently access
+- Harder to test metadata formatting independently
+- Blurs service responsibilities
+
+**Option B - ChatService computes metadata, passes to TutorService:**
+```kotlin
+// ChatService.sendMessage()
+val phaseDecision = phaseDecisionService.decidePhaseWithReason(...)
+val topicDecision = topicDecisionService.decideTopicWithMetadata(...)
+
+// Pass metadata to TutorService via parameters or enriched ConversationState
+tutorService.respond(..., phaseReason = phaseDecision.reason, topicMetadata = topicDecision)
+```
+
+Pros:
+- No duplicate decision logic
+- ChatService already has session access
+- Clear separation: ChatService orchestrates, TutorService formats
+- Easier to test metadata independently
+
+Cons:
+- More parameters to TutorService (mitigated by enriched ConversationState)
+- Metadata travels through extra layer
+
+### Decision: **Option B - ChatService Computes Metadata**
+
+**Rationale:**
+1. ChatService already makes phase/topic decisions (lines 245-278)
+2. Avoids duplicate decision calls
+3. Cleaner separation of concerns
+4. Easier to test and maintain
+
+**Implementation:**
+```kotlin
+// ChatService enriches ConversationState with metadata
+val enrichedState = conversationState.copy(
+    phaseReason = phaseDecision.reason,
+    topicMetadata = topicDecision.eligibilityStatus,
+    pastTopics = topicDecision.pastTopics
+)
+
+tutorService.respond(tutor, enrichedState, ...)
+```
+
+**Impact on Implementation Plan:**
+- Step 3 code needs adjustment - remove decision calls from TutorService
+- Add metadata fields to ConversationState OR add parameters to `respond()`
+- Update ChatService to compute metadata before calling TutorService
+
+---
+
 ## Phase 3: Critical Review
 
 ### Self-Review Checklist
@@ -270,6 +392,73 @@ val systemMessages = listOf(
 - Format: "Target Language: Spanish (Spain) | Difficulty: Easy | Key Challenges: gendered nouns, verb conjugation"
 - Sourced from LanguageMetadata via catalog properties
 
+---
+
+## Known Limitations and Risks
+
+### Technical Limitations
+
+1. **Token Estimation Imprecision**
+   - **Issue:** No precise token counter available for prompt measurement
+   - **Workaround:** Using `length / 4` heuristic (rough approximation)
+   - **Impact:** Token reduction metrics are estimates, not exact measurements
+   - **Mitigation:** Validate against actual OpenAI API token usage in production
+
+2. **Language Metadata Hardcoding**
+   - **Issue:** Key challenge descriptions hardcoded in `extractKeyChallenges()` method
+   - **Better:** Externalize to `application.yml` or LanguageMetadata JSON
+   - **Impact:** Adding new languages requires code changes, not just config
+   - **Future:** Move to catalog-based metadata system
+
+3. **Reason String Localization**
+   - **Issue:** Phase/topic decision reasons always in English
+   - **Impact:** Doesn't match multilingual UI/API expectations
+   - **Future:** Localize reason strings based on user's sourceLanguage
+
+4. **Summarization Prompt Placeholders**
+   - **Issue:** `{targetWords}` and `{targetTokens}` placeholders may not exist
+   - **Risk:** Prompt rendering failure if placeholders undefined
+   - **Mitigation:** Verify before deployment OR use static values
+
+### Architectural Risks
+
+5. **Duplicate Method APIs**
+   - **Issue:** `decidePhaseWithReason()` and `decideTopicWithMetadata()` parallel existing methods
+   - **Risk:** Code duplication, maintenance burden, API confusion
+   - **Mitigation:** Phase 2 migration to single API with wrapper objects
+
+6. **Test Mock Updates**
+   - **Issue:** All existing tests mocking decision services need wrapper object updates
+   - **Risk:** Test failures if mocks not updated comprehensively
+   - **Mitigation:** Run full test suite before deployment
+
+### Deployment Risks
+
+7. **Progressive Summarization Compatibility**
+   - **Issue:** Changing summarization prompt may break existing summary chains
+   - **Risk:** Loss of pedagogical context in long conversations
+   - **Mitigation:** Defer summarization changes to Phase 1.5, test thoroughly
+
+8. **No Baseline Token Measurements**
+   - **Issue:** No automated baseline capture before changes
+   - **Risk:** Cannot definitively prove 10-15% reduction claim
+   - **Mitigation:** Add token measurement integration test
+
+### Mitigations Summary
+
+| Risk | Severity | Mitigation | Status |
+|------|----------|------------|--------|
+| Token estimation imprecision | Low | Use heuristic + production validation | Accepted |
+| Hardcoded language metadata | Low | Future: move to catalog | Deferred |
+| Reason string localization | Low | Future: i18n support | Deferred |
+| Summarization placeholders | Medium | Verify before deploy OR use static | Required |
+| Duplicate APIs | Medium | Phase 2 consolidation | Planned |
+| Test mock updates | High | Comprehensive test suite run | Required |
+| Summarization compatibility | High | Defer to Phase 1.5 | Implemented |
+| No token baseline | Medium | Add integration test | Required |
+
+---
+
 ## Phase 4: Implementation Plan
 
 ### Phase 4.1: Immediate Improvements (Recommended First)
@@ -278,6 +467,18 @@ val systemMessages = listOf(
 
 **File:** `PhaseDecisionService.kt`
 
+**Design Decision:** Create new methods with metadata OR modify existing methods?
+
+**Option A - New parallel methods (recommended for Phase 1):**
+- Pros: No breaking changes, easier rollout, can test side-by-side
+- Cons: Duplicate code, maintenance burden, confusing API
+
+**Option B - Modify existing methods (recommended for long-term):**
+- Pros: Single source of truth, cleaner API, forces migration
+- Cons: Breaking change, must update all call sites immediately
+
+**Recommendation:** Use Option A for Phase 1, migrate to Option B in Phase 2.
+
 ```kotlin
 data class PhaseDecision(
     val phase: ConversationPhase,
@@ -285,7 +486,7 @@ data class PhaseDecision(
     val severityScore: Double
 )
 
-// Update decidePhase to return PhaseDecision
+// New method - returns metadata wrapper (Option A)
 fun decidePhaseWithReason(
     currentPhase: ConversationPhase,
     recentMessages: List<ChatMessageEntity>
@@ -343,12 +544,23 @@ fun decideTopicWithMetadata(
 
 **File:** `TutorService.kt`
 
+Add import at top of file:
+```kotlin
+import ch.obermuhlner.aitutor.core.model.catalog.LanguageMetadata
+```
+
 Add constructor dependency:
 ```kotlin
 class TutorService(
     // existing dependencies...
     private val supportedLanguages: Map<String, LanguageMetadata>
 ) {
+```
+
+**Note:** The `supportedLanguages` bean is provided by `LanguageConfig.kt:14`:
+```kotlin
+@Bean
+fun supportedLanguages(): Map<String, LanguageMetadata>
 ```
 
 Add helper method:
@@ -391,6 +603,40 @@ private fun extractKeyChallenges(code: String): String = when {
 
 **Testing:** Add unit test for language metadata prompt generation
 
+**Test Updates Required:**
+```kotlin
+// TutorServiceTest.kt - Update setup to mock supportedLanguages
+private val supportedLanguages = mapOf(
+    "es" to LanguageMetadata(
+        code = "es",
+        nameJson = """{"en": "Spanish"}""",
+        flagEmoji = "🇪🇸",
+        nativeName = "Español",
+        difficulty = Difficulty.Easy,
+        descriptionJson = """{"en": "Romance language"}"""
+    )
+)
+
+// Pass to TutorService constructor in test setup
+val tutorService = TutorService(
+    aiChatService,
+    languageService,
+    vocabularyContextService,
+    messageCompactionService,
+    systemPromptTemplate,
+    phaseFreePromptTemplate,
+    phaseCorrectionPromptTemplate,
+    phaseDrillPromptTemplate,
+    developerPromptTemplate,
+    vocabularyNoTrackingTemplate,
+    vocabularyWithTrackingTemplate,
+    teachingStyleReactiveTemplate,
+    teachingStyleGuidedTemplate,
+    teachingStyleDirectiveTemplate,
+    supportedLanguages // NEW
+)
+```
+
 ---
 
 #### Step 3: Consolidate System Message Assembly
@@ -407,11 +653,14 @@ val phaseDecision = if (conversationState.phase == ConversationPhase.Auto) {
     PhaseDecision(conversationState.phase, "User-selected phase", 0.0)
 }
 
+// Note: pastTopicsJson must be passed from ChatService, not accessed here
+// TutorService does not have access to sessionEntity
+// This decision metadata should be computed in ChatService BEFORE calling TutorService
 val topicDecision = topicDecisionService.decideTopicWithMetadata(
     conversationState.currentTopic,
     conversationState.currentTopic, // LLM not yet responded, use current
     messages.filterIsInstance<ChatMessageEntity>(),
-    sessionEntity?.pastTopicsJson
+    null // TODO: Pass pastTopicsJson from ChatService as parameter
 )
 
 // Build consolidated system prompt
@@ -515,16 +764,53 @@ progressive:
     Format: Bullets or short phrases. Target: {targetWords} words ({targetTokens} tokens).
 ```
 
+**⚠️ IMPORTANT - Placeholder Verification:**
+Before deploying this prompt, verify that `{targetWords}` and `{targetTokens}` placeholders are defined in `ProgressiveSummarizationService.kt` or `ConversationSummarizationService.kt`.
+
+**To verify:**
+```bash
+grep -r "targetWords\|targetTokens" src/main/kotlin/ch/obermuhlner/aitutor/tutor/service/
+```
+
+**If placeholders NOT found:**
+- Option A: Add placeholder substitution logic to summarization services
+- Option B: Use static values: "Target: 50-100 words (200-400 tokens)"
+- Option C: Remove target specification entirely
+
+**Recommendation:** Defer summarization prompt changes to Phase 1.5 (separate from core consolidation work) due to complexity of progressive summarization system.
+
 **Testing:** Manual review of generated summaries for conciseness
 
 ---
 
 ### Phase 4.2: Optional Persistence Layer (Future Enhancement)
 
-**Deferred** - Only implement if Phase 1 proves successful and there's demand for:
-- UI displaying "Why this phase?"
-- Analytics on phase transition patterns
+**Decision Criteria:** Implement Phase 2 persistence ONLY IF ALL of the following are true:
+
+**Required Pre-Conditions:**
+1. ✅ **Phase 1 Success Validated**
+   - Token reduction ≥8% confirmed (target 10-15%)
+   - No increase in API error rates
+   - LLM response quality maintained or improved
+   - Zero production incidents related to prompt changes
+
+2. ✅ **Business Justification Exists**
+   - Product roadmap includes "Why this phase?" UI feature, OR
+   - User feedback explicitly requests phase transition explanations, OR
+   - Analytics team requires pedagogical decision tracking
+
+3. ✅ **Engineering Capacity Available**
+   - 2-3 days of engineering time available
+   - Database migration window scheduled
+   - QA resources for API contract testing
+
+**If ANY condition fails, DEFER Phase 2 indefinitely.**
+
+**Use Cases Enabled by Phase 2:**
+- UI displaying "Why this phase?" to learners
+- Analytics on phase transition patterns over time
 - Audit trail for pedagogical decisions
+- A/B testing different phase decision thresholds
 
 **Changes Required:**
 1. Database migration adding columns to `chat_sessions`:
@@ -546,15 +832,157 @@ progressive:
 ### Testing Strategy
 
 #### Unit Tests
-- `PhaseDecisionService.decidePhaseWithReason()` - verify reason strings
-- `TopicDecisionService.decideTopicWithMetadata()` - verify eligibility logic
-- `TutorService.buildLanguageMetadataPrompt()` - verify metadata formatting
-- `TutorService.buildConsolidatedSystemPrompt()` - verify single message structure
+
+**PhaseDecisionServiceTest:**
+```kotlin
+@Test
+fun `decidePhaseWithReason returns correct reason for Free phase`() {
+    val messages = createMessagesWithLowSeverityErrors()
+    val result = phaseDecisionService.decidePhaseWithReason(ConversationPhase.Auto, messages)
+
+    assertEquals(ConversationPhase.Free, result.phase)
+    assertTrue(result.reason.contains("Low error rate"))
+    assertTrue(result.severityScore < 1.0)
+}
+
+@Test
+fun `decidePhaseWithReason returns correct reason for Drill phase`() {
+    val messages = createMessagesWithHighSeverityErrors()
+    val result = phaseDecisionService.decidePhaseWithReason(ConversationPhase.Auto, messages)
+
+    assertEquals(ConversationPhase.Drill, result.phase)
+    assertTrue(result.reason.contains("High error severity"))
+    assertTrue(result.severityScore >= 6.0)
+}
+
+@Test
+fun `decidePhaseWithReason returns user-selected reason for manual phase`() {
+    val messages = emptyList<ChatMessageEntity>()
+    val result = phaseDecisionService.decidePhaseWithReason(ConversationPhase.Correction, messages)
+
+    assertEquals(ConversationPhase.Correction, result.phase)
+    assertEquals("User-selected phase", result.reason)
+}
+```
+
+**TopicDecisionServiceTest:**
+```kotlin
+@Test
+fun `decideTopicWithMetadata returns correct eligibility for locked topic`() {
+    val messages = createMessages(turnCount = 2)
+    val result = topicDecisionService.decideTopicWithMetadata("travel", "food", messages, null)
+
+    assertEquals("travel", result.topic) // LLM proposal rejected
+    assertTrue(result.eligibilityStatus.contains("locked"))
+    assertEquals(2, result.turnCount)
+}
+
+@Test
+fun `decideTopicWithMetadata returns correct eligibility for stale topic`() {
+    val messages = createMessages(turnCount = 13)
+    val result = topicDecisionService.decideTopicWithMetadata("travel", "food", messages, null)
+
+    assertEquals("food", result.topic) // LLM proposal accepted
+    assertTrue(result.eligibilityStatus.contains("stale"))
+    assertEquals(13, result.turnCount)
+}
+
+@Test
+fun `decideTopicWithMetadata includes past topics in result`() {
+    val pastTopicsJson = """["sports", "weather", "travel"]"""
+    val result = topicDecisionService.decideTopicWithMetadata("current", null, emptyList(), pastTopicsJson)
+
+    assertEquals(listOf("sports", "weather", "travel"), result.pastTopics)
+}
+```
+
+**TutorServiceTest:**
+```kotlin
+@Test
+fun `buildLanguageMetadataPrompt handles missing language gracefully`() {
+    val result = tutorService.buildLanguageMetadataPrompt("unknown-language-code")
+    assertEquals("", result) // Fallback to empty string
+}
+
+@Test
+fun `buildLanguageMetadataPrompt formats Spanish metadata correctly`() {
+    val result = tutorService.buildLanguageMetadataPrompt("es")
+
+    assertTrue(result.contains("Difficulty: Easy"))
+    assertTrue(result.contains("gendered nouns"))
+    assertTrue(result.contains("verb conjugation"))
+}
+
+@Test
+fun `consolidated prompt contains all required sections`() {
+    // Test that single SystemMessage includes:
+    // - Base system prompt (role, persona, languages)
+    // - Phase-specific behavior
+    // - Developer rules
+    // - Session context
+    // - Language metadata
+    val messages = tutorService.respond(tutor, conversationState, userId, emptyList())
+
+    // Verify prompt structure (implementation-specific assertions)
+}
+```
 
 #### Integration Tests
-- `TutorServiceTest` - compare token counts (expect 10-15% reduction)
+
+**Token Reduction Validation:**
+```kotlin
+@Test
+fun `consolidated prompt reduces tokens by 10-15% vs fragmented`() {
+    // Setup test data
+    val tutor = createTestTutor()
+    val conversationState = createTestConversationState()
+    val userId = UUID.randomUUID()
+
+    // Measure OLD approach (3 separate SystemMessages)
+    val oldSystemMessages = listOf(
+        SystemMessage(systemPrompt + phasePrompt),
+        SystemMessage(developerPrompt),
+        SystemMessage(conversationState.toString())
+    )
+    val oldCharCount = oldSystemMessages.sumOf { it.content.length }
+    val oldEstimatedTokens = oldCharCount / 4
+
+    // Measure NEW approach (1 consolidated SystemMessage)
+    // Build consolidated prompt using new buildConsolidatedSystemPrompt() logic
+    val newSystemMessages = listOf(SystemMessage(buildConsolidatedSystemPrompt(...)))
+    val newCharCount = newSystemMessages.sumOf { it.content.length }
+    val newEstimatedTokens = newCharCount / 4
+
+    // Verify reduction
+    val reduction = (oldEstimatedTokens - newEstimatedTokens).toDouble() / oldEstimatedTokens
+    assertTrue(
+        reduction >= 0.10,
+        "Expected ≥10% reduction, got ${(reduction * 100).roundToInt()}%"
+    )
+    assertTrue(
+        reduction <= 0.20,
+        "Reduction too aggressive (${(reduction * 100).roundToInt()}%), may lose context"
+    )
+
+    println("Token reduction: ${(reduction * 100).roundToInt()}% (${oldEstimatedTokens} → ${newEstimatedTokens})")
+}
+```
+
+**End-to-End Tests:**
 - `ChatServiceTest` - verify end-to-end session creation still works
 - `MessageCompactionServiceTest` - verify compatibility with new prompt structure
+
+**Existing Test Updates:**
+```kotlin
+// Update mocks in ChatServiceTest to handle new wrapper objects
+every {
+    phaseDecisionService.decidePhaseWithReason(any(), any())
+} returns PhaseDecision(ConversationPhase.Correction, "Balanced approach", 2.5)
+
+every {
+    topicDecisionService.decideTopicWithMetadata(any(), any(), any(), any())
+} returns TopicDecision("travel", 5, "active", emptyList())
+```
 
 #### Manual Testing
 - Create test session in each phase (Free/Correction/Drill/Auto)
@@ -567,10 +995,24 @@ progressive:
 ### Rollout Plan
 
 #### Phase 1: Non-Production Testing (Week 1)
+
+**Pre-Deployment Validation:**
+1. Verify all unit tests pass: `./gradlew test`
+2. Check for compilation errors: `./gradlew build`
+3. Review consolidated prompt in logs (enable DEBUG level for TutorService)
+
+**YAML Configuration Validation:**
 1. Deploy to dev environment
-2. Run integration test suite
-3. Manual testing with 5-10 sample conversations
-4. Monitor LLM response quality and token usage
+2. Send 10 test messages covering all phases (Free/Correction/Drill/Auto)
+3. Verify LLM responses parse correctly (check for JSON schema errors)
+4. Monitor logs for exceptions during prompt assembly
+5. Confirm metadata (phase reason, topic status) appears in logs
+
+**Functional Testing:**
+1. Run integration test suite
+2. Manual testing with 5-10 sample conversations
+3. Monitor LLM response quality and token usage
+4. Compare token usage vs baseline (expect 10-15% reduction)
 
 #### Phase 2: Canary Release (Week 2)
 1. Deploy to 10% of production sessions
@@ -610,9 +1052,16 @@ progressive:
 
 **Logging Additions:**
 ```kotlin
-logger.info("System prompt assembled: ${systemMessages.size} message(s), estimated ${estimateTokens(systemMessages)} tokens")
+// Note: No precise token counter available, using character length as proxy (rough estimate: chars/4)
+val estimatedTokens = systemMessages.sumOf { it.content.length } / 4
+logger.info("System prompt assembled: ${systemMessages.size} message(s), ~$estimatedTokens tokens (estimated)")
 logger.debug("Phase decision: ${phaseDecision.phase.name} (${phaseDecision.reason}, score: ${phaseDecision.severityScore})")
 logger.debug("Topic decision: ${topicDecision.topic} (${topicDecision.eligibilityStatus})")
+```
+
+**Alternative (simpler):** Remove token estimation if precision not critical:
+```kotlin
+logger.info("System prompt assembled: ${systemMessages.size} message(s)")
 ```
 
 ---
