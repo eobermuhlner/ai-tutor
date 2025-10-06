@@ -1,7 +1,19 @@
 package ch.obermuhlner.aitutor.core.model
 
+import com.fasterxml.jackson.annotation.JsonClassDescription
 import com.fasterxml.jackson.annotation.JsonPropertyDescription
 
+@JsonClassDescription("""
+Example for an error correction of the user message "Ich gehen nach Hause":
+{
+  "span": "gehen",
+  "errorType": "Agreement",
+  "severity": "Medium",
+  "correctedTargetLanguage": "gehe",
+  "whySourceLanguage": "The verb must agree with 'ich' (I). Use 'gehe' (first person singular) instead of 'gehen' (infinitive)",
+  "whyTargetLanguage": "Das Verb muss mit 'ich' übereinstimmen. Verwende 'gehe' (erste Person Singular) statt 'gehen' (Infinitiv)"
+}
+""")
 data class Correction(
     @field:JsonPropertyDescription("Exact string of the learner's error.")
     val span: String,
