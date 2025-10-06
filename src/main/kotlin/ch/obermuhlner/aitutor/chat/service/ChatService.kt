@@ -190,11 +190,17 @@ class ChatService(
             return null
         }
 
+        // Calculate next sequence number
+        val maxSequence = chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(sessionId)
+            .maxOfOrNull { it.sequenceNumber } ?: -1
+        val nextSequence = maxSequence + 1
+
         // Save user message
         val userMessage = ChatMessageEntity(
             session = session,
             role = MessageRole.USER,
-            content = userContent
+            content = userContent,
+            sequenceNumber = nextSequence
         )
         chatMessageRepository.save(userMessage)
 
@@ -270,7 +276,7 @@ class ChatService(
 
         chatSessionRepository.save(session)
 
-        // Save assistant message
+        // Save assistant message with next sequence number
         val assistantMessage = ChatMessageEntity(
             session = session,
             role = MessageRole.ASSISTANT,
@@ -280,7 +286,8 @@ class ChatService(
             vocabularyJson = if (tutorResponse.conversationResponse.newVocabulary.isNotEmpty())
                 objectMapper.writeValueAsString(tutorResponse.conversationResponse.newVocabulary) else null,
             wordCardsJson = if (tutorResponse.conversationResponse.wordCards.isNotEmpty())
-                objectMapper.writeValueAsString(tutorResponse.conversationResponse.wordCards) else null
+                objectMapper.writeValueAsString(tutorResponse.conversationResponse.wordCards) else null,
+            sequenceNumber = nextSequence + 1
         )
         val savedAssistantMessage = chatMessageRepository.save(assistantMessage)
 

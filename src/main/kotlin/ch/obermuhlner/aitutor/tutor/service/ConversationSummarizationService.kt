@@ -89,6 +89,7 @@ class ConversationSummarizationService(
 
         // Build prompt with dynamic target using PromptTemplate
         val promptText = PromptTemplate(summarizationPrompt).render(mapOf(
+            "targetTokens" to budgetTokens.toString(),
             "targetWords" to targetWords.toString()
         ))
         val promptMessages = listOf(

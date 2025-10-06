@@ -1,4 +1,4 @@
 logging:
   level:
-    ch.obermuhlner.aitutor: TRACE
+    ch.obermuhlner.aitutor: DEBUG
 

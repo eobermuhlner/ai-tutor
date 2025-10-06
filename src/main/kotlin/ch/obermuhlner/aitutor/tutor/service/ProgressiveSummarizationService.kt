@@ -30,6 +30,7 @@ class ProgressiveSummarizationService(
     @Value("\${ai-tutor.context.summarization.progressive.chunk-token-threshold}") private val chunkTokenThreshold: Int,
     @Value("\${ai-tutor.context.summarization.progressive.prompt}") private val progressivePrompt: String,
     @Value("\${ai-tutor.context.summarization.compression-ratio}") private val compressionRatio: Double,
+    @Value("\${ai-tutor.context.summarization.tokens-per-word}") private val tokensPerWord: Double,
     @Value("\${ai-tutor.context.summarization.min-summary-tokens}") private val minSummaryTokens: Int,
     @Value("\${ai-tutor.context.summarization.max-summary-tokens}") private val maxSummaryTokens: Int
 ) {
@@ -46,9 +47,10 @@ class ProgressiveSummarizationService(
         try {
             logger.debug("Async summarization check for session $sessionId")
 
-            // 1. Find last summarized sequence
-            val lastSummary = summaryRepository
-                .findTopBySessionIdAndSummaryLevelAndIsActiveTrueOrderByEndSequenceDesc(sessionId, 1)
+            // 1. Find last summarized sequence (across ALL levels, not just level-1)
+            val allActiveSummaries = summaryRepository
+                .findBySessionIdAndIsActiveTrueOrderBySummaryLevelAscStartSequenceAsc(sessionId)
+            val lastSummary = allActiveSummaries.maxByOrNull { it.endSequence }
             val startSequence = (lastSummary?.endSequence ?: -1) + 1
 
             // 2. Get unsummarized messages
@@ -75,13 +77,17 @@ class ProgressiveSummarizationService(
 
             // 4. Summarize all complete chunks (not just first!)
             val chunks = unsummarized.chunked(chunkSize)
+            logger.info("Session $sessionId: Processing ${chunks.size} chunks (chunkSize=$chunkSize, tokenThreshold=$chunkTokenThreshold)")
             for ((index, chunk) in chunks.withIndex()) {
-                if (chunk.size == chunkSize || tokenCount >= chunkTokenThreshold) {
-                    logger.info("Summarizing chunk ${index + 1}/${chunks.size} for session $sessionId (${chunk.size} messages)")
+                val shouldSummarize = chunk.size == chunkSize || tokenCount >= chunkTokenThreshold
+                logger.info("Session $sessionId: Chunk ${index + 1}/${chunks.size}: size=${chunk.size}, shouldSummarize=$shouldSummarize (chunkSize=$chunkSize OR tokenCount=$tokenCount >= threshold=$chunkTokenThreshold)")
+                if (shouldSummarize) {
+                    logger.info("Summarizing chunk ${index + 1}/${chunks.size} for session $sessionId (${chunk.size} messages, sequences ${chunk.first().sequenceNumber}-${chunk.last().sequenceNumber})")
                     val level1Summary = summarizeMessageChunk(sessionId, chunk)
                     summaryRepository.save(level1Summary)
+                    logger.info("Saved level-1 summary for session $sessionId: sequences ${level1Summary.startSequence}-${level1Summary.endSequence}, tokens=${level1Summary.tokenCount}")
                 } else {
-                    logger.debug("Skipping incomplete chunk ${index + 1} (${chunk.size}/$chunkSize messages)")
+                    logger.info("Skipping incomplete chunk ${index + 1} (${chunk.size}/$chunkSize messages)")
                 }
             }
 
@@ -149,12 +155,13 @@ class ProgressiveSummarizationService(
         val inputTokens = estimateTokens(messages.map { it.content })
         val targetSummaryTokens = (inputTokens * compressionRatio).toInt()
         val budgetTokens = targetSummaryTokens.coerceIn(minSummaryTokens, maxSummaryTokens)
-        val targetWords = (budgetTokens * 0.75).toInt()
+        val targetWords = (budgetTokens / tokensPerWord).toInt() // Convert tokens to words
 
         logger.debug("Level-1 summarization: input $inputTokens tokens, target $budgetTokens tokens ($targetWords words)")
 
         // Build prompt with dynamic target
         val promptText = PromptTemplate(progressivePrompt).render(mapOf(
+            "targetTokens" to budgetTokens.toString(),
             "targetWords" to targetWords.toString()
         ))
         val promptMessages = listOf(
@@ -202,12 +209,13 @@ class ProgressiveSummarizationService(
         val inputTokens = summaries.sumOf { it.tokenCount }
         val targetSummaryTokens = (inputTokens * compressionRatio).toInt()
         val budgetTokens = targetSummaryTokens.coerceIn(minSummaryTokens, maxSummaryTokens)
-        val targetWords = (budgetTokens * 0.75).toInt()
+        val targetWords = (budgetTokens / tokensPerWord).toInt() // Convert tokens to words
 
         logger.debug("Level-$level summarization: input $inputTokens tokens, target $budgetTokens tokens ($targetWords words)")
 
         // Build prompt with dynamic target
         val promptText = PromptTemplate(progressivePrompt).render(mapOf(
+            "targetTokens" to budgetTokens.toString(),
             "targetWords" to targetWords.toString()
         ))
         val promptMessages = listOf(

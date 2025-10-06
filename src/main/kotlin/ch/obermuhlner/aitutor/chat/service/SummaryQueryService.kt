@@ -75,7 +75,7 @@ class SummaryQueryService(
             summaryLevels = summaryLevels,
             lastSummarizedSequence = lastSummarizedSequence,
             estimatedTokenSavings = originalTokens - compactedTokens,
-            compressionRatio = if (compactedTokens > 0) originalTokens.toDouble() / compactedTokens else 1.0
+            compressionRatio = if (originalTokens > 0) compactedTokens.toDouble() / originalTokens else 1.0
         )
     }
 
@@ -135,8 +135,8 @@ class SummaryQueryService(
             "totalMessages" to allMessages.size,
             "totalTokensOriginal" to totalTokensOriginal,
             "totalTokensCompacted" to totalTokensCompacted,
-            "globalCompressionRatio" to if (totalTokensCompacted > 0) {
-                totalTokensOriginal.toDouble() / totalTokensCompacted
+            "globalCompressionRatio" to if (totalTokensOriginal > 0) {
+                totalTokensCompacted.toDouble() / totalTokensOriginal
             } else 1.0
         )
     }
