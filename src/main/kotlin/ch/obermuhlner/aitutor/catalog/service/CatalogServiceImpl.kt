@@ -2,6 +2,7 @@ package ch.obermuhlner.aitutor.catalog.service
 
 import ch.obermuhlner.aitutor.catalog.domain.CourseTemplateEntity
 import ch.obermuhlner.aitutor.catalog.domain.TutorProfileEntity
+import ch.obermuhlner.aitutor.catalog.dto.CreateTutorRequest
 import ch.obermuhlner.aitutor.catalog.repository.CourseTemplateRepository
 import ch.obermuhlner.aitutor.catalog.repository.TutorProfileRepository
 import ch.obermuhlner.aitutor.core.model.CEFRLevel
@@ -94,5 +95,38 @@ class CatalogServiceImpl(
 
         // Return tutors in suggested order
         return suggestedIds.mapNotNull { getTutorById(it) }
+    }
+
+    override fun createTutor(request: CreateTutorRequest): TutorProfileEntity {
+        logger.info("Creating new tutor: ${request.name} for language ${request.targetLanguageCode}")
+
+        // Create JSON with English as default locale
+        val personaJson = objectMapper.writeValueAsString(mapOf("en" to request.personaEnglish))
+        val domainJson = objectMapper.writeValueAsString(mapOf("en" to request.domainEnglish))
+        val descriptionJson = objectMapper.writeValueAsString(mapOf("en" to request.descriptionEnglish))
+        val culturalBackgroundJson = request.culturalBackground?.let {
+            objectMapper.writeValueAsString(mapOf("en" to it))
+        }
+
+        val tutor = TutorProfileEntity(
+            name = request.name,
+            emoji = request.emoji,
+            personaEnglish = request.personaEnglish,
+            domainEnglish = request.domainEnglish,
+            descriptionEnglish = request.descriptionEnglish,
+            personaJson = personaJson,
+            domainJson = domainJson,
+            descriptionJson = descriptionJson,
+            culturalBackgroundJson = culturalBackgroundJson,
+            personality = request.personality,
+            teachingStyle = request.teachingStyle,
+            targetLanguageCode = request.targetLanguageCode,
+            isActive = request.isActive,
+            displayOrder = request.displayOrder
+        )
+
+        val saved = tutorProfileRepository.save(tutor)
+        logger.info("Created tutor with ID: ${saved.id}")
+        return saved
     }
 }

@@ -342,6 +342,30 @@ Accept: application/json
 GET {{host}}/api/v1/catalog/tutors/{{tutorId}}?sourceLanguage=en
 Accept: application/json
 
+### Create New Tutor
+# @name createTutor
+POST {{host}}/api/v1/catalog/tutors
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Carlos",
+  "emoji": "👨‍🏫",
+  "personaEnglish": "enthusiastic teacher",
+  "domainEnglish": "business Spanish, formal conversation",
+  "descriptionEnglish": "Carlos is a business Spanish specialist who helps professionals communicate effectively in Spanish-speaking work environments",
+  "culturalBackground": "Native of Madrid, Spain with experience in Latin American business culture",
+  "personality": "Warm",
+  "teachingStyle": "Guided",
+  "targetLanguageCode": "es",
+  "isActive": true,
+  "displayOrder": 100
+}
+
+> {%
+    client.global.set("newTutorId", response.body.id);
+%}
+
 ###
 
 ###########################
