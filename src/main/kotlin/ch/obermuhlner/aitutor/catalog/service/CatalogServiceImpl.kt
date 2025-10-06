@@ -79,6 +79,9 @@ class CatalogServiceImpl(
     override fun getTutorsForCourse(courseTemplateId: UUID): List<TutorProfileEntity> {
         val course = getCourseById(courseTemplateId) ?: return emptyList()
 
+        // Get all tutors for this language
+        val allTutors = getTutorsForLanguage(course.languageCode)
+
         // Parse suggested tutor IDs from JSON
         val suggestedIds = course.suggestedTutorIdsJson?.let {
             try {
@@ -88,13 +91,16 @@ class CatalogServiceImpl(
             }
         } ?: emptyList()
 
-        // If no suggested tutors, return all tutors for the language
+        // If no suggested tutors, return all tutors
         if (suggestedIds.isEmpty()) {
-            return getTutorsForLanguage(course.languageCode)
+            return allTutors
         }
 
-        // Return tutors in suggested order
-        return suggestedIds.mapNotNull { getTutorById(it) }
+        // Return suggested tutors first (in order), then remaining tutors
+        val suggestedTutors = suggestedIds.mapNotNull { id -> allTutors.find { it.id == id } }
+        val remainingTutors = allTutors.filter { it.id !in suggestedIds }
+
+        return suggestedTutors + remainingTutors
     }
 
     override fun createTutor(request: CreateTutorRequest): TutorProfileEntity {
