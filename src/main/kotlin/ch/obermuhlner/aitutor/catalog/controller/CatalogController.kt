@@ -79,6 +79,7 @@ class CatalogController(
                 persona = localizationService.getLocalizedText(tutor.personaJson, locale, tutor.personaEnglish, "en"),
                 domain = localizationService.getLocalizedText(tutor.domainJson, locale, tutor.domainEnglish, "en"),
                 personality = tutor.personality,
+                teachingStyle = tutor.teachingStyle,
                 description = localizationService.getLocalizedText(tutor.descriptionJson, locale, tutor.descriptionEnglish, "en"),
                 targetLanguageCode = tutor.targetLanguageCode,
                 culturalBackground = tutor.culturalBackgroundJson?.let {
@@ -133,6 +134,7 @@ class CatalogController(
                 persona = localizationService.getLocalizedText(tutor.personaJson, locale, tutor.personaEnglish, "en"),
                 domain = localizationService.getLocalizedText(tutor.domainJson, locale, tutor.domainEnglish, "en"),
                 personality = tutor.personality,
+                teachingStyle = tutor.teachingStyle,
                 description = localizationService.getLocalizedText(tutor.descriptionJson, locale, tutor.descriptionEnglish, "en"),
                 targetLanguageCode = tutor.targetLanguageCode,
                 culturalBackground = tutor.culturalBackgroundJson?.let {
@@ -156,6 +158,7 @@ class CatalogController(
             persona = localizationService.getLocalizedText(tutor.personaJson, locale, tutor.personaEnglish, "en"),
             domain = localizationService.getLocalizedText(tutor.domainJson, locale, tutor.domainEnglish, "en"),
             personality = tutor.personality,
+            teachingStyle = tutor.teachingStyle,
             description = localizationService.getLocalizedText(tutor.descriptionJson, locale, tutor.descriptionEnglish, "en"),
             targetLanguageCode = tutor.targetLanguageCode,
             culturalBackground = tutor.culturalBackgroundJson?.let {

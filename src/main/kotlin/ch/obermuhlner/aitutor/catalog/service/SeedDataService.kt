@@ -63,6 +63,7 @@ class SeedDataService(
                     descriptionJson = """{"en": "$description"}""",
                     culturalBackgroundJson = """{"en": "${variant.culturalNotes}"}""",
                     personality = archetype.personality,
+                    teachingStyle = archetype.teachingStyle,
                     targetLanguageCode = language.code,
                     isActive = true,
                     displayOrder = variant.displayOrderOverride ?: archetype.displayOrder

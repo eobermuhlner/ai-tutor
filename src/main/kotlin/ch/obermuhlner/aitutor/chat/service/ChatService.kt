@@ -212,6 +212,7 @@ class ChatService(
             name = session.tutorName,
             persona = session.tutorPersona,
             domain = session.tutorDomain,
+            teachingStyle = session.tutorTeachingStyle,
             sourceLanguageCode = session.sourceLanguageCode,
             targetLanguageCode = session.targetLanguageCode
         )
@@ -322,6 +323,7 @@ class ChatService(
             tutorName = tutor.name,
             tutorPersona = tutor.personaEnglish,
             tutorDomain = tutor.domainEnglish,
+            tutorTeachingStyle = tutor.teachingStyle,
             sourceLanguageCode = sourceLanguageCode,
             targetLanguageCode = tutor.targetLanguageCode,
             conversationPhase = course.defaultPhase,

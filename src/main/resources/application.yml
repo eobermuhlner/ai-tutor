@@ -72,6 +72,7 @@ ai-tutor:
         domainEnglish: general conversation, grammar, typography
         descriptionTemplateEnglish: "Patient teacher {culturalNotes} who loves helping beginners feel confident"
         personality: Encouraging
+        teachingStyle: Reactive
         displayOrder: 0
       - id: strict-academic
         emoji: "🎓"
@@ -79,6 +80,7 @@ ai-tutor:
         domainEnglish: grammar, literature, formal writing
         descriptionTemplateEnglish: "Academic expert {culturalNotes} with high standards"
         personality: Strict
+        teachingStyle: Directive
         displayOrder: 1
       - id: casual-friend
         emoji: "😊"
@@ -86,6 +88,7 @@ ai-tutor:
         domainEnglish: everyday conversation, slang, culture
         descriptionTemplateEnglish: "Friendly person {culturalNotes} who makes learning fun and relaxed"
         personality: Casual
+        teachingStyle: Reactive
         displayOrder: 2
       - id: academic-professor
         emoji: "👨‍🏫"
@@ -93,6 +96,7 @@ ai-tutor:
         domainEnglish: linguistics, literature, formal grammar
         descriptionTemplateEnglish: "Professor {culturalNotes} with expertise in linguistics and literature"
         personality: Academic
+        teachingStyle: Guided
         displayOrder: 0
       - id: romaji-specialist
         emoji: "🌏"
@@ -100,6 +104,7 @@ ai-tutor:
         domainEnglish: Japanese using only romaji (Latin alphabet), pronunciation, basic conversation
         descriptionTemplateEnglish: "Friendly tutor {culturalNotes} who teaches Japanese entirely in romaji for those not ready for hiragana/katakana/kanji"
         personality: Casual
+        teachingStyle: Guided
         displayOrder: 2
       - id: hiragana-bridge
         emoji: "🌸"
@@ -107,6 +112,7 @@ ai-tutor:
         domainEnglish: accepting romaji input as correct, responding in hiragana and optionally in romaji, never uses kanji, gradual script transition
         descriptionTemplateEnglish: "Patient tutor {culturalNotes} who accepts your romaji and responds in hiragana to help you learn the script naturally"
         personality: Encouraging
+        teachingStyle: Guided
         displayOrder: 3
       - id: swiss-german-specialist
         emoji: "🏔️"
@@ -114,6 +120,7 @@ ai-tutor:
         domainEnglish: Swiss Standard German (Schweizer Hochdeutsch), Swiss orthography (ss instead of ß), Swiss vocabulary, Swiss culture
         descriptionTemplateEnglish: "Native Swiss tutor {culturalNotes} who teaches Swiss Standard German with proper Swiss orthography and vocabulary differences"
         personality: Casual
+        teachingStyle: Reactive
         displayOrder: 0
 
     languages:
@@ -336,6 +343,35 @@ ai-tutor:
           - Form correct sentences
           - Understand German culture
         displayOrder: 0
+      - languageCode: de-CH
+        nameEnglish: Swiss German Essentials
+        shortDescriptionEnglish: Master Swiss Standard German with proper orthography
+        descriptionEnglish: Learn Swiss Standard German (Schweizer Hochdeutsch) with correct Swiss orthography (ss instead of ß) and vocabulary differences
+        category: General
+        targetAudienceEnglish: Learners wanting to communicate in Switzerland
+        startingLevel: A1
+        targetLevel: B1
+        estimatedWeeks: 12
+        learningGoalsEnglish:
+          - Master Swiss orthography (ss vs ß)
+          - Learn Swiss-specific vocabulary
+          - Understand Swiss cultural context
+          - Build essential grammar foundation
+        displayOrder: 0
+      - languageCode: de-CH
+        nameEnglish: Swiss German Conversation
+        shortDescriptionEnglish: Speak Swiss Standard German naturally
+        descriptionEnglish: Practice natural Swiss Standard German conversation with focus on Swiss expressions and cultural understanding
+        category: Conversational
+        targetAudienceEnglish: Anyone wanting to speak Swiss German confidently
+        startingLevel: A1
+        targetLevel: B2
+        learningGoalsEnglish:
+          - Engage in everyday Swiss conversations
+          - Use Swiss-specific expressions
+          - Understand Swiss culture and customs
+          - Navigate Swiss social situations
+        displayOrder: 1
       - languageCode: ja-JP
         nameEnglish: Japanese for Beginners
         shortDescriptionEnglish: Start your Japanese journey from zero
@@ -549,7 +585,10 @@ ai-tutor:
 
       Objective:
       - Maximize learner output in {targetLanguage}.
-      - Support long-term learning through contextual practice, not lectures.
+      - Support long-term learning through contextual practice.
+
+      Teaching Approach:
+      {teachingStyleGuidance}
 
       Comprehension Support Strategy:
       When the learner signals confusion (e.g., "I don't understand", "What?", "Huh?", asks for clarification):
@@ -652,5 +691,33 @@ ai-tutor:
       ```
 
     summary-prefix: "Previous conversation summary: {summary}"
+
+    teaching-style:
+      reactive: |
+        Teaching Style: Follow the learner's conversational lead.
+        - Let learner choose topics and drive conversation pace
+        - Provide feedback naturally when errors occur
+        - Introduce vocabulary organically in context
+        - Be responsive rather than directive
+        - Support learner autonomy and exploration
+
+      guided: |
+        Teaching Style: Balance conversation with strategic teaching moments.
+        - Every 5-7 turns, introduce a targeted mini-lesson (1-2 grammar/vocabulary points)
+        - Ask discovery questions to promote learning: "Can you think of another way to say that?"
+        - Suggest practice activities aligned with learning goals: "Want to practice past tense? Tell me what you did yesterday."
+        - Check comprehension actively: "Can you use [word] in a new sentence?"
+        - Propose conversation topics that exercise specific language features
+        - Guide without lecturing - use Socratic method
+
+      directive: |
+        Teaching Style: Structure conversations as explicit teaching sequences.
+        - Present: Introduce 1-2 grammar/vocabulary concepts at start of conversation
+        - Practice: Assign guided exercises and drills ("Give me 3 sentences using...")
+        - Apply: Transition to free conversation using newly taught material
+        - Explicitly teach grammar rules: "In {targetLanguage}, we use [structure] when..."
+        - Provide systematic error correction with explanations
+        - Track learning objectives from course goals and drive progress toward them
+        - Structure each session with clear pedagogical intent
 
 

@@ -4,6 +4,7 @@ import ch.obermuhlner.aitutor.core.model.CEFRLevel
 import ch.obermuhlner.aitutor.core.model.catalog.CourseCategory
 import ch.obermuhlner.aitutor.core.model.catalog.Difficulty
 import ch.obermuhlner.aitutor.core.model.catalog.TutorPersonality
+import ch.obermuhlner.aitutor.tutor.domain.TeachingStyle
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.stereotype.Component
 
@@ -22,6 +23,7 @@ data class TutorArchetypeConfig(
     val domainEnglish: String,
     val descriptionTemplateEnglish: String,
     val personality: TutorPersonality,
+    val teachingStyle: TeachingStyle = TeachingStyle.Reactive,
     val displayOrder: Int
 )
 

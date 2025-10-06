@@ -68,7 +68,10 @@ class TutorServiceTest {
             phaseDrillPromptTemplate = phaseDrillPromptTemplate,
             developerPromptTemplate = developerPromptTemplate,
             vocabularyNoTrackingTemplate = vocabularyNoTrackingTemplate,
-            vocabularyWithTrackingTemplate = vocabularyWithTrackingTemplate
+            vocabularyWithTrackingTemplate = vocabularyWithTrackingTemplate,
+            teachingStyleReactiveTemplate = "Reactive teaching style guidance",
+            teachingStyleGuidedTemplate = "Guided teaching style guidance",
+            teachingStyleDirectiveTemplate = "Directive teaching style guidance"
         )
     }
 

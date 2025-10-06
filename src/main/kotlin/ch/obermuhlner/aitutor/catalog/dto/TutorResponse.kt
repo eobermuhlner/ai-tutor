@@ -1,6 +1,7 @@
 package ch.obermuhlner.aitutor.catalog.dto
 
 import ch.obermuhlner.aitutor.core.model.catalog.TutorPersonality
+import ch.obermuhlner.aitutor.tutor.domain.TeachingStyle
 import java.util.UUID
 
 data class TutorResponse(
@@ -10,6 +11,7 @@ data class TutorResponse(
     val persona: String,              // Localized
     val domain: String,               // Localized
     val personality: TutorPersonality,
+    val teachingStyle: TeachingStyle,
     val description: String,          // Localized
     val targetLanguageCode: String,
     val culturalBackground: String?,  // Localized

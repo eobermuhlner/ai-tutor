@@ -32,6 +32,10 @@ class ChatSessionEntity(
     @Column(name = "tutor_domain", nullable = false, length = 256)
     var tutorDomain: String = "general conversation, grammar, typography",
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tutor_teaching_style", nullable = false, length = 16)
+    var tutorTeachingStyle: ch.obermuhlner.aitutor.tutor.domain.TeachingStyle = ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Reactive,
+
     @Column(name = "source_language_code", nullable = false, length = 32)
     var sourceLanguageCode: String,
 

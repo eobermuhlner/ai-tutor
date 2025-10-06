@@ -6,6 +6,7 @@ import ch.obermuhlner.aitutor.language.service.LanguageService
 import ch.obermuhlner.aitutor.tutor.domain.ConversationPhase
 import ch.obermuhlner.aitutor.tutor.domain.ConversationResponse
 import ch.obermuhlner.aitutor.tutor.domain.ConversationState
+import ch.obermuhlner.aitutor.tutor.domain.TeachingStyle
 import ch.obermuhlner.aitutor.tutor.domain.Tutor
 import ch.obermuhlner.aitutor.vocabulary.service.VocabularyContextService
 import java.util.UUID
@@ -28,7 +29,10 @@ class TutorService(
     @Value("\${ai-tutor.prompts.phase-drill}") private val phaseDrillPromptTemplate: String,
     @Value("\${ai-tutor.prompts.developer}") private val developerPromptTemplate: String,
     @Value("\${ai-tutor.prompts.vocabulary.no-tracking}") private val vocabularyNoTrackingTemplate: String,
-    @Value("\${ai-tutor.prompts.vocabulary.with-tracking}") private val vocabularyWithTrackingTemplate: String
+    @Value("\${ai-tutor.prompts.vocabulary.with-tracking}") private val vocabularyWithTrackingTemplate: String,
+    @Value("\${ai-tutor.prompts.teaching-style.reactive}") private val teachingStyleReactiveTemplate: String,
+    @Value("\${ai-tutor.prompts.teaching-style.guided}") private val teachingStyleGuidedTemplate: String,
+    @Value("\${ai-tutor.prompts.teaching-style.directive}") private val teachingStyleDirectiveTemplate: String
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
     data class TutorResponse(
@@ -58,6 +62,7 @@ class TutorService(
         val vocabContext = vocabularyContextService.getVocabularyContext(userId, targetLanguageCode)
 
         val vocabularyGuidance = buildVocabularyGuidance(vocabContext)
+        val teachingStyleGuidance = buildTeachingStyleGuidance(tutor.teachingStyle, targetLanguage)
 
         // Build system prompt using template
         val systemPrompt = PromptTemplate(systemPromptTemplate).render(mapOf(
@@ -68,7 +73,8 @@ class TutorService(
             "tutorName" to tutor.name,
             "tutorPersona" to tutor.persona,
             "tutorDomain" to tutor.domain,
-            "vocabularyGuidance" to vocabularyGuidance
+            "vocabularyGuidance" to vocabularyGuidance,
+            "teachingStyleGuidance" to teachingStyleGuidance
         ))
 
         // Build phase prompts using templates
@@ -145,5 +151,14 @@ class TutorService(
             "recentNewWords" to recentList,
             "masteredWords" to masteredList
         ))
+    }
+
+    private fun buildTeachingStyleGuidance(teachingStyle: TeachingStyle, targetLanguage: String): String {
+        val template = when (teachingStyle) {
+            TeachingStyle.Reactive -> teachingStyleReactiveTemplate
+            TeachingStyle.Guided -> teachingStyleGuidedTemplate
+            TeachingStyle.Directive -> teachingStyleDirectiveTemplate
+        }
+        return PromptTemplate(template).render(mapOf("targetLanguage" to targetLanguage))
     }
 }

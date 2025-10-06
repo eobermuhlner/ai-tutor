@@ -1,6 +1,7 @@
 package ch.obermuhlner.aitutor.catalog.domain
 
 import ch.obermuhlner.aitutor.core.model.catalog.TutorPersonality
+import ch.obermuhlner.aitutor.tutor.domain.TeachingStyle
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
@@ -51,6 +52,10 @@ class TutorProfileEntity(
     @Enumerated(EnumType.STRING)
     @Column(name = "personality", nullable = false, length = 32)
     var personality: TutorPersonality,
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "teaching_style", nullable = false, length = 16)
+    var teachingStyle: TeachingStyle = TeachingStyle.Reactive,
 
     @Column(name = "target_language_code", nullable = false, length = 32)
     var targetLanguageCode: String,
