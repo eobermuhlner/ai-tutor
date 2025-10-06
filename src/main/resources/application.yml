@@ -122,7 +122,7 @@ ai-tutor:
         flagEmoji: "🇪🇸"
         nativeName: "Español (España)"
         difficulty: Easy
-        descriptionJson: '{"en": "Castilian Spanish from Spain with clear pronunciation and vosotros form", "es": "Español castellano de España con pronunciación clara y forma vosotros"}'
+        descriptionJson: '{"en": "Castilian Spanish from Spain with vosotros form", "es": "Español castellano de España con forma vosotros"}'
         tutorVariants:
           - archetypeId: encouraging-general
             name: María
@@ -141,7 +141,7 @@ ai-tutor:
         flagEmoji: "🇫🇷"
         nativeName: "Français (France)"
         difficulty: Medium
-        descriptionJson: '{"en": "Standard French from France with Parisian pronunciation", "fr": "Français standard de France avec prononciation parisienne"}'
+        descriptionJson: '{"en": "Standard French from France", "fr": "Français standard de France"}'
         tutorVariants:
           - archetypeId: academic-professor
             name: François
@@ -200,7 +200,7 @@ ai-tutor:
         tutorVariants:
           - archetypeId: encouraging-general
             name: Natasha
-            culturalNotes: from Moscow who specializes in helping beginners with Cyrillic and pronunciation
+            culturalNotes: from Moscow who specializes in helping beginners with Cyrillic
           - archetypeId: strict-academic
             name: Dmitri
             culturalNotes: focused on proper grammar and the six-case system
@@ -212,7 +212,7 @@ ai-tutor:
         flagEmoji: "🇧🇷"
         nativeName: "Português (Brasil)"
         difficulty: Medium
-        descriptionJson: '{"en": "Brazilian Portuguese with characteristic pronunciation and vocabulary", "pt": "Português brasileiro com pronúncia e vocabulário característicos"}'
+        descriptionJson: '{"en": "Brazilian Portuguese with characteristic vocabulary", "pt": "Português brasileiro com vocabulário característico"}'
         tutorVariants:
           - archetypeId: encouraging-general
             name: Camila
@@ -228,17 +228,52 @@ ai-tutor:
         flagEmoji: "🇵🇹"
         nativeName: "Português (Portugal)"
         difficulty: Medium
-        descriptionJson: '{"en": "European Portuguese with distinct pronunciation and formal register", "pt": "Português europeu com pronúncia distinta e registo formal"}'
+        descriptionJson: '{"en": "European Portuguese with formal register", "pt": "Português europeu com registo formal"}'
         tutorVariants:
           - archetypeId: encouraging-general
             name: Sofia
-            culturalNotes: from Lisbon who helps learners master European Portuguese pronunciation
+            culturalNotes: from Lisbon who helps learners master European Portuguese
           - archetypeId: casual-friend
             name: João
             culturalNotes: from Porto
           - archetypeId: strict-academic
             name: Professor Oliveira
             culturalNotes: focused on proper European Portuguese grammar and formal register
+      - code: en-US
+        nameJson: '{"en": "English (US)", "es": "Inglés (Estados Unidos)", "de": "Englisch (USA)", "fr": "Anglais (États-Unis)"}'
+        flagEmoji: "🇺🇸"
+        nativeName: "English (US)"
+        difficulty: Easy
+        descriptionJson: '{"en": "American English with standard spelling", "es": "Inglés americano con ortografía estándar"}'
+        tutorVariants:
+          - archetypeId: encouraging-general
+            name: Sarah
+            culturalNotes: from New York who specializes in helping beginners feel confident
+          - archetypeId: casual-friend
+            name: Mike
+            culturalNotes: from California who makes learning fun and relaxed
+          - archetypeId: strict-academic
+            name: Professor Johnson
+            culturalNotes: from Boston with expertise in American English grammar and literature
+          - archetypeId: casual-friend
+            name: Emily
+            culturalNotes: from Texas
+      - code: en-GB
+        nameJson: '{"en": "English (UK)", "es": "Inglés (Reino Unido)", "de": "Englisch (Großbritannien)", "fr": "Anglais (Royaume-Uni)"}'
+        flagEmoji: "🇬🇧"
+        nativeName: "English (UK)"
+        difficulty: Easy
+        descriptionJson: '{"en": "British English with UK spelling", "es": "Inglés británico con ortografía británica"}'
+        tutorVariants:
+          - archetypeId: encouraging-general
+            name: Emma
+            culturalNotes: from London who helps learners master British English
+          - archetypeId: casual-friend
+            name: James
+            culturalNotes: from Manchester
+          - archetypeId: strict-academic
+            name: Professor Williams
+            culturalNotes: from Oxford with expertise in British English grammar and literature
 
     courses:
       - languageCode: es-ES
@@ -282,9 +317,9 @@ ai-tutor:
         targetLevel: B2
         learningGoalsEnglish:
           - Engage in everyday conversations
-          - Understand French pronunciation
           - Use common idiomatic expressions
           - Discuss various topics naturally
+          - Understand French culture
         displayOrder: 0
       - languageCode: de-DE
         nameEnglish: German Fundamentals
@@ -327,8 +362,8 @@ ai-tutor:
         learningGoalsEnglish:
           - Master Cyrillic alphabet and reading
           - Engage in everyday conversations
-          - Understand Russian pronunciation
           - Use common expressions naturally
+          - Understand Russian culture
         displayOrder: 0
       - languageCode: ru-RU
         nameEnglish: Russian Grammar Fundamentals
@@ -354,10 +389,10 @@ ai-tutor:
         startingLevel: A1
         targetLevel: B2
         learningGoalsEnglish:
-          - Master Brazilian pronunciation
           - Engage in everyday conversations
           - Understand Brazilian slang and expressions
           - Discuss culture, music, and daily life
+          - Build practical vocabulary
         displayOrder: 0
       - languageCode: pt-BR
         nameEnglish: Brazilian Portuguese for Travelers
@@ -378,17 +413,17 @@ ai-tutor:
       - languageCode: pt-PT
         nameEnglish: European Portuguese Essentials
         shortDescriptionEnglish: Build a strong foundation in European Portuguese
-        descriptionEnglish: Comprehensive beginner to intermediate European Portuguese course covering pronunciation, grammar, and conversation
+        descriptionEnglish: Comprehensive beginner to intermediate European Portuguese course covering grammar and conversation
         category: General
         targetAudienceEnglish: New learners of European Portuguese
         startingLevel: A1
         targetLevel: B1
         estimatedWeeks: 12
         learningGoalsEnglish:
-          - Master European Portuguese pronunciation
           - Learn essential grammar structures
           - Build practical vocabulary
           - Understand formal and informal registers
+          - Engage in everyday conversations
         displayOrder: 0
       - languageCode: pt-PT
         nameEnglish: Portuguese Conversation
@@ -404,6 +439,98 @@ ai-tutor:
           - Use idiomatic expressions
           - Discuss various topics naturally
         displayOrder: 1
+      - languageCode: en-US
+        nameEnglish: Conversational American English
+        shortDescriptionEnglish: Master everyday American English conversations
+        descriptionEnglish: Learn to communicate naturally in American English through practical conversations covering greetings, daily routines, opinions, and more
+        category: Conversational
+        targetAudienceEnglish: Anyone wanting to speak American English naturally
+        startingLevel: A1
+        targetLevel: C1
+        learningGoalsEnglish:
+          - Greet people and introduce yourself
+          - Talk about daily routines and activities
+          - Describe people, places, and things
+          - Order food and shop for items
+          - Express opinions and feelings
+        displayOrder: 0
+      - languageCode: en-US
+        nameEnglish: American English for Travelers
+        shortDescriptionEnglish: Essential phrases for tourists visiting the US
+        descriptionEnglish: Quick-start American English course focusing on practical phrases you'll need for travel
+        category: Travel
+        targetAudienceEnglish: Travelers planning a trip to the United States
+        startingLevel: A1
+        targetLevel: A2
+        estimatedWeeks: 6
+        learningGoalsEnglish:
+          - Navigate airports and transportation
+          - Check into hotels and accommodations
+          - Order food at restaurants
+          - Ask for directions and help
+          - Handle emergencies
+        displayOrder: 1
+      - languageCode: en-US
+        nameEnglish: American English Grammar
+        shortDescriptionEnglish: Build a strong foundation in American English grammar
+        descriptionEnglish: Comprehensive beginner to intermediate American English course covering grammar and usage
+        category: General
+        targetAudienceEnglish: New English learners wanting a structured approach
+        startingLevel: A1
+        targetLevel: B1
+        estimatedWeeks: 12
+        learningGoalsEnglish:
+          - Master verb tenses and aspects
+          - Build essential vocabulary
+          - Form correct sentences
+          - Understand American culture
+        displayOrder: 2
+      - languageCode: en-GB
+        nameEnglish: Conversational British English
+        shortDescriptionEnglish: Master everyday British English conversations
+        descriptionEnglish: Learn to communicate naturally in British English through practical conversations covering greetings, daily routines, opinions, and more
+        category: Conversational
+        targetAudienceEnglish: Anyone wanting to speak British English naturally
+        startingLevel: A1
+        targetLevel: C1
+        learningGoalsEnglish:
+          - Greet people and introduce yourself
+          - Talk about daily routines and activities
+          - Describe people, places, and things
+          - Order food and shop for items
+          - Express opinions and feelings
+        displayOrder: 0
+      - languageCode: en-GB
+        nameEnglish: British English for Travelers
+        shortDescriptionEnglish: Essential phrases for tourists visiting the UK
+        descriptionEnglish: Quick-start British English course focusing on practical phrases you'll need for travel
+        category: Travel
+        targetAudienceEnglish: Travelers planning a trip to the United Kingdom
+        startingLevel: A1
+        targetLevel: A2
+        estimatedWeeks: 6
+        learningGoalsEnglish:
+          - Navigate airports and transportation
+          - Check into hotels and accommodations
+          - Order food at restaurants
+          - Ask for directions and help
+          - Handle emergencies
+        displayOrder: 1
+      - languageCode: en-GB
+        nameEnglish: British English Grammar
+        shortDescriptionEnglish: Build a strong foundation in British English grammar
+        descriptionEnglish: Comprehensive beginner to intermediate British English course covering grammar and usage
+        category: General
+        targetAudienceEnglish: New English learners wanting a structured approach
+        startingLevel: A1
+        targetLevel: B1
+        estimatedWeeks: 12
+        learningGoalsEnglish:
+          - Master verb tenses and aspects
+          - Build essential vocabulary
+          - Form correct sentences
+          - Understand British culture
+        displayOrder: 2
 
   prompts:
     system: |
