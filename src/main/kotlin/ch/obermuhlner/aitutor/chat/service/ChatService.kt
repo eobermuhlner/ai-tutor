@@ -242,8 +242,10 @@ class ChatService(
             }
         }
 
-        // Resolve effective phase: if Auto, decide based on history; otherwise use user preference
+        // Resolve effective phase and compute decision metadata
         val allMessages = chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(sessionId)
+
+        // Compute phase decision with metadata
         val phaseDecision = if (session.conversationPhase == ConversationPhase.Auto) {
             phaseDecisionService.decidePhase(session.conversationPhase, allMessages)
         } else {
@@ -255,11 +257,22 @@ class ChatService(
             )
         }
 
-        // Pass effective phase to LLM (never pass Auto - always resolved Free/Correction/Drill)
+        // Compute topic metadata for prompt context (LLM hasn't responded yet, use current topic)
+        val topicMetadata = topicDecisionService.decideTopic(
+            currentTopic = session.currentTopic,
+            llmProposedTopic = session.currentTopic,
+            recentMessages = allMessages,
+            pastTopicsJson = session.pastTopicsJson
+        )
+
+        // Pass effective phase and metadata to LLM via enriched ConversationState
         val conversationState = ConversationState(
             phase = phaseDecision.phase,
             estimatedCEFRLevel = session.estimatedCEFRLevel,
-            currentTopic = session.currentTopic
+            currentTopic = session.currentTopic,
+            phaseReason = phaseDecision.reason,
+            topicEligibilityStatus = topicMetadata.eligibilityStatus,
+            pastTopics = topicMetadata.pastTopics
         )
 
         val tutorResponse = tutorService.respond(tutor, conversationState, session.userId, messageHistory, session.id, onReplyChunk)
