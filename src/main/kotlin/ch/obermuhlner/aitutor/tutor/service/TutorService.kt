@@ -66,51 +66,33 @@ class TutorService(
         val vocabularyGuidance = buildVocabularyGuidance(vocabContext)
         val teachingStyleGuidance = buildTeachingStyleGuidance(tutor.teachingStyle, targetLanguage)
 
-        // Build system prompt using template
-        val systemPrompt = PromptTemplate(systemPromptTemplate).render(mapOf(
-            "targetLanguage" to targetLanguage,
-            "targetLanguageCode" to targetLanguageCode,
-            "sourceLanguage" to sourceLanguage,
-            "sourceLanguageCode" to sourceLanguageCode,
-            "tutorName" to tutor.name,
-            "tutorPersona" to tutor.persona,
-            "tutorDomain" to tutor.domain,
-            "vocabularyGuidance" to vocabularyGuidance,
-            "teachingStyleGuidance" to teachingStyleGuidance
-        ))
+        // Extract decision metadata with safe defaults for backward compatibility
+        val phaseReason = conversationState.phaseReason ?: "Balanced default phase"
+        val topicEligibilityStatus = conversationState.topicEligibilityStatus ?: "Active conversation"
+        val pastTopics = conversationState.pastTopics
 
-        // Build phase prompts using templates
-        val phaseFreePrompt = PromptTemplate(phaseFreePromptTemplate).render(mapOf(
-            "targetLanguage" to targetLanguage,
-            "sourceLanguage" to sourceLanguage
-        ))
-
-        val phaseCorrectionPrompt = PromptTemplate(phaseCorrectionPromptTemplate).render(mapOf(
-            "targetLanguage" to targetLanguage,
-            "sourceLanguage" to sourceLanguage
-        ))
-
-        val phaseDrillPrompt = PromptTemplate(phaseDrillPromptTemplate).render(mapOf(
-            "targetLanguage" to targetLanguage,
-            "sourceLanguage" to sourceLanguage
-        ))
-
-        val phasePrompts = mapOf(
-            ConversationPhase.Free to phaseFreePrompt,
-            ConversationPhase.Correction to phaseCorrectionPrompt,
-            ConversationPhase.Drill to phaseDrillPrompt,
+        // Build consolidated system prompt
+        val consolidatedSystemPrompt = buildConsolidatedSystemPrompt(
+            tutor = tutor,
+            conversationState = conversationState,
+            phaseReason = phaseReason,
+            topicEligibilityStatus = topicEligibilityStatus,
+            pastTopics = pastTopics,
+            targetLanguage = targetLanguage,
+            targetLanguageCode = targetLanguageCode,
+            sourceLanguage = sourceLanguage,
+            sourceLanguageCode = sourceLanguageCode,
+            vocabularyGuidance = vocabularyGuidance,
+            teachingStyleGuidance = teachingStyleGuidance
         )
 
-        val developerPrompt = PromptTemplate(developerPromptTemplate).render(mapOf(
-            "targetLanguage" to targetLanguage,
-            "sourceLanguage" to sourceLanguage
-        ))
+        val systemMessages = listOf(SystemMessage(consolidatedSystemPrompt))
 
-        val systemMessages = listOf(
-            SystemMessage(systemPrompt + (phasePrompts[conversationState.phase] ?: phaseFreePrompt)),
-            SystemMessage(developerPrompt),
-            SystemMessage(conversationState.toString()),
-        )
+        // Log metrics for monitoring
+        val estimatedTokens = consolidatedSystemPrompt.length / 4
+        logger.info("System prompt assembled: 1 message, ~$estimatedTokens tokens (estimated)")
+        logger.debug("Phase: ${conversationState.phase.name} ($phaseReason)")
+        logger.debug("Topic: ${conversationState.currentTopic ?: "free conversation"} ($topicEligibilityStatus)")
 
         val compactedMessages = messageCompactionService.compactMessages(systemMessages, messages, sessionId)
 
@@ -171,5 +153,70 @@ class TutorService(
         } else {
             "" // Fallback for languages not in catalog
         }
+    }
+
+    internal fun buildConsolidatedSystemPrompt(
+        tutor: Tutor,
+        conversationState: ConversationState,
+        phaseReason: String,
+        topicEligibilityStatus: String,
+        pastTopics: List<String>,
+        targetLanguage: String,
+        targetLanguageCode: String,
+        sourceLanguage: String,
+        sourceLanguageCode: String,
+        vocabularyGuidance: String,
+        teachingStyleGuidance: String
+    ): String = buildString {
+        // Base system prompt (role, persona, languages)
+        append(PromptTemplate(systemPromptTemplate).render(mapOf(
+            "targetLanguage" to targetLanguage,
+            "targetLanguageCode" to targetLanguageCode,
+            "sourceLanguage" to sourceLanguage,
+            "sourceLanguageCode" to sourceLanguageCode,
+            "tutorName" to tutor.name,
+            "tutorPersona" to tutor.persona,
+            "tutorDomain" to tutor.domain,
+            "vocabularyGuidance" to vocabularyGuidance,
+            "teachingStyleGuidance" to teachingStyleGuidance
+        )))
+
+        append("\n\n")
+
+        // Phase-specific behavior
+        val phasePrompt = when (conversationState.phase) {
+            ConversationPhase.Free -> phaseFreePromptTemplate
+            ConversationPhase.Correction -> phaseCorrectionPromptTemplate
+            ConversationPhase.Drill -> phaseDrillPromptTemplate
+            ConversationPhase.Auto -> phaseCorrectionPromptTemplate // Should never happen (resolved in ChatService)
+        }
+        append(PromptTemplate(phasePrompt).render(mapOf(
+            "targetLanguage" to targetLanguage,
+            "sourceLanguage" to sourceLanguage
+        )))
+
+        append("\n\n")
+
+        // Developer rules (JSON schema)
+        append(PromptTemplate(developerPromptTemplate).render(mapOf(
+            "targetLanguage" to targetLanguage,
+            "sourceLanguage" to sourceLanguage
+        )))
+
+        append("\n\n")
+
+        // Session Context (structured, not toString())
+        append("=== Current Session Context ===\n")
+        append("Phase: ${conversationState.phase.name} ($phaseReason)\n")
+        append("CEFR Level: ${conversationState.estimatedCEFRLevel.name}\n")
+        append("Topic: ${conversationState.currentTopic ?: "Free conversation"} ($topicEligibilityStatus)\n")
+        if (pastTopics.isNotEmpty()) {
+            append("Recent Topics: ${pastTopics.takeLast(3).joinToString(", ")}\n")
+        }
+
+        append("\n")
+
+        // Language metadata
+        append(buildLanguageMetadataPrompt(targetLanguageCode))
     }
 }
