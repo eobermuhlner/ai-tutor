@@ -59,4 +59,8 @@ Output format:
 3. **Recommendations** (improvements): List with rationale
 4. **Overall Assessment**: APPROVE / APPROVE WITH CHANGES / REJECT
 
-Be harsh. Find every bug. Check actual codebase to verify method existence.
+Be harsh. 
+Find every bug. 
+Check actual codebase to verify method existence.
+Keep it simple.
+Avoid overengineering.

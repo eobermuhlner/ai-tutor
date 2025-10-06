@@ -1,5 +1,5 @@
 ---
-description: Execute task implementation step-by-step with validation
+description: Execute task implementation phase with validation
 argument-hint: task_file=tasks/task-XXXX-feature-name.md phase=next
 ---
 
@@ -16,38 +16,6 @@ Phase to execute: $2
 4. List prerequisites (is previous phase complete?)
 5. Show user what WILL be done (file changes, commands)
 6. **Wait for user approval before proceeding**
-
-### Phase Mapping
-- **Phase 1: Database Migration**
-  - Create migration file
-  - Run migration on dev database (H2)
-  - Verify schema with SQL queries
-  - Create rollback script
-
-- **Phase 2: Domain & Repository Layer**
-  - Create/update entity classes
-  - Create/update repository interfaces
-  - Write unit tests for repositories
-  - Run tests to verify
-
-- **Phase 3: Service Layer**
-  - Create/update service classes
-  - Write unit tests for services
-  - Run tests to verify
-  - Check for missing dependencies
-
-- **Phase 4: Controller & REST API**
-  - Create/update controller classes
-  - Create/update DTOs
-  - Write integration tests
-  - Update http-client-requests.http
-  - Test endpoints manually
-
-- **Phase 5: Configuration & Documentation**
-  - Update application.yml
-  - Update README.md (if REST endpoints added)
-  - Update CLAUDE.md (if architecture changed)
-  - Git commit with proper message
 
 ### During Execution
 1. Create TODO list with all steps using TodoWrite

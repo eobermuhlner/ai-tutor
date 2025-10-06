@@ -9,13 +9,13 @@ Problem: $3
 
 Follow this structured approach:
 
-## Phase 1: Analysis (DO THIS FIRST)
+## Part 1: Analysis (DO THIS FIRST)
 1. Understand the current codebase related to this problem
 2. Read relevant files (use Glob/Grep to find them)
 3. Identify constraints (existing architecture, dependencies)
 4. List what needs to change vs what should stay unchanged
 
-## Phase 2: Solution Design
+## Part 2: Solution Design
 1. Propose 3-5 alternative solutions
 2. For each alternative:
    - Describe the approach
@@ -24,7 +24,7 @@ Follow this structured approach:
    - Identify risks
 3. Recommend ONE solution with clear rationale
 
-## Phase 3: Critical Review (BEFORE writing detailed plan)
+## Part 3: Critical Review (BEFORE writing detailed plan)
 1. Self-review for common mistakes:
    - Missing imports/dependencies
    - Non-existent methods called
@@ -34,7 +34,7 @@ Follow this structured approach:
 2. Check for breaking changes to existing features
 3. Validate consistency (method signatures, return types)
 
-## Phase 4: Implementation Plan
+## Part 4: Implementation Plan
 Write comprehensive implementation plan with:
 - Database schema changes
 - New/modified files
@@ -44,7 +44,7 @@ Write comprehensive implementation plan with:
 - Monitoring plan
 - Rollback strategy
 
-## Phase 5: REST API Design (if applicable)
+## Part 5: REST API Design (if applicable)
 - Endpoints table
 - DTOs
 - Access control
@@ -52,6 +52,6 @@ Write comprehensive implementation plan with:
 
 Save to: tasks/task-$1-$2.md
 
-IMPORTANT: Complete Phase 1-3 BEFORE writing Phase 4. Present alternatives and get user approval after Phase 3.
+IMPORTANT: Complete Part 1-3 BEFORE writing Part 4. Present alternatives and get user approval after Part 3.
 
-Use TodoWrite to track your progress through phases.
+Use TodoWrite to track your progress through parts.
