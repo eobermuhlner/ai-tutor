@@ -54,6 +54,36 @@ class ChatSessionEntity(
     @Column(name = "estimated_cefr_level", nullable = false, length = 8)
     var estimatedCEFRLevel: CEFRLevel = CEFRLevel.A1,
 
+    // NEW: Skill-specific CEFR levels (Task 0010)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "cefr_grammar", length = 8)
+    var cefrGrammar: CEFRLevel? = null,
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "cefr_vocabulary", length = 8)
+    var cefrVocabulary: CEFRLevel? = null,
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "cefr_fluency", length = 8)
+    var cefrFluency: CEFRLevel? = null,
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "cefr_comprehension", length = 8)
+    var cefrComprehension: CEFRLevel? = null,
+
+    // Assessment metadata
+    @Column(name = "last_assessment_at")
+    var lastAssessmentAt: Instant? = null,
+
+    @Column(name = "total_assessment_count", nullable = false)
+    var totalAssessmentCount: Int = 0,
+
+    @Column(name = "last_llm_validation_at")
+    var lastLLMValidationAt: Instant? = null,
+
+    @Column(name = "llm_validation_count", nullable = false)
+    var llmValidationCount: Int = 0,
+
     @Column(name = "current_topic", nullable = true, length = 128)
     var currentTopic: String? = null,
 
