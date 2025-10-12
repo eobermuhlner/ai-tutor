@@ -214,6 +214,13 @@ class TutorService(
             append("Recent Topics: ${pastTopics.takeLast(3).joinToString(", ")}\n")
         }
 
+        // Vocabulary review mode guidance
+        if (conversationState.vocabularyReviewMode && conversationState.dueVocabularyCount != null && conversationState.dueVocabularyCount > 0) {
+            append("\nVocabulary Review Mode: ACTIVE\n")
+            append("Due for Review: ${conversationState.dueVocabularyCount} words\n")
+            append("Guidance: Naturally integrate 2-3 due vocabulary words into the conversation. Ask the learner to use them, or prompt recall (e.g., 'Do you remember the word for...'). Keep it conversational, not quiz-like.\n")
+        }
+
         append("\n")
 
         // Language metadata

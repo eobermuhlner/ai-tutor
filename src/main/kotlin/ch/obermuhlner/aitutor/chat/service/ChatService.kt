@@ -39,6 +39,7 @@ class ChatService(
     private val chatMessageRepository: ChatMessageRepository,
     private val tutorService: TutorService,
     private val vocabularyService: VocabularyService,
+    private val vocabularyReviewService: ch.obermuhlner.aitutor.vocabulary.service.VocabularyReviewService,
     private val phaseDecisionService: ch.obermuhlner.aitutor.tutor.service.PhaseDecisionService,
     private val topicDecisionService: ch.obermuhlner.aitutor.tutor.service.TopicDecisionService,
     private val catalogService: ch.obermuhlner.aitutor.catalog.service.CatalogService,
@@ -280,6 +281,13 @@ class ChatService(
             pastTopicsJson = session.pastTopicsJson
         )
 
+        // Get due vocabulary count if review mode enabled
+        val dueCount = if (session.vocabularyReviewMode) {
+            vocabularyReviewService.getDueCount(session.userId, session.targetLanguageCode)
+        } else {
+            null
+        }
+
         // Pass effective phase and metadata to LLM via enriched ConversationState
         val conversationState = ConversationState(
             phase = phaseDecision.phase,
@@ -287,7 +295,9 @@ class ChatService(
             currentTopic = session.currentTopic,
             phaseReason = phaseDecision.reason,
             topicEligibilityStatus = topicMetadata.eligibilityStatus,
-            pastTopics = topicMetadata.pastTopics
+            pastTopics = topicMetadata.pastTopics,
+            vocabularyReviewMode = session.vocabularyReviewMode,
+            dueVocabularyCount = dueCount
         )
 
         val tutorResponse = tutorService.respond(tutor, conversationState, session.userId, messageHistory, session.id, onReplyChunk)
