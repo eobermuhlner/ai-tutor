@@ -3,6 +3,7 @@ spring:
     name: ai-tutor
 
   profiles:
+    active: dev
     group:
       dev: h2
 
