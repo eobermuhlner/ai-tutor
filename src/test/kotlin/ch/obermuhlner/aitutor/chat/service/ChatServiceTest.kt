@@ -393,4 +393,130 @@ class ChatServiceTest {
 
         assertNull(result)
     }
+
+    @Test
+    fun `should enable vocabulary review mode for owned session`() {
+        val session = TestDataFactory.createSessionEntity()
+        session.vocabularyReviewMode = false
+
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+        every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns session.apply { vocabularyReviewMode = true }
+
+        val result = chatService.updateVocabularyReviewMode(TestDataFactory.TEST_SESSION_ID, true, TestDataFactory.TEST_USER_ID)
+
+        assertNotNull(result)
+        assertTrue(result?.vocabularyReviewMode == true)
+        verify { chatSessionRepository.save(match { it.vocabularyReviewMode == true }) }
+    }
+
+    @Test
+    fun `should disable vocabulary review mode for owned session`() {
+        val session = TestDataFactory.createSessionEntity()
+        session.vocabularyReviewMode = true
+
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+        every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns session.apply { vocabularyReviewMode = false }
+
+        val result = chatService.updateVocabularyReviewMode(TestDataFactory.TEST_SESSION_ID, false, TestDataFactory.TEST_USER_ID)
+
+        assertNotNull(result)
+        assertFalse(result?.vocabularyReviewMode == true)
+        verify { chatSessionRepository.save(match { it.vocabularyReviewMode == false }) }
+    }
+
+    @Test
+    fun `should not update vocabulary review mode for another user`() {
+        val session = TestDataFactory.createSessionEntity()
+        every { chatSessionRepository.findById(any()) } returns Optional.of(session)
+
+        val result = chatService.updateVocabularyReviewMode(TestDataFactory.TEST_SESSION_ID, true, UUID.randomUUID())
+
+        assertNull(result)
+        verify(exactly = 0) { chatSessionRepository.save(any()) }
+    }
+
+    @Test
+    fun `should pass due vocabulary count to tutor when review mode enabled`() {
+        val session = TestDataFactory.createSessionEntity()
+        session.vocabularyReviewMode = true
+
+        val userMessage = TestDataFactory.createMessageEntity(session)
+        val assistantMessage = TestDataFactory.createMessageEntity(session, ch.obermuhlner.aitutor.chat.domain.MessageRole.ASSISTANT, "Reply")
+
+        val tutorResponse = TutorService.TutorResponse(
+            reply = "Reply",
+            conversationResponse = ch.obermuhlner.aitutor.tutor.domain.ConversationResponse(
+                conversationState = ch.obermuhlner.aitutor.tutor.domain.ConversationState(
+                    phase = ch.obermuhlner.aitutor.tutor.domain.ConversationPhase.Free,
+                    estimatedCEFRLevel = ch.obermuhlner.aitutor.core.model.CEFRLevel.A1
+                ),
+                corrections = emptyList(),
+                newVocabulary = emptyList()
+            )
+        )
+
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+        every { chatMessageRepository.save(any<ChatMessageEntity>()) } returns userMessage andThen assistantMessage
+        every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(any()) } returns emptyList()
+        every { topicDecisionService.decideTopic(any(), any(), any(), any()) } returns ch.obermuhlner.aitutor.tutor.service.TopicDecision(null, 0, "Free conversation", emptyList())
+        every { vocabularyReviewService.getDueCount(any(), any()) } returns 15L
+        every { tutorService.respond(any(), any(), any(), any(), any(), any()) } returns tutorResponse
+        every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns session
+
+        chatService.sendMessage(TestDataFactory.TEST_SESSION_ID, "Test", TestDataFactory.TEST_USER_ID)
+
+        verify { vocabularyReviewService.getDueCount(TestDataFactory.TEST_USER_ID, session.targetLanguageCode) }
+        verify {
+            tutorService.respond(
+                any(),
+                match { it.vocabularyReviewMode == true && it.dueVocabularyCount == 15L },
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        }
+    }
+
+    @Test
+    fun `should not call getDueCount when review mode disabled`() {
+        val session = TestDataFactory.createSessionEntity()
+        session.vocabularyReviewMode = false
+
+        val userMessage = TestDataFactory.createMessageEntity(session)
+        val assistantMessage = TestDataFactory.createMessageEntity(session, ch.obermuhlner.aitutor.chat.domain.MessageRole.ASSISTANT, "Reply")
+
+        val tutorResponse = TutorService.TutorResponse(
+            reply = "Reply",
+            conversationResponse = ch.obermuhlner.aitutor.tutor.domain.ConversationResponse(
+                conversationState = ch.obermuhlner.aitutor.tutor.domain.ConversationState(
+                    phase = ch.obermuhlner.aitutor.tutor.domain.ConversationPhase.Free,
+                    estimatedCEFRLevel = ch.obermuhlner.aitutor.core.model.CEFRLevel.A1
+                ),
+                corrections = emptyList(),
+                newVocabulary = emptyList()
+            )
+        )
+
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+        every { chatMessageRepository.save(any<ChatMessageEntity>()) } returns userMessage andThen assistantMessage
+        every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(any()) } returns emptyList()
+        every { topicDecisionService.decideTopic(any(), any(), any(), any()) } returns ch.obermuhlner.aitutor.tutor.service.TopicDecision(null, 0, "Free conversation", emptyList())
+        every { tutorService.respond(any(), any(), any(), any(), any(), any()) } returns tutorResponse
+        every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns session
+
+        chatService.sendMessage(TestDataFactory.TEST_SESSION_ID, "Test", TestDataFactory.TEST_USER_ID)
+
+        verify(exactly = 0) { vocabularyReviewService.getDueCount(any(), any()) }
+        verify {
+            tutorService.respond(
+                any(),
+                match { it.vocabularyReviewMode == false && it.dueVocabularyCount == null },
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        }
+    }
 }

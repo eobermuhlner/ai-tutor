@@ -121,4 +121,39 @@ class VocabularyQueryServiceTest {
         verify(exactly = 1) { vocabularyItemRepository.findById(itemId) }
         verify(exactly = 0) { vocabularyContextRepository.findByVocabItemId(any()) }
     }
+
+    @Test
+    fun `getVocabularyItemById should return item when found`() {
+        val itemId = UUID.randomUUID()
+        val item = VocabularyItemEntity(
+            id = itemId,
+            userId = testUserId,
+            lang = testLang,
+            lemma = "hablar",
+            exposures = 1
+        )
+
+        every { vocabularyItemRepository.findById(itemId) } returns Optional.of(item)
+
+        val result = vocabularyQueryService.getVocabularyItemById(itemId)
+
+        assertNotNull(result)
+        assertEquals(itemId, result.id)
+        assertEquals("hablar", result.lemma)
+        verify(exactly = 1) { vocabularyItemRepository.findById(itemId) }
+    }
+
+    @Test
+    fun `getVocabularyItemById should throw exception when not found`() {
+        val itemId = UUID.randomUUID()
+
+        every { vocabularyItemRepository.findById(itemId) } returns Optional.empty()
+
+        val exception = org.junit.jupiter.api.assertThrows<IllegalArgumentException> {
+            vocabularyQueryService.getVocabularyItemById(itemId)
+        }
+
+        assertEquals("Vocabulary item not found: $itemId", exception.message)
+        verify(exactly = 1) { vocabularyItemRepository.findById(itemId) }
+    }
 }

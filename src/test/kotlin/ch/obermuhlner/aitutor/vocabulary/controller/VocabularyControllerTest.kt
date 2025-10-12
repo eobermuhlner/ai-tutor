@@ -381,4 +381,175 @@ class VocabularyControllerTest {
         mockMvc.perform(get("/api/v1/vocabulary/$itemId"))
             .andExpect(status().isNotFound)
     }
+
+    @Test
+    @WithMockUser
+    fun `getDueVocabulary should return due items`() {
+        val now = Instant.now()
+        val item1 = io.mockk.mockk<ch.obermuhlner.aitutor.vocabulary.domain.VocabularyItemEntity>()
+        every { item1.id } returns UUID.randomUUID()
+        every { item1.lemma } returns "hablar"
+        every { item1.lang } returns "Spanish"
+        every { item1.exposures } returns 1
+        every { item1.lastSeenAt } returns now
+        every { item1.createdAt } returns now
+        every { item1.conceptName } returns null
+        every { item1.nextReviewAt } returns now.minusSeconds(3600)
+        every { item1.reviewStage } returns 1
+
+        val item2 = io.mockk.mockk<ch.obermuhlner.aitutor.vocabulary.domain.VocabularyItemEntity>()
+        every { item2.id } returns UUID.randomUUID()
+        every { item2.lemma } returns "comer"
+        every { item2.lang } returns "Spanish"
+        every { item2.exposures } returns 2
+        every { item2.lastSeenAt } returns now
+        every { item2.createdAt } returns now
+        every { item2.conceptName } returns null
+        every { item2.nextReviewAt } returns now.minusSeconds(7200)
+        every { item2.reviewStage } returns 2
+
+        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
+        every { vocabularyReviewService.getDueVocabulary(TestDataFactory.TEST_USER_ID, "Spanish", 20) } returns listOf(item1, item2)
+
+        mockMvc.perform(
+            get("/api/v1/vocabulary/due")
+                .param("lang", "Spanish")
+                .param("limit", "20")
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$").isArray)
+            .andExpect(jsonPath("$.length()").value(2))
+            .andExpect(jsonPath("$[0].lemma").value("hablar"))
+            .andExpect(jsonPath("$[0].isDue").value(true))
+            .andExpect(jsonPath("$[0].reviewStage").value(1))
+            .andExpect(jsonPath("$[1].lemma").value("comer"))
+            .andExpect(jsonPath("$[1].reviewStage").value(2))
+    }
+
+    @Test
+    @WithMockUser
+    fun `getDueVocabulary should return empty list when no items due`() {
+        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
+        every { vocabularyReviewService.getDueVocabulary(TestDataFactory.TEST_USER_ID, "Spanish", 20) } returns emptyList()
+
+        mockMvc.perform(
+            get("/api/v1/vocabulary/due")
+                .param("lang", "Spanish")
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$").isArray)
+            .andExpect(jsonPath("$.length()").value(0))
+    }
+
+    @Test
+    @WithMockUser
+    fun `getDueCount should return count of due items`() {
+        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
+        every { vocabularyReviewService.getDueCount(TestDataFactory.TEST_USER_ID, "Spanish") } returns 15L
+
+        mockMvc.perform(
+            get("/api/v1/vocabulary/due/count")
+                .param("lang", "Spanish")
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.count").value(15))
+    }
+
+    @Test
+    @WithMockUser
+    fun `getDueCount should return 0 when no items due`() {
+        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
+        every { vocabularyReviewService.getDueCount(TestDataFactory.TEST_USER_ID, "Spanish") } returns 0L
+
+        mockMvc.perform(
+            get("/api/v1/vocabulary/due/count")
+                .param("lang", "Spanish")
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.count").value(0))
+    }
+
+    @Test
+    @WithMockUser
+    fun `recordReview should record successful review`() {
+        val itemId = UUID.randomUUID()
+        val now = Instant.now()
+
+        val item = io.mockk.mockk<ch.obermuhlner.aitutor.vocabulary.domain.VocabularyItemEntity>()
+        every { item.id } returns itemId
+        every { item.userId } returns TestDataFactory.TEST_USER_ID
+        every { item.lemma } returns "hablar"
+        every { item.lang } returns "Spanish"
+        every { item.exposures } returns 1
+        every { item.lastSeenAt } returns now
+        every { item.createdAt } returns now
+        every { item.conceptName } returns null
+        every { item.nextReviewAt } returns now.plusSeconds(86400)
+        every { item.reviewStage } returns 2
+
+        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
+        every { vocabularyQueryService.getVocabularyItemById(itemId) } returns item
+        every { vocabularyReviewService.recordReview(itemId, true) } returns item
+
+        mockMvc.perform(
+            org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/api/v1/vocabulary/$itemId/review")
+                .contentType("application/json")
+                .content("""{"success": true}""")
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.lemma").value("hablar"))
+            .andExpect(jsonPath("$.reviewStage").value(2))
+    }
+
+    @Test
+    @WithMockUser
+    fun `recordReview should record failed review`() {
+        val itemId = UUID.randomUUID()
+        val now = Instant.now()
+
+        val item = io.mockk.mockk<ch.obermuhlner.aitutor.vocabulary.domain.VocabularyItemEntity>()
+        every { item.id } returns itemId
+        every { item.userId } returns TestDataFactory.TEST_USER_ID
+        every { item.lemma } returns "hablar"
+        every { item.lang } returns "Spanish"
+        every { item.exposures } returns 1
+        every { item.lastSeenAt } returns now
+        every { item.createdAt } returns now
+        every { item.conceptName } returns null
+        every { item.nextReviewAt } returns now.plusSeconds(86400)
+        every { item.reviewStage } returns 0
+
+        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
+        every { vocabularyQueryService.getVocabularyItemById(itemId) } returns item
+        every { vocabularyReviewService.recordReview(itemId, false) } returns item
+
+        mockMvc.perform(
+            org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/api/v1/vocabulary/$itemId/review")
+                .contentType("application/json")
+                .content("""{"success": false}""")
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.lemma").value("hablar"))
+            .andExpect(jsonPath("$.reviewStage").value(0))
+    }
+
+    @Test
+    @WithMockUser
+    fun `recordReview should return 403 when user does not own item`() {
+        val itemId = UUID.randomUUID()
+        val otherUserId = UUID.randomUUID()
+
+        val item = io.mockk.mockk<ch.obermuhlner.aitutor.vocabulary.domain.VocabularyItemEntity>()
+        every { item.userId } returns otherUserId
+
+        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
+        every { vocabularyQueryService.getVocabularyItemById(itemId) } returns item
+
+        mockMvc.perform(
+            org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/api/v1/vocabulary/$itemId/review")
+                .contentType("application/json")
+                .content("""{"success": true}""")
+        )
+            .andExpect(status().isForbidden)
+    }
 }

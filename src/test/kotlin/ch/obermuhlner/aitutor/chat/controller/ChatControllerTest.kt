@@ -846,4 +846,92 @@ class ChatControllerTest {
             .andExpect(jsonPath("$[0].tutorName").value("Maria"))
             .andExpect(jsonPath("$[1].tutorName").value("Carlos"))
     }
+
+    @Test
+    @WithMockUser
+    fun `should update vocabulary review mode successfully`() {
+        val sessionResponse = ch.obermuhlner.aitutor.chat.dto.SessionResponse(
+            id = TestDataFactory.TEST_SESSION_ID,
+            userId = TestDataFactory.TEST_USER_ID,
+            tutorName = "Maria",
+            tutorPersona = "friendly",
+            tutorDomain = "general",
+            tutorTeachingStyle = ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Reactive,
+            sourceLanguageCode = "en",
+            targetLanguageCode = "es",
+            conversationPhase = ConversationPhase.Free,
+            effectivePhase = ConversationPhase.Free,
+            estimatedCEFRLevel = CEFRLevel.A2,
+            currentTopic = null,
+            courseTemplateId = null,
+            tutorProfileId = null,
+            customName = null,
+            isActive = true,
+            vocabularyReviewMode = true,
+            createdAt = Instant.now(),
+            updatedAt = Instant.now()
+        )
+
+        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
+        every { chatService.updateVocabularyReviewMode(TestDataFactory.TEST_SESSION_ID, true, TestDataFactory.TEST_USER_ID) } returns sessionResponse
+
+        mockMvc.perform(
+            patch("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}/vocabulary-review-mode")
+                .contentType("application/json")
+                .content("""{"enabled": true}""")
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.vocabularyReviewMode").value(true))
+    }
+
+    @Test
+    @WithMockUser
+    fun `should disable vocabulary review mode successfully`() {
+        val sessionResponse = ch.obermuhlner.aitutor.chat.dto.SessionResponse(
+            id = TestDataFactory.TEST_SESSION_ID,
+            userId = TestDataFactory.TEST_USER_ID,
+            tutorName = "Maria",
+            tutorPersona = "friendly",
+            tutorDomain = "general",
+            tutorTeachingStyle = ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Reactive,
+            sourceLanguageCode = "en",
+            targetLanguageCode = "es",
+            conversationPhase = ConversationPhase.Free,
+            effectivePhase = ConversationPhase.Free,
+            estimatedCEFRLevel = CEFRLevel.A2,
+            currentTopic = null,
+            courseTemplateId = null,
+            tutorProfileId = null,
+            customName = null,
+            isActive = true,
+            vocabularyReviewMode = false,
+            createdAt = Instant.now(),
+            updatedAt = Instant.now()
+        )
+
+        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
+        every { chatService.updateVocabularyReviewMode(TestDataFactory.TEST_SESSION_ID, false, TestDataFactory.TEST_USER_ID) } returns sessionResponse
+
+        mockMvc.perform(
+            patch("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}/vocabulary-review-mode")
+                .contentType("application/json")
+                .content("""{"enabled": false}""")
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.vocabularyReviewMode").value(false))
+    }
+
+    @Test
+    @WithMockUser
+    fun `should return not found when updating vocabulary review mode for non-existent session`() {
+        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
+        every { chatService.updateVocabularyReviewMode(any(), any(), any()) } returns null
+
+        mockMvc.perform(
+            patch("/api/v1/chat/sessions/${UUID.randomUUID()}/vocabulary-review-mode")
+                .contentType("application/json")
+                .content("""{"enabled": true}""")
+        )
+            .andExpect(status().isNotFound)
+    }
 }
