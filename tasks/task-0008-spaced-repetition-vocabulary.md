@@ -94,9 +94,11 @@ class VocabularyItemEntity(
 1. **VocabularyItemEntity** - Add SRS scheduling fields
 2. **VocabularyService** - Implement review scheduling logic
 3. **New VocabularyReviewService** - SRS algorithm implementation
-4. **ChatService/TutorService** - Integrate due vocabulary into conversation
-5. **REST API** - Add endpoints for due vocabulary queries
-6. **Database migration** - Add new columns to vocabulary_items table
+4. **ChatSessionEntity** - Add `vocabularyReviewMode` flag for user control
+5. **ConversationState** - Add `vocabularyReviewMode` field for TutorService integration
+6. **ChatService/TutorService** - Integrate due vocabulary into conversation when mode enabled
+7. **REST API** - Add endpoints for due vocabulary queries and review mode control
+8. **Database migration** - Add new columns to vocabulary_items and chat_sessions tables
 
 ## Part 2: Solution Design
 
@@ -558,6 +560,11 @@ CREATE INDEX idx_vocab_next_review
 UPDATE vocabulary_items
     SET next_review_at = created_at + INTERVAL '1 day'
     WHERE next_review_at IS NULL;
+
+-- Add vocabulary review mode flag to chat_sessions table
+-- Similar to conversationPhase, this is user-controllable via REST API
+ALTER TABLE chat_sessions
+    ADD COLUMN vocabulary_review_mode BOOLEAN DEFAULT FALSE NOT NULL;
 ```
 
 **Testing:**
@@ -930,6 +937,221 @@ fun VocabularyItemEntity.toResponse(): VocabularyItemResponse {
 
 ---
 
+#### Step 8: Update ChatSessionEntity and ConversationState
+
+**File:** `ChatSessionEntity.kt`
+
+Add vocabulary review mode flag:
+```kotlin
+@Entity
+@Table(name = "chat_sessions")
+class ChatSessionEntity(
+    // existing fields...
+
+    // NEW: Vocabulary review mode control (similar to conversationPhase)
+    @Column(name = "vocabulary_review_mode", nullable = false)
+    var vocabularyReviewMode: Boolean = false,
+
+    // existing fields...
+)
+```
+
+**File:** `ConversationState.kt`
+
+Add to ConversationState for LLM prompt integration:
+```kotlin
+data class ConversationState(
+    @field:JsonPropertyDescription("The current phase of the conversation.")
+    val phase: ConversationPhase,
+    @field:JsonPropertyDescription("The estimated CEFR level of the learner.")
+    val estimatedCEFRLevel: CEFRLevel,
+    @field:JsonPropertyDescription("The current topic of conversation, or null if no specific topic.")
+    val currentTopic: String? = null,
+
+    // existing metadata fields...
+
+    // NEW: Vocabulary review mode flag
+    @field:JsonPropertyDescription("Whether vocabulary review mode is enabled for this session. When true, the tutor should naturally integrate due vocabulary review into conversation.")
+    val vocabularyReviewMode: Boolean = false,
+    @field:JsonPropertyDescription("Count of vocabulary items due for review (for context).")
+    val dueVocabularyCount: Int? = null
+)
+```
+
+**Testing:**
+- Update `ChatSessionEntityTest` to handle new field
+- Verify backward compatibility (default = false)
+- Test ConversationState serialization with new field
+
+---
+
+#### Step 9: Add Session Review Mode REST Endpoint
+
+**File:** `ChatController.kt`
+
+Add endpoint to toggle vocabulary review mode:
+```kotlin
+@RestController
+@RequestMapping("/api/v1/chat")
+class ChatController(
+    // existing dependencies...
+) {
+    // existing endpoints...
+
+    /**
+     * Update vocabulary review mode for a session.
+     * PATCH /api/v1/chat/sessions/{id}/vocabulary-review-mode
+     * Body: { "enabled": true }
+     */
+    @PatchMapping("/sessions/{sessionId}/vocabulary-review-mode")
+    fun updateVocabularyReviewMode(
+        @PathVariable sessionId: UUID,
+        @RequestBody request: UpdateVocabularyReviewModeRequest,
+        @AuthenticationPrincipal userDetails: UserDetails
+    ): SessionResponse {
+        val userId = userService.getUserByUsername(userDetails.username).id
+        val session = chatSessionRepository.findById(sessionId)
+            .orElseThrow { IllegalArgumentException("Session not found") }
+
+        authorizationService.requireOwnership(userId, session.userId)
+
+        session.vocabularyReviewMode = request.enabled
+        chatSessionRepository.save(session)
+
+        logger.info("Vocabulary review mode ${if (request.enabled) "enabled" else "disabled"} for session $sessionId")
+
+        return session.toResponse()
+    }
+}
+
+data class UpdateVocabularyReviewModeRequest(val enabled: Boolean)
+```
+
+**File:** `SessionResponse.kt`
+
+Add field to response DTO:
+```kotlin
+data class SessionResponse(
+    val id: UUID,
+    val userId: UUID,
+    // existing fields...
+    val conversationPhase: String,
+    val effectivePhase: String?,
+    val estimatedCEFRLevel: String,
+
+    // NEW: Vocabulary review mode
+    val vocabularyReviewMode: Boolean,
+
+    // existing fields...
+)
+
+fun ChatSessionEntity.toResponse(): SessionResponse {
+    return SessionResponse(
+        id = id,
+        userId = userId,
+        // existing mappings...
+        conversationPhase = conversationPhase.name,
+        effectivePhase = effectivePhase?.name,
+        estimatedCEFRLevel = estimatedCEFRLevel.name,
+        vocabularyReviewMode = vocabularyReviewMode,
+        // existing mappings...
+    )
+}
+```
+
+**Testing:**
+- Test enabling review mode for a session
+- Test disabling review mode
+- Verify authorization checks
+- Test backward compatibility of SessionResponse
+
+---
+
+#### Step 10: Integrate Review Mode with TutorService
+
+**File:** `ChatService.kt`
+
+Pass review mode to TutorService via ConversationState:
+```kotlin
+@Service
+class ChatService(
+    // existing dependencies...
+    private val vocabularyReviewService: VocabularyReviewService  // NEW
+) {
+    fun sendMessage(
+        sessionId: UUID,
+        content: String,
+        onReplyChunk: (String) -> Unit = {}
+    ): MessageResponse? {
+        // existing logic...
+
+        // NEW: Get due vocabulary count if review mode enabled
+        val dueCount = if (session.vocabularyReviewMode) {
+            vocabularyReviewService.getDueCount(session.userId, session.targetLanguageCode)
+        } else {
+            null
+        }
+
+        // Pass review mode to LLM via enriched ConversationState
+        val conversationState = ConversationState(
+            phase = phaseDecision.phase,
+            estimatedCEFRLevel = session.estimatedCEFRLevel,
+            currentTopic = session.currentTopic,
+            phaseReason = phaseDecision.reason,
+            topicEligibilityStatus = topicMetadata.eligibilityStatus,
+            pastTopics = topicMetadata.pastTopics,
+            vocabularyReviewMode = session.vocabularyReviewMode,  // NEW
+            dueVocabularyCount = dueCount  // NEW
+        )
+
+        // existing TutorService call...
+    }
+}
+```
+
+**File:** `TutorService.kt`
+
+Update system prompt to include review mode guidance:
+```kotlin
+internal fun buildConsolidatedSystemPrompt(
+    tutor: Tutor,
+    conversationState: ConversationState,
+    // existing parameters...
+): String = buildString {
+    // existing prompt sections...
+
+    append("\n\n")
+
+    // Session Context (structured, not toString())
+    append("=== Current Session Context ===\n")
+    append("Phase: ${conversationState.phase.name} ($phaseReason)\n")
+    append("CEFR Level: ${conversationState.estimatedCEFRLevel.name}\n")
+    append("Topic: ${conversationState.currentTopic ?: "Free conversation"} ($topicEligibilityStatus)\n")
+    if (pastTopics.isNotEmpty()) {
+        append("Recent Topics: ${pastTopics.takeLast(3).joinToString(", ")}\n")
+    }
+
+    // NEW: Vocabulary review mode guidance
+    if (conversationState.vocabularyReviewMode && conversationState.dueVocabularyCount != null && conversationState.dueVocabularyCount > 0) {
+        append("\nVocabulary Review Mode: ACTIVE\n")
+        append("Due for Review: ${conversationState.dueVocabularyCount} words\n")
+        append("Guidance: Naturally integrate 2-3 due vocabulary words into the conversation. Ask the learner to use them, or prompt recall (e.g., 'Do you remember the word for...'). Keep it conversational, not quiz-like.\n")
+    }
+
+    append("\n")
+
+    // existing language metadata...
+}
+```
+
+**Testing:**
+- Test prompt includes review guidance when mode enabled
+- Test prompt excludes guidance when mode disabled
+- Test with due vocabulary count = 0 (no guidance)
+- Integration test: full conversation with review mode
+
+---
+
 ### Phase 2: SM-2 Algorithm (Optional Future Enhancement)
 
 Defer until Phase 1 validated. Implementation details in separate task document.
@@ -1007,12 +1229,69 @@ Defer until Phase 1 validated. Implementation details in separate task document.
 
 ---
 
+#### PATCH /api/v1/chat/sessions/{id}/vocabulary-review-mode
+**Description:** Enable or disable vocabulary review mode for a session
+
+**Path Parameters:**
+- `id` (required) - Session UUID
+
+**Request Body:**
+```json
+{
+  "enabled": true
+}
+```
+
+**Response:**
+```json
+{
+  "id": "123e4567-e89b-12d3-a456-426614174000",
+  "userId": "user-uuid",
+  "tutorName": "María",
+  "conversationPhase": "Correction",
+  "estimatedCEFRLevel": "B1",
+  "vocabularyReviewMode": true,
+  "createdAt": "2025-01-10T14:30:00Z"
+}
+```
+
+**Behavior:**
+- When `vocabularyReviewMode = true`: TutorService receives due vocabulary count in ConversationState
+- LLM system prompt includes guidance to naturally integrate 2-3 due vocabulary words into conversation
+- Similar to `conversationPhase`, this is user-controlled and persisted per session
+
+**Authorization:** Requires session ownership
+
+---
+
 ### Modified Endpoints
 
 #### GET /api/v1/vocabulary
 **Changes:** Response now includes SRS fields (`nextReviewAt`, `reviewStage`, `isDue`)
 
 **Backward Compatibility:** New fields are additive, existing clients ignore them
+
+---
+
+#### GET /api/v1/chat/sessions/{id}
+**Changes:** SessionResponse now includes `vocabularyReviewMode` boolean field
+
+**Example Response:**
+```json
+{
+  "id": "session-uuid",
+  "userId": "user-uuid",
+  "tutorName": "María",
+  "conversationPhase": "Correction",
+  "effectivePhase": "Correction",
+  "estimatedCEFRLevel": "B1",
+  "vocabularyReviewMode": false,
+  "currentTopic": "travel",
+  "createdAt": "2025-01-10T14:30:00Z"
+}
+```
+
+**Backward Compatibility:** New field has default value (false), existing clients ignore it
 
 ---
 
