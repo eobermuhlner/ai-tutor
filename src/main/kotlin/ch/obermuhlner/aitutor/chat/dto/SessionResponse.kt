@@ -18,6 +18,12 @@ data class SessionResponse(
     val effectivePhase: ConversationPhase,
     val estimatedCEFRLevel: CEFRLevel,
     val currentTopic: String? = null,
+    // NEW: Skill-specific CEFR levels (Task 0010, nullable for backward compatibility)
+    val cefrGrammar: CEFRLevel? = null,
+    val cefrVocabulary: CEFRLevel? = null,
+    val cefrFluency: CEFRLevel? = null,
+    val cefrComprehension: CEFRLevel? = null,
+    val lastAssessmentAt: Instant? = null,
     val courseTemplateId: UUID? = null,
     val tutorProfileId: UUID? = null,
     val customName: String? = null,
