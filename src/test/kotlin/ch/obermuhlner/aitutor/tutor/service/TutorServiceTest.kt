@@ -32,6 +32,7 @@ class TutorServiceTest {
     private lateinit var aiChatService: AiChatService
     private lateinit var languageService: LanguageService
     private lateinit var vocabularyContextService: VocabularyContextService
+    private lateinit var lessonProgressionService: ch.obermuhlner.aitutor.lesson.service.LessonProgressionService
     private lateinit var tutorService: TutorService
 
     private val systemPromptTemplate = "You are {tutorName}, teaching {targetLanguage} to {sourceLanguage} speakers. Persona: {tutorPersona}. Domain: {tutorDomain}. {vocabularyGuidance}"
@@ -47,6 +48,7 @@ class TutorServiceTest {
         aiChatService = mockk()
         languageService = mockk()
         vocabularyContextService = mockk()
+        lessonProgressionService = mockk(relaxed = true)
         val mockSummarizationService = mockk<ConversationSummarizationService>(relaxed = true)
         val mockProgressiveSummarizationService = mockk<ProgressiveSummarizationService>(relaxed = true)
         val messageCompactionService = MessageCompactionService(
@@ -75,6 +77,7 @@ class TutorServiceTest {
             languageService = languageService,
             vocabularyContextService = vocabularyContextService,
             messageCompactionService = messageCompactionService,
+            lessonProgressionService = lessonProgressionService,
             supportedLanguages = supportedLanguages,
             systemPromptTemplate = systemPromptTemplate,
             phaseFreePromptTemplate = phaseFreePromptTemplate,

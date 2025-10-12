@@ -306,7 +306,7 @@ class ChatService(
             dueVocabularyCount = dueCount
         )
 
-        val tutorResponse = tutorService.respond(tutor, conversationState, session.userId, messageHistory, session.id, onReplyChunk)
+        val tutorResponse = tutorService.respond(tutor, conversationState, session.userId, messageHistory, session.id, session, onReplyChunk)
             ?: return null
 
         // Update effective phase from LLM response only if in Auto mode

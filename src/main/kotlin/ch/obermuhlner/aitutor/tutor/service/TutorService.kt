@@ -10,6 +10,9 @@ import ch.obermuhlner.aitutor.tutor.domain.ConversationState
 import ch.obermuhlner.aitutor.tutor.domain.TeachingStyle
 import ch.obermuhlner.aitutor.tutor.domain.Tutor
 import ch.obermuhlner.aitutor.vocabulary.service.VocabularyContextService
+import ch.obermuhlner.aitutor.lesson.service.LessonProgressionService
+import ch.obermuhlner.aitutor.lesson.domain.LessonContent
+import ch.obermuhlner.aitutor.chat.domain.ChatSessionEntity
 import java.util.UUID
 import org.slf4j.LoggerFactory
 import org.springframework.ai.chat.messages.Message
@@ -24,6 +27,7 @@ class TutorService(
     private val languageService: LanguageService,
     private val vocabularyContextService: VocabularyContextService,
     private val messageCompactionService: MessageCompactionService,
+    private val lessonProgressionService: LessonProgressionService,
     private val supportedLanguages: Map<String, LanguageMetadata>,
     @Value("\${ai-tutor.prompts.system}") private val systemPromptTemplate: String,
     @Value("\${ai-tutor.prompts.phase-free}") private val phaseFreePromptTemplate: String,
@@ -48,6 +52,7 @@ class TutorService(
         userId: UUID,
         messages: List<Message>,
         sessionId: UUID? = null,
+        session: ChatSessionEntity? = null,
         onReplyChunk: (String) -> Unit = { print(it) }
     ): TutorResponse? {
         logger.debug("Tutor respond: user=$userId, session=$sessionId, phase=${conversationState.phase}, topic=${conversationState.currentTopic}")
@@ -66,6 +71,13 @@ class TutorService(
         val vocabularyGuidance = buildVocabularyGuidance(vocabContext)
         val teachingStyleGuidance = buildTeachingStyleGuidance(tutor.teachingStyle, targetLanguage)
 
+        // Get current lesson if session is course-based
+        val currentLesson = if (session != null && session.courseTemplateId != null) {
+            lessonProgressionService.checkAndProgressLesson(session)
+        } else {
+            null
+        }
+
         // Extract decision metadata with safe defaults for backward compatibility
         val phaseReason = conversationState.phaseReason ?: "Balanced default phase"
         val topicEligibilityStatus = conversationState.topicEligibilityStatus ?: "Active conversation"
@@ -83,7 +95,8 @@ class TutorService(
             sourceLanguage = sourceLanguage,
             sourceLanguageCode = sourceLanguageCode,
             vocabularyGuidance = vocabularyGuidance,
-            teachingStyleGuidance = teachingStyleGuidance
+            teachingStyleGuidance = teachingStyleGuidance,
+            currentLesson = currentLesson
         )
 
         val systemMessages = listOf(SystemMessage(consolidatedSystemPrompt))
@@ -155,6 +168,62 @@ class TutorService(
         }
     }
 
+    private fun buildLessonContextPrompt(lesson: LessonContent): String = buildString {
+        append("=== This Week's Lesson ===\n")
+        append("Lesson: ${lesson.title}\n")
+        if (lesson.weekNumber != null) {
+            append("Week: ${lesson.weekNumber}\n")
+        }
+        append("CEFR Level: ${lesson.targetCEFR.name}\n")
+        append("Focus Areas: ${lesson.focusAreas.joinToString(", ")}\n\n")
+
+        append("Goals:\n")
+        lesson.goals.forEach { goal ->
+            append("- $goal\n")
+        }
+        append("\n")
+
+        if (lesson.grammarPoints.isNotEmpty()) {
+            append("Grammar Focus:\n")
+            lesson.grammarPoints.forEach { grammar ->
+                append("- ${grammar.title}: ${grammar.rule}\n")
+                if (grammar.examples.isNotEmpty()) {
+                    append("  Examples: ${grammar.examples.joinToString("; ")}\n")
+                }
+            }
+            append("\n")
+        }
+
+        if (lesson.essentialVocabulary.isNotEmpty()) {
+            append("Essential Vocabulary:\n")
+            lesson.essentialVocabulary.take(20).forEach { vocab ->
+                append("- ${vocab.word} (${vocab.translation})\n")
+            }
+            if (lesson.essentialVocabulary.size > 20) {
+                append("... and ${lesson.essentialVocabulary.size - 20} more\n")
+            }
+            append("\n")
+        }
+
+        if (lesson.practicePatterns.isNotEmpty()) {
+            append("Practice Patterns:\n")
+            lesson.practicePatterns.forEach { pattern ->
+                append("- $pattern\n")
+            }
+            append("\n")
+        }
+
+        if (lesson.commonMistakes.isNotEmpty()) {
+            append("Common Mistakes to Watch:\n")
+            lesson.commonMistakes.forEach { mistake ->
+                append("- $mistake\n")
+            }
+            append("\n")
+        }
+
+        append("Guidance: Naturally integrate these lesson concepts into the conversation. Don't explicitly reference 'this week's lesson' - just guide the conversation to practice these skills organically.")
+    }
+
     internal fun buildConsolidatedSystemPrompt(
         tutor: Tutor,
         conversationState: ConversationState,
@@ -166,7 +235,8 @@ class TutorService(
         sourceLanguage: String,
         sourceLanguageCode: String,
         vocabularyGuidance: String,
-        teachingStyleGuidance: String
+        teachingStyleGuidance: String,
+        currentLesson: LessonContent? = null
     ): String = buildString {
         // Base system prompt (role, persona, languages)
         append(PromptTemplate(systemPromptTemplate).render(mapOf(
@@ -204,6 +274,12 @@ class TutorService(
         )))
 
         append("\n\n")
+
+        // Lesson Context (if course-based session)
+        if (currentLesson != null) {
+            append(buildLessonContextPrompt(currentLesson))
+            append("\n\n")
+        }
 
         // Session Context (structured, not toString())
         append("=== Current Session Context ===\n")
