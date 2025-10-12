@@ -54,6 +54,10 @@ Language learning assistant with conversational AI tutoring and vocabulary track
   - GET `/sessions/{id}/details` - Get detailed summaries with text (admin only)
   - POST `/sessions/{id}/trigger` - Manually trigger summarization (admin only)
   - GET `/stats` - Get global summarization statistics (admin only)
+- **ErrorAnalyticsController** - Error analytics REST endpoints (`/api/v1/analytics/*`)
+  - GET `/errors/patterns?lang={code}&limit={n}` - Get top error patterns sorted by weighted score
+  - GET `/errors/trends/{errorType}?lang={code}` - Get trend analysis (IMPROVING/STABLE/WORSENING/INSUFFICIENT_DATA)
+  - GET `/errors/samples?limit={n}` - Get recent error samples for debugging
 - **ChatService** - Session/message orchestration, integrates TutorService
 - **CatalogService** - Browse languages, courses, and tutors with localization
 - **UserLanguageService** - Manage user's language proficiency profiles
@@ -72,6 +76,7 @@ Language learning assistant with conversational AI tutoring and vocabulary track
 - `ProgressiveSummarizationService` - Hierarchical message summarization with async execution
 - `MessageCompactionService` - Context compaction using progressive summaries
 - `SummaryQueryService` - Query and monitor summarization statistics
+- `ErrorAnalyticsService` - Error pattern tracking, trend analysis, and sample management
 - `AiChatService` - AI chat integration with streaming responses
 - `VocabularyService` - Vocabulary tracking with context and exposure counting
 - `AuthService` / `AuthorizationService` / `JwtTokenService` - JWT-based authentication
@@ -157,6 +162,12 @@ ch.obermuhlner.aitutor
 │   ├── domain/             # VocabularyItemEntity, VocabularyContextEntity
 │   └── dto/                # NewVocabularyDTO, VocabularyItemResponse,
 │                           # VocabularyContextResponse, VocabularyItemWithContextsResponse
+├── analytics/              # Error analytics and tracking
+│   ├── controller/         # ErrorAnalyticsController (/api/v1/analytics)
+│   ├── service/            # ErrorAnalyticsService
+│   ├── repository/         # ErrorPatternRepository, RecentErrorSampleRepository
+│   ├── domain/             # ErrorPatternEntity, RecentErrorSampleEntity
+│   └── dto/                # ErrorPatternResponse, ErrorTrendResponse, ErrorSampleResponse
 ├── tutor/                  # Tutoring logic and domain
 │   ├── service/            # TutorService, PhaseDecisionService, TopicDecisionService,
 │   │                       # ProgressiveSummarizationService, MessageCompactionService,

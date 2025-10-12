@@ -130,7 +130,9 @@ curl http://localhost:8080/api/v1/chat/sessions/{sessionId} \
 |--------|----------|-------------|
 | POST | `/api/v1/chat/sessions` | Create new learning session |
 | GET | `/api/v1/chat/sessions?userId={uuid}` | List user's sessions (omit userId for current user) |
+| GET | `/api/v1/chat/sessions/active?userId={uuid}` | Get active sessions with progress metrics (messageCount, vocabularyCount, daysActive) |
 | GET | `/api/v1/chat/sessions/{id}` | Get session with full message history |
+| GET | `/api/v1/chat/sessions/{id}/progress` | Get session progress metrics |
 | PATCH | `/api/v1/chat/sessions/{id}/phase` | Update conversation phase (Free/Correction/Drill/Auto) |
 | PATCH | `/api/v1/chat/sessions/{id}/topic` | Update current conversation topic |
 | GET | `/api/v1/chat/sessions/{id}/topics/history` | Get conversation topic history |
@@ -153,6 +155,14 @@ curl http://localhost:8080/api/v1/chat/sessions/{sessionId} \
 | GET | `/api/v1/summaries/sessions/{id}/details` | Get detailed summaries with text (admin only) |
 | POST | `/api/v1/summaries/sessions/{id}/trigger` | Manually trigger summarization (admin only) |
 | GET | `/api/v1/summaries/stats` | Get global summarization statistics (admin only) |
+
+#### Error Analytics Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/v1/analytics/errors/patterns?lang={code}&limit={n}` | Get top error patterns sorted by weighted severity score (default limit: 5) |
+| GET | `/api/v1/analytics/errors/trends/{errorType}?lang={code}` | Get trend analysis for specific error type (IMPROVING/STABLE/WORSENING/INSUFFICIENT_DATA) |
+| GET | `/api/v1/analytics/errors/samples?limit={n}` | Get recent error samples for debugging/UI display (default limit: 20) |
 
 ## Testing with IntelliJ HTTP Client
 

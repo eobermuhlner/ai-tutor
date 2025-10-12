@@ -429,3 +429,39 @@ Accept: application/json
 GET {{host}}/api/v1/summaries/stats
 Authorization: Bearer {{accessToken}}
 Accept: application/json
+
+###
+
+###########################
+### Error Analytics Examples
+###########################
+
+### Get Top Error Patterns (Default: Top 5)
+GET {{host}}/api/v1/analytics/errors/patterns?lang=es
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+### Get Top 10 Error Patterns
+GET {{host}}/api/v1/analytics/errors/patterns?lang=es&limit=10
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+### Get Error Trend for Agreement Errors
+GET {{host}}/api/v1/analytics/errors/trends/Agreement?lang=es
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+### Get Error Trend for TenseAspect Errors
+GET {{host}}/api/v1/analytics/errors/trends/TenseAspect?lang=es
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+### Get Recent Error Samples (Default: Last 20)
+GET {{host}}/api/v1/analytics/errors/samples
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+### Get Last 50 Error Samples
+GET {{host}}/api/v1/analytics/errors/samples?limit=50
+Authorization: Bearer {{accessToken}}
+Accept: application/json
