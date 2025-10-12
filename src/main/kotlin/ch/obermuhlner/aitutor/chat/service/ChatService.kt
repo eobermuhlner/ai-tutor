@@ -43,6 +43,7 @@ class ChatService(
     private val phaseDecisionService: ch.obermuhlner.aitutor.tutor.service.PhaseDecisionService,
     private val topicDecisionService: ch.obermuhlner.aitutor.tutor.service.TopicDecisionService,
     private val catalogService: ch.obermuhlner.aitutor.catalog.service.CatalogService,
+    private val errorAnalyticsService: ch.obermuhlner.aitutor.analytics.service.ErrorAnalyticsService,
     private val objectMapper: ObjectMapper
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -364,6 +365,21 @@ class ChatService(
                 },
                 turnId = savedAssistantMessage.id
             )
+        }
+
+        // Record error patterns for analytics
+        if (tutorResponse.conversationResponse.corrections.isNotEmpty()) {
+            try {
+                errorAnalyticsService.recordErrors(
+                    userId = session.userId,
+                    lang = session.targetLanguageCode,
+                    messageId = savedAssistantMessage.id,
+                    corrections = tutorResponse.conversationResponse.corrections
+                )
+            } catch (e: Exception) {
+                logger.error("Failed to record error patterns", e)
+                // Don't fail message sending if analytics fails
+            }
         }
 
         return toMessageResponse(savedAssistantMessage)
