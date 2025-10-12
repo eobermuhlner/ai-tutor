@@ -18,5 +18,11 @@ data class ConversationState(
     @field:JsonPropertyDescription("Topic eligibility status for hysteresis tracking.")
     val topicEligibilityStatus: String? = null,
     @field:JsonPropertyDescription("List of recently discussed topics to prevent repetition.")
-    val pastTopics: List<String> = emptyList()
+    val pastTopics: List<String> = emptyList(),
+
+    // Vocabulary review mode
+    @field:JsonPropertyDescription("Whether vocabulary review mode is enabled for this session. When true, the tutor should naturally integrate due vocabulary review into conversation.")
+    val vocabularyReviewMode: Boolean = false,
+    @field:JsonPropertyDescription("Count of vocabulary items due for review (for context).")
+    val dueVocabularyCount: Long? = null
 )

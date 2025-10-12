@@ -73,6 +73,10 @@ class ChatSessionEntity(
     @Column(name = "is_active")
     var isActive: Boolean = true,
 
+    // Vocabulary review mode control (similar to conversationPhase)
+    @Column(name = "vocabulary_review_mode", nullable = false)
+    var vocabularyReviewMode: Boolean = false,
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     val createdAt: Instant? = null,
