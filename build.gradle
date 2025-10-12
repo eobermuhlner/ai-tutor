@@ -90,8 +90,7 @@ jacocoTestReport {
                 '**/dto/**',
                 '**/domain/**',
                 '**/conversation/service/**',  // Spring AI integration, requires integration tests
-                '**/ImageStoreClient**',  // HTTP client, requires integration tests
-                '**/lesson/service/**'  // Lesson services, will add tests in Phase 5
+                '**/ImageStoreClient**'  // HTTP client, requires integration tests
             ])
         }))
     }
@@ -113,8 +112,7 @@ jacocoTestCoverageVerification {
                 '**/dto/**',
                 '**/domain/**',
                 '**/conversation/service/**',  // Spring AI integration, requires integration tests
-                '**/ImageStoreClient**',  // HTTP client, requires integration tests
-                '**/lesson/service/**'  // Lesson services, will add tests in Phase 5
+                '**/ImageStoreClient**'  // HTTP client, requires integration tests
             ])
         }))
     }

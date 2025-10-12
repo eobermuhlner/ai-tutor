@@ -9,6 +9,7 @@ import ch.obermuhlner.aitutor.lesson.domain.VocabEntry
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import java.util.concurrent.ConcurrentHashMap
 import org.slf4j.LoggerFactory
 import org.springframework.core.io.ClassPathResource
@@ -23,7 +24,7 @@ class LessonContentService(
     private val curriculumCache = ConcurrentHashMap<String, CourseCurriculum>()
 
     // YAML mapper for curriculum.yml files
-    private val yamlMapper = ObjectMapper(YAMLFactory())
+    private val yamlMapper = ObjectMapper(YAMLFactory()).registerKotlinModule()
 
     fun getLesson(courseId: String, lessonId: String): LessonContent? {
         val cacheKey = "$courseId/$lessonId"
