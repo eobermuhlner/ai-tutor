@@ -44,6 +44,7 @@ class ChatService(
     private val topicDecisionService: ch.obermuhlner.aitutor.tutor.service.TopicDecisionService,
     private val catalogService: ch.obermuhlner.aitutor.catalog.service.CatalogService,
     private val errorAnalyticsService: ch.obermuhlner.aitutor.analytics.service.ErrorAnalyticsService,
+    private val cefrAssessmentService: ch.obermuhlner.aitutor.assessment.service.CEFRAssessmentService,
     private val objectMapper: ObjectMapper
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -380,6 +381,20 @@ class ChatService(
                 logger.error("Failed to record error patterns", e)
                 // Don't fail message sending if analytics fails
             }
+        }
+
+        // Update CEFR skill levels after each message (Task 0010)
+        try {
+            val assessment = cefrAssessmentService.assessWithHeuristics(session)
+            val changed = cefrAssessmentService.updateSkillLevelsIfChanged(session, assessment)
+
+            if (changed) {
+                chatSessionRepository.save(session)
+                logger.info("CEFR skill levels updated for session ${session.id}")
+            }
+        } catch (e: Exception) {
+            logger.error("CEFR assessment failed for session ${session.id}", e)
+            // Don't fail message sending if assessment fails
         }
 
         return toMessageResponse(savedAssistantMessage)
