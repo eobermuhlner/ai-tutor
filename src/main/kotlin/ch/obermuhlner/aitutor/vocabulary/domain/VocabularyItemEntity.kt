@@ -44,5 +44,15 @@ class VocabularyItemEntity(
 
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
-    var updatedAt: Instant? = null
+    var updatedAt: Instant? = null,
+
+    // SRS (Spaced Repetition System) fields
+    @Column(name = "next_review_at")
+    var nextReviewAt: Instant? = null,
+
+    @Column(name = "review_stage", nullable = false)
+    var reviewStage: Int = 0,
+
+    @Column(name = "srs_algorithm", nullable = false, length = 32)
+    var srsAlgorithm: String = "SIMPLE"
 )
