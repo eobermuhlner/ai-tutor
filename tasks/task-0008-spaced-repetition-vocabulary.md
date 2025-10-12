@@ -541,10 +541,12 @@ class VocabularyItemEntity(
 
 ### Phase 1: Simple Fixed Intervals (Recommended First)
 
-#### Step 1: Database Migration
+**Important Note on Database Migrations:**
+This project uses JPA with `ddl-auto=update` (not Flyway/Liquibase). Schema changes happen automatically via JPA entity annotations when the application starts. The SQL migration files shown below are for documentation purposes only - they illustrate what schema changes will occur, but you do NOT need to create or run these SQL files manually.
 
-**File:** `src/main/resources/db/migration/V008__add_srs_fields.sql`
+#### Step 1: Database Schema Changes
 
+**Illustrative SQL (for documentation only):**
 ```sql
 -- Add SRS fields to vocabulary_items table
 ALTER TABLE vocabulary_items
@@ -567,10 +569,16 @@ ALTER TABLE chat_sessions
     ADD COLUMN vocabulary_review_mode BOOLEAN DEFAULT FALSE NOT NULL;
 ```
 
+**What Actually Happens:**
+When you update VocabularyItemEntity (Step 2) and restart the application, JPA will:
+1. Detect new columns in the entity
+2. Automatically add them to the vocabulary_items table
+3. Create the index if specified with `@Index` annotation
+4. Set default values for existing rows
+
 **Testing:**
-- Verify migration runs cleanly on test database
+- Start application and verify logs show schema updates
 - Check existing vocabulary data preserved
-- Confirm index created successfully
 - Validate backward compatibility (existing code still works)
 
 ---
@@ -627,6 +635,8 @@ import ch.obermuhlner.aitutor.vocabulary.repository.VocabularyItemRepository
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.UUID
+import kotlin.math.min
+import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -646,13 +656,13 @@ class VocabularyReviewService(
         limit: Int = 20
     ): List<VocabularyItemEntity> {
         val now = Instant.now()
-        return vocabularyItemRepository.findDueForReview(userId, lang, now, limit)
+        return vocabularyItemRepository.findDueForReview(userId, lang, now, PageRequest.of(0, limit))
     }
 
     /**
      * Get count of due vocabulary items for a user.
      */
-    fun getDueCount(userId: UUID, lang: String): Int {
+    fun getDueCount(userId: UUID, lang: String): Long {
         val now = Instant.now()
         return vocabularyItemRepository.countDueForReview(userId, lang, now)
     }
@@ -687,6 +697,7 @@ class VocabularyReviewService(
     /**
      * Schedule initial review for newly added vocabulary.
      * Called by VocabularyService after creating/updating item.
+     * Note: Caller must persist the entity after calling this method.
      */
     fun scheduleInitialReview(item: VocabularyItemEntity) {
         if (item.nextReviewAt == null) {
@@ -755,7 +766,7 @@ interface VocabularyItemRepository : JpaRepository<VocabularyItemEntity, UUID> {
         userId: UUID,
         lang: String,
         now: Instant,
-        limit: Pageable = PageRequest.of(0, 20)
+        pageable: org.springframework.data.domain.Pageable
     ): List<VocabularyItemEntity>
 
     @Query("""
@@ -780,6 +791,17 @@ interface VocabularyItemRepository : JpaRepository<VocabularyItemEntity, UUID> {
 
 Update `addNewVocabulary` to schedule reviews:
 ```kotlin
+package ch.obermuhlner.aitutor.vocabulary.service
+
+import ch.obermuhlner.aitutor.vocabulary.domain.VocabularyContextEntity
+import ch.obermuhlner.aitutor.vocabulary.domain.VocabularyItemEntity
+import ch.obermuhlner.aitutor.vocabulary.repository.VocabularyContextRepository
+import ch.obermuhlner.aitutor.vocabulary.repository.VocabularyItemRepository
+import ch.obermuhlner.aitutor.core.model.NewVocabularyDTO
+import java.util.UUID
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+
 @Service
 class VocabularyService(
     private val vocabularyItemRepository: VocabularyItemRepository,
@@ -793,21 +815,43 @@ class VocabularyService(
         items: List<NewVocabularyDTO>,
         turnId: UUID? = null
     ): List<VocabularyItemEntity> {
-        // ... existing logic ...
+        val saved = mutableListOf<VocabularyItemEntity>()
 
-        val persisted = vocabularyItemRepository.save(item)
+        for (nv in items) {
+            // Find or create vocabulary item
+            val item = vocabularyItemRepository.findByUserIdAndLangAndLemma(userId, lang, nv.lemma)
+                ?: VocabularyItemEntity(
+                    id = UUID.randomUUID(),
+                    userId = userId,
+                    lang = lang,
+                    lemma = nv.lemma,
+                    conceptName = nv.concept,
+                    exposures = 0
+                )
 
-        // NEW: Schedule initial review for new vocabulary
-        vocabularyReviewService.scheduleInitialReview(persisted)
+            // Increment exposure count
+            item.exposures++
+            item.lastSeenAt = java.time.Instant.now()
 
-        vocabularyContextRepository.save(
-            VocabularyContextEntity(
-                vocabItem = persisted,
-                context = nv.context.take(512),
-                turnId = turnId
+            var persisted = vocabularyItemRepository.save(item)
+
+            // NEW: Schedule initial review for new vocabulary
+            vocabularyReviewService.scheduleInitialReview(persisted)
+            // Save again after scheduling review
+            persisted = vocabularyItemRepository.save(persisted)
+
+            // Save context
+            vocabularyContextRepository.save(
+                VocabularyContextEntity(
+                    vocabItem = persisted,
+                    context = nv.context.take(512),
+                    turnId = turnId
+                )
             )
-        )
-        saved += persisted
+            saved += persisted
+        }
+
+        return saved
     }
 }
 ```
@@ -820,6 +864,15 @@ class VocabularyService(
 
 Add new endpoints:
 ```kotlin
+package ch.obermuhlner.aitutor.vocabulary.controller
+
+import ch.obermuhlner.aitutor.auth.service.AuthorizationService
+import ch.obermuhlner.aitutor.vocabulary.dto.VocabularyItemResponse
+import ch.obermuhlner.aitutor.vocabulary.service.VocabularyQueryService
+import ch.obermuhlner.aitutor.vocabulary.service.VocabularyReviewService
+import java.util.UUID
+import org.springframework.web.bind.annotation.*
+
 @RestController
 @RequestMapping("/api/v1/vocabulary")
 class VocabularyController(
@@ -830,42 +883,29 @@ class VocabularyController(
     // existing endpoints...
 
     /**
-     * Get due vocabulary items for review.
+     * Get due vocabulary items for review in a specific language.
      * GET /api/v1/vocabulary/due?lang=es&limit=20
      */
     @GetMapping("/due")
     fun getDueVocabulary(
-        @RequestParam(required = false) lang: String?,
-        @RequestParam(defaultValue = "20") limit: Int,
-        @AuthenticationPrincipal userDetails: UserDetails
+        @RequestParam lang: String,
+        @RequestParam(defaultValue = "20") limit: Int
     ): List<VocabularyItemResponse> {
-        val userId = userService.getUserByUsername(userDetails.username).id
-
-        return if (lang != null) {
-            vocabularyReviewService.getDueVocabulary(userId, lang, limit)
-        } else {
-            // Get due from all languages
-            vocabularyQueryService.getAllDueVocabulary(userId, limit)
-        }.map { it.toResponse() }
+        val userId = authorizationService.getCurrentUserId()
+        return vocabularyReviewService.getDueVocabulary(userId, lang, limit)
+            .map { it.toResponse() }
     }
 
     /**
-     * Get count of due vocabulary items.
+     * Get count of due vocabulary items in a specific language.
      * GET /api/v1/vocabulary/due/count?lang=es
      */
     @GetMapping("/due/count")
     fun getDueCount(
-        @RequestParam(required = false) lang: String?,
-        @AuthenticationPrincipal userDetails: UserDetails
+        @RequestParam lang: String
     ): DueCountResponse {
-        val userId = userService.getUserByUsername(userDetails.username).id
-
-        val count = if (lang != null) {
-            vocabularyReviewService.getDueCount(userId, lang)
-        } else {
-            vocabularyQueryService.getAllDueCount(userId)
-        }
-
+        val userId = authorizationService.getCurrentUserId()
+        val count = vocabularyReviewService.getDueCount(userId, lang)
         return DueCountResponse(count)
     }
 
@@ -877,13 +917,12 @@ class VocabularyController(
     @PostMapping("/{itemId}/review")
     fun recordReview(
         @PathVariable itemId: UUID,
-        @RequestBody request: RecordReviewRequest,
-        @AuthenticationPrincipal userDetails: UserDetails
+        @RequestBody request: RecordReviewRequest
     ): VocabularyItemResponse {
-        val userId = userService.getUserByUsername(userDetails.username).id
+        val userId = authorizationService.getCurrentUserId()
 
         // Verify ownership
-        val item = vocabularyQueryService.getVocabularyItem(itemId)
+        val item = vocabularyQueryService.getVocabularyItemById(itemId)
         authorizationService.requireOwnership(userId, item.userId)
 
         val updated = vocabularyReviewService.recordReview(itemId, request.success)
@@ -892,7 +931,40 @@ class VocabularyController(
 }
 
 data class RecordReviewRequest(val success: Boolean)
-data class DueCountResponse(val count: Int)
+data class DueCountResponse(val count: Long)
+```
+
+---
+
+#### Step 6.5: Add Method to VocabularyQueryService
+
+**File:** `VocabularyQueryService.kt`
+
+Add method for retrieving individual vocabulary items:
+```kotlin
+package ch.obermuhlner.aitutor.vocabulary.service
+
+import ch.obermuhlner.aitutor.vocabulary.domain.VocabularyItemEntity
+import ch.obermuhlner.aitutor.vocabulary.repository.VocabularyItemRepository
+import java.util.UUID
+import org.springframework.stereotype.Service
+
+@Service
+class VocabularyQueryService(
+    private val vocabularyItemRepository: VocabularyItemRepository
+    // existing dependencies...
+) {
+    // existing methods...
+
+    /**
+     * Get vocabulary item by ID.
+     * Used for ownership verification before recording reviews.
+     */
+    fun getVocabularyItemById(itemId: UUID): VocabularyItemEntity {
+        return vocabularyItemRepository.findById(itemId)
+            .orElseThrow { IllegalArgumentException("Vocabulary item not found: $itemId") }
+    }
+}
 ```
 
 ---
@@ -903,6 +975,12 @@ data class DueCountResponse(val count: Int)
 
 Add SRS fields to response:
 ```kotlin
+package ch.obermuhlner.aitutor.vocabulary.dto
+
+import ch.obermuhlner.aitutor.vocabulary.domain.VocabularyItemEntity
+import java.time.Instant
+import java.util.UUID
+
 data class VocabularyItemResponse(
     val id: UUID,
     val lang: String,
@@ -991,11 +1069,24 @@ data class ConversationState(
 
 Add endpoint to toggle vocabulary review mode:
 ```kotlin
+package ch.obermuhlner.aitutor.chat.controller
+
+import ch.obermuhlner.aitutor.auth.service.AuthorizationService
+import ch.obermuhlner.aitutor.chat.dto.SessionResponse
+import ch.obermuhlner.aitutor.chat.repository.ChatSessionRepository
+import java.util.UUID
+import org.slf4j.LoggerFactory
+import org.springframework.web.bind.annotation.*
+
 @RestController
 @RequestMapping("/api/v1/chat")
 class ChatController(
+    private val chatSessionRepository: ChatSessionRepository,
+    private val authorizationService: AuthorizationService
     // existing dependencies...
 ) {
+    private val logger = LoggerFactory.getLogger(javaClass)
+
     // existing endpoints...
 
     /**
@@ -1006,10 +1097,9 @@ class ChatController(
     @PatchMapping("/sessions/{sessionId}/vocabulary-review-mode")
     fun updateVocabularyReviewMode(
         @PathVariable sessionId: UUID,
-        @RequestBody request: UpdateVocabularyReviewModeRequest,
-        @AuthenticationPrincipal userDetails: UserDetails
+        @RequestBody request: UpdateVocabularyReviewModeRequest
     ): SessionResponse {
-        val userId = userService.getUserByUsername(userDetails.username).id
+        val userId = authorizationService.getCurrentUserId()
         val session = chatSessionRepository.findById(sessionId)
             .orElseThrow { IllegalArgumentException("Session not found") }
 
@@ -1031,6 +1121,12 @@ data class UpdateVocabularyReviewModeRequest(val enabled: Boolean)
 
 Add field to response DTO:
 ```kotlin
+package ch.obermuhlner.aitutor.chat.dto
+
+import ch.obermuhlner.aitutor.chat.domain.ChatSessionEntity
+import java.time.Instant
+import java.util.UUID
+
 data class SessionResponse(
     val id: UUID,
     val userId: UUID,
@@ -1163,10 +1259,10 @@ Defer until Phase 1 validated. Implementation details in separate task document.
 ### New Endpoints
 
 #### GET /api/v1/vocabulary/due
-**Description:** Get vocabulary items due for review
+**Description:** Get vocabulary items due for review in a specific language
 
 **Query Parameters:**
-- `lang` (optional) - Filter by language code
+- `lang` (required) - Language code (e.g., "es", "fr")
 - `limit` (optional) - Max items to return (default: 20)
 
 **Response:**
@@ -1190,10 +1286,10 @@ Defer until Phase 1 validated. Implementation details in separate task document.
 ---
 
 #### GET /api/v1/vocabulary/due/count
-**Description:** Get count of due vocabulary items
+**Description:** Get count of due vocabulary items in a specific language
 
 **Query Parameters:**
-- `lang` (optional) - Filter by language code
+- `lang` (required) - Language code (e.g., "es", "fr")
 
 **Response:**
 ```json
@@ -1201,6 +1297,8 @@ Defer until Phase 1 validated. Implementation details in separate task document.
   "count": 15
 }
 ```
+
+**Note:** Count is returned as a number (can be larger than Int max value)
 
 ---
 
