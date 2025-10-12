@@ -15,7 +15,8 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class VocabularyService(
     private val vocabularyItemRepository: VocabularyItemRepository,
-    private val vocabularyContextRepository: VocabularyContextRepository
+    private val vocabularyContextRepository: VocabularyContextRepository,
+    private val vocabularyReviewService: VocabularyReviewService
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
     @Transactional
@@ -58,7 +59,12 @@ class VocabularyService(
                     logger.debug("Created new vocabulary item: $lemmaNorm")
                 }
 
-            val persisted = vocabularyItemRepository.save(item)
+            var persisted = vocabularyItemRepository.save(item)
+
+            // Schedule initial review for new vocabulary
+            vocabularyReviewService.scheduleInitialReview(persisted)
+            persisted = vocabularyItemRepository.save(persisted)
+
             vocabularyContextRepository.save(
                 VocabularyContextEntity(
                     vocabItem = persisted,
