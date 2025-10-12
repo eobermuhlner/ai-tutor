@@ -76,13 +76,13 @@ class ChatSessionEntity(
     var lastAssessmentAt: Instant? = null,
 
     @Column(name = "total_assessment_count")
-    var totalAssessmentCount: Int = 0,
+    var totalAssessmentCount: Int? = null,
 
     @Column(name = "last_llm_validation_at")
     var lastLLMValidationAt: Instant? = null,
 
     @Column(name = "llm_validation_count")
-    var llmValidationCount: Int = 0,
+    var llmValidationCount: Int? = null,
 
     @Column(name = "current_topic", nullable = true, length = 128)
     var currentTopic: String? = null,

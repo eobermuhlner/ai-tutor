@@ -1,5 +1,30 @@
 # Task 0010: Formative Assessment and Dynamic CEFR Level Adjustment
 
+**Status:** ✅ COMPLETE (Phase 1 - Heuristic-based skill tracking)
+
+**Completion Date:** 2025-01-12
+
+**Implementation Summary:**
+- Database schema extended with 8 new columns for skill-specific CEFR levels
+- CEFRAssessmentService implemented with heuristic-based assessment
+- Real-time skill level updates after each message (no LLM overhead)
+- REST API endpoints added for skill breakdown queries
+- SessionResponse extended with optional skill fields (backward compatible)
+- All tests passing, build successful
+
+**Commits:**
+1. `7f2961f` - task-0010 phase-2: Update ChatSessionEntity with skill fields
+2. `b24ec6c` - task-0010 phase-3: Create CEFRAssessmentService with heuristics
+3. `1212ab0` - task-0010 phase-4: Integrate CEFR assessment with ChatService
+4. `c54983e` - task-0010 phase-5-6: Add assessment REST API and DTOs
+5. `845eb4b` - task-0010 phase-7: Update session response with skill breakdown
+
+**Future Work (Phase 2):**
+- LLM validation layer (every 50 messages) - see Alternative 4 design
+- Progress dashboard UI
+- Skill-specific drill recommendations
+- Explicit comprehension tests
+
 ## Problem Statement
 
 The current CEFR level tracking system provides a **static initial estimate** that never adjusts based on learner performance. This limits the system's adaptiveness and pedagogical effectiveness:

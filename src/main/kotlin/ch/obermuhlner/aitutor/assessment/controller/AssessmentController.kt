@@ -41,7 +41,7 @@ class AssessmentController(
                 fluency = session.cefrFluency?.name ?: "Unknown",
                 comprehension = session.cefrComprehension?.name ?: "Unknown",
                 lastAssessedAt = session.lastAssessmentAt,
-                assessmentCount = session.totalAssessmentCount
+                assessmentCount = session.totalAssessmentCount ?: 0
             )
         )
     }

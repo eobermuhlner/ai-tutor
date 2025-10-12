@@ -209,7 +209,7 @@ class CEFRAssessmentService(
 
         if (changed) {
             session.lastAssessmentAt = Instant.now()
-            session.totalAssessmentCount += 1
+            session.totalAssessmentCount = (session.totalAssessmentCount ?: 0) + 1
         }
 
         return changed
