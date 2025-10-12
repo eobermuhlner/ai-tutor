@@ -934,4 +934,97 @@ class ChatControllerTest {
         )
             .andExpect(status().isNotFound)
     }
+
+    @Test
+    @WithMockUser
+    fun `should deactivate session successfully`() {
+        val session = TestDataFactory.createSessionEntity()
+        session.isActive = true
+
+        val sessionResponse = SessionResponse(
+            id = TestDataFactory.TEST_SESSION_ID,
+            userId = TestDataFactory.TEST_USER_ID,
+            tutorName = "Maria",
+            tutorPersona = "friendly",
+            tutorDomain = "general",
+            tutorTeachingStyle = ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Reactive,
+            sourceLanguageCode = "en",
+            targetLanguageCode = "es",
+            conversationPhase = ConversationPhase.Free,
+            effectivePhase = ConversationPhase.Free,
+            estimatedCEFRLevel = CEFRLevel.A2,
+            isActive = false,
+            createdAt = Instant.now(),
+            updatedAt = Instant.now()
+        )
+
+        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns java.util.Optional.of(session)
+        every { chatSessionRepository.save(any()) } returns session
+        every { chatService.getSession(TestDataFactory.TEST_SESSION_ID) } returns sessionResponse
+
+        mockMvc.perform(
+            post("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}/deactivate")
+                .with(csrf())
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.isActive").value(false))
+    }
+
+    @Test
+    @WithMockUser
+    fun `should return 404 when deactivating non-existent session`() {
+        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
+        every { chatSessionRepository.findById(any()) } returns java.util.Optional.empty()
+
+        mockMvc.perform(
+            post("/api/v1/chat/sessions/${UUID.randomUUID()}/deactivate")
+                .with(csrf())
+        )
+            .andExpect(status().isNotFound)
+    }
+
+    @Test
+    @WithMockUser
+    fun `should return 404 when deactivating session owned by different user`() {
+        val differentUserId = UUID.randomUUID()
+        val session = TestDataFactory.createSessionEntity(userId = differentUserId)
+
+        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns java.util.Optional.of(session)
+
+        mockMvc.perform(
+            post("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}/deactivate")
+                .with(csrf())
+        )
+            .andExpect(status().isNotFound)
+    }
+
+    @Test
+    @WithMockUser
+    fun `should return 404 when deleting session owned by different user`() {
+        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
+        every { chatService.deleteSession(any(), any()) } returns false
+
+        mockMvc.perform(
+            delete("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}")
+                .with(csrf())
+        )
+            .andExpect(status().isNotFound)
+    }
+
+    @Test
+    @WithMockUser
+    fun `should return 404 when updating teaching style for non-existent session`() {
+        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
+        every { chatService.updateSessionTeachingStyle(any(), any(), any()) } returns null
+
+        mockMvc.perform(
+            patch("/api/v1/chat/sessions/${UUID.randomUUID()}/teaching-style")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""{"teachingStyle": "Directive"}""")
+        )
+            .andExpect(status().isNotFound)
+    }
 }

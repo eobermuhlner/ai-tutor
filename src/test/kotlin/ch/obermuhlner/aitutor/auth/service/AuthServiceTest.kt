@@ -3,12 +3,16 @@ package ch.obermuhlner.aitutor.auth.service
 import ch.obermuhlner.aitutor.auth.config.JwtProperties
 import ch.obermuhlner.aitutor.auth.dto.ChangePasswordRequest
 import ch.obermuhlner.aitutor.auth.dto.LoginRequest
+import ch.obermuhlner.aitutor.auth.dto.RefreshTokenRequest
 import ch.obermuhlner.aitutor.auth.dto.RegisterRequest
 import ch.obermuhlner.aitutor.auth.exception.AccountDisabledException
 import ch.obermuhlner.aitutor.auth.exception.AccountLockedException
 import ch.obermuhlner.aitutor.auth.exception.DuplicateEmailException
 import ch.obermuhlner.aitutor.auth.exception.DuplicateUsernameException
+import ch.obermuhlner.aitutor.auth.exception.ExpiredTokenException
 import ch.obermuhlner.aitutor.auth.exception.InvalidCredentialsException
+import ch.obermuhlner.aitutor.auth.exception.InvalidTokenException
+import ch.obermuhlner.aitutor.auth.exception.UserNotFoundException
 import ch.obermuhlner.aitutor.auth.exception.WeakPasswordException
 import ch.obermuhlner.aitutor.user.domain.AuthProvider
 import ch.obermuhlner.aitutor.user.domain.RefreshTokenEntity
@@ -24,6 +28,7 @@ import io.mockk.verify
 import java.time.Instant
 import java.util.UUID
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -305,5 +310,137 @@ class AuthServiceTest {
         assertTrue(token1.revoked)
         assertTrue(token2.revoked)
         verify { refreshTokenRepository.saveAll(any<List<RefreshTokenEntity>>()) }
+    }
+
+    @Test
+    fun `refreshAccessToken should return new tokens for valid refresh token`() {
+        val userId = UUID.randomUUID()
+        val oldRefreshToken = "old-refresh-token"
+        val newAccessToken = "new-access-token"
+        val newRefreshToken = "new-refresh-token"
+        val request = RefreshTokenRequest(refreshToken = oldRefreshToken)
+
+        val user = UserEntity(
+            id = userId,
+            username = "testuser",
+            email = "test@example.com",
+            passwordHash = "hash",
+            roles = mutableSetOf(UserRole.USER),
+            provider = AuthProvider.CREDENTIALS
+        )
+
+        val tokenEntity = RefreshTokenEntity(
+            userId = userId,
+            token = oldRefreshToken,
+            expiresAt = Instant.now().plusSeconds(3600),
+            revoked = false
+        )
+
+        every { jwtTokenService.validateToken(oldRefreshToken) } returns true
+        every { refreshTokenRepository.findByToken(oldRefreshToken) } returns tokenEntity
+        every { jwtTokenService.getUserIdFromToken(oldRefreshToken) } returns userId
+        every { userService.findById(userId) } returns user
+        every { jwtTokenService.generateAccessToken(user) } returns newAccessToken
+        every { jwtTokenService.generateRefreshToken(user) } returns newRefreshToken
+        every { jwtTokenService.getExpirationFromToken(newRefreshToken) } returns Instant.now().plusSeconds(2592000)
+        every { refreshTokenRepository.save(any()) } returns mockk()
+
+        val result = authService.refreshAccessToken(request)
+
+        assertEquals(newAccessToken, result.accessToken)
+        assertEquals(newRefreshToken, result.refreshToken)
+        assertEquals("Bearer", result.tokenType)
+        assertEquals("testuser", result.user.username)
+        assertTrue(tokenEntity.revoked)
+        verify { refreshTokenRepository.save(match { it.revoked }) }
+        verify { refreshTokenRepository.save(match { it.token == newRefreshToken }) }
+    }
+
+    @Test
+    fun `refreshAccessToken should throw exception for invalid token`() {
+        val request = RefreshTokenRequest(refreshToken = "invalid-token")
+
+        every { jwtTokenService.validateToken("invalid-token") } returns false
+
+        assertThrows<InvalidTokenException> {
+            authService.refreshAccessToken(request)
+        }
+    }
+
+    @Test
+    fun `refreshAccessToken should throw exception for token not found in database`() {
+        val request = RefreshTokenRequest(refreshToken = "unknown-token")
+
+        every { jwtTokenService.validateToken("unknown-token") } returns true
+        every { refreshTokenRepository.findByToken("unknown-token") } returns null
+
+        assertThrows<InvalidTokenException> {
+            authService.refreshAccessToken(request)
+        }
+    }
+
+    @Test
+    fun `refreshAccessToken should throw exception for revoked token`() {
+        val userId = UUID.randomUUID()
+        val revokedToken = "revoked-token"
+        val request = RefreshTokenRequest(refreshToken = revokedToken)
+
+        val tokenEntity = RefreshTokenEntity(
+            userId = userId,
+            token = revokedToken,
+            expiresAt = Instant.now().plusSeconds(3600),
+            revoked = true
+        )
+
+        every { jwtTokenService.validateToken(revokedToken) } returns true
+        every { refreshTokenRepository.findByToken(revokedToken) } returns tokenEntity
+
+        assertThrows<InvalidTokenException> {
+            authService.refreshAccessToken(request)
+        }
+    }
+
+    @Test
+    fun `refreshAccessToken should throw exception for expired token`() {
+        val userId = UUID.randomUUID()
+        val expiredToken = "expired-token"
+        val request = RefreshTokenRequest(refreshToken = expiredToken)
+
+        val tokenEntity = RefreshTokenEntity(
+            userId = userId,
+            token = expiredToken,
+            expiresAt = Instant.now().minusSeconds(3600),
+            revoked = false
+        )
+
+        every { jwtTokenService.validateToken(expiredToken) } returns true
+        every { refreshTokenRepository.findByToken(expiredToken) } returns tokenEntity
+
+        assertThrows<ExpiredTokenException> {
+            authService.refreshAccessToken(request)
+        }
+    }
+
+    @Test
+    fun `refreshAccessToken should throw exception when user not found`() {
+        val userId = UUID.randomUUID()
+        val refreshToken = "valid-token"
+        val request = RefreshTokenRequest(refreshToken = refreshToken)
+
+        val tokenEntity = RefreshTokenEntity(
+            userId = userId,
+            token = refreshToken,
+            expiresAt = Instant.now().plusSeconds(3600),
+            revoked = false
+        )
+
+        every { jwtTokenService.validateToken(refreshToken) } returns true
+        every { refreshTokenRepository.findByToken(refreshToken) } returns tokenEntity
+        every { jwtTokenService.getUserIdFromToken(refreshToken) } returns userId
+        every { userService.findById(userId) } returns null
+
+        assertThrows<UserNotFoundException> {
+            authService.refreshAccessToken(request)
+        }
     }
 }

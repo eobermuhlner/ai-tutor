@@ -15,6 +15,7 @@ import ch.obermuhlner.aitutor.tutor.service.TopicDecision
 import ch.obermuhlner.aitutor.tutor.service.TutorService
 import ch.obermuhlner.aitutor.vocabulary.service.VocabularyService
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
@@ -53,7 +54,7 @@ class ChatServiceTest {
         phaseDecisionService = mockk()
         topicDecisionService = mockk()
         catalogService = mockk()
-        objectMapper = ObjectMapper()
+        objectMapper = jacksonObjectMapper()
 
         chatService = ChatService(
             chatSessionRepository,
@@ -518,5 +519,516 @@ class ChatServiceTest {
                 any()
             )
         }
+    }
+
+    @Test
+    fun `should create session from course successfully`() {
+        val courseId = UUID.randomUUID()
+        val tutorId = UUID.randomUUID()
+
+        val course = mockk<ch.obermuhlner.aitutor.catalog.domain.CourseTemplateEntity>()
+        every { course.defaultPhase } returns ch.obermuhlner.aitutor.tutor.domain.ConversationPhase.Free
+        every { course.startingLevel } returns ch.obermuhlner.aitutor.core.model.CEFRLevel.A1
+
+        val tutor = mockk<ch.obermuhlner.aitutor.catalog.domain.TutorProfileEntity>()
+        every { tutor.name } returns "Maria"
+        every { tutor.personaEnglish } returns "friendly"
+        every { tutor.domainEnglish } returns "general"
+        every { tutor.teachingStyle } returns ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Reactive
+        every { tutor.targetLanguageCode } returns "es"
+
+        val savedSession = TestDataFactory.createSessionEntity()
+
+        every { catalogService.getCourseById(courseId) } returns course
+        every { catalogService.getTutorById(tutorId) } returns tutor
+        every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns savedSession
+
+        val result = chatService.createSessionFromCourse(
+            TestDataFactory.TEST_USER_ID,
+            courseId,
+            tutorId,
+            "en",
+            "My Custom Course"
+        )
+
+        assertNotNull(result)
+        verify { catalogService.getCourseById(courseId) }
+        verify { catalogService.getTutorById(tutorId) }
+        verify { chatSessionRepository.save(any<ChatSessionEntity>()) }
+    }
+
+    @Test
+    fun `should return null when creating session from non-existent course`() {
+        val courseId = UUID.randomUUID()
+        val tutorId = UUID.randomUUID()
+
+        every { catalogService.getCourseById(courseId) } returns null
+
+        val result = chatService.createSessionFromCourse(
+            TestDataFactory.TEST_USER_ID,
+            courseId,
+            tutorId,
+            "en"
+        )
+
+        assertNull(result)
+        verify { catalogService.getCourseById(courseId) }
+        verify(exactly = 0) { chatSessionRepository.save(any()) }
+    }
+
+    @Test
+    fun `should return null when creating session from non-existent tutor`() {
+        val courseId = UUID.randomUUID()
+        val tutorId = UUID.randomUUID()
+
+        val course = mockk<ch.obermuhlner.aitutor.catalog.domain.CourseTemplateEntity>()
+
+        every { catalogService.getCourseById(courseId) } returns course
+        every { catalogService.getTutorById(tutorId) } returns null
+
+        val result = chatService.createSessionFromCourse(
+            TestDataFactory.TEST_USER_ID,
+            courseId,
+            tutorId,
+            "en"
+        )
+
+        assertNull(result)
+        verify { catalogService.getTutorById(tutorId) }
+        verify(exactly = 0) { chatSessionRepository.save(any()) }
+    }
+
+    @Test
+    fun `should get active learning sessions with progress`() {
+        val session1 = TestDataFactory.createSessionEntity()
+        session1.isActive = true
+
+        val session2 = TestDataFactory.createSessionEntity(id = UUID.randomUUID())
+        session2.isActive = true
+
+        every { chatSessionRepository.findByUserIdAndIsActiveTrueOrderByUpdatedAtDesc(TestDataFactory.TEST_USER_ID) } returns listOf(session1, session2)
+        every { chatSessionRepository.findById(session1.id) } returns Optional.of(session1)
+        every { chatSessionRepository.findById(session2.id) } returns Optional.of(session2)
+        every { chatMessageRepository.countBySessionId(session1.id) } returns 10L
+        every { chatMessageRepository.countBySessionId(session2.id) } returns 5L
+        every { vocabularyService.getVocabularyCountForLanguage(any(), any()) } returns 20
+
+        val result = chatService.getActiveLearningSessions(TestDataFactory.TEST_USER_ID)
+
+        assertEquals(2, result.size)
+        assertEquals(10, result[0].progress.messageCount)
+        assertEquals(5, result[1].progress.messageCount)
+        verify { chatSessionRepository.findByUserIdAndIsActiveTrueOrderByUpdatedAtDesc(TestDataFactory.TEST_USER_ID) }
+    }
+
+    @Test
+    fun `should return empty list when no active learning sessions`() {
+        every { chatSessionRepository.findByUserIdAndIsActiveTrueOrderByUpdatedAtDesc(TestDataFactory.TEST_USER_ID) } returns emptyList()
+
+        val result = chatService.getActiveLearningSessions(TestDataFactory.TEST_USER_ID)
+
+        assertEquals(0, result.size)
+    }
+
+    @Test
+    fun `should get session progress successfully`() {
+        val session = TestDataFactory.createSessionEntity()
+
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+        every { chatMessageRepository.countBySessionId(TestDataFactory.TEST_SESSION_ID) } returns 15L
+        every { vocabularyService.getVocabularyCountForLanguage(TestDataFactory.TEST_USER_ID, session.targetLanguageCode) } returns 25
+
+        val result = chatService.getSessionProgress(TestDataFactory.TEST_SESSION_ID)
+
+        assertEquals(15, result.messageCount)
+        assertEquals(25, result.vocabularyCount)
+        verify { chatMessageRepository.countBySessionId(TestDataFactory.TEST_SESSION_ID) }
+        verify { vocabularyService.getVocabularyCountForLanguage(TestDataFactory.TEST_USER_ID, session.targetLanguageCode) }
+    }
+
+    @Test
+    fun `should return zero progress when session not found`() {
+        every { chatSessionRepository.findById(any()) } returns Optional.empty()
+
+        val result = chatService.getSessionProgress(UUID.randomUUID())
+
+        assertEquals(0, result.messageCount)
+        assertEquals(0, result.vocabularyCount)
+        assertEquals(0L, result.daysActive)
+    }
+
+    @Test
+    fun `should return null when getting non-existent session`() {
+        every { chatSessionRepository.findById(any()) } returns Optional.empty()
+
+        val result = chatService.getSession(UUID.randomUUID())
+
+        assertNull(result)
+    }
+
+    @Test
+    fun `should return null when updating topic for non-existent session`() {
+        every { chatSessionRepository.findById(any()) } returns Optional.empty()
+
+        val result = chatService.updateSessionTopic(UUID.randomUUID(), "new-topic", TestDataFactory.TEST_USER_ID)
+
+        assertNull(result)
+    }
+
+    @Test
+    fun `should return null when getting session for wrong user`() {
+        val session = TestDataFactory.createSessionEntity()
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+
+        val result = chatService.getSessionWithMessages(TestDataFactory.TEST_SESSION_ID, UUID.randomUUID())
+
+        assertNull(result)
+    }
+
+    @Test
+    fun `should delete session and messages successfully`() {
+        val session = TestDataFactory.createSessionEntity()
+        val messages = listOf(
+            TestDataFactory.createMessageEntity(session = session),
+            TestDataFactory.createMessageEntity(session = session)
+        )
+
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+        every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(TestDataFactory.TEST_SESSION_ID) } returns messages
+        every { chatMessageRepository.deleteAll(messages) } returns Unit
+        every { chatSessionRepository.deleteById(TestDataFactory.TEST_SESSION_ID) } returns Unit
+
+        val result = chatService.deleteSession(TestDataFactory.TEST_SESSION_ID, TestDataFactory.TEST_USER_ID)
+
+        assertTrue(result)
+        verify { chatMessageRepository.deleteAll(messages) }
+        verify { chatSessionRepository.deleteById(TestDataFactory.TEST_SESSION_ID) }
+    }
+
+    @Test
+    fun `should not delete session for wrong user`() {
+        val session = TestDataFactory.createSessionEntity()
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+
+        val result = chatService.deleteSession(TestDataFactory.TEST_SESSION_ID, UUID.randomUUID())
+
+        assertFalse(result)
+        verify(exactly = 0) { chatSessionRepository.deleteById(any()) }
+    }
+
+    @Test
+    fun `should return false when deleting non-existent session`() {
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.empty()
+
+        val result = chatService.deleteSession(TestDataFactory.TEST_SESSION_ID, TestDataFactory.TEST_USER_ID)
+
+        assertFalse(result)
+        verify(exactly = 0) { chatSessionRepository.deleteById(any()) }
+    }
+
+    @Test
+    fun `should update session phase successfully`() {
+        val session = TestDataFactory.createSessionEntity()
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+        every { chatSessionRepository.save(any()) } returns session
+
+        val result = chatService.updateSessionPhase(TestDataFactory.TEST_SESSION_ID, ConversationPhase.Drill, TestDataFactory.TEST_USER_ID)
+
+        assertNotNull(result)
+        verify { chatSessionRepository.save(any()) }
+    }
+
+    @Test
+    fun `should not update session phase for wrong user`() {
+        val session = TestDataFactory.createSessionEntity()
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+
+        val result = chatService.updateSessionPhase(TestDataFactory.TEST_SESSION_ID, ConversationPhase.Drill, UUID.randomUUID())
+
+        assertNull(result)
+        verify(exactly = 0) { chatSessionRepository.save(any()) }
+    }
+
+    @Test
+    fun `should update session teaching style successfully`() {
+        val session = TestDataFactory.createSessionEntity()
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+        every { chatSessionRepository.save(any()) } returns session
+
+        val result = chatService.updateSessionTeachingStyle(TestDataFactory.TEST_SESSION_ID, ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Guided, TestDataFactory.TEST_USER_ID)
+
+        assertNotNull(result)
+        verify { chatSessionRepository.save(any()) }
+    }
+
+    @Test
+    fun `should not update teaching style for wrong user`() {
+        val session = TestDataFactory.createSessionEntity()
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+
+        val result = chatService.updateSessionTeachingStyle(TestDataFactory.TEST_SESSION_ID, ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Guided, UUID.randomUUID())
+
+        assertNull(result)
+        verify(exactly = 0) { chatSessionRepository.save(any()) }
+    }
+
+    @Test
+    fun `should get topic history successfully`() {
+        val session = TestDataFactory.createSessionEntity()
+        session.currentTopic = "travel"
+        session.pastTopicsJson = """["food", "weather"]"""
+
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+
+        val result = chatService.getTopicHistory(TestDataFactory.TEST_SESSION_ID, TestDataFactory.TEST_USER_ID)
+
+        assertNotNull(result)
+        assertEquals("travel", result!!.currentTopic)
+        assertEquals(2, result.pastTopics.size)
+        assertTrue(result.pastTopics.contains("food"))
+        assertTrue(result.pastTopics.contains("weather"))
+    }
+
+    @Test
+    fun `should get topic history with empty past topics`() {
+        val session = TestDataFactory.createSessionEntity()
+        session.currentTopic = "travel"
+        session.pastTopicsJson = null
+
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+
+        val result = chatService.getTopicHistory(TestDataFactory.TEST_SESSION_ID, TestDataFactory.TEST_USER_ID)
+
+        assertNotNull(result)
+        assertEquals("travel", result!!.currentTopic)
+        assertEquals(0, result.pastTopics.size)
+    }
+
+    @Test
+    fun `should return null for topic history of wrong user`() {
+        val session = TestDataFactory.createSessionEntity()
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+
+        val result = chatService.getTopicHistory(TestDataFactory.TEST_SESSION_ID, UUID.randomUUID())
+
+        assertNull(result)
+    }
+
+    @Test
+    fun `should get session with messages successfully`() {
+        val session = TestDataFactory.createSessionEntity()
+        val messages = listOf(
+            TestDataFactory.createMessageEntity(session = session),
+            TestDataFactory.createMessageEntity(session = session)
+        )
+
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+        every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(TestDataFactory.TEST_SESSION_ID) } returns messages
+
+        val result = chatService.getSessionWithMessages(TestDataFactory.TEST_SESSION_ID, TestDataFactory.TEST_USER_ID)
+
+        assertNotNull(result)
+        assertEquals(2, result!!.messages.size)
+        verify { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(TestDataFactory.TEST_SESSION_ID) }
+    }
+
+    @Test
+    fun `should get user sessions successfully`() {
+        val session1 = TestDataFactory.createSessionEntity()
+        val session2 = TestDataFactory.createSessionEntity(id = UUID.randomUUID())
+
+        every { chatSessionRepository.findByUserIdOrderByUpdatedAtDesc(TestDataFactory.TEST_USER_ID) } returns listOf(session1, session2)
+
+        val result = chatService.getUserSessions(TestDataFactory.TEST_USER_ID)
+
+        assertEquals(2, result.size)
+        verify { chatSessionRepository.findByUserIdOrderByUpdatedAtDesc(TestDataFactory.TEST_USER_ID) }
+    }
+
+    @Test
+    fun `should update session topic and archive old topic`() {
+        val session = TestDataFactory.createSessionEntity()
+        session.currentTopic = "old-topic"
+        session.pastTopicsJson = null
+
+        val messages = listOf(
+            TestDataFactory.createMessageEntity(session = session),
+            TestDataFactory.createMessageEntity(session = session),
+            TestDataFactory.createMessageEntity(session = session),
+            TestDataFactory.createMessageEntity(session = session),
+            TestDataFactory.createMessageEntity(session = session)
+        )
+
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+        every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(TestDataFactory.TEST_SESSION_ID) } returns messages
+        every { topicDecisionService.countTurnsInRecentMessages(messages) } returns 5
+        every { topicDecisionService.shouldArchiveTopic("old-topic", 5) } returns true
+        every { chatSessionRepository.save(any()) } returns session
+
+        val result = chatService.updateSessionTopic(TestDataFactory.TEST_SESSION_ID, "new-topic", TestDataFactory.TEST_USER_ID)
+
+        assertNotNull(result)
+        verify { chatSessionRepository.save(any()) }
+    }
+
+    @Test
+    fun `should not update topic for wrong user`() {
+        val session = TestDataFactory.createSessionEntity()
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+
+        val result = chatService.updateSessionTopic(TestDataFactory.TEST_SESSION_ID, "new-topic", UUID.randomUUID())
+
+        assertNull(result)
+        verify(exactly = 0) { chatSessionRepository.save(any()) }
+    }
+
+    @Test
+    fun `should get session with messages containing corrections JSON`() {
+        val session = TestDataFactory.createSessionEntity()
+        val correctionsJson = """[{"span":"hola","errorType":"Typography","severity":"Low","correctedTargetLanguage":"Hola","whySourceLanguage":"Capitalize","whyTargetLanguage":"Capitalizar"}]"""
+        val message = ChatMessageEntity(
+            session = session,
+            role = MessageRole.USER,
+            content = "hola amigo",
+            correctionsJson = correctionsJson,
+            vocabularyJson = null,
+            wordCardsJson = null
+        )
+
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+        every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(TestDataFactory.TEST_SESSION_ID) } returns listOf(message)
+
+        val result = chatService.getSessionWithMessages(TestDataFactory.TEST_SESSION_ID, TestDataFactory.TEST_USER_ID)
+
+        assertNotNull(result)
+        assertEquals(1, result?.messages?.size)
+        assertNotNull(result?.messages?.get(0)?.corrections)
+        assertEquals(1, result?.messages?.get(0)?.corrections?.size)
+        assertEquals("hola", result?.messages?.get(0)?.corrections?.get(0)?.span)
+    }
+
+    @Test
+    fun `should get session with messages containing vocabulary JSON`() {
+        val session = TestDataFactory.createSessionEntity()
+        val vocabularyJson = """[{"lemma":"casa","context":"Mi casa es grande","conceptName":"house"}]"""
+        val message = ChatMessageEntity(
+            session = session,
+            role = MessageRole.ASSISTANT,
+            content = "Great! Casa means house.",
+            correctionsJson = null,
+            vocabularyJson = vocabularyJson,
+            wordCardsJson = null
+        )
+
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+        every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(TestDataFactory.TEST_SESSION_ID) } returns listOf(message)
+
+        val result = chatService.getSessionWithMessages(TestDataFactory.TEST_SESSION_ID, TestDataFactory.TEST_USER_ID)
+
+        assertNotNull(result)
+        assertEquals(1, result?.messages?.size)
+        assertNotNull(result?.messages?.get(0)?.newVocabulary)
+        assertEquals(1, result?.messages?.get(0)?.newVocabulary?.size)
+        assertEquals("casa", result?.messages?.get(0)?.newVocabulary?.get(0)?.lemma)
+        assertEquals("/api/v1/images/concept/house/data", result?.messages?.get(0)?.newVocabulary?.get(0)?.imageUrl)
+    }
+
+    @Test
+    fun `should get session with messages containing word cards JSON`() {
+        val session = TestDataFactory.createSessionEntity()
+        val wordCardsJson = """[{"titleSourceLanguage":"House","titleTargetLanguage":"Casa","descriptionSourceLanguage":"A building","descriptionTargetLanguage":"Un edificio","conceptName":"house"}]"""
+        val message = ChatMessageEntity(
+            session = session,
+            role = MessageRole.ASSISTANT,
+            content = "Here's a word card",
+            correctionsJson = null,
+            vocabularyJson = null,
+            wordCardsJson = wordCardsJson
+        )
+
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+        every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(TestDataFactory.TEST_SESSION_ID) } returns listOf(message)
+
+        val result = chatService.getSessionWithMessages(TestDataFactory.TEST_SESSION_ID, TestDataFactory.TEST_USER_ID)
+
+        assertNotNull(result)
+        assertEquals(1, result?.messages?.size)
+        assertNotNull(result?.messages?.get(0)?.wordCards)
+        assertEquals(1, result?.messages?.get(0)?.wordCards?.size)
+        assertEquals("House", result?.messages?.get(0)?.wordCards?.get(0)?.titleSourceLanguage)
+        assertEquals("/api/v1/images/concept/house/data", result?.messages?.get(0)?.wordCards?.get(0)?.imageUrl)
+    }
+
+    @Test
+    fun `should get session with messages containing all JSON fields`() {
+        val session = TestDataFactory.createSessionEntity()
+        val correctionsJson = """[{"span":"test","errorType":"Typography","severity":"Low","correctedTargetLanguage":"Test","whySourceLanguage":"Cap","whyTargetLanguage":"Cap"}]"""
+        val vocabularyJson = """[{"lemma":"word","context":"context","conceptName":"concept"}]"""
+        val wordCardsJson = """[{"titleSourceLanguage":"A","titleTargetLanguage":"B","descriptionSourceLanguage":"C","descriptionTargetLanguage":"D","conceptName":"card"}]"""
+        val message = ChatMessageEntity(
+            session = session,
+            role = MessageRole.ASSISTANT,
+            content = "Full response",
+            correctionsJson = correctionsJson,
+            vocabularyJson = vocabularyJson,
+            wordCardsJson = wordCardsJson
+        )
+
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+        every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(TestDataFactory.TEST_SESSION_ID) } returns listOf(message)
+
+        val result = chatService.getSessionWithMessages(TestDataFactory.TEST_SESSION_ID, TestDataFactory.TEST_USER_ID)
+
+        assertNotNull(result)
+        assertEquals(1, result?.messages?.size)
+        assertNotNull(result?.messages?.get(0)?.corrections)
+        assertNotNull(result?.messages?.get(0)?.newVocabulary)
+        assertNotNull(result?.messages?.get(0)?.wordCards)
+    }
+
+    @Test
+    fun `should get session with messages with vocabulary without concept name`() {
+        val session = TestDataFactory.createSessionEntity()
+        val vocabularyJson = """[{"lemma":"word","context":"context","conceptName":null}]"""
+        val message = ChatMessageEntity(
+            session = session,
+            role = MessageRole.ASSISTANT,
+            content = "Test",
+            correctionsJson = null,
+            vocabularyJson = vocabularyJson,
+            wordCardsJson = null
+        )
+
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+        every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(TestDataFactory.TEST_SESSION_ID) } returns listOf(message)
+
+        val result = chatService.getSessionWithMessages(TestDataFactory.TEST_SESSION_ID, TestDataFactory.TEST_USER_ID)
+
+        assertNotNull(result)
+        assertNotNull(result?.messages?.get(0)?.newVocabulary)
+        assertNull(result?.messages?.get(0)?.newVocabulary?.get(0)?.imageUrl)
+    }
+
+    @Test
+    fun `should get session with messages with word card without concept name`() {
+        val session = TestDataFactory.createSessionEntity()
+        val wordCardsJson = """[{"titleSourceLanguage":"A","titleTargetLanguage":"B","descriptionSourceLanguage":"C","descriptionTargetLanguage":"D","conceptName":null}]"""
+        val message = ChatMessageEntity(
+            session = session,
+            role = MessageRole.ASSISTANT,
+            content = "Test",
+            correctionsJson = null,
+            vocabularyJson = null,
+            wordCardsJson = wordCardsJson
+        )
+
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+        every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(TestDataFactory.TEST_SESSION_ID) } returns listOf(message)
+
+        val result = chatService.getSessionWithMessages(TestDataFactory.TEST_SESSION_ID, TestDataFactory.TEST_USER_ID)
+
+        assertNotNull(result)
+        assertNotNull(result?.messages?.get(0)?.wordCards)
+        assertNull(result?.messages?.get(0)?.wordCards?.get(0)?.imageUrl)
     }
 }
