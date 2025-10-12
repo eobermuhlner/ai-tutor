@@ -21,13 +21,15 @@ class VocabularyServiceTest {
 
     private lateinit var vocabularyItemRepository: VocabularyItemRepository
     private lateinit var vocabularyContextRepository: VocabularyContextRepository
+    private lateinit var vocabularyReviewService: VocabularyReviewService
     private lateinit var vocabularyService: VocabularyService
 
     @BeforeEach
     fun setup() {
         vocabularyItemRepository = mockk()
         vocabularyContextRepository = mockk()
-        vocabularyService = VocabularyService(vocabularyItemRepository, vocabularyContextRepository)
+        vocabularyReviewService = mockk(relaxed = true)
+        vocabularyService = VocabularyService(vocabularyItemRepository, vocabularyContextRepository, vocabularyReviewService)
     }
 
     @Test
@@ -123,7 +125,7 @@ class VocabularyServiceTest {
 
         assertEquals(3, result.size)
         verify(exactly = 3) { vocabularyItemRepository.findByUserIdAndLangAndLemma(any(), any(), any()) }
-        verify(exactly = 3) { vocabularyItemRepository.save(any()) }
+        verify(exactly = 6) { vocabularyItemRepository.save(any()) } // 2 saves per item: before and after scheduleInitialReview
         verify(exactly = 3) { vocabularyContextRepository.save(any()) }
     }
 

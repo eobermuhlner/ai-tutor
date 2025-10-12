@@ -62,6 +62,9 @@ class VocabularyControllerTest {
     private lateinit var vocabularyService: VocabularyService
 
     @MockkBean(relaxed = true)
+    private lateinit var vocabularyReviewService: ch.obermuhlner.aitutor.vocabulary.service.VocabularyReviewService
+
+    @MockkBean(relaxed = true)
     private lateinit var jwtTokenService: ch.obermuhlner.aitutor.auth.service.JwtTokenService
 
     @MockkBean(relaxed = true)
@@ -187,6 +190,8 @@ class VocabularyControllerTest {
         every { item1.lastSeenAt } returns Instant.now()
         every { item1.createdAt } returns Instant.now()
         every { item1.conceptName } returns "apple"
+        every { item1.nextReviewAt } returns null
+        every { item1.reviewStage } returns 0
 
         val item2 = io.mockk.mockk<ch.obermuhlner.aitutor.vocabulary.domain.VocabularyItemEntity>()
         every { item2.id } returns UUID.randomUUID()
@@ -196,6 +201,8 @@ class VocabularyControllerTest {
         every { item2.lastSeenAt } returns Instant.now()
         every { item2.createdAt } returns Instant.now()
         every { item2.conceptName } returns "dog"
+        every { item2.nextReviewAt } returns null
+        every { item2.reviewStage } returns 0
 
         every { authorizationService.resolveUserId(TestDataFactory.TEST_USER_ID) } returns TestDataFactory.TEST_USER_ID
         every { vocabularyQueryService.getUserVocabulary(TestDataFactory.TEST_USER_ID, "Spanish") } returns listOf(item1, item2)
@@ -225,6 +232,8 @@ class VocabularyControllerTest {
         every { item.lastSeenAt } returns Instant.now()
         every { item.createdAt } returns null // Test null createdAt fallback
         every { item.conceptName } returns null // No concept image
+        every { item.nextReviewAt } returns null
+        every { item.reviewStage } returns 0
 
         every { authorizationService.resolveUserId(null) } returns TestDataFactory.TEST_USER_ID
         every { vocabularyQueryService.getUserVocabulary(TestDataFactory.TEST_USER_ID, null) } returns listOf(item)
@@ -249,6 +258,8 @@ class VocabularyControllerTest {
         every { item1.lastSeenAt } returns Instant.now()
         every { item1.createdAt } returns Instant.now()
         every { item1.conceptName } returns "hello"
+        every { item1.nextReviewAt } returns null
+        every { item1.reviewStage } returns 0
 
         val item2 = io.mockk.mockk<ch.obermuhlner.aitutor.vocabulary.domain.VocabularyItemEntity>()
         every { item2.id } returns UUID.randomUUID()
@@ -258,6 +269,8 @@ class VocabularyControllerTest {
         every { item2.lastSeenAt } returns Instant.now()
         every { item2.createdAt } returns Instant.now()
         every { item2.conceptName } returns "goodbye"
+        every { item2.nextReviewAt } returns null
+        every { item2.reviewStage } returns 0
 
         every { authorizationService.resolveUserId(TestDataFactory.TEST_USER_ID) } returns TestDataFactory.TEST_USER_ID
         every { vocabularyQueryService.getUserVocabulary(TestDataFactory.TEST_USER_ID, null) } returns listOf(item1, item2)
@@ -285,6 +298,8 @@ class VocabularyControllerTest {
         every { spanishItem.lastSeenAt } returns Instant.now()
         every { spanishItem.createdAt } returns Instant.now()
         every { spanishItem.conceptName } returns "hello"
+        every { spanishItem.nextReviewAt } returns null
+        every { spanishItem.reviewStage } returns 0
 
         every { authorizationService.resolveUserId(TestDataFactory.TEST_USER_ID) } returns TestDataFactory.TEST_USER_ID
         every { vocabularyQueryService.getUserVocabulary(TestDataFactory.TEST_USER_ID, "Spanish") } returns listOf(spanishItem)
@@ -312,6 +327,8 @@ class VocabularyControllerTest {
         every { item.lastSeenAt } returns Instant.now()
         every { item.createdAt } returns Instant.now()
         every { item.conceptName } returns "hello"
+        every { item.nextReviewAt } returns null
+        every { item.reviewStage } returns 0
 
         val context1 = io.mockk.mockk<ch.obermuhlner.aitutor.vocabulary.domain.VocabularyContextEntity>()
         every { context1.context } returns "Hello world"

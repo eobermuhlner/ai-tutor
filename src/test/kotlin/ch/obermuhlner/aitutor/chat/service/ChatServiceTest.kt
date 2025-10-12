@@ -37,6 +37,7 @@ class ChatServiceTest {
     private lateinit var chatMessageRepository: ChatMessageRepository
     private lateinit var tutorService: TutorService
     private lateinit var vocabularyService: VocabularyService
+    private lateinit var vocabularyReviewService: ch.obermuhlner.aitutor.vocabulary.service.VocabularyReviewService
     private lateinit var phaseDecisionService: ch.obermuhlner.aitutor.tutor.service.PhaseDecisionService
     private lateinit var topicDecisionService: ch.obermuhlner.aitutor.tutor.service.TopicDecisionService
     private lateinit var catalogService: ch.obermuhlner.aitutor.catalog.service.CatalogService
@@ -48,6 +49,7 @@ class ChatServiceTest {
         chatMessageRepository = mockk()
         tutorService = mockk()
         vocabularyService = mockk()
+        vocabularyReviewService = mockk()
         phaseDecisionService = mockk()
         topicDecisionService = mockk()
         catalogService = mockk()
@@ -58,6 +60,7 @@ class ChatServiceTest {
             chatMessageRepository,
             tutorService,
             vocabularyService,
+            vocabularyReviewService,
             phaseDecisionService,
             topicDecisionService,
             catalogService,
