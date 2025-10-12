@@ -170,6 +170,21 @@ class ChatService(
         return toSessionResponse(saved)
     }
 
+    @Transactional
+    fun updateVocabularyReviewMode(sessionId: UUID, enabled: Boolean, currentUserId: UUID): SessionResponse? {
+        val session = chatSessionRepository.findById(sessionId).orElse(null) ?: return null
+
+        // Validate ownership
+        if (session.userId != currentUserId) {
+            return null
+        }
+
+        session.vocabularyReviewMode = enabled
+        val saved = chatSessionRepository.save(session)
+        logger.info("Vocabulary review mode ${if (enabled) "enabled" else "disabled"} for session $sessionId")
+        return toSessionResponse(saved)
+    }
+
     fun getTopicHistory(sessionId: UUID, currentUserId: UUID): TopicHistoryResponse? {
         val session = chatSessionRepository.findById(sessionId).orElse(null) ?: return null
 
@@ -466,6 +481,7 @@ class ChatService(
             tutorProfileId = entity.tutorProfileId,
             customName = entity.customName,
             isActive = entity.isActive,
+            vocabularyReviewMode = entity.vocabularyReviewMode,
             createdAt = entity.createdAt ?: java.time.Instant.now(),
             updatedAt = entity.updatedAt ?: java.time.Instant.now()
         )

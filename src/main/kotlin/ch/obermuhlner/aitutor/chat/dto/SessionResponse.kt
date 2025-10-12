@@ -22,6 +22,7 @@ data class SessionResponse(
     val tutorProfileId: UUID? = null,
     val customName: String? = null,
     val isActive: Boolean = true,
+    val vocabularyReviewMode: Boolean = false,
     val createdAt: Instant,
     val updatedAt: Instant
 )

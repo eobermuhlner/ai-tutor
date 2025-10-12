@@ -11,6 +11,7 @@ import ch.obermuhlner.aitutor.chat.dto.SessionWithProgressResponse
 import ch.obermuhlner.aitutor.chat.dto.TopicHistoryResponse
 import ch.obermuhlner.aitutor.chat.dto.UpdatePhaseRequest
 import ch.obermuhlner.aitutor.chat.dto.UpdateTopicRequest
+import ch.obermuhlner.aitutor.chat.dto.UpdateVocabularyReviewModeRequest
 import ch.obermuhlner.aitutor.chat.service.ChatService
 import java.util.UUID
 import org.springframework.http.HttpStatus
@@ -176,6 +177,17 @@ class ChatController(
         val history = chatService.getTopicHistory(sessionId, currentUserId)
             ?: return ResponseEntity.notFound().build()
         return ResponseEntity.ok(history)
+    }
+
+    @PatchMapping("/sessions/{sessionId}/vocabulary-review-mode")
+    fun updateVocabularyReviewMode(
+        @PathVariable sessionId: UUID,
+        @RequestBody request: UpdateVocabularyReviewModeRequest
+    ): ResponseEntity<SessionResponse> {
+        val currentUserId = authorizationService.getCurrentUserId()
+        val session = chatService.updateVocabularyReviewMode(sessionId, request.enabled, currentUserId)
+            ?: return ResponseEntity.notFound().build()
+        return ResponseEntity.ok(session)
     }
 
     @PostMapping("/sessions/{sessionId}/messages")
