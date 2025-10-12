@@ -283,7 +283,11 @@ class ChatService(
 
         // Get due vocabulary count if review mode enabled
         val dueCount = if (session.vocabularyReviewMode) {
-            vocabularyReviewService.getDueCount(session.userId, session.targetLanguageCode)
+            val count = vocabularyReviewService.getDueCount(session.userId, session.targetLanguageCode)
+            if (count > 0) {
+                logger.info("Vocabulary review mode active: session=$sessionId, dueCount=$count")
+            }
+            count
         } else {
             null
         }

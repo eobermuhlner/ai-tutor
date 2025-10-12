@@ -8,6 +8,7 @@ import ch.obermuhlner.aitutor.vocabulary.dto.toResponse
 import ch.obermuhlner.aitutor.vocabulary.service.VocabularyQueryService
 import ch.obermuhlner.aitutor.vocabulary.service.VocabularyReviewService
 import java.util.UUID
+import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -24,6 +25,7 @@ class VocabularyController(
     private val vocabularyReviewService: VocabularyReviewService,
     private val authorizationService: AuthorizationService
 ) {
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     @GetMapping
     fun getUserVocabulary(
@@ -78,6 +80,7 @@ class VocabularyController(
     ): ResponseEntity<List<VocabularyItemResponse>> {
         val userId = authorizationService.getCurrentUserId()
         val items = vocabularyReviewService.getDueVocabulary(userId, lang, limit)
+        logger.info("GET /due: user=$userId, lang=$lang, limit=$limit, returned=${items.size} items")
         return ResponseEntity.ok(items.map { it.toResponse() })
     }
 
@@ -91,6 +94,7 @@ class VocabularyController(
     ): ResponseEntity<DueCountResponse> {
         val userId = authorizationService.getCurrentUserId()
         val count = vocabularyReviewService.getDueCount(userId, lang)
+        logger.info("GET /due/count: user=$userId, lang=$lang, count=$count")
         return ResponseEntity.ok(DueCountResponse(count))
     }
 
@@ -109,10 +113,12 @@ class VocabularyController(
         // Verify ownership
         val item = vocabularyQueryService.getVocabularyItemById(itemId)
         if (item.userId != userId) {
+            logger.warn("POST /{itemId}/review: Access denied for user=$userId, itemId=$itemId (not owner)")
             return ResponseEntity.status(403).build()
         }
 
         val updated = vocabularyReviewService.recordReview(itemId, request.success)
+        logger.info("POST /{itemId}/review: user=$userId, itemId=$itemId, success=${request.success}")
         return ResponseEntity.ok(updated.toResponse())
     }
 }

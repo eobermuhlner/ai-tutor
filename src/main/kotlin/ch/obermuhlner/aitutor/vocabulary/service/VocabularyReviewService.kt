@@ -6,6 +6,7 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.UUID
 import kotlin.math.min
+import org.slf4j.LoggerFactory
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional
 class VocabularyReviewService(
     private val vocabularyItemRepository: VocabularyItemRepository
 ) {
+    private val logger = LoggerFactory.getLogger(javaClass)
     private val intervals = listOf(1, 3, 7, 14, 30, 90) // days
 
     /**
@@ -26,7 +28,9 @@ class VocabularyReviewService(
         limit: Int = 20
     ): List<VocabularyItemEntity> {
         val now = Instant.now()
-        return vocabularyItemRepository.findDueForReview(userId, lang, now, PageRequest.of(0, limit))
+        val items = vocabularyItemRepository.findDueForReview(userId, lang, now, PageRequest.of(0, limit))
+        logger.debug("Found ${items.size} due vocabulary items for user=$userId, lang=$lang (limit=$limit)")
+        return items
     }
 
     /**
@@ -34,7 +38,9 @@ class VocabularyReviewService(
      */
     fun getDueCount(userId: UUID, lang: String): Long {
         val now = Instant.now()
-        return vocabularyItemRepository.countDueForReview(userId, lang, now)
+        val count = vocabularyItemRepository.countDueForReview(userId, lang, now)
+        logger.debug("Due vocabulary count: $count for user=$userId, lang=$lang")
+        return count
     }
 
     /**
@@ -49,6 +55,7 @@ class VocabularyReviewService(
         val item = vocabularyItemRepository.findById(itemId)
             .orElseThrow { IllegalArgumentException("Vocabulary item not found: $itemId") }
 
+        val oldStage = item.reviewStage
         if (success) {
             // Advance to next stage
             item.reviewStage = min(item.reviewStage + 1, intervals.size - 1)
@@ -61,7 +68,9 @@ class VocabularyReviewService(
         val daysToAdd = intervals[item.reviewStage].toLong()
         item.nextReviewAt = Instant.now().plus(daysToAdd, ChronoUnit.DAYS)
 
-        return vocabularyItemRepository.save(item)
+        val saved = vocabularyItemRepository.save(item)
+        logger.info("Vocabulary review recorded: item=$itemId, lemma=${item.lemma}, success=$success, stage=$oldStage->${item.reviewStage}, nextReview=+${daysToAdd}d")
+        return saved
     }
 
     /**
@@ -74,6 +83,7 @@ class VocabularyReviewService(
             // First review in 1 day
             item.nextReviewAt = Instant.now().plus(1, ChronoUnit.DAYS)
             item.reviewStage = 0
+            logger.debug("Scheduled initial review for vocabulary item: id=${item.id}, lemma=${item.lemma}, nextReview=+1d")
         }
     }
 }
