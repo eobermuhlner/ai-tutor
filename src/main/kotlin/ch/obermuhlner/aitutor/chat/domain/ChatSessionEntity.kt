@@ -107,6 +107,16 @@ class ChatSessionEntity(
     @Column(name = "vocabulary_review_mode", nullable = false)
     var vocabularyReviewMode: Boolean = false,
 
+    // NEW: Lesson tracking fields (Task 0011)
+    @Column(name = "current_lesson_id", length = 64)
+    var currentLessonId: String? = null,
+
+    @Column(name = "lesson_started_at")
+    var lessonStartedAt: Instant? = null,
+
+    @Column(name = "lesson_progress_json", columnDefinition = "TEXT")
+    var lessonProgressJson: String? = null,
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     val createdAt: Instant? = null,

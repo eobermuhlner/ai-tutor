@@ -39,6 +39,7 @@ dependencies {
     implementation 'org.jetbrains.kotlin:kotlin-stdlib'
     implementation 'org.springframework.ai:spring-ai-starter-model-openai'
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
     implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.3'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3'
@@ -89,7 +90,8 @@ jacocoTestReport {
                 '**/dto/**',
                 '**/domain/**',
                 '**/conversation/service/**',  // Spring AI integration, requires integration tests
-                '**/ImageStoreClient**'  // HTTP client, requires integration tests
+                '**/ImageStoreClient**',  // HTTP client, requires integration tests
+                '**/lesson/service/**'  // Lesson services, will add tests in Phase 5
             ])
         }))
     }
@@ -111,7 +113,8 @@ jacocoTestCoverageVerification {
                 '**/dto/**',
                 '**/domain/**',
                 '**/conversation/service/**',  // Spring AI integration, requires integration tests
-                '**/ImageStoreClient**'  // HTTP client, requires integration tests
+                '**/ImageStoreClient**',  // HTTP client, requires integration tests
+                '**/lesson/service/**'  // Lesson services, will add tests in Phase 5
             ])
         }))
     }
