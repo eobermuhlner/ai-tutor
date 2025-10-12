@@ -58,6 +58,9 @@ Language learning assistant with conversational AI tutoring and vocabulary track
   - GET `/errors/patterns?lang={code}&limit={n}` - Get top error patterns sorted by weighted score
   - GET `/errors/trends/{errorType}?lang={code}` - Get trend analysis (IMPROVING/STABLE/WORSENING/INSUFFICIENT_DATA)
   - GET `/errors/samples?limit={n}` - Get recent error samples for debugging
+- **AssessmentController** - CEFR skill assessment REST endpoints (`/api/v1/assessment/*`)
+  - GET `/sessions/{id}/skills` - Get skill-specific CEFR breakdown (grammar, vocabulary, fluency, comprehension)
+  - POST `/sessions/{id}/reassess` - Trigger manual reassessment of all skill levels
 - **ChatService** - Session/message orchestration, integrates TutorService
 - **CatalogService** - Browse languages, courses, and tutors with localization
 - **UserLanguageService** - Manage user's language proficiency profiles
@@ -77,6 +80,7 @@ Language learning assistant with conversational AI tutoring and vocabulary track
 - `MessageCompactionService` - Context compaction using progressive summaries
 - `SummaryQueryService` - Query and monitor summarization statistics
 - `ErrorAnalyticsService` - Error pattern tracking, trend analysis, and sample management
+- `CEFRAssessmentService` - Heuristic-based skill-specific CEFR level assessment (grammar, vocabulary, fluency, comprehension)
 - `AiChatService` - AI chat integration with streaming responses
 - `VocabularyService` - Vocabulary tracking with context and exposure counting
 - `AuthService` / `AuthorizationService` / `JwtTokenService` - JWT-based authentication
@@ -168,6 +172,10 @@ ch.obermuhlner.aitutor
 │   ├── repository/         # ErrorPatternRepository, RecentErrorSampleRepository
 │   ├── domain/             # ErrorPatternEntity, RecentErrorSampleEntity
 │   └── dto/                # ErrorPatternResponse, ErrorTrendResponse, ErrorSampleResponse
+├── assessment/             # CEFR skill assessment
+│   ├── controller/         # AssessmentController (/api/v1/assessment)
+│   ├── service/            # CEFRAssessmentService
+│   └── dto/                # SkillBreakdownResponse
 ├── tutor/                  # Tutoring logic and domain
 │   ├── service/            # TutorService, PhaseDecisionService, TopicDecisionService,
 │   │                       # ProgressiveSummarizationService, MessageCompactionService,

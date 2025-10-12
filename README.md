@@ -164,6 +164,13 @@ curl http://localhost:8080/api/v1/chat/sessions/{sessionId} \
 | GET | `/api/v1/analytics/errors/trends/{errorType}?lang={code}` | Get trend analysis for specific error type (IMPROVING/STABLE/WORSENING/INSUFFICIENT_DATA) |
 | GET | `/api/v1/analytics/errors/samples?limit={n}` | Get recent error samples for debugging/UI display (default limit: 20) |
 
+#### CEFR Assessment Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/v1/assessment/sessions/{id}/skills` | Get skill-specific CEFR breakdown (grammar, vocabulary, fluency, comprehension) for a session |
+| POST | `/api/v1/assessment/sessions/{id}/reassess` | Trigger manual reassessment of all skill levels (for testing/debugging) |
+
 ## Testing with IntelliJ HTTP Client
 
 The project includes HTTP request examples in `src/test/http/http-client-requests.http`.
@@ -197,10 +204,10 @@ ch.obermuhlner.aitutor
 │   ├── repository/     # User persistence (UserRepository, RefreshTokenRepository)
 │   └── domain/         # User entities (UserEntity, RefreshTokenEntity, UserRole, AuthProvider)
 ├── chat/
-│   ├── controller/     # Chat REST API endpoints
-│   ├── service/        # Business logic & orchestration (ChatService)
-│   ├── repository/     # Data access layer (ChatSessionRepository, ChatMessageRepository)
-│   ├── domain/         # JPA entities (ChatSessionEntity, ChatMessageEntity, MessageRole)
+│   ├── controller/     # Chat REST API endpoints, SummaryController
+│   ├── service/        # Business logic & orchestration (ChatService, SummaryQueryService)
+│   ├── repository/     # Data access layer (ChatSessionRepository, ChatMessageRepository, MessageSummaryRepository)
+│   ├── domain/         # JPA entities (ChatSessionEntity, ChatMessageEntity, MessageSummaryEntity)
 │   └── dto/            # API DTOs (CreateSessionRequest, SessionResponse, UpdateTopicRequest, etc.)
 ├── vocabulary/
 │   ├── controller/     # Vocabulary REST API
@@ -208,6 +215,16 @@ ch.obermuhlner.aitutor
 │   ├── repository/     # Vocabulary persistence (VocabularyItemRepository, VocabularyContextRepository)
 │   ├── domain/         # Vocabulary entities (VocabularyItemEntity, VocabularyContextEntity)
 │   └── dto/            # Vocabulary DTOs (NewVocabularyDTO, VocabularyItemResponse, etc.)
+├── analytics/
+│   ├── controller/     # ErrorAnalyticsController (/api/v1/analytics/errors)
+│   ├── service/        # ErrorAnalyticsService, ErrorPatternService
+│   ├── repository/     # ErrorPatternRepository
+│   ├── domain/         # ErrorPatternEntity
+│   └── dto/            # ErrorPatternResponse, ErrorTrendResponse, ErrorSampleResponse
+├── assessment/
+│   ├── controller/     # AssessmentController (/api/v1/assessment)
+│   ├── service/        # CEFRAssessmentService (heuristic-based skill assessment)
+│   └── dto/            # SkillBreakdownResponse
 ├── tutor/
 │   ├── service/        # Core tutoring logic (TutorService, PhaseDecisionService, TopicDecisionService)
 │   └── domain/         # Tutor domain models (Tutor, ConversationState, ConversationResponse, ConversationPhase)

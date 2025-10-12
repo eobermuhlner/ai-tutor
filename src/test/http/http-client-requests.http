@@ -465,3 +465,19 @@ Accept: application/json
 GET {{host}}/api/v1/analytics/errors/samples?limit=50
 Authorization: Bearer {{accessToken}}
 Accept: application/json
+
+###
+
+###########################
+### CEFR Assessment Examples
+###########################
+
+### Get Skill-Specific CEFR Breakdown for Session
+GET {{host}}/api/v1/assessment/sessions/{{chatSessionId}}/skills
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+### Trigger Manual Reassessment (Force skill recalculation)
+POST {{host}}/api/v1/assessment/sessions/{{chatSessionId}}/reassess
+Authorization: Bearer {{accessToken}}
+Accept: application/json
