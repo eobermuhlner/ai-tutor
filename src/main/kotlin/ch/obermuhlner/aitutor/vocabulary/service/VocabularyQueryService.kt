@@ -37,4 +37,13 @@ class VocabularyQueryService(
         val contexts = vocabularyContextRepository.findByVocabItemId(itemId)
         return VocabularyItemWithContexts(item, contexts)
     }
+
+    /**
+     * Get vocabulary item by ID.
+     * Used for ownership verification before recording reviews.
+     */
+    fun getVocabularyItemById(itemId: UUID): VocabularyItemEntity {
+        return vocabularyItemRepository.findById(itemId)
+            .orElseThrow { IllegalArgumentException("Vocabulary item not found: $itemId") }
+    }
 }
