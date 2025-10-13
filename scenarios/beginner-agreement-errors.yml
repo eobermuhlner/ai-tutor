@@ -1,0 +1,76 @@
+id: beginner-agreement-errors
+name: Beginner with Repeated Agreement Errors
+description: |
+  A1-level Spanish learner consistently makes subject-verb agreement errors.
+  The system should detect fossilization risk and transition to Drill phase.
+
+learnerPersona:
+  name: Alex
+  cefrLevel: A1
+  sourceLanguage: en
+  targetLanguage: es
+  commonErrors:
+    - Subject-verb agreement
+    - Verb conjugation
+  learningGoals:
+    - Learn basic present tense conjugation
+    - Improve subject-verb agreement
+
+tutorConfig:
+  tutorName: Maria
+  initialPhase: Auto
+  teachingStyle: Guided
+
+conversationScript:
+  - content: "Hola, yo es Alex"
+    intentionalErrors:
+      - span: "es"
+        errorType: "Agreement"
+        expectedSeverity: "Medium"
+        correctForm: "soy"
+        reasoning: "First person 'yo' requires 'soy', not 'es'"
+
+  - content: "Yo vive en Boston"
+    intentionalErrors:
+      - span: "vive"
+        errorType: "Agreement"
+        expectedSeverity: "Medium"
+        correctForm: "vivo"
+        reasoning: "First person 'yo' requires 'vivo', not 'vive'"
+
+  - content: "Mi hermana tiene veinte años y ella vive en Nueva York"
+    intentionalErrors: []
+    notes: "Correct sentence to show learner can get it right sometimes"
+
+  - content: "Yo tiene un gato"
+    intentionalErrors:
+      - span: "tiene"
+        errorType: "Agreement"
+        expectedSeverity: "High"
+        correctForm: "tengo"
+        reasoning: "Repeated first-person error - fossilization risk"
+
+  - content: "Mi gato es muy bonito y él come mucho"
+    intentionalErrors: []
+
+  - content: "Yo trabaja en una oficina"
+    intentionalErrors:
+      - span: "trabaja"
+        errorType: "Agreement"
+        expectedSeverity: "High"
+        correctForm: "trabajo"
+        reasoning: "Another repeated first-person error - clear fossilization pattern"
+
+expectedOutcomes:
+  phaseTransitions:
+    - afterMessageIndex: 4
+      toPhase: Drill
+      reason: "Three high-severity repeated agreement errors indicate fossilization"
+  minimumCorrectionsDetected: 4
+  shouldTriggerDrillPhase: true
+
+evaluationFocus:
+  - ERROR_DETECTION
+  - PHASE_APPROPRIATENESS
+  - FOSSILIZATION_DETECTION
+  - CORRECTION_QUALITY

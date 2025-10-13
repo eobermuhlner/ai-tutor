@@ -1,0 +1,71 @@
+id: topic-management-test
+name: Topic Management and Variety
+description: |
+  B2-level Spanish learner discussing multiple topics.
+  Test topic hysteresis, variety, and coherence.
+
+learnerPersona:
+  name: Emma
+  cefrLevel: B2
+  sourceLanguage: en
+  targetLanguage: es
+  commonErrors:
+    - Occasional subjunctive errors
+  learningGoals:
+    - Practice conversational fluency
+    - Discuss varied topics naturally
+
+tutorConfig:
+  tutorName: Carlos
+  initialPhase: Correction
+  teachingStyle: Guided
+
+conversationScript:
+  - content: "Hola! Quiero hablar sobre mis vacaciones recientes"
+    intentionalErrors: []
+
+  - content: "Fui a México el mes pasado y visité varias ciudades"
+    intentionalErrors: []
+
+  - content: "Me encantó la comida mexicana, especialmente los tacos"
+    intentionalErrors: []
+
+  - content: "También aprendí mucho sobre la cultura azteca"
+    intentionalErrors: []
+
+  - content: "Ahora quiero hablar de mi trabajo"
+    intentionalErrors: []
+    notes: "Topic shift - should be smooth"
+
+  - content: "Trabajo como ingeniero de software en una empresa tecnológica"
+    intentionalErrors: []
+
+  - content: "Es importante que yo trabaje en proyectos interesantes"
+    intentionalErrors: []
+    notes: "Correct subjunctive usage"
+
+  - content: "Me gusta que mi jefe es flexible con el horario"
+    intentionalErrors:
+      - span: "que mi jefe es"
+        errorType: "Morphology"
+        expectedSeverity: "Medium"
+        correctForm: "que mi jefe sea"
+        reasoning: "After 'me gusta que' requires subjunctive: sea"
+
+  - content: "Cambiando de tema, ¿qué piensas sobre el cambio climático?"
+    intentionalErrors: []
+    notes: "Explicit topic change"
+
+  - content: "Creo que es un problema muy serio que todos debemos abordar"
+    intentionalErrors: []
+
+expectedOutcomes:
+  minimumCorrectionsDetected: 1
+  topicChanges: 2
+  vocabularyItems: 3
+
+evaluationFocus:
+  - TOPIC_MANAGEMENT
+  - ERROR_DETECTION
+  - VOCABULARY_TEACHING
+  - ENCOURAGEMENT_BALANCE

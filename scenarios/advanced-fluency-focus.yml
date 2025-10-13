@@ -1,0 +1,88 @@
+id: advanced-fluency-focus
+name: Advanced Learner - Fluency Focus
+description: |
+  C1-level French learner with only minor typography errors.
+  System should maintain Free phase for fluency development.
+
+learnerPersona:
+  name: Sophie
+  cefrLevel: C1
+  sourceLanguage: en
+  targetLanguage: fr
+  commonErrors:
+    - Occasional missing accents
+    - Minor typos
+  learningGoals:
+    - Maintain fluency and confidence
+    - Natural conversation flow
+
+tutorConfig:
+  tutorName: Pierre
+  initialPhase: Free
+  teachingStyle: Reactive
+
+conversationScript:
+  - content: "Bonjour! Je viens de finir un livre fascinant sur l'histoire de Paris"
+    intentionalErrors: []
+
+  - content: "C'etait vraiment interessant, surtout les chapitres sur la Revolution"
+    intentionalErrors:
+      - span: "C'etait"
+        errorType: "Typography"
+        expectedSeverity: "Low"
+        correctForm: "C'était"
+        reasoning: "Missing accent - acceptable in casual chat"
+      - span: "interessant"
+        errorType: "Typography"
+        expectedSeverity: "Low"
+        correctForm: "intéressant"
+        reasoning: "Missing accent - low severity in chat context"
+      - span: "Revolution"
+        errorType: "Typography"
+        expectedSeverity: "Low"
+        correctForm: "Révolution"
+        reasoning: "Missing accent and capitalization - chat norm"
+
+  - content: "J'ai appris beaucoup de choses que je ne savais pas avant"
+    intentionalErrors: []
+
+  - content: "Par exemple, je ne savais pas que Haussmann avait completement transforme la ville"
+    intentionalErrors:
+      - span: "completement"
+        errorType: "Typography"
+        expectedSeverity: "Low"
+        correctForm: "complètement"
+        reasoning: "Missing accent - very minor"
+      - span: "transforme"
+        errorType: "Typography"
+        expectedSeverity: "Low"
+        correctForm: "transformé"
+        reasoning: "Missing accent - minor"
+
+  - content: "Maintenant j'aimerais bien visiter Paris pour voir tous ces endroits historiques"
+    intentionalErrors: []
+
+  - content: "Est-ce que tu connais des bons musees a Paris"
+    intentionalErrors:
+      - span: "musees"
+        errorType: "Typography"
+        expectedSeverity: "Low"
+        correctForm: "musées"
+        reasoning: "Missing accent"
+      - span: "a"
+        errorType: "Typography"
+        expectedSeverity: "Low"
+        correctForm: "à"
+        reasoning: "Missing accent"
+
+expectedOutcomes:
+  phaseTransitions: []
+  minimumCorrectionsDetected: 0
+  shouldMaintainFreePhase: true
+  topicChanges: 0
+
+evaluationFocus:
+  - ERROR_DETECTION
+  - PHASE_APPROPRIATENESS
+  - ENCOURAGEMENT_BALANCE
+  - COMPREHENSIBILITY

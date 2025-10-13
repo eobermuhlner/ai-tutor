@@ -14,6 +14,7 @@ An intelligent language learning platform powered by AI that provides personaliz
   - **Correction**: Balanced learning - errors tracked for UI hover display, conversation flows naturally
   - **Drill**: Active accuracy work - explicit error discussion and correction practice
   - **Auto**: Intelligent phase selection based on learner performance and error patterns
+- **Pedagogical Test Harness**: Automated quality assurance using LLM-as-judge methodology
 - **Session Persistence**: Save and resume learning sessions
 - **RESTful API**: Full REST API for integration with web and mobile applications
 
@@ -310,9 +311,10 @@ Access the H2 database console at: `http://localhost:8080/h2-console`
 java -jar build/libs/ai-tutor-0.0.1-SNAPSHOT.jar
 ```
 
-**Note:** This project has two entry points:
+**Note:** This project has three independent entry points:
 - **REST API Server** (`runServer`/`bootRun`): Launches the Spring Boot backend at `http://localhost:8080`
-- **CLI Client** (`runCli`/`run`): Launches the interactive command-line interface that connects to the API server
+- **CLI Client** (`runCli`/`run`): Interactive command-line interface that connects to the API server
+- **Test Harness** (`runTestHarness`): Standalone pedagogical evaluation tool using LLM-as-judge
 
 ## Testing
 
@@ -478,6 +480,196 @@ The system recognizes that casual chat communication differs from formal writing
 **Philosophy**: "Would a native speaker make this 'error' in casual texting?" If yes → Low severity or ignored
 
 This ensures learners aren't penalized for typing naturally while still tracking genuine learning errors.
+
+## Pedagogical Test Harness
+
+The project includes a comprehensive test harness for evaluating tutor behavior using **LLM-as-judge** methodology. This provides automated quality assurance for pedagogical behaviors that traditional unit tests cannot capture.
+
+### Overview
+
+The test harness:
+- **Simulates realistic learner conversations** with intentional errors at various CEFR levels
+- **Uses GPT-4 as a judge** to systematically evaluate pedagogical quality across 6 dimensions
+- **Generates comprehensive reports** with quantitative scores and qualitative feedback
+- **Validates expected behaviors** including phase transitions, error detection accuracy, and topic management
+- **Supports CI/CD integration** with configurable pass/fail thresholds and exit codes
+
+### Running the Test Harness
+
+**Prerequisites:**
+- Running AI Tutor server (`./gradlew bootRun`)
+- `OPENAI_API_KEY` environment variable set
+- Demo user registered (username: `demo`, password: `demo`)
+
+**Basic Usage:**
+
+```bash
+# List available scenarios
+./gradlew runTestHarness --args="--list"
+
+# Run all scenarios
+./gradlew runTestHarness
+
+# Run specific scenario(s)
+./gradlew runTestHarness --args="--scenario beginner-errors"
+./gradlew runTestHarness --args="--scenario phase"  # All scenarios with "phase" in name
+
+# Use custom configuration
+./gradlew runTestHarness --args="--config custom-config.yml"
+
+# Get help
+./gradlew runTestHarness --args="--help"
+```
+
+**Example --list output:**
+```
+📚 Available Test Scenarios
+
+Scenarios directory: scenarios
+
+┌─────────────────────────────────────┬────────┬──────────┬─────────────────────────┐
+│ Scenario ID                         │ Level  │ Language │ Focus                   │
+├─────────────────────────────────────┼────────┼──────────┼─────────────────────────┤
+│ beginner-agreement-errors           │ A1     │ es       │ ERROR_DETECTION         │
+│ advanced-fluency-focus              │ C1     │ fr       │ ERROR_DETECTION         │
+│ intermediate-mixed-errors           │ B1     │ de       │ ERROR_DETECTION         │
+│ topic-management-test               │ B2     │ es       │ TOPIC_MANAGEMENT        │
+│ critical-comprehension-errors       │ A2     │ it       │ ERROR_DETECTION         │
+└─────────────────────────────────────┴────────┴──────────┴─────────────────────────┘
+
+Total: 5 scenario(s)
+```
+
+**Exit Codes:**
+- `0`: All scenarios passed (score ≥ threshold)
+- `1`: One or more scenarios failed (score < threshold)
+
+### Evaluation Dimensions
+
+The LLM judge evaluates conversations across six dimensions (0-100 scale):
+
+1. **Error Detection**: Accuracy of error identification and classification
+2. **Phase Appropriateness**: Whether conversation phase matches error patterns
+3. **Correction Quality**: Clarity and effectiveness of error explanations
+4. **Encouragement Balance**: Balance between correction and motivation
+5. **Topic Management**: Topic flow, variety, and coherence
+6. **Vocabulary Teaching**: Appropriate introduction and reinforcement
+
+### Built-in Test Scenarios
+
+The harness includes 5 scenarios covering critical pedagogical behaviors:
+
+| Scenario | CEFR Level | Language | Focus | Expected Behavior |
+|----------|------------|----------|-------|-------------------|
+| **beginner-agreement-errors** | A1 | Spanish | Repeated subject-verb errors | Detects fossilization → transitions to Drill phase |
+| **advanced-fluency-focus** | C1 | French | Minor typography only | Maintains Free phase, no interruptions |
+| **intermediate-mixed-errors** | B1 | German | Articles, cases, word order | Stays in Correction phase, passive feedback |
+| **topic-management-test** | B2 | Spanish | Multiple topic changes | Smooth transitions, variety, no thrashing |
+| **critical-comprehension-errors** | A2 | Italian | Critical vocabulary/tense errors | Immediate Drill intervention |
+
+See `scenarios/README.md` for detailed scenario documentation.
+
+### Creating Custom Scenarios
+
+Create YAML files in the `scenarios/` directory:
+
+```yaml
+id: my-scenario
+name: My Test Scenario
+description: Description of what this tests
+learnerPersona:
+  name: TestLearner
+  cefrLevel: B1
+  sourceLanguage: en
+  targetLanguage: es
+  commonErrors:
+    - Error type 1
+  learningGoals:
+    - Learning goal 1
+tutorConfig:
+  tutorName: TestTutor
+  initialPhase: Auto
+  teachingStyle: Guided
+conversationScript:
+  - content: "Learner message"
+    intentionalErrors:
+      - span: "error text"
+        errorType: "Agreement"
+        expectedSeverity: "Medium"
+        correctForm: "correct text"
+        reasoning: "Why this is an error"
+expectedOutcomes:
+  minimumCorrectionsDetected: 1
+  shouldTriggerDrillPhase: false
+evaluationFocus:
+  - ERROR_DETECTION
+  - PHASE_APPROPRIATENESS
+```
+
+### Configuration
+
+Edit `testharness-config.yml`:
+
+```yaml
+apiBaseUrl: http://localhost:8080
+apiUsername: demo
+apiPassword: demo
+judgeModel: gpt-4o
+judgeTemperature: 0.2
+scenariosPath: scenarios
+reportsOutputDir: test-reports
+passThreshold: 70.0
+```
+
+### Reports
+
+Reports are generated in `test-reports/` with timestamped filenames:
+
+**Report Contents:**
+- **Summary Table**: Overall and per-dimension scores for all scenarios
+- **Technical Metrics**: Error detection accuracy, phase transitions, vocabulary counts
+- **Judge Evaluation**: Detailed feedback for each of the 6 dimensions
+- **Strengths & Improvements**: Specific recommendations from the LLM judge
+- **Complete Transcripts**: Full conversations with error annotations
+- **Overall Recommendations**: Priority improvements across all scenarios
+
+**Sample Report Excerpt:**
+```markdown
+## Summary
+
+| Scenario | Overall Score | Error Detection | Phase | Correction | ...
+|----------|--------------|----------------|-------|------------|
+| beginner-agreement-errors | 87.5 | 95.0 | 90.0 | 85.0 | ...
+| advanced-fluency-focus | 92.0 | 88.0 | 98.0 | 90.0 | ...
+
+## Overall Recommendations
+
+**Priority Improvements:**
+- Consider more explicit explanations for fossilized errors
+- Maintain encouragement balance during intensive correction phases
+```
+
+### Architecture
+
+The test harness is a standalone application built on:
+
+```
+testharness/
+├── TestHarnessMain.kt        # CLI entry point
+├── config/                    # Configuration management
+├── client/                    # REST API client
+├── domain/                    # Scenario and result models
+├── judge/                     # LLM-based evaluation
+├── executor/                  # Test orchestration
+├── scenario/                  # YAML scenario loading
+└── report/                    # Markdown report generation
+```
+
+**Key Technologies:**
+- Direct OpenAI API integration (HTTP client)
+- Jackson YAML parsing for scenarios
+- Java HTTP client for API communication
+- Markdown generation for reports
 
 ## Contributing
 

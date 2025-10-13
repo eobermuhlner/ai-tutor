@@ -123,3 +123,19 @@ check.dependsOn jacocoTestCoverageVerification
 springBoot {
     mainClass = 'ch.obermuhlner.aitutor.AiTutorApplicationKt'
 }
+
+// Task for running the test harness
+task runTestHarness(type: JavaExec) {
+    group = 'application'
+    description = 'Run the pedagogical test harness'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'ch.obermuhlner.aitutor.testharness.TestHarnessMain'
+
+    // Pass through command-line arguments
+    if (project.hasProperty('args')) {
+        args = project.property('args').split()
+    }
+
+    // Ensure OPENAI_API_KEY is available
+    environment 'OPENAI_API_KEY', System.getenv('OPENAI_API_KEY')
+}

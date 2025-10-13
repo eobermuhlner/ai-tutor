@@ -1,0 +1,22 @@
+# AI Tutor Pedagogical Test Harness Configuration
+
+# API Configuration
+apiBaseUrl: http://localhost:8080
+apiUsername: demo
+apiPassword: demo
+
+# Judge Configuration (LLM-as-judge)
+judgeModel: gpt-4o
+judgeTemperature: 0.2
+
+# Test Scenarios
+scenariosPath: scenarios
+scenarioFilter: all
+
+# Reporting
+reportsOutputDir: test-reports
+
+# Test Execution
+passThreshold: 70.0
+maxConcurrentSessions: 3
+requestTimeoutMs: 30000

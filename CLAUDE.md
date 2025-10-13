@@ -119,12 +119,16 @@ Language learning assistant with conversational AI tutoring and vocabulary track
 ## Commands
 - `./gradlew runServer` - Run REST API server (requires OPENAI_API_KEY)
 - `./gradlew runCli` - Run CLI client (connects to running server)
+- `./gradlew runTestHarness` - Run pedagogical test harness with LLM-as-judge evaluation
+  - `--args="--list"` - List all available test scenarios
+  - `--args="--scenario NAME"` - Run specific scenario(s)
+  - `--args="--help"` - Show test harness help
 - `./gradlew bootRun` - Run REST API server (alternative to runServer)
 - `./gradlew build` - Build project
 - H2 Console: http://localhost:8080/h2-console
 - HTTP Tests: `src/test/http/http-client-requests.http`
 
-**Note:** Two independent entry points - REST API server and CLI client
+**Note:** Three independent entry points - REST API server, CLI client, and test harness
 
 ## Package Structure
 ```
@@ -193,6 +197,15 @@ ch.obermuhlner.aitutor
 │   ├── AiTutorCli          # Main CLI application with catalog commands
 │   ├── CliConfig           # Configuration management (updated for course-based sessions)
 │   └── HttpApiClient       # HTTP client for REST API (with catalog endpoints)
+├── testharness/            # Pedagogical test harness (LLM-as-judge)
+│   ├── TestHarnessMain     # Main entry point for test harness
+│   ├── config/             # TestHarnessConfig - YAML configuration loading
+│   ├── client/             # ApiClient - REST API client for test execution
+│   ├── domain/             # TestScenario, EvaluationResult, LearnerPersona, etc.
+│   ├── judge/              # JudgeService - LLM-based pedagogical evaluation
+│   ├── executor/           # TestExecutor - Scenario orchestration and execution
+│   ├── scenario/           # ScenarioLoader - YAML scenario file loading
+│   └── report/             # ReportGenerator - Markdown report generation
 └── core/                   # Shared models and utilities
     ├── model/              # Shared domain models (CEFRLevel, ErrorType, ErrorSeverity,
     │                       # Correction, NewVocabulary, WordCard)
