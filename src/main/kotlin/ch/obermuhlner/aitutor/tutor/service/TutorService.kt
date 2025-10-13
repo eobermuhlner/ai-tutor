@@ -36,6 +36,7 @@ class TutorService(
     @Value("\${ai-tutor.prompts.developer}") private val developerPromptTemplate: String,
     @Value("\${ai-tutor.prompts.vocabulary.no-tracking}") private val vocabularyNoTrackingTemplate: String,
     @Value("\${ai-tutor.prompts.vocabulary.with-tracking}") private val vocabularyWithTrackingTemplate: String,
+    @Value("\${ai-tutor.prompts.teaching-style.course-based}") private val teachingStyleCourseBasedTemplate: String,
     @Value("\${ai-tutor.prompts.teaching-style.reactive}") private val teachingStyleReactiveTemplate: String,
     @Value("\${ai-tutor.prompts.teaching-style.guided}") private val teachingStyleGuidedTemplate: String,
     @Value("\${ai-tutor.prompts.teaching-style.directive}") private val teachingStyleDirectiveTemplate: String
@@ -69,13 +70,21 @@ class TutorService(
         val vocabContext = vocabularyContextService.getVocabularyContext(userId, targetLanguageCode)
 
         val vocabularyGuidance = buildVocabularyGuidance(vocabContext)
-        val teachingStyleGuidance = buildTeachingStyleGuidance(tutor.teachingStyle, targetLanguage)
 
         // Get current lesson if session is course-based
         val currentLesson = if (session != null && session.courseTemplateId != null) {
             lessonProgressionService.checkAndProgressLesson(session)
         } else {
             null
+        }
+
+        // Override teaching style for course-based sessions
+        val teachingStyleGuidance = if (currentLesson != null) {
+            // Use course-based teaching style (ignores tutor's preferred style)
+            PromptTemplate(teachingStyleCourseBasedTemplate).render(mapOf("targetLanguage" to targetLanguage))
+        } else {
+            // Use tutor's preferred teaching style for free conversation
+            buildTeachingStyleGuidance(tutor.teachingStyle, targetLanguage)
         }
 
         // Extract decision metadata with safe defaults for backward compatibility
@@ -221,7 +230,17 @@ class TutorService(
             append("\n")
         }
 
-        append("Guidance: Naturally integrate these lesson concepts into the conversation. Don't explicitly reference 'this week's lesson' - just guide the conversation to practice these skills organically.")
+        append("""
+            IMPORTANT INSTRUCTION:
+            Your PRIMARY GOAL is to teach and practice the concepts from this lesson.
+            - Actively guide the conversation toward the lesson's focus areas and vocabulary
+            - Use the practice patterns as conversation prompts
+            - Introduce vocabulary from the essential list naturally in context
+            - Explain grammar points when relevant opportunities arise
+            - Watch for the common mistakes listed and gently correct them
+            - Keep the conversation within this lesson's scope - don't jump to unrelated topics
+            - Make the lesson feel conversational, not like a formal class, but ensure you actually teach the content
+        """.trimIndent())
     }
 
     internal fun buildConsolidatedSystemPrompt(
