@@ -144,9 +144,11 @@ class LessonProgressionService(
             "unknown"
         }
 
-        // Generate slug from language code and course name
+        // Generate slug from language code (ISO part only) and course name
         // Example: "es-ES" + "Conversational Spanish" -> "es-conversational-spanish"
-        return "${course.languageCode.lowercase()}-${nameEnglish.lowercase().replace(" ", "-")}"
+        // Extract language part (before hyphen) to match filesystem structure
+        val languageOnly = course.languageCode.lowercase().substringBefore("-")
+        return "$languageOnly-${nameEnglish.lowercase().replace(" ", "-")}"
     }
 }
 
