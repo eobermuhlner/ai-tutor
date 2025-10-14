@@ -1,0 +1,13 @@
+# Ollama (local) - no API key needed, default: http://localhost:11434
+
+spring.ai.model.chat: ollama
+spring.ai.model.embedding: ollama
+spring.ai.model.embedding.text: none
+spring.ai.model.embedding.multimodal: none
+spring.ai.model.image: none
+spring.ai.model.moderation: none
+spring.ai.model.audio.speech: none
+spring.ai.model.audio.transcription: none
+
+spring.ai.ollama.base-url: http://localhost:11434
+spring.ai.ollama.chat.options.model: llama3.1

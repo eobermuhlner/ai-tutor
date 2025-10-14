@@ -1,0 +1,15 @@
+# Azure OpenAI - requires AZURE_OPENAI_API_KEY and AZURE_OPENAI_ENDPOINT env vars
+
+spring.ai.model.chat: azure-openai
+spring.ai.model.embedding: azure-openai
+spring.ai.model.embedding.text: none
+spring.ai.model.embedding.multimodal: none
+spring.ai.model.image: none
+spring.ai.model.moderation: none
+spring.ai.model.audio.speech: none
+spring.ai.model.audio.transcription: none
+
+spring.ai.azure.openai.api-key: ${AZURE_OPENAI_API_KEY}
+spring.ai.azure.openai.endpoint: ${AZURE_OPENAI_ENDPOINT}
+spring.ai.azure.openai.chat.options.deployment-name: gpt-4o  # Your Azure deployment name
+spring.ai.azure.openai.chat.options.model: gpt-4o

@@ -3,28 +3,11 @@ spring:
     name: ai-tutor
 
   profiles:
-    active: dev
+    active: dev-openai
     group:
-      dev: h2
-
-# AI Provider Configuration
-# Supports: OpenAI, Azure OpenAI, Ollama
-# Spring Boot auto-configures based on properties set
-
-# OpenAI (default) - requires OPENAI_API_KEY environment variable
-spring.ai.openai.chat.options.model: gpt-4o
-# spring.ai.openai.api-key: ${OPENAI_API_KEY}  # Optional: override env var
-# spring.ai.openai.base-url: https://api.openai.com  # Optional: custom endpoint
-
-# Azure OpenAI - requires AZURE_OPENAI_API_KEY and AZURE_OPENAI_ENDPOINT env vars
-# spring.ai.azure.openai.api-key: ${AZURE_OPENAI_API_KEY}
-# spring.ai.azure.openai.endpoint: ${AZURE_OPENAI_ENDPOINT}
-# spring.ai.azure.openai.chat.options.deployment-name: gpt-4o  # Your Azure deployment name
-# spring.ai.azure.openai.chat.options.model: gpt-4o
-
-# Ollama (local) - no API key needed, default: http://localhost:11434
-# spring.ai.ollama.base-url: http://localhost:11434
-# spring.ai.ollama.chat.options.model: llama3
+      dev-openai: h2,dev,ai-openai
+      dev-azure-openai: h2,dev,ai-azure-openai
+      dev-ollama: h2,dev,ai-ollama
 
 logging:
   level:
