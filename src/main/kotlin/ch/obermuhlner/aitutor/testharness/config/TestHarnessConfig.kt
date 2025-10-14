@@ -57,19 +57,20 @@ data class TestHarnessConfig(
 
         /**
          * Load configuration from a YAML file.
+         * Returns built-in defaults if the specified file doesn't exist.
          */
         fun loadFromFile(path: String): TestHarnessConfig {
             val file = File(path)
             if (!file.exists()) {
-                logger.warn("Config file not found: $path, using defaults")
-                return loadDefault()
+                logger.warn("Config file not found: $path, using built-in defaults")
+                return TestHarnessConfig()
             }
 
             return try {
                 mapper.readValue(file, TestHarnessConfig::class.java)
             } catch (e: Exception) {
                 logger.error("Failed to load config from $path: ${e.message}", e)
-                loadDefault()
+                TestHarnessConfig()
             }
         }
 

@@ -1,5 +1,6 @@
 package ch.obermuhlner.aitutor.testharness.judge
 
+import ch.obermuhlner.aitutor.core.util.LlmJson
 import ch.obermuhlner.aitutor.testharness.ai.AiProviderFactory
 import ch.obermuhlner.aitutor.testharness.config.TestHarnessConfig
 import ch.obermuhlner.aitutor.testharness.domain.*
@@ -27,9 +28,42 @@ import java.time.Duration
  */
 class JudgeService(private val config: TestHarnessConfig) {
     private val logger = LoggerFactory.getLogger(JudgeService::class.java)
-    private val objectMapper = ObjectMapper().registerModule(KotlinModule.Builder().build())
+    // Use LlmJson.mapper for lenient parsing (allows comments, single quotes, trailing commas, etc.)
+    private val objectMapper = LlmJson.mapper
 
     private val aiProvider = AiProviderFactory.create(config.getAiProviderConfig())
+
+    /**
+     * Repair common LLM JSON formatting errors, specifically missing commas between object fields.
+     *
+     * Pattern to fix: `"key": "value"` followed by newlines/whitespace, then `"nextKey":`
+     * Should be: `"key": "value",` followed by newlines/whitespace, then `"nextKey":`
+     *
+     * Example of error:
+     * ```
+     * "feedback": "text..."
+     *
+     * "score": 80,
+     * ```
+     *
+     * Becomes:
+     * ```
+     * "feedback": "text...",
+     *
+     * "score": 80,
+     * ```
+     */
+    private fun repairLlmJson(json: String): String {
+        // Pattern: closing quote, whitespace/newlines, then opening quote of next field name
+        // We insert a comma after the closing quote before the whitespace
+        val missingCommaPattern = Regex("""(")\s*(\n\s+)("[a-zA-Z_][a-zA-Z0-9_]*"\s*:)""")
+        return missingCommaPattern.replace(json) { matchResult ->
+            val closingQuote = matchResult.groupValues[1]
+            val whitespace = matchResult.groupValues[2]
+            val nextField = matchResult.groupValues[3]
+            "$closingQuote,$whitespace$nextField"
+        }
+    }
 
     /**
      * Evaluate a completed test scenario.
@@ -163,7 +197,14 @@ class JudgeService(private val config: TestHarnessConfig) {
                - Reinforcement and recycling
                - Visual aids (word cards) when helpful
 
-            Provide your evaluation as a JSON object with the following structure:
+            Provide your evaluation as a JSON object with the following structure.
+
+            **CRITICAL: Ensure proper JSON formatting:**
+            - Every field must end with a comma EXCEPT the last field before the closing brace
+            - Double-check that all string values have closing quotes
+            - Verify all braces and brackets are properly closed
+
+            **Required JSON structure:**
             {
               "errorDetectionScore": 0-100,
               "errorDetectionFeedback": "detailed feedback...",
@@ -197,13 +238,17 @@ class JudgeService(private val config: TestHarnessConfig) {
             response.trim()
         }
 
+        // Repair common LLM JSON formatting errors (e.g., missing commas)
+        val repairedJson = repairLlmJson(jsonContent)
+
         return try {
-            val judgeResponse = objectMapper.readValue(jsonContent, JudgeResponseDto::class.java)
+            val judgeResponse = objectMapper.readValue(repairedJson, JudgeResponseDto::class.java)
             judgeResponse.toJudgeEvaluation()
         } catch (e: Exception) {
             logger.error("Failed to parse judge response: ${e.message}", e)
             logger.error("Raw response: $response")
             logger.error("Extracted JSON: $jsonContent")
+            logger.error("Repaired JSON: $repairedJson")
 
             // Return a default evaluation with error information
             JudgeEvaluation(
