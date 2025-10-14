@@ -6,8 +6,35 @@ apiUsername: demo
 apiPassword: demo
 
 # Judge Configuration (LLM-as-judge)
-judgeModel: gpt-4o
-judgeTemperature: 0.2
+# Supports multiple AI providers: openai, azure-openai, ollama
+judgeProvider: ollama          # AI provider (openai | azure-openai | ollama)
+judgeModel: granite3.2:8b      # Model name
+judgeTemperature: 0.2          # Temperature (0.0-2.0)
+
+# Optional: Override API configuration (defaults to environment variables)
+# judgeApiKey: sk-...          # API key (or use OPENAI_API_KEY / AZURE_OPENAI_API_KEY / TESTHARNESS_JUDGE_API_KEY env var)
+# judgeApiEndpoint: https://... # API endpoint (or use provider defaults / TESTHARNESS_JUDGE_API_ENDPOINT)
+# judgeDeploymentName: gpt-4o   # Azure OpenAI deployment name (or use AZURE_OPENAI_DEPLOYMENT / TESTHARNESS_JUDGE_DEPLOYMENT_NAME)
+
+# Examples for different providers:
+#
+# OpenAI (default):
+#   judgeProvider: openai
+#   judgeModel: gpt-4o
+#   # Uses OPENAI_API_KEY environment variable
+#
+# Azure OpenAI:
+#   judgeProvider: azure-openai
+#   judgeModel: gpt-4o  # Not used for Azure (uses deployment name)
+#   judgeDeploymentName: my-gpt4-deployment
+#   judgeApiEndpoint: https://myresource.openai.azure.com
+#   # Uses AZURE_OPENAI_API_KEY environment variable
+#
+# Ollama (local):
+#   judgeProvider: ollama
+#   judgeModel: llama3
+#   judgeApiEndpoint: http://localhost:11434/api/chat
+#   # No API key needed for local Ollama
 
 # Test Scenarios
 scenariosPath: scenarios

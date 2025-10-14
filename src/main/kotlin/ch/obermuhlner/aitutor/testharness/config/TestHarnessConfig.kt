@@ -1,5 +1,7 @@
 package ch.obermuhlner.aitutor.testharness.config
 
+import ch.obermuhlner.aitutor.testharness.ai.AiProviderConfig
+import ch.obermuhlner.aitutor.testharness.ai.AiProviderType
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.KotlinModule
@@ -16,6 +18,10 @@ data class TestHarnessConfig(
     val apiPassword: String = "demo",
     val judgeModel: String = "gpt-4o",
     val judgeTemperature: Double = 0.2,
+    val judgeProvider: String = "openai",
+    val judgeApiKey: String? = null,
+    val judgeApiEndpoint: String? = null,
+    val judgeDeploymentName: String? = null,
     val scenariosPath: String = "scenarios",
     val reportsOutputDir: String = "test-reports",
     val scenarioFilter: String = "all",
@@ -26,6 +32,25 @@ data class TestHarnessConfig(
     val maxRetries: Int = 3,
     val retryBackoffMultiplier: Double = 2.0
 ) {
+    /**
+     * Get AI provider configuration from test harness config.
+     */
+    fun getAiProviderConfig(): AiProviderConfig {
+        val type = when (judgeProvider.lowercase()) {
+            "openai" -> AiProviderType.OPENAI
+            "azure-openai", "azure_openai", "azure" -> AiProviderType.AZURE_OPENAI
+            "ollama" -> AiProviderType.OLLAMA
+            else -> throw IllegalArgumentException("Unknown AI provider: $judgeProvider (supported: openai, azure-openai, ollama)")
+        }
+
+        return AiProviderConfig(
+            type = type,
+            apiKey = judgeApiKey,
+            apiEndpoint = judgeApiEndpoint,
+            deploymentName = judgeDeploymentName
+        )
+    }
+
     companion object {
         private val logger = LoggerFactory.getLogger(TestHarnessConfig::class.java)
         private val mapper = ObjectMapper(YAMLFactory()).registerModule(KotlinModule.Builder().build())
@@ -72,6 +97,10 @@ data class TestHarnessConfig(
                 apiPassword = System.getenv("TESTHARNESS_API_PASSWORD") ?: "demo",
                 judgeModel = System.getenv("TESTHARNESS_JUDGE_MODEL") ?: "gpt-4o",
                 judgeTemperature = System.getenv("TESTHARNESS_JUDGE_TEMPERATURE")?.toDoubleOrNull() ?: 0.2,
+                judgeProvider = System.getenv("TESTHARNESS_JUDGE_PROVIDER") ?: "openai",
+                judgeApiKey = System.getenv("TESTHARNESS_JUDGE_API_KEY"),
+                judgeApiEndpoint = System.getenv("TESTHARNESS_JUDGE_API_ENDPOINT"),
+                judgeDeploymentName = System.getenv("TESTHARNESS_JUDGE_DEPLOYMENT_NAME"),
                 scenariosPath = System.getenv("TESTHARNESS_SCENARIOS_PATH") ?: "scenarios",
                 reportsOutputDir = System.getenv("TESTHARNESS_REPORTS_DIR") ?: "test-reports",
                 passThreshold = System.getenv("TESTHARNESS_PASS_THRESHOLD")?.toDoubleOrNull() ?: 70.0,

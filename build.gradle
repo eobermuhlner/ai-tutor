@@ -38,6 +38,8 @@ dependencies {
     implementation 'org.jetbrains.kotlin:kotlin-reflect'
     implementation 'org.jetbrains.kotlin:kotlin-stdlib'
     implementation 'org.springframework.ai:spring-ai-starter-model-openai'
+    implementation 'org.springframework.ai:spring-ai-starter-model-azure-openai'
+    implementation 'org.springframework.ai:spring-ai-starter-model-ollama'
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0'
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
     implementation 'io.jsonwebtoken:jjwt-api:0.12.3'

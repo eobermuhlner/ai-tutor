@@ -1,5 +1,6 @@
 package ch.obermuhlner.aitutor.testharness.judge
 
+import ch.obermuhlner.aitutor.testharness.ai.AiProviderFactory
 import ch.obermuhlner.aitutor.testharness.config.TestHarnessConfig
 import ch.obermuhlner.aitutor.testharness.domain.*
 import com.fasterxml.jackson.annotation.JsonProperty
@@ -15,7 +16,8 @@ import java.time.Duration
 /**
  * LLM-based judge service for evaluating pedagogical quality of tutor conversations.
  *
- * Uses GPT-4 to systematically evaluate conversation quality across multiple dimensions:
+ * Supports multiple AI providers (OpenAI, Azure OpenAI, Ollama) to systematically evaluate
+ * conversation quality across multiple dimensions:
  * - Error detection accuracy
  * - Phase appropriateness
  * - Correction quality
@@ -26,12 +28,8 @@ import java.time.Duration
 class JudgeService(private val config: TestHarnessConfig) {
     private val logger = LoggerFactory.getLogger(JudgeService::class.java)
     private val objectMapper = ObjectMapper().registerModule(KotlinModule.Builder().build())
-    private val httpClient = HttpClient.newBuilder()
-        .connectTimeout(Duration.ofSeconds(60))
-        .build()
 
-    private val apiKey: String = System.getenv("OPENAI_API_KEY")
-        ?: throw IllegalStateException("OPENAI_API_KEY environment variable not set")
+    private val aiProvider = AiProviderFactory.create(config.getAiProviderConfig())
 
     /**
      * Evaluate a completed test scenario.
@@ -46,43 +44,10 @@ class JudgeService(private val config: TestHarnessConfig) {
         val prompt = buildEvaluationPrompt(scenario, transcript, metrics)
         logger.debug("Judge prompt length: ${prompt.length} characters")
 
-        val response = callOpenAI(prompt)
+        val response = aiProvider.chat(prompt, config.judgeModel, config.judgeTemperature)
         logger.debug("Judge response: $response")
 
         return parseJudgeResponse(response)
-    }
-
-    /**
-     * Call OpenAI API directly using HTTP client.
-     */
-    private fun callOpenAI(prompt: String): String {
-        val requestBody = mapOf(
-            "model" to config.judgeModel,
-            "messages" to listOf(
-                mapOf(
-                    "role" to "user",
-                    "content" to prompt
-                )
-            ),
-            "temperature" to config.judgeTemperature
-        )
-
-        val request = HttpRequest.newBuilder()
-            .uri(URI.create("https://api.openai.com/v1/chat/completions"))
-            .header("Content-Type", "application/json")
-            .header("Authorization", "Bearer $apiKey")
-            .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(requestBody)))
-            .timeout(Duration.ofSeconds(120))
-            .build()
-
-        val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
-
-        if (response.statusCode() !in 200..299) {
-            throw RuntimeException("OpenAI API call failed with status ${response.statusCode()}: ${response.body()}")
-        }
-
-        val responseJson = objectMapper.readTree(response.body())
-        return responseJson.get("choices").get(0).get("message").get("content").asText()
     }
 
     private fun buildEvaluationPrompt(

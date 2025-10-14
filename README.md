@@ -34,9 +34,36 @@ git clone <repository-url>
 cd ai-tutor
 ```
 
-2. Set your OpenAI API key:
+2. Configure AI Provider (choose one):
+
+**Option A: OpenAI (default)**
 ```bash
 export OPENAI_API_KEY=your-api-key-here
+```
+
+**Option B: Azure OpenAI**
+```bash
+export AZURE_OPENAI_API_KEY=your-azure-key
+export AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com
+```
+
+Edit `src/main/resources/application.yml` to uncomment Azure configuration:
+```yaml
+spring.ai.azure.openai.api-key: ${AZURE_OPENAI_API_KEY}
+spring.ai.azure.openai.endpoint: ${AZURE_OPENAI_ENDPOINT}
+spring.ai.azure.openai.chat.options.deployment-name: gpt-4o
+```
+
+**Option C: Ollama (local, no API key needed)**
+```bash
+# Start Ollama with a model (e.g., llama3, granite3.2:8b)
+ollama run llama3
+```
+
+Edit `src/main/resources/application.yml` to uncomment Ollama configuration:
+```yaml
+spring.ai.ollama.base-url: http://localhost:11434
+spring.ai.ollama.chat.options.model: llama3
 ```
 
 3. Build the project:
@@ -489,7 +516,7 @@ The project includes a comprehensive test harness for evaluating tutor behavior 
 
 The test harness:
 - **Simulates realistic learner conversations** with intentional errors at various CEFR levels
-- **Uses GPT-4 as a judge** to systematically evaluate pedagogical quality across 6 dimensions
+- **Uses LLM as a judge** to systematically evaluate pedagogical quality across 6 dimensions (supports OpenAI, Azure OpenAI, and Ollama)
 - **Generates comprehensive reports** with quantitative scores and qualitative feedback
 - **Validates expected behaviors** including phase transitions, error detection accuracy, and topic management
 - **Supports CI/CD integration** with configurable pass/fail thresholds and exit codes
@@ -498,7 +525,7 @@ The test harness:
 
 **Prerequisites:**
 - Running AI Tutor server (`./gradlew bootRun`)
-- `OPENAI_API_KEY` environment variable set
+- AI provider configured (see Configuration section below for OpenAI, Azure OpenAI, or Ollama setup)
 - Demo user registered (username: `demo`, password: `demo`)
 
 **Basic Usage:**
@@ -611,14 +638,59 @@ evaluationFocus:
 Edit `testharness-config.yml`:
 
 ```yaml
+# API Configuration
 apiBaseUrl: http://localhost:8080
 apiUsername: demo
 apiPassword: demo
-judgeModel: gpt-4o
-judgeTemperature: 0.2
+
+# Judge Configuration (LLM-as-judge)
+# Supports multiple AI providers: openai, azure-openai, ollama
+judgeProvider: openai              # AI provider (openai | azure-openai | ollama)
+judgeModel: gpt-4o                 # Model name
+judgeTemperature: 0.2              # Temperature (0.0-2.0)
+
+# Optional: Override API configuration (defaults to environment variables)
+# judgeApiKey: sk-...              # API key (or use OPENAI_API_KEY / AZURE_OPENAI_API_KEY / TESTHARNESS_JUDGE_API_KEY env var)
+# judgeApiEndpoint: https://...    # API endpoint (or use provider defaults / TESTHARNESS_JUDGE_API_ENDPOINT)
+# judgeDeploymentName: gpt-4o      # Azure OpenAI deployment name (or use AZURE_OPENAI_DEPLOYMENT / TESTHARNESS_JUDGE_DEPLOYMENT_NAME)
+
+# Test Scenarios
 scenariosPath: scenarios
 reportsOutputDir: test-reports
+
+# Test Execution
 passThreshold: 70.0
+
+# Rate Limiting (helps avoid API quota/rate limit errors)
+delayBetweenRequestsMs: 1000       # Delay between consecutive requests (default: 1000ms = 1 req/sec)
+maxRetries: 3                      # Maximum number of retries for 429/503 errors
+retryBackoffMultiplier: 2.0        # Exponential backoff multiplier (delay = 1000 * multiplier^attempt)
+```
+
+**Provider Examples:**
+
+**OpenAI (default):**
+```yaml
+judgeProvider: openai
+judgeModel: gpt-4o
+# Uses OPENAI_API_KEY environment variable
+```
+
+**Azure OpenAI:**
+```yaml
+judgeProvider: azure-openai
+judgeModel: gpt-4o  # Not used for Azure (uses deployment name)
+judgeDeploymentName: my-gpt4-deployment
+judgeApiEndpoint: https://myresource.openai.azure.com
+# Uses AZURE_OPENAI_API_KEY environment variable
+```
+
+**Ollama (local, no API key needed):**
+```yaml
+judgeProvider: ollama
+judgeModel: llama3  # Or granite3.2:8b, etc.
+judgeApiEndpoint: http://localhost:11434/api/chat
+# No API key needed for local Ollama
 ```
 
 ### Reports
@@ -666,7 +738,7 @@ testharness/
 ```
 
 **Key Technologies:**
-- Direct OpenAI API integration (HTTP client)
+- Multi-provider AI integration (OpenAI, Azure OpenAI, Ollama) via direct HTTP clients
 - Jackson YAML parsing for scenarios
 - Java HTTP client for API communication
 - Markdown generation for reports

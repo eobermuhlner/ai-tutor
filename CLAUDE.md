@@ -6,7 +6,7 @@ Language learning assistant with conversational AI tutoring and vocabulary track
 - **Language**: Kotlin 1.9.25
 - **Framework**: Spring Boot 3.5.6
 - **Database**: H2 (JPA)
-- **AI**: Spring AI 1.0.1 (OpenAI integration)
+- **AI**: Spring AI 1.0.1 (multi-provider support: OpenAI, Azure OpenAI, Ollama)
 - **Build**: Gradle (build.gradle), Java 17
 - **Logging**: SLF4J (via Spring Boot starter)
 
@@ -117,9 +117,9 @@ Language learning assistant with conversational AI tutoring and vocabulary track
   - Monitoring: REST endpoints for tracking summary statistics and compression ratios
 
 ## Commands
-- `./gradlew runServer` - Run REST API server (requires OPENAI_API_KEY)
+- `./gradlew runServer` - Run REST API server (requires AI provider configuration: OpenAI, Azure OpenAI, or Ollama)
 - `./gradlew runCli` - Run CLI client (connects to running server)
-- `./gradlew runTestHarness` - Run pedagogical test harness with LLM-as-judge evaluation
+- `./gradlew runTestHarness` - Run pedagogical test harness with LLM-as-judge evaluation (supports OpenAI, Azure OpenAI, or Ollama)
   - `--args="--list"` - List all available test scenarios
   - `--args="--scenario NAME"` - Run specific scenario(s)
   - `--args="--help"` - Show test harness help
@@ -203,6 +203,12 @@ ch.obermuhlner.aitutor
 │   ├── client/             # ApiClient - REST API client for test execution
 │   ├── domain/             # TestScenario, EvaluationResult, LearnerPersona, etc.
 │   ├── judge/              # JudgeService - LLM-based pedagogical evaluation
+│   ├── ai/                 # AI provider implementations (OpenAI, Azure OpenAI, Ollama)
+│   │   ├── AiProvider      # Provider abstraction interface
+│   │   ├── AiProviderFactory # Provider factory
+│   │   ├── OpenAiProvider  # OpenAI HTTP client
+│   │   ├── AzureOpenAiProvider # Azure OpenAI HTTP client
+│   │   └── OllamaProvider  # Ollama HTTP client
 │   ├── executor/           # TestExecutor - Scenario orchestration and execution
 │   ├── scenario/           # ScenarioLoader - YAML scenario file loading
 │   └── report/             # ReportGenerator - Markdown report generation
