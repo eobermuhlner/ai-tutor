@@ -241,6 +241,26 @@ If tests fail, investigate and fix the root cause. Common issues:
 - Test data doesn't match new validation rules
 - Missing or incorrect test configuration
 
+### Content Parsing Guidelines
+
+**DO NOT use regex to parse natural language content (German, Spanish, French, Japanese text, etc.)**
+
+Regex patterns are too brittle for parsing actual language text:
+- Different languages have different sentence structures and patterns
+- Cannot handle linguistic variations and edge cases
+- Not maintainable across multiple natural languages
+- Breaks with minor variations in phrasing or word choice
+
+**Parsing markdown structure with regex is FINE:**
+- Extracting headers, code blocks, bullet points, bold text is acceptable
+- Make regex patterns flexible to handle whitespace variations
+- Use `\s*` liberally to tolerate extra blank lines and spacing
+
+**For natural language extraction, use:**
+- LLM-based extraction when semantic understanding is needed
+- String operations (split, substring, indexOf) for simple text extraction
+- Structured data formats (YAML frontmatter, JSON) when possible
+
 ### Git Commit Guidelines
 
 ⚠️ **CRITICAL: FOLLOW THESE RULES EXACTLY - NO EXCEPTIONS** ⚠️

@@ -151,7 +151,8 @@ class LessonContentService(
         val scenariosSection = Regex("""## Conversation Scenarios\s*\n(.*?)(?=\n##|\z)""", RegexOption.DOT_MATCHES_ALL)
             .find(markdown)?.groupValues?.get(1) ?: return emptyList()
 
-        return Regex("""### (.*?)\n```\n(.*?)\n```""", RegexOption.DOT_MATCHES_ALL)
+        // Flexible regex: tolerate any amount of whitespace between title and code block
+        return Regex("""### (.*?)\s*\n\s*```\s*\n(.*?)\n```""", RegexOption.DOT_MATCHES_ALL)
             .findAll(scenariosSection)
             .map { match ->
                 Scenario(
