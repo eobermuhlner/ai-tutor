@@ -8,11 +8,19 @@ import ch.obermuhlner.aitutor.tutor.domain.ConversationResponse
 import ch.obermuhlner.aitutor.tutor.domain.ConversationState
 import io.mockk.every
 import io.mockk.mockk
+import org.springframework.ai.chat.model.ChatModel
+import org.springframework.ai.chat.model.ChatResponse
+import org.springframework.ai.chat.model.Generation
+import org.springframework.ai.chat.messages.AssistantMessage
+import org.springframework.ai.chat.prompt.Prompt
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Primary
+import org.springframework.context.annotation.Profile
 
-@TestConfiguration
+@Configuration
+@Profile("test")  // Only active during tests
 class TestConfig {
 
     @Bean
@@ -31,6 +39,24 @@ class TestConfig {
                 corrections = emptyList(),
                 newVocabulary = emptyList()
             )
+        )
+
+        return mock
+    }
+
+    /**
+     * Mock ChatModel bean to prevent NoUniqueBeanDefinitionException.
+     * This is marked as @Primary to take precedence over any autoconfigured ChatModel beans
+     * from OpenAI, Azure OpenAI, or Ollama providers during tests.
+     */
+    @Bean
+    @Primary
+    fun mockChatModel(): ChatModel {
+        val mock = mockk<ChatModel>()
+
+        // Default mock behavior
+        every { mock.call(any<Prompt>()) } returns ChatResponse(
+            listOf(Generation(AssistantMessage("Test response")))
         )
 
         return mock

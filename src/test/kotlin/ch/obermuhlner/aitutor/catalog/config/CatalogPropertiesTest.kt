@@ -1,15 +1,18 @@
 package ch.obermuhlner.aitutor.catalog.config
 
+import ch.obermuhlner.aitutor.config.TestConfig
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 
 @SpringBootTest
 @ActiveProfiles("test")
+@Import(TestConfig::class)
 class CatalogPropertiesTest {
 
     @Autowired

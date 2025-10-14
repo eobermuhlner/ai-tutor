@@ -11,9 +11,11 @@ import org.springframework.ai.chat.prompt.Prompt
 import org.springframework.ai.chat.prompt.PromptTemplate
 import org.springframework.ai.util.json.schema.JsonSchemaGenerator
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Service
 
 @Service
+@Profile("!test")  // Exclude from test profile
 class StreamReplyThenJsonEntityAiChatService(
     val chatModel: ChatModel,
     @Value("\${ai-tutor.prompts.json-response-format}") private val jsonResponseFormatPrompt: String

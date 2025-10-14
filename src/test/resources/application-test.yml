@@ -8,11 +8,26 @@ spring:
       ddl-auto: create-drop
     show-sql: false
 
+  # Provide dummy AI configuration to prevent initialization errors
   ai:
     openai:
-      api-key: test-key-not-used
+      api-key: test-key
+      base-url: https://api.openai.com
       chat:
-        enabled: false
+        options:
+          model: gpt-4o
+    azure:
+      openai:
+        api-key: test-key
+        endpoint: https://test.openai.azure.com
+        chat:
+          options:
+            deployment-name: gpt-4o
+    ollama:
+      base-url: http://localhost:11434
+      chat:
+        options:
+          model: llama2
 
 logging:
   level:

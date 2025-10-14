@@ -3,6 +3,7 @@ package ch.obermuhlner.aitutor.catalog.service
 import ch.obermuhlner.aitutor.catalog.config.CatalogProperties
 import ch.obermuhlner.aitutor.catalog.repository.CourseTemplateRepository
 import ch.obermuhlner.aitutor.catalog.repository.TutorProfileRepository
+import ch.obermuhlner.aitutor.config.TestConfig
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -11,10 +12,12 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 
 @SpringBootTest
 @ActiveProfiles("test")
+@Import(TestConfig::class)
 class SeedDataServiceTest {
 
     @Autowired
