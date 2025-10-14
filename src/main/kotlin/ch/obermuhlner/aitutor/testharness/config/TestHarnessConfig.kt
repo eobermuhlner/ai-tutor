@@ -21,7 +21,10 @@ data class TestHarnessConfig(
     val scenarioFilter: String = "all",
     val passThreshold: Double = 70.0,
     val maxConcurrentSessions: Int = 3,
-    val requestTimeoutMs: Long = 30000
+    val requestTimeoutMs: Long = 30000,
+    val delayBetweenRequestsMs: Long = 1000,
+    val maxRetries: Int = 3,
+    val retryBackoffMultiplier: Double = 2.0
 ) {
     companion object {
         private val logger = LoggerFactory.getLogger(TestHarnessConfig::class.java)
@@ -71,7 +74,10 @@ data class TestHarnessConfig(
                 judgeTemperature = System.getenv("TESTHARNESS_JUDGE_TEMPERATURE")?.toDoubleOrNull() ?: 0.2,
                 scenariosPath = System.getenv("TESTHARNESS_SCENARIOS_PATH") ?: "scenarios",
                 reportsOutputDir = System.getenv("TESTHARNESS_REPORTS_DIR") ?: "test-reports",
-                passThreshold = System.getenv("TESTHARNESS_PASS_THRESHOLD")?.toDoubleOrNull() ?: 70.0
+                passThreshold = System.getenv("TESTHARNESS_PASS_THRESHOLD")?.toDoubleOrNull() ?: 70.0,
+                delayBetweenRequestsMs = System.getenv("TESTHARNESS_DELAY_BETWEEN_REQUESTS_MS")?.toLongOrNull() ?: 1000,
+                maxRetries = System.getenv("TESTHARNESS_MAX_RETRIES")?.toIntOrNull() ?: 3,
+                retryBackoffMultiplier = System.getenv("TESTHARNESS_RETRY_BACKOFF_MULTIPLIER")?.toDoubleOrNull() ?: 2.0
             )
         }
     }

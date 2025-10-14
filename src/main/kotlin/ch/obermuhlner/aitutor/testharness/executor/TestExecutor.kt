@@ -13,7 +13,7 @@ import java.util.UUID
  */
 class TestExecutor(private val config: TestHarnessConfig) {
     private val logger = LoggerFactory.getLogger(TestExecutor::class.java)
-    private val apiClient = ApiClient(config.apiBaseUrl)
+    private val apiClient = ApiClient(config.apiBaseUrl, config = config)
     private val judgeService = JudgeService(config)
 
     /**
@@ -93,6 +93,12 @@ class TestExecutor(private val config: TestHarnessConfig) {
 
             conversationTurns.add(turn)
             previousPhase = updatedSession.effectivePhase.name
+
+            // Rate limiting: delay between requests (except after last message)
+            if (index < scenario.conversationScript.size - 1) {
+                logger.debug("  Waiting ${config.delayBetweenRequestsMs}ms before next request (rate limiting)...")
+                Thread.sleep(config.delayBetweenRequestsMs)
+            }
         }
 
         val executionTime = System.currentTimeMillis() - startTime

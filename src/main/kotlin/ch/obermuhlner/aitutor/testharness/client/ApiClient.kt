@@ -4,6 +4,7 @@ import ch.obermuhlner.aitutor.auth.dto.LoginRequest
 import ch.obermuhlner.aitutor.auth.dto.LoginResponse
 import ch.obermuhlner.aitutor.chat.dto.*
 import ch.obermuhlner.aitutor.core.model.CEFRLevel
+import ch.obermuhlner.aitutor.testharness.config.TestHarnessConfig
 import ch.obermuhlner.aitutor.tutor.domain.ConversationPhase
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
@@ -18,11 +19,12 @@ import java.time.Duration
 import java.util.UUID
 
 /**
- * REST API client for the AI Tutor application.
+ * REST API client for the AI Tutor application with retry and rate limiting support.
  */
 class ApiClient(
     private val baseUrl: String,
-    private val timeout: Duration = Duration.ofSeconds(30)
+    private val timeout: Duration = Duration.ofSeconds(30),
+    private val config: TestHarnessConfig? = null
 ) {
     private val logger = LoggerFactory.getLogger(ApiClient::class.java)
     private val httpClient = HttpClient.newBuilder()
@@ -78,13 +80,15 @@ class ApiClient(
     }
 
     /**
-     * Send a message in a chat session.
+     * Send a message in a chat session (with retry logic for rate limiting).
      */
     fun sendMessage(sessionId: UUID, content: String): MessageResponse {
-        val request = SendMessageRequest(content)
-        val response = post<MessageResponse>("/api/v1/chat/sessions/$sessionId/messages", request)
-        logger.debug("Sent message to session: $sessionId")
-        return response
+        return withRetry {
+            val request = SendMessageRequest(content)
+            val response = post<MessageResponse>("/api/v1/chat/sessions/$sessionId/messages", request)
+            logger.debug("Sent message to session: $sessionId")
+            response
+        }
     }
 
     /**
@@ -129,6 +133,41 @@ class ApiClient(
     fun getCurrentUserId(): UUID {
         val response = get<Map<String, Any>>("/api/v1/auth/me")
         return UUID.fromString(response["id"] as String)
+    }
+
+    // Retry logic with exponential backoff
+
+    /**
+     * Execute an operation with retry logic for rate limiting (429) and service unavailable (503) errors.
+     */
+    private fun <T> withRetry(operation: () -> T): T {
+        val maxRetries = config?.maxRetries ?: 3
+        val backoffMultiplier = config?.retryBackoffMultiplier ?: 2.0
+        var lastException: Exception? = null
+
+        for (attempt in 0 until maxRetries) {
+            try {
+                return operation()
+            } catch (e: ApiException) {
+                // Check if this is a retryable error (429 or 503)
+                val isRetryable = e.message?.let { msg ->
+                    msg.contains("status 429") || msg.contains("status 503")
+                } ?: false
+
+                if (isRetryable && attempt < maxRetries - 1) {
+                    val delayMs = (1000 * Math.pow(backoffMultiplier, attempt.toDouble())).toLong()
+                    logger.warn("⚠️  Request failed (attempt ${attempt + 1}/$maxRetries): ${e.message}")
+                    logger.info("⏳ Waiting ${delayMs}ms before retry...")
+                    Thread.sleep(delayMs)
+                    lastException = e
+                } else {
+                    throw e
+                }
+            }
+        }
+
+        // If we get here, all retries failed
+        throw lastException ?: RuntimeException("All retry attempts failed")
     }
 
     // Generic HTTP methods
