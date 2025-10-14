@@ -309,10 +309,11 @@ class ChatService(
         val tutorResponse = tutorService.respond(tutor, conversationState, session.userId, messageHistory, session.id, session, onReplyChunk)
             ?: return null
 
-        // Update effective phase from LLM response only if in Auto mode
-        // User-controlled phase (conversationPhase) never changes automatically
+        // Update effective phase from PhaseDecisionService, not from LLM response
+        // PhaseDecisionService has the fossilization detection logic
         if (session.conversationPhase == ConversationPhase.Auto) {
-            session.effectivePhase = tutorResponse.conversationResponse.conversationState.phase
+            session.effectivePhase = phaseDecision.phase
+            logger.debug("Auto mode: effectivePhase updated to ${phaseDecision.phase} (${phaseDecision.reason})")
         } else {
             // When user has explicit phase preference, effective phase matches it
             session.effectivePhase = session.conversationPhase

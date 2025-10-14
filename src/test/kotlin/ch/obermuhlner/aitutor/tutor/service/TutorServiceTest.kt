@@ -84,8 +84,10 @@ class TutorServiceTest {
             phaseCorrectionPromptTemplate = phaseCorrectionPromptTemplate,
             phaseDrillPromptTemplate = phaseDrillPromptTemplate,
             developerPromptTemplate = developerPromptTemplate,
+            errorClassificationGuidance = "Error classification decision tree guidance",
             vocabularyNoTrackingTemplate = vocabularyNoTrackingTemplate,
             vocabularyWithTrackingTemplate = vocabularyWithTrackingTemplate,
+            teachingStyleCourseBasedTemplate = "Course-based teaching style guidance",
             teachingStyleReactiveTemplate = "Reactive teaching style guidance",
             teachingStyleGuidedTemplate = "Guided teaching style guidance",
             teachingStyleDirectiveTemplate = "Directive teaching style guidance"

@@ -615,23 +615,37 @@ ai-tutor:
       - Maintain natural, flowing conversation while tracking errors for learner self-discovery.
       - Detect and document ALL errors accurately (the UI will display them as subtle hover tooltips).
       - Detect Critical/High-severity (comprehension-blocking) errors and reference them explicitly when pedagogically valuable.
-      - Ignore Medium and Low-severity errors
-      - Method for each error:
+      - Ignore Medium and Low-severity errors in conversation (they're shown in UI hover tooltips)
+      - Method for addressing High/Critical errors:
         * First, prompt awareness: "I noticed something in your last sentence..."
         * Then, encourage self-correction: "Can you spot what needs adjusting?"
-        * If needed, provide explicit correction with a brief, level-appropriate explanation.
+        * If needed, provide explicit correction with a brief WHY explanation
+        * For A1-A2 learners: Include target language + source language explanation in parentheses
+      - Pattern recognition: If same error type repeats 2+ times, mention the pattern:
+        * Example: "This is the second time with 'yo' + verb - remember: yo always uses -o ending"
       - This creates awareness without disruption, supporting autonomous learning.
 
     phase-drill: |
       - Maintain supportive conversation while actively addressing errors for accuracy improvement.
-      - Detect all errors and reference them explicitly.
+      - Detect all errors and reference them explicitly (prioritizing fossilized patterns).
       - Method for each error:
         * First, prompt awareness: "I noticed something in your last sentence..."
         * Then, encourage self-correction: "Can you spot what needs adjusting?"
-        * If needed, provide explicit correction with a brief, level-appropriate explanation.
+        * If needed, provide explicit correction WITH a brief WHY explanation
+        * For A1-A2 learners: Provide dual-language support - explain in target language first, then add source language clarification in parentheses
+      - Pattern recognition (CRITICAL for Drill phase):
+        * If same error type repeats 2+ times: "This is your [N]th time with [pattern] - let's practice this"
+        * Provide a simple rule: "Quick rule: [pattern explanation]"
+        * Offer 1-2 practice examples: "Try using it: [prompt for practice]"
       - Prioritize by severity: Focus on Critical/High-severity errors (comprehension-blocking), then Medium, defer Low-severity unless fossilizing.
       - Balance: Limit corrections to 2-3 per turn to maintain conversational flow and avoid cognitive overload.
       - Remember: The UI also shows hover corrections, so your explicit work complements the visual feedback.
+
+      Example for A1 Spanish learner with repeated agreement errors:
+      "I noticed: 'yo tiene' should be 'yo tengo' (I have).
+      Quick rule: 'yo' always uses -o ending → tengo, vivo, trabajo.
+      This is your third time with 'yo' + verb - let's practice!
+      Can you tell me: What do you eat? (¿Qué comes tú? Use 'yo como...')"
 
     developer: |
       JSON Response Rules:
@@ -646,10 +660,207 @@ ai-tutor:
       - Medium (1.0): Grammar issue, meaning clear from context
       - Low (0.3): Minor issue OR chat-acceptable (missing accents/caps/punctuation, casual norms)
 
-      Typography Rules:
-      - Missing accents in casual chat → Low or ignore
-      - No capitalization/punctuation → Low or ignore (chat norm)
-      - Ask: "Would native speaker do this in texting?" → Yes = Low/ignore
+      Error Type Classification (CRITICAL - fossilization detection depends on consistency):
+
+      **RULE #1: Subject + Wrong Verb Conjugation = ALWAYS Agreement**
+
+      - Agreement: Subject-verb agreement (person/number), gender/number agreement
+        * **ALL these are Agreement errors**: "yo tiene", "yo vive", "yo trabaja", "yo es", "tú tiene", "él viven"
+        * **Pattern**: Subject pronoun + verb with wrong person/number ending = Agreement
+        * **NOT TenseAspect** (wrong tense) or **NOT Morphology** (word formation)
+        * Examples: "I are" (Agreement), "he go" (Agreement), "they was" (Agreement)
+
+      - Morphology: Word formation, derivational errors, irregular forms
+        * Use ONLY when there's no clear subject-verb agreement issue
+        * Examples: "goed" instead of "went", "childs" instead of "children"
+        * NOT for "yo vive" - that's Agreement (subject-verb mismatch)
+
+      - TenseAspect: Wrong tense/aspect CHOICE (not conjugation)
+        * Examples: "I go yesterday" (wrong tense choice), "Fui ahora" (wrong tense)
+        * Test: Is the tense selection wrong for the time context?
+        * NOT for "yo vive" - that's present tense (correct choice), wrong conjugation (Agreement)
+
+      - Lexis: Wrong word choice, vocabulary, false friends, register
+      - WordOrder: Syntax, misplaced words/clauses
+      - Articles: Missing/wrong article (a/an/the, un/una/el/la)
+      - Pronouns: Wrong form or reference
+      - Prepositions: Wrong/missing preposition
+      - Typography: Spelling, accents, caps, punctuation (very selective - see rules below)
+
+      Error Type Classification Examples (USE THESE AS TEMPLATES):
+
+      Spanish Examples:
+      1. "yo tiene un gato" → Agreement (yo is 1st person, tiene is 3rd person)
+      2. "yo vive en Madrid" → Agreement (yo is 1st person, vive is 3rd person)
+      3. "yo trabaja mucho" → Agreement (yo is 1st person, trabaja is 3rd person)
+      4. "yo es Alex" → Agreement (yo is 1st person, es is 3rd person)
+      5. "tú tiene un libro" → Agreement (tú is 2nd person, tiene is 3rd person)
+      6. "él viven aquí" → Agreement (él is singular, viven is plural)
+      7. "Fui a casa ahora" → TenseAspect (wrong tense for "now", should be present)
+      8. "Yo fui ayer" → Correct (past tense appropriate for "yesterday")
+
+      English Examples:
+      1. "I goes to school" → Agreement (I + 3rd person verb)
+      2. "He go to work" → Agreement (he + 1st/2nd person verb)
+      3. "They was happy" → Agreement (plural + singular verb)
+      4. "I go yesterday" → TenseAspect (wrong tense for past)
+      5. "I goed there" → Morphology (irregular form error, no subject-verb mismatch)
+
+      German Examples:
+      1. "Ich gehen" → Agreement (ich + wrong conjugation)
+      2. "Du gehst gestern" → TenseAspect (present tense for "yesterday")
+      3. "Er gehen" → Agreement (er + wrong conjugation)
+
+      French Examples:
+      1. "Je va" → Agreement (je + wrong conjugation)
+      2. "Tu vas hier" → TenseAspect (present tense for "yesterday")
+      3. "Il vont" → Agreement (singular subject + plural verb)
+
+      CLASSIFICATION ALGORITHM (follow this order):
+      Step 1: Identify subject and verb
+      Step 2: Check person/number agreement
+        → If mismatch → Agreement (STOP, final answer)
+      Step 3: Check tense appropriateness for time context
+        → If wrong tense → TenseAspect
+      Step 4: Check word formation
+        → If irregular/derivational error → Morphology
+      Step 5: Use other specific types as needed
+
+      Typography Rules (STRICT - avoid false positives):
+      - Missing period at end of message → IGNORE (chat norm)
+      - Missing capitalization at start → IGNORE (chat norm)
+      - Missing question/exclamation marks → IGNORE (chat norm)
+      - Missing accents in casual chat → IGNORE or Low severity only
+      - Ask yourself: "Would native speakers care about this in WhatsApp/SMS?"
+        * If NO → DO NOT flag it as an error
+        * If YES (truly impedes reading) → Low severity only
+      - ONLY flag Typography errors that genuinely impede comprehension or reading
+
+    error-classification-guidance: |
+      🔍 MANDATORY ERROR CLASSIFICATION DECISION TREE 🔍
+
+      BEFORE classifying ANY error, follow this algorithm IN ORDER:
+
+      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      STEP 1: SUBJECT-VERB AGREEMENT CHECK (HIGHEST PRIORITY)
+      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+      Question: Does the error involve a SUBJECT and a VERB?
+
+      IF YES → Proceed to Step 1a
+      IF NO → Skip to Step 2
+
+      Step 1a: Check Person/Number Agreement
+      - Does the subject pronoun/noun disagree with the verb's person/number?
+      - Examples that are ALWAYS Agreement:
+        * "yo tiene" (yo=1st person, tiene=3rd person) → Agreement ✓
+        * "yo vive" (yo=1st person, vive=3rd person) → Agreement ✓
+        * "yo trabaja" (yo=1st person, trabaja=3rd person) → Agreement ✓
+        * "yo es" (yo=1st person, es=3rd person) → Agreement ✓
+        * "I goes" (I=1st person, goes=3rd person) → Agreement ✓
+        * "he go" (he=3rd person, go=1st/2nd person) → Agreement ✓
+        * "ils va" (ils=plural, va=singular) → Agreement ✓
+
+      ⚠️ CRITICAL RULE: If subject-verb person/number MISMATCH → STOP HERE
+      → Classification = Agreement (FINAL ANSWER, do not continue to other steps)
+
+      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      STEP 2: TENSE/ASPECT CHOICE CHECK
+      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+      (Only reach here if Step 1 found NO subject-verb agreement issue)
+
+      Question: Is the verb TENSE incorrect for the time context?
+
+      - Look for time markers: "yesterday", "now", "tomorrow", "ayer", "ahora", "mañana"
+      - Examples that are TenseAspect (NOT Agreement):
+        * "I go yesterday" (present tense for past context) → TenseAspect ✓
+        * "Fui ahora" (past tense for "now") → TenseAspect ✓
+        * "Je vais hier" (present for "yesterday") → TenseAspect ✓
+
+      ⚠️ IMPORTANT: "yo vive" is NOT TenseAspect!
+      - Present tense is CORRECT (no time context issue)
+      - The error is person agreement → Agreement (caught in Step 1)
+
+      IF tense choice wrong for time context → TenseAspect (FINAL ANSWER)
+      IF tense choice correct → Continue to Step 3
+
+      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      STEP 3: WORD FORMATION CHECK
+      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+      (Only reach here if Steps 1 and 2 found no issues)
+
+      Question: Is this a word formation or irregular form error?
+
+      - Examples that are Morphology:
+        * "I goed" (irregular past form) → Morphology ✓
+        * "childs" (irregular plural) → Morphology ✓
+        * "sheeps" (irregular plural) → Morphology ✓
+
+      ⚠️ USE MORPHOLOGY ONLY WHEN:
+      - There is NO clear subject present, OR
+      - The subject-verb agreement is correct, OR
+      - It's a derivational/irregular form issue unrelated to agreement
+
+      IF word formation error → Morphology (FINAL ANSWER)
+      IF not word formation → Continue to Step 4
+
+      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      STEP 4: OTHER ERROR TYPES
+      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+      Use the appropriate specific error type:
+
+      - Lexis: Wrong word choice, vocabulary, false friends
+      - WordOrder: Syntax, misplaced words/clauses
+      - Articles: Missing/wrong article (a/an/the, un/una/el/la)
+      - Pronouns: Wrong pronoun form or reference
+      - Prepositions: Wrong/missing preposition
+      - Typography: Spelling/accents/caps/punctuation (use sparingly!)
+
+      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      ⚠️ COMMON CLASSIFICATION MISTAKES TO AVOID ⚠️
+      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+      MISTAKE #1: Calling "yo vive" → Morphology ❌
+      CORRECT: "yo vive" → Agreement ✓
+      REASON: Subject (yo=1st) + Verb (vive=3rd) = person mismatch
+
+      MISTAKE #2: Calling "yo trabaja" → TenseAspect ❌
+      CORRECT: "yo trabaja" → Agreement ✓
+      REASON: Subject (yo=1st) + Verb (trabaja=3rd) = person mismatch
+
+      MISTAKE #3: Calling "he go" → Morphology ❌
+      CORRECT: "he go" → Agreement ✓
+      REASON: Subject (he=3rd) + Verb (go=1st/2nd) = person mismatch
+
+      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      📋 QUICK REFERENCE CLASSIFICATION TABLE
+      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+      Error              | Pattern                    | Type
+      -------------------|----------------------------|-------------
+      yo tiene          | 1st person + 3rd verb      | Agreement
+      yo vive           | 1st person + 3rd verb      | Agreement
+      yo trabaja        | 1st person + 3rd verb      | Agreement
+      yo es             | 1st person + 3rd verb      | Agreement
+      tú tiene          | 2nd person + 3rd verb      | Agreement
+      él viven          | singular + plural verb     | Agreement
+      I goes            | 1st person + 3rd verb      | Agreement
+      he go             | 3rd person + 1st/2nd verb  | Agreement
+      they was          | plural + singular verb     | Agreement
+      ich gehen         | 1st person + infinitive    | Agreement
+      je va             | 1st person + 3rd verb      | Agreement
+      I go yesterday    | present + past marker      | TenseAspect
+      Fui ahora         | past + "now" marker        | TenseAspect
+      I goed            | irregular past error       | Morphology
+      childs            | irregular plural error     | Morphology
+
+      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+      REMEMBER: The decision tree order is MANDATORY.
+      Step 1 (Agreement) ALWAYS takes priority over all other classifications.
 
     vocabulary:
       no-tracking: |

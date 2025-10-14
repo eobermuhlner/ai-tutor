@@ -65,6 +65,10 @@ class TestExecutor(private val config: TestHarnessConfig) {
 
             val response = apiClient.sendMessage(session.id, learnerMessage.content)
 
+            // Fetch updated session state to track phase transitions
+            val sessionWithMessages = apiClient.getSessionWithMessages(session.id)
+            val updatedSession = sessionWithMessages.session
+
             val turn = ConversationTurn(
                 turnIndex = index + 1,
                 learnerMessage = learnerMessage.content,
@@ -81,14 +85,14 @@ class TestExecutor(private val config: TestHarnessConfig) {
                     } ?: emptyList(),
                     newVocabulary = response.newVocabulary?.map { it.lemma } ?: emptyList(),
                     wordCards = response.wordCards?.map { it.titleTargetLanguage } ?: emptyList(),
-                    currentPhase = session.conversationPhase.name,
-                    currentTopic = session.currentTopic
+                    currentPhase = updatedSession.effectivePhase.name,  // Use effectivePhase, not conversationPhase
+                    currentTopic = updatedSession.currentTopic
                 ),
                 intentionalErrors = learnerMessage.intentionalErrors
             )
 
             conversationTurns.add(turn)
-            previousPhase = session.conversationPhase.name
+            previousPhase = updatedSession.effectivePhase.name
         }
 
         val executionTime = System.currentTimeMillis() - startTime

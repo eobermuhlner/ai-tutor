@@ -15,7 +15,9 @@ import org.springframework.stereotype.Service
 data class PhaseDecision(
     val phase: ConversationPhase,
     val reason: String,
-    val severityScore: Double
+    val severityScore: Double,
+    val fossilizationDetected: Boolean = false,
+    val repeatedErrorTypes: List<String> = emptyList()
 )
 
 @Service
@@ -25,23 +27,24 @@ class PhaseDecisionService(
     /**
      * Decides the conversation phase based on recent message history.
      *
-     * Three-phase logic using severity-weighted scoring:
+     * Three-phase logic using severity-weighted scoring with fossilization detection:
      * - Free: Pure fluency, no error tracking (very low severity score)
      * - Correction: Balanced default - track errors for UI hover but don't mention them
-     * - Drill: Explicit error work (high severity score or critical errors)
+     * - Drill: Explicit error work (high severity score, critical errors, or fossilization)
      *
-     * Severity Weights:
+     * Severity Weights (with fossilization escalation):
      * - Critical: 3.0 (blocks comprehension entirely)
      * - High: 2.0 (global errors, significant barrier)
      * - Medium: 1.0 (grammar issues, meaning clear)
      * - Low: 0.3 (minor/chat-acceptable issues)
+     * - Fossilization multiplier: 1.5x for 2nd occurrence, 2.0x for 3rd+ occurrence
      *
      * Logic:
      * - Start with Correction phase (balanced default)
      * - Switch to Drill if:
      *   * 2+ Critical errors in last 3 messages, OR
-     *   * 3+ High-severity repeated errors, OR
-     *   * Weighted severity score >= 6.0 in last 5 messages
+     *   * 3+ High-severity repeated errors (fossilization risk), OR
+     *   * Weighted severity score >= 4.5 in last 5 messages (lowered for repeated errors)
      * - Switch to Free if:
      *   * Only Low-severity errors in last 3 messages, AND
      *   * Weighted severity score < 1.0 in last 5 messages
@@ -75,8 +78,13 @@ class PhaseDecisionService(
         val recentUserMessages = userMessages.takeLast(5)
         val lastThreeMessages = recentUserMessages.takeLast(3)
 
-        // Calculate severity-weighted scores
-        val totalSeverityScore = calculateSeverityScore(recentUserMessages, recentMessages)
+        // Detect fossilization: count how many times each error type repeats
+        val errorTypeCounts = countErrorTypeOccurrences(recentUserMessages, recentMessages)
+        val fossilizedErrors = errorTypeCounts.filter { it.value >= 2 }
+        val fossilizationDetected = fossilizedErrors.isNotEmpty()
+
+        // Calculate severity-weighted scores WITH fossilization escalation
+        val totalSeverityScore = calculateSeverityScoreWithFossilization(recentUserMessages, recentMessages)
 
         // Count critical and high-severity errors
         val criticalErrorsInLastThree = countErrorsBySeverity(lastThreeMessages, recentMessages, ch.obermuhlner.aitutor.core.model.ErrorSeverity.Critical)
@@ -86,11 +94,20 @@ class PhaseDecisionService(
         val onlyLowSeverityInLastThree = hasOnlyLowSeverityErrors(lastThreeMessages, recentMessages)
 
         // Switch to Drill if serious comprehension issues or fossilization risk
-        if (criticalErrorsInLastThree >= 2 || highSeverityRepeatedErrors >= 3 || totalSeverityScore >= 6.0) {
+        // Lowered threshold from 6.0 to 4.5 to catch fossilization earlier
+        if (criticalErrorsInLastThree >= 2 || highSeverityRepeatedErrors >= 3 || totalSeverityScore >= 4.5) {
+            val reasonParts = mutableListOf<String>()
+            if (fossilizationDetected) {
+                reasonParts.add("Fossilization risk detected (${fossilizedErrors.keys.joinToString(", ")})")
+            }
+            reasonParts.add("severity score: %.1f".format(totalSeverityScore))
+
             return PhaseDecision(
                 phase = ConversationPhase.Drill,
-                reason = "High error severity (score: %.1f) - explicit practice needed".format(totalSeverityScore),
-                severityScore = totalSeverityScore
+                reason = "${reasonParts.joinToString(", ")} - explicit practice needed",
+                severityScore = totalSeverityScore,
+                fossilizationDetected = fossilizationDetected,
+                repeatedErrorTypes = fossilizedErrors.keys.toList()
             )
         }
 
@@ -199,6 +216,67 @@ class PhaseDecisionService(
                     ch.obermuhlner.aitutor.core.model.ErrorSeverity.Medium -> 1.0
                     ch.obermuhlner.aitutor.core.model.ErrorSeverity.Low -> 0.3
                 }
+            }
+        }
+    }
+
+    /**
+     * Count how many times each error type appears across recent messages.
+     * Returns a map of errorType -> occurrence count.
+     */
+    private fun countErrorTypeOccurrences(
+        userMessages: List<ChatMessageEntity>,
+        allMessages: List<ChatMessageEntity>
+    ): Map<String, Int> {
+        val errorTypes = mutableListOf<String>()
+
+        userMessages.forEach { userMessage ->
+            val corrections = getCorrections(userMessage, allMessages)
+            corrections.forEach { correction ->
+                errorTypes.add(correction.errorType.name)
+            }
+        }
+
+        return errorTypes.groupingBy { it }.eachCount()
+    }
+
+    /**
+     * Calculate weighted severity score WITH fossilization escalation.
+     * - 1st occurrence: base weight (1.0x)
+     * - 2nd occurrence: 1.5x multiplier
+     * - 3rd+ occurrence: 2.0x multiplier
+     */
+    private fun calculateSeverityScoreWithFossilization(
+        userMessages: List<ChatMessageEntity>,
+        allMessages: List<ChatMessageEntity>
+    ): Double {
+        // Track which errors we've already seen in this iteration
+        val errorTypesSeen = mutableMapOf<String, Int>()
+
+        return userMessages.sumOf { userMessage ->
+            val corrections = getCorrections(userMessage, allMessages)
+            corrections.sumOf { correction ->
+                val errorType = correction.errorType.name
+
+                // Determine fossilization multiplier based on how many times we've seen this error
+                errorTypesSeen[errorType] = (errorTypesSeen[errorType] ?: 0) + 1
+                val occurrenceNumber = errorTypesSeen[errorType]!!
+
+                val fossilizationMultiplier = when {
+                    occurrenceNumber == 1 -> 1.0      // First time: normal weight
+                    occurrenceNumber == 2 -> 1.5      // Second time: escalate
+                    else -> 2.0                        // Third+ time: strong escalation
+                }
+
+                // Base severity weight
+                val baseWeight = when (correction.severity) {
+                    ch.obermuhlner.aitutor.core.model.ErrorSeverity.Critical -> 3.0
+                    ch.obermuhlner.aitutor.core.model.ErrorSeverity.High -> 2.0
+                    ch.obermuhlner.aitutor.core.model.ErrorSeverity.Medium -> 1.0
+                    ch.obermuhlner.aitutor.core.model.ErrorSeverity.Low -> 0.3
+                }
+
+                baseWeight * fossilizationMultiplier
             }
         }
     }

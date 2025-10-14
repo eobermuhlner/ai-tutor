@@ -34,6 +34,7 @@ class TutorService(
     @Value("\${ai-tutor.prompts.phase-correction}") private val phaseCorrectionPromptTemplate: String,
     @Value("\${ai-tutor.prompts.phase-drill}") private val phaseDrillPromptTemplate: String,
     @Value("\${ai-tutor.prompts.developer}") private val developerPromptTemplate: String,
+    @Value("\${ai-tutor.prompts.error-classification-guidance}") private val errorClassificationGuidance: String,
     @Value("\${ai-tutor.prompts.vocabulary.no-tracking}") private val vocabularyNoTrackingTemplate: String,
     @Value("\${ai-tutor.prompts.vocabulary.with-tracking}") private val vocabularyWithTrackingTemplate: String,
     @Value("\${ai-tutor.prompts.teaching-style.course-based}") private val teachingStyleCourseBasedTemplate: String,
@@ -283,6 +284,11 @@ class TutorService(
             "targetLanguage" to targetLanguage,
             "sourceLanguage" to sourceLanguage
         )))
+
+        append("\n\n")
+
+        // Error classification decision tree (mandatory algorithm)
+        append(errorClassificationGuidance)
 
         append("\n\n")
 
