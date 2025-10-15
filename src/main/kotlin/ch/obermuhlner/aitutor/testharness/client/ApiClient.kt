@@ -27,8 +27,12 @@ class ApiClient(
     private val config: TestHarnessConfig? = null
 ) {
     private val logger = LoggerFactory.getLogger(ApiClient::class.java)
+
+    // Use config timeout if available, otherwise use the default timeout parameter
+    private val effectiveTimeout = config?.let { Duration.ofMillis(it.requestTimeoutMs) } ?: timeout
+
     private val httpClient = HttpClient.newBuilder()
-        .connectTimeout(timeout)
+        .connectTimeout(effectiveTimeout)
         .build()
 
     private val objectMapper = ObjectMapper()
@@ -178,7 +182,7 @@ class ApiClient(
             .header("Authorization", "Bearer $accessToken")
             .header("Accept", "application/json")
             .GET()
-            .timeout(timeout)
+            .timeout(effectiveTimeout)
             .build()
 
         val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
@@ -196,7 +200,7 @@ class ApiClient(
             .header("Content-Type", "application/json")
             .header("Accept", "application/json")
             .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(body)))
-            .timeout(timeout)
+            .timeout(effectiveTimeout)
 
         if (requireAuth) {
             requestBuilder.header("Authorization", "Bearer $accessToken")
@@ -219,7 +223,7 @@ class ApiClient(
             .header("Content-Type", "application/json")
             .header("Accept", "application/json")
             .method("PATCH", HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(body)))
-            .timeout(timeout)
+            .timeout(effectiveTimeout)
             .build()
 
         val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
@@ -236,7 +240,7 @@ class ApiClient(
             .uri(URI.create("$baseUrl$path"))
             .header("Authorization", "Bearer $accessToken")
             .DELETE()
-            .timeout(timeout)
+            .timeout(effectiveTimeout)
             .build()
 
         val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())

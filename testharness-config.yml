@@ -46,7 +46,7 @@ reportsOutputDir: test-reports
 # Test Execution
 passThreshold: 70.0
 maxConcurrentSessions: 3
-requestTimeoutMs: 30000
+requestTimeoutMs: 120000
 
 # Rate Limiting (helps avoid OpenAI API quota/rate limit errors)
 delayBetweenRequestsMs: 1000    # Delay between consecutive requests (default: 1000ms = 1 req/sec)

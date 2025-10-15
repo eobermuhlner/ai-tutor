@@ -3,11 +3,11 @@ spring:
     name: ai-tutor
 
   profiles:
-    active: dev-openai
+    active: dev-ollama
     group:
-      dev-openai: h2,dev,ai-openai
-      dev-azure-openai: h2,dev,ai-azure-openai
-      dev-ollama: h2,dev,ai-ollama
+      dev-openai: h2,dev,ai-openai,prompts-large
+      dev-azure-openai: h2,dev,ai-azure-openai,prompts-large
+      dev-ollama: h2,dev,ai-ollama,prompts-small
 
 logging:
   level:

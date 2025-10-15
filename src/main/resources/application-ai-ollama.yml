@@ -10,4 +10,4 @@ spring.ai.model.audio.speech: none
 spring.ai.model.audio.transcription: none
 
 spring.ai.ollama.base-url: http://localhost:11434
-spring.ai.ollama.chat.options.model: llama3.1
+spring.ai.ollama.chat.options.model: granite3.2:8b
