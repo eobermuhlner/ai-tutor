@@ -199,6 +199,14 @@ curl http://localhost:8080/api/v1/chat/sessions/{sessionId} \
 | GET | `/api/v1/assessment/sessions/{id}/skills` | Get skill-specific CEFR breakdown (grammar, vocabulary, fluency, comprehension) for a session |
 | POST | `/api/v1/assessment/sessions/{id}/reassess` | Trigger manual reassessment of all skill levels (for testing/debugging) |
 
+#### OpenAPI Documentation Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/swagger-ui.html` | Interactive Swagger UI for API documentation |
+| GET | `/v3/api-docs` | OpenAPI 3.0 JSON specification |
+| GET | `/v3/api-docs.yaml` | OpenAPI 3.0 YAML specification |
+
 ## Testing with IntelliJ HTTP Client
 
 The project includes HTTP request examples in `src/test/http/http-client-requests.http`.

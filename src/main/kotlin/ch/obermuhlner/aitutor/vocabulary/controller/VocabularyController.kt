@@ -7,6 +7,8 @@ import ch.obermuhlner.aitutor.vocabulary.dto.VocabularyItemWithContextsResponse
 import ch.obermuhlner.aitutor.vocabulary.dto.toResponse
 import ch.obermuhlner.aitutor.vocabulary.service.VocabularyQueryService
 import ch.obermuhlner.aitutor.vocabulary.service.VocabularyReviewService
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import java.util.UUID
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/v1/vocabulary")
+@Tag(name = "Vocabulary", description = "Endpoints for managing user vocabulary and reviews")
 class VocabularyController(
     private val vocabularyQueryService: VocabularyQueryService,
     private val vocabularyReviewService: VocabularyReviewService,
@@ -28,6 +31,7 @@ class VocabularyController(
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @GetMapping
+    @Operation(summary = "Get user vocabulary", description = "Retrieves all vocabulary items for the specified user and optional language")
     fun getUserVocabulary(
         @RequestParam(required = false) userId: UUID?,
         @RequestParam(required = false) lang: String?
@@ -41,6 +45,7 @@ class VocabularyController(
     }
 
     @GetMapping("/{itemId}")
+    @Operation(summary = "Get vocabulary item with contexts", description = "Retrieves a specific vocabulary item along with its usage contexts")
     fun getVocabularyItemWithContexts(
         @PathVariable itemId: UUID
     ): ResponseEntity<VocabularyItemWithContextsResponse> {
@@ -74,6 +79,7 @@ class VocabularyController(
      * GET /api/v1/vocabulary/due?lang=es&limit=20
      */
     @GetMapping("/due")
+    @Operation(summary = "Get due vocabulary for review", description = "Retrieves vocabulary items that are due for review in the specified language")
     fun getDueVocabulary(
         @RequestParam lang: String,
         @RequestParam(defaultValue = "20") limit: Int
@@ -89,6 +95,7 @@ class VocabularyController(
      * GET /api/v1/vocabulary/due/count?lang=es
      */
     @GetMapping("/due/count")
+    @Operation(summary = "Get count of due vocabulary", description = "Retrieves the count of vocabulary items that are due for review in the specified language")
     fun getDueCount(
         @RequestParam lang: String
     ): ResponseEntity<DueCountResponse> {
@@ -104,6 +111,7 @@ class VocabularyController(
      * Body: { "success": true }
      */
     @PostMapping("/{itemId}/review")
+    @Operation(summary = "Record vocabulary review", description = "Records the result of a vocabulary review session for a specific item")
     fun recordReview(
         @PathVariable itemId: UUID,
         @RequestBody request: RecordReviewRequest

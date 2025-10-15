@@ -13,6 +13,8 @@ import ch.obermuhlner.aitutor.chat.dto.UpdatePhaseRequest
 import ch.obermuhlner.aitutor.chat.dto.UpdateTopicRequest
 import ch.obermuhlner.aitutor.chat.dto.UpdateVocabularyReviewModeRequest
 import ch.obermuhlner.aitutor.chat.service.ChatService
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import java.util.UUID
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -30,6 +32,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
 
 @RestController
 @RequestMapping("/api/v1/chat")
+@Tag(name = "Chat", description = "Endpoints for chat sessions and messages")
 class ChatController(
     private val chatService: ChatService,
     private val authorizationService: AuthorizationService,
@@ -38,6 +41,7 @@ class ChatController(
 ) {
 
     @PostMapping("/sessions")
+    @Operation(summary = "Create a new chat session", description = "Creates a new chat session for the specified user")
     fun createSession(@RequestBody request: CreateSessionRequest): ResponseEntity<SessionResponse> {
         // Validate that user is creating session for themselves (or admin can create for anyone)
         authorizationService.requireAccessToUser(request.userId)
@@ -46,6 +50,7 @@ class ChatController(
     }
 
     @PostMapping("/sessions/from-course")
+    @Operation(summary = "Create a session from a course", description = "Creates a new chat session based on a specific course template")
     fun createSessionFromCourse(@RequestBody request: CreateSessionFromCourseRequest): ResponseEntity<SessionResponse> {
         val currentUserId = authorizationService.getCurrentUserId()
 
@@ -70,6 +75,7 @@ class ChatController(
     }
 
     @GetMapping("/sessions/{sessionId}/progress")
+    @Operation(summary = "Get session progress", description = "Retrieves the progress information for a specific chat session")
     fun getSessionProgress(@PathVariable sessionId: UUID): ResponseEntity<SessionWithProgressResponse> {
         val currentUserId = authorizationService.getCurrentUserId()
         val session = chatService.getSession(sessionId) ?: return ResponseEntity.notFound().build()
@@ -84,6 +90,7 @@ class ChatController(
     }
 
     @PostMapping("/sessions/{sessionId}/deactivate")
+    @Operation(summary = "Deactivate a session", description = "Marks a session as inactive without deleting it")
     fun deactivateSession(@PathVariable sessionId: UUID): ResponseEntity<SessionResponse> {
         val currentUserId = authorizationService.getCurrentUserId()
 
@@ -104,6 +111,7 @@ class ChatController(
     }
 
     @GetMapping("/sessions")
+    @Operation(summary = "Get user sessions", description = "Retrieves all chat sessions for the specified user")
     fun getUserSessions(@RequestParam(required = false) userId: UUID?): ResponseEntity<List<SessionResponse>> {
         // Resolve userId: use authenticated user's ID or validate admin access to requested user
         val resolvedUserId = authorizationService.resolveUserId(userId)
@@ -112,6 +120,7 @@ class ChatController(
     }
 
     @GetMapping("/sessions/active")
+    @Operation(summary = "Get active learning sessions", description = "Retrieves all active learning sessions for the specified user")
     fun getActiveLearningSessions(@RequestParam(required = false) userId: UUID?): ResponseEntity<List<SessionWithProgressResponse>> {
         // Resolve userId: use authenticated user's ID or validate admin access to requested user
         val resolvedUserId = authorizationService.resolveUserId(userId)
@@ -120,6 +129,7 @@ class ChatController(
     }
 
     @GetMapping("/sessions/{sessionId}")
+    @Operation(summary = "Get a specific session", description = "Retrieves a specific chat session along with its messages")
     fun getSession(@PathVariable sessionId: UUID): ResponseEntity<SessionWithMessagesResponse> {
         val currentUserId = authorizationService.getCurrentUserId()
         val session = chatService.getSessionWithMessages(sessionId, currentUserId)
@@ -128,6 +138,7 @@ class ChatController(
     }
 
     @DeleteMapping("/sessions/{sessionId}")
+    @Operation(summary = "Delete a session", description = "Permanently deletes a chat session and all its messages")
     fun deleteSession(@PathVariable sessionId: UUID): ResponseEntity<Void> {
         val currentUserId = authorizationService.getCurrentUserId()
         val deleted = chatService.deleteSession(sessionId, currentUserId)

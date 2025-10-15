@@ -35,6 +35,11 @@ class SecurityConfig(
                     .requestMatchers("/api/v1/images/concept/*/data").permitAll()
                     .requestMatchers("/h2-console/**").permitAll()
                     .requestMatchers("/error").permitAll()
+                    // OpenAPI/Swagger endpoints
+                    .requestMatchers("/v3/api-docs", "/v3/api-docs/**").permitAll()
+                    .requestMatchers("/swagger-ui.html").permitAll()
+                    .requestMatchers("/swagger-ui/**").permitAll()
+                    .requestMatchers("/webjars/**").permitAll()
                     // All other API endpoints require authentication
                     .requestMatchers("/api/v1/**").authenticated()
                     // Deny all others

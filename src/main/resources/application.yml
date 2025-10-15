@@ -9,6 +9,15 @@ spring:
       dev-azure-openai: h2,dev,ai-azure-openai,prompts-large
       dev-ollama: h2,dev,ai-ollama,prompts-small
 
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+  api-docs:
+    path: /v3/api-docs
+  show-actuator: true
+
 logging:
   level:
     root: INFO
