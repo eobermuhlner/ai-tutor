@@ -73,7 +73,7 @@ ai-tutor:
         domainEnglish: general conversation, grammar, typography
         descriptionTemplateEnglish: "Patient teacher {culturalNotes} who loves helping beginners feel confident"
         personality: Encouraging
-        teachingStyle: Reactive
+        teachingStyle: Guided
         displayOrder: 0
       - id: strict-academic
         emoji: "🎓"
@@ -99,7 +99,15 @@ ai-tutor:
         personality: Academic
         teachingStyle: Guided
         displayOrder: 0
-      - id: romaji-specialist
+      - id: de-swiss-german-specialist
+        emoji: "🏔️"
+        personaEnglish: Swiss High German specialist
+        domainEnglish: Swiss Standard German (Schweizer Hochdeutsch), Swiss orthography (ss instead of ß), Swiss vocabulary, Swiss culture
+        descriptionTemplateEnglish: "Native Swiss tutor {culturalNotes} who teaches Swiss Standard German with proper Swiss orthography and vocabulary differences"
+        personality: Casual
+        teachingStyle: Guided
+        displayOrder: 0
+      - id: jp-romaji-specialist
         emoji: "🌏"
         personaEnglish: romaji specialist
         domainEnglish: Japanese using only romaji (Latin alphabet), pronunciation, basic conversation
@@ -107,7 +115,7 @@ ai-tutor:
         personality: Casual
         teachingStyle: Guided
         displayOrder: 2
-      - id: hiragana-bridge
+      - id: jp-hiragana-bridge
         emoji: "🌸"
         personaEnglish: hiragana bridge tutor
         domainEnglish: accepting romaji input as correct, responding in hiragana and optionally in romaji, never uses kanji, gradual script transition
@@ -115,18 +123,58 @@ ai-tutor:
         personality: Encouraging
         teachingStyle: Guided
         displayOrder: 3
-      - id: swiss-german-specialist
-        emoji: "🏔️"
-        personaEnglish: Swiss High German specialist
-        domainEnglish: Swiss Standard German (Schweizer Hochdeutsch), Swiss orthography (ss instead of ß), Swiss vocabulary, Swiss culture
-        descriptionTemplateEnglish: "Native Swiss tutor {culturalNotes} who teaches Swiss Standard German with proper Swiss orthography and vocabulary differences"
+      - id: ko-romanization-specialist
+        emoji: "🌏"
+        personaEnglish: Korean romanization specialist
+        domainEnglish: Korean using only romanization (Latin alphabet), pronunciation, basic conversation
+        descriptionTemplateEnglish: "Friendly tutor {culturalNotes} who teaches Korean entirely in romanization for learners not yet ready for Hangul"
         personality: Casual
-        teachingStyle: Reactive
-        displayOrder: 0
+        teachingStyle: Guided
+        displayOrder: 2
+      - id: ko-hangul-bridge
+        emoji: "🪶"
+        personaEnglish: Hangul bridge tutor
+        domainEnglish: accepting romanized Korean input as correct, responding in Hangul and optionally in romanization, never uses Hanja, gradual script transition
+        descriptionTemplateEnglish: "Patient tutor {culturalNotes} who accepts your romanized Korean and responds in Hangul to help you learn the script naturally"
+        personality: Encouraging
+        teachingStyle: Guided
+        displayOrder: 3
+      - id: ru-romanization-specialist
+        emoji: "🌏"
+        personaEnglish: Russian romanization specialist
+        domainEnglish: Russian taught entirely in Latin transliteration, pronunciation, and simple conversation
+        descriptionTemplateEnglish: "Friendly tutor {culturalNotes} who teaches Russian entirely in romanized form for learners not yet ready for Cyrillic"
+        personality: Casual
+        teachingStyle: Guided
+        displayOrder: 2
+      - id: ru-cyrillic-bridge
+        emoji: "🔠"
+        personaEnglish: Cyrillic bridge tutor
+        domainEnglish: accepting romanized Russian input, responding in Cyrillic and optionally romanization, gradual alphabet transition
+        descriptionTemplateEnglish: "Patient tutor {culturalNotes} who accepts romanized Russian and responds in Cyrillic to help you learn the alphabet naturally"
+        personality: Encouraging
+        teachingStyle: Guided
+        displayOrder: 3
+      - id: zh-romanization-specialist
+        emoji: "🌏"
+        personaEnglish: Pinyin specialist
+        domainEnglish: Mandarin Chinese taught entirely with pinyin and tone explanations
+        descriptionTemplateEnglish: "Friendly tutor {culturalNotes} who teaches Mandarin using only pinyin for beginners not ready for Chinese characters"
+        personality: Casual
+        teachingStyle: Guided
+        displayOrder: 2
+      - id: zh-character-bridge
+        emoji: "🈶"
+        personaEnglish: Character bridge tutor
+        domainEnglish: accepting pinyin input, responding in characters and pinyin, gradual transition to Hanzi literacy
+        descriptionTemplateEnglish: "Patient tutor {culturalNotes} who accepts pinyin and responds in both Chinese characters and pinyin to ease the transition to Hanzi"
+        personality: Encouraging
+        teachingStyle: Guided
+        displayOrder: 3
 
     languages:
       - code: es-ES
-        nameJson: '{"en": "Spanish (Spain)", "es": "Español (España)", "de": "Spanisch (Spanien)", "fr": "Espagnol (Espagne)"}'
+        nameJson: '{"en": "Spanish (Spain)", "es": "Español (España)", "de": "Spanisch (Spanien)", "fr": "Espagnol (Espagne)", "it": "Spagnolo (Spagna)"}'
         flagEmoji: "🇪🇸"
         nativeName: "Español (España)"
         difficulty: Easy
@@ -144,6 +192,25 @@ ai-tutor:
           - archetypeId: casual-friend
             name: Laura
             culturalNotes: from Valencia
+      - code: it-IT
+        nameJson: '{"en": "Italian (Italy)", "es": "Italiano (Italia)", "de": "Italienisch (Italien)", "fr": "Italien (Italie)", "it": "Italiano (Italia)"}'
+        flagEmoji: "🇮🇹"
+        nativeName: "Italiano (Italia)"
+        difficulty: Easy
+        descriptionJson: '{"en": "Standard Italian from Italy", "it": "Italiano standard dell''Italia"}'
+        tutorVariants:
+          - archetypeId: encouraging-general
+            name: Sofia
+            culturalNotes: from Rome who makes learning Italian enjoyable
+          - archetypeId: strict-academic
+            name: Professor Bianchi
+            culturalNotes: in Italian grammar and literature
+          - archetypeId: casual-friend
+            name: Marco
+            culturalNotes: from Florence who teaches through culture and art
+          - archetypeId: casual-friend
+            name: Giulia
+            culturalNotes: from Milan who loves sharing Italian culture
       - code: fr-FR
         nameJson: '{"en": "French (France)", "es": "Francés (Francia)", "de": "Französisch (Frankreich)", "fr": "Français (France)"}'
         flagEmoji: "🇫🇷"
@@ -177,7 +244,7 @@ ai-tutor:
         difficulty: Medium
         descriptionJson: '{"en": "Swiss Standard German (Schweizer Hochdeutsch) with Swiss orthography (ss instead of ß) and vocabulary", "de": "Schweizer Hochdeutsch mit Schweizer Rechtschreibung (ss statt ß) und Wortschatz"}'
         tutorVariants:
-          - archetypeId: swiss-german-specialist
+          - archetypeId: de-swiss-german-specialist
             name: Hans
             culturalNotes: from Zürich
       - code: ja-JP
@@ -188,17 +255,87 @@ ai-tutor:
         descriptionJson: '{"en": "Standard Japanese from Japan with three writing systems", "ja": "日本の標準的な日本語、三つの文字体系"}'
         tutorVariants:
           - archetypeId: encouraging-general
-            name: Yuki
+            name: Yuki (ゆき)
             culturalNotes: from Tokyo who specializes in helping beginners
           - archetypeId: strict-academic
-            name: Tanaka-sensei
+            name: Tanaka-sensei (田中先生)
             culturalNotes: focused on proper form and cultural etiquette
-          - archetypeId: romaji-specialist
-            name: Kenji
+          - archetypeId: jp-romaji-specialist
+            name: Kenji (けんじ)
             culturalNotes: from Tokyo
-          - archetypeId: hiragana-bridge
-            name: Sakura
+          - archetypeId: jp-hiragana-bridge
+            name: Sakura (さくら)
             culturalNotes: who helps transition from romaji to hiragana
+      - code: zh-CN
+        nameJson: '{"en": "Chinese (Mandarin, China)", "es": "Chino mandarín (China)", "de": "Chinesisch (Mandarin, China)", "fr": "Chinois (mandarin, Chine)", "zh": "中文（普通话，中国）"}'
+        flagEmoji: "🇨🇳"
+        nativeName: "中文（普通话，中国）"
+        difficulty: Hard
+        descriptionJson: '{"en": "Standard Mandarin Chinese from mainland China with simplified characters and tone system", "zh": "中国大陆的标准普通话，使用简体字和声调体系"}'
+        tutorVariants:
+          - archetypeId: encouraging-general
+            name: Li Mei (李美)
+            culturalNotes: from Beijing who makes learning Mandarin enjoyable and clear
+          - archetypeId: strict-academic
+            name: Zhang Laoshi (张老师)
+            culturalNotes: focused on pronunciation accuracy and proper tone usage
+          - archetypeId: zh-romanization-specialist
+            name: Chen (陈)
+            culturalNotes: from Shanghai who teaches entirely in pinyin for beginners not yet ready for Chinese characters
+          - archetypeId: zh-character-bridge
+            name: Hua (华)
+            culturalNotes: who accepts pinyin input and responds in both characters and pinyin to help learners transition to Hanzi
+      - code: zh-TW
+        nameJson: '{"en": "Chinese (Mandarin, Taiwan)", "es": "Chino mandarín (Taiwán)", "de": "Chinesisch (Mandarin, Taiwan)", "fr": "Chinois (mandarin, Taïwan)", "zh": "中文（普通話，台灣）"}'
+        flagEmoji: "🇹🇼"
+        nativeName: "中文（普通話，台灣）"
+        difficulty: Hard
+        descriptionJson: '{"en": "Standard Mandarin from Taiwan with traditional characters and regional vocabulary", "zh": "台灣的標準普通話，使用繁體字和本地詞彙"}'
+        tutorVariants:
+          - archetypeId: encouraging-general
+            name: Lin Mei (林美)
+            culturalNotes: from Taipei who makes learning Mandarin with traditional characters enjoyable and clear
+          - archetypeId: strict-academic
+            name: Wang Laoshi (王老師)
+            culturalNotes: focused on pronunciation and cultural expressions used in Taiwan
+      - code: zh-HK
+        nameJson: '{"en": "Chinese (Cantonese, Hong Kong)", "es": "Chino cantonés (Hong Kong)", "de": "Kantonesisch (Hongkong)", "fr": "Chinois cantonais (Hong Kong)", "zh": "中文（粵語，香港）"}'
+        flagEmoji: "🇭🇰"
+        nativeName: "中文（粵語，香港）"
+        difficulty: Hard
+        descriptionJson: '{"en": "Cantonese from Hong Kong with traditional characters and six-tone system", "zh": "香港的粵語，使用繁體字和六聲調系統"}'
+        tutorVariants:
+          - archetypeId: encouraging-general
+            name: Mei-ling (美玲)
+            culturalNotes: from Hong Kong who helps learners master conversational Cantonese
+          - archetypeId: strict-academic
+            name: Chan Laoshi (陳老師)
+            culturalNotes: focused on tone precision and character comprehension
+      - code: ko-KR
+        nameJson: '{"en": "Korean (South Korea)", "es": "Coreano (Corea del Sur)", "de": "Koreanisch (Südkorea)", "fr": "Coréen (Corée du Sud)", "ko": "한국어 (대한민국)"}'
+        flagEmoji: "🇰🇷"
+        nativeName: "한국어 (대한민국)"
+        difficulty: Hard
+        descriptionJson: '{"en": "Standard Korean from South Korea with Hangul script and honorific system", "ko": "한국의 표준 한국어, 한글 문자와 존댓말 체계"}'
+        tutorVariants:
+          - archetypeId: encouraging-general
+            name: Ji-won (지원)
+            culturalNotes: from Seoul who makes learning Korean enjoyable and accessible
+          - archetypeId: strict-academic
+            name: Kim Seonsaengnim (김선생님)
+            culturalNotes: expert in Korean grammar and formal speech levels
+          - archetypeId: casual-friend
+            name: Min-ho (민호)
+            culturalNotes: from Busan who teaches through K-pop and modern culture
+          - archetypeId: casual-friend
+            name: Soo-jin (수진)
+            culturalNotes: from Seoul who loves sharing Korean culture and food
+          - archetypeId: ko-romanization-specialist
+            name: Hye-jin (혜진)
+            culturalNotes: who teaches entirely in romanization for learners not yet ready for Hangul
+          - archetypeId: ko-hangul-bridge
+            name: Dae-hyun (대현)
+            culturalNotes: who accepts romanized input and responds in Hangul to ease the script transition
       - code: ru-RU
         nameJson: '{"en": "Russian (Russia)", "es": "Ruso (Rusia)", "de": "Russisch (Russland)", "fr": "Russe (Russie)", "ru": "Русский (Россия)"}'
         flagEmoji: "🇷🇺"
@@ -207,14 +344,20 @@ ai-tutor:
         descriptionJson: '{"en": "Standard Russian from Russia with Cyrillic script and case system", "ru": "Стандартный русский из России с кириллицей и падежной системой"}'
         tutorVariants:
           - archetypeId: encouraging-general
-            name: Natasha
+            name: Natasha (Наташа)
             culturalNotes: from Moscow who specializes in helping beginners with Cyrillic
           - archetypeId: strict-academic
-            name: Dmitri
+            name: Dmitri Petrovich (Дмитрий Петрович)
             culturalNotes: focused on proper grammar and the six-case system
           - archetypeId: casual-friend
-            name: Mikhail
+            name: Mikhail (Михаил)
             culturalNotes: from St. Petersburg
+          - archetypeId: ru-romanization-specialist
+            name: Irina (Ирина)
+            culturalNotes: who teaches Russian entirely in romanized form for learners not yet ready for Cyrillic
+          - archetypeId: ru-cyrillic-bridge
+            name: Alexei (Алексей)
+            culturalNotes: who accepts romanized Russian and responds in Cyrillic to ease the alphabet transition
       - code: pt-BR
         nameJson: '{"en": "Portuguese (Brazil)", "es": "Portugués (Brasil)", "de": "Portugiesisch (Brasilien)", "fr": "Portugais (Brésil)", "pt": "Português (Brasil)"}'
         flagEmoji: "🇧🇷"
@@ -315,6 +458,52 @@ ai-tutor:
           - Ask for directions and help
           - Handle emergencies
         displayOrder: 1
+      - languageCode: it-IT
+        nameEnglish: Conversational Italian
+        shortDescriptionEnglish: Master everyday conversations at your own pace
+        descriptionEnglish: Learn to communicate naturally in Italian through practical conversations covering greetings, daily routines, opinions, and Italian culture
+        category: Conversational
+        targetAudienceEnglish: Anyone wanting to speak Italian naturally
+        startingLevel: A1
+        targetLevel: C1
+        learningGoalsEnglish:
+          - Greet people and introduce yourself
+          - Talk about daily routines and activities
+          - Describe people, places, and things
+          - Order food at restaurants
+          - Express opinions and feelings
+        displayOrder: 0
+      - languageCode: it-IT
+        nameEnglish: Italian for Travelers
+        shortDescriptionEnglish: Essential phrases for tourists visiting Italy
+        descriptionEnglish: Quick-start Italian course focusing on practical phrases you'll need for travel in Italy
+        category: Travel
+        targetAudienceEnglish: Travelers planning a trip to Italy
+        startingLevel: A1
+        targetLevel: A2
+        estimatedWeeks: 6
+        learningGoalsEnglish:
+          - Navigate airports and transportation
+          - Check into hotels and accommodations
+          - Order food at Italian restaurants
+          - Ask for directions and help
+          - Handle basic situations
+        displayOrder: 1
+      - languageCode: it-IT
+        nameEnglish: Italian Grammar Fundamentals
+        shortDescriptionEnglish: Build a strong foundation in Italian grammar
+        descriptionEnglish: Comprehensive beginner to intermediate Italian course covering grammar, verb conjugations, and conversation
+        category: General
+        targetAudienceEnglish: New Italian learners wanting a structured approach
+        startingLevel: A1
+        targetLevel: B1
+        estimatedWeeks: 12
+        learningGoalsEnglish:
+          - Master Italian verb conjugations
+          - Build essential vocabulary
+          - Form correct sentences
+          - Understand Italian culture
+        displayOrder: 2
       - languageCode: fr-FR
         nameEnglish: French Conversation
         shortDescriptionEnglish: Develop fluency in everyday French
@@ -388,6 +577,69 @@ ai-tutor:
           - Understand Japanese sentence structure
           - Practice polite conversation
         displayOrder: 0
+      - languageCode: ko-KR
+        nameEnglish: Conversational Korean
+        shortDescriptionEnglish: Master everyday Korean conversations
+        descriptionEnglish: Learn to communicate naturally in Korean through practical conversations covering greetings, daily routines, honorifics, and Korean culture
+        category: Conversational
+        targetAudienceEnglish: Anyone wanting to speak Korean naturally
+        startingLevel: A1
+        targetLevel: B2
+        learningGoalsEnglish:
+          - Greet people and introduce yourself
+          - Master Hangul reading and writing
+          - Use appropriate honorific levels
+          - Talk about daily routines and activities
+          - Understand Korean culture and customs
+        displayOrder: 0
+      - languageCode: ko-KR
+        nameEnglish: Korean for Manhwa and Webtoons
+        shortDescriptionEnglish: Learn Korean through modern pop culture
+        descriptionEnglish: Quick-start Korean course focusing on practical phrases from K-pop, K-dramas, and modern Korean culture
+        category: Conversational
+        targetAudienceEnglish: K-pop and K-drama enthusiasts
+        startingLevel: A1
+        targetLevel: A2
+        estimatedWeeks: 8
+        learningGoalsEnglish:
+          - Understand common phrases from K-dramas
+          - Learn Hangul for reading song lyrics
+          - Master everyday conversational Korean
+          - Understand Korean slang and expressions
+          - Connect with Korean pop culture
+        displayOrder: 1
+      - languageCode: ko-KR
+        nameEnglish: Korean for Manhwa and Webtoon Fans
+        shortDescriptionEnglish: Learn Korean through popular manhwa and webtoons
+        descriptionEnglish: A beginner-friendly Korean course that teaches vocabulary, expressions, and cultural context found in Korean manhwa and webtoons. Perfect for fans who want to read comics in the original language and understand character dialogues naturally.
+        category: Conversational
+        targetAudienceEnglish: Manhwa and webtoon enthusiasts
+        startingLevel: A1
+        targetLevel: A2
+        estimatedWeeks: 8
+        learningGoalsEnglish:
+          - Learn Hangul for reading Korean webtoons and manhwa
+          - Understand common dialogue patterns used in comics
+          - Pick up everyday and emotional expressions used by characters
+          - Gain insight into Korean culture and humor found in manhwa
+          - Build vocabulary for storytelling and fantasy settings
+        displayOrder: 2
+      - languageCode: ko-KR
+        nameEnglish: Korean Grammar Fundamentals
+        shortDescriptionEnglish: Build a strong foundation in Korean grammar
+        descriptionEnglish: Comprehensive beginner to intermediate Korean course covering grammar, verb conjugations, honorifics, and sentence structure
+        category: General
+        targetAudienceEnglish: Serious learners wanting structured grammar training
+        startingLevel: A1
+        targetLevel: B1
+        estimatedWeeks: 14
+        learningGoalsEnglish:
+          - Master Korean sentence structure (SOV)
+          - Learn verb conjugation patterns
+          - Understand honorific speech levels
+          - Build essential vocabulary
+          - Form correct sentences
+        displayOrder: 3
       - languageCode: ru-RU
         nameEnglish: Russian Conversation
         shortDescriptionEnglish: Develop fluency in everyday Russian
