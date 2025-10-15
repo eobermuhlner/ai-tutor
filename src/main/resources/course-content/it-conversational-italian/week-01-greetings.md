@@ -77,24 +77,29 @@ Patterns to Practice:
 
 ### Meeting Someone for the First Time
 
-```
-Person A: Buongiorno! Come sta?
-Person B: Molto bene, grazie. E Lei?
-Person A: Bene, grazie. Mi chiamo Maria.
-Person B: Piacere, Maria. Io sono Carlo.
-Person A: Molto lieta, Carlo.
-```
+> Person A: Buongiorno! Come sta?
+
+> Person B: Molto bene, grazie. E Lei?
+
+> Person A: Bene, grazie. Mi chiamo Maria.
+
+> Person B: Piacere, Maria. Io sono Carlo.
+
+> Person A: Molto lieta, Carlo.
 
 ### Greeting a Friend
 
-```
-Person A: Ciao! Come stai?
-Person B: Bene! E tu?
-Person A: Molto bene, grazie.
-Person B: Che bello vederti!
-Person A: Anche tu! A presto!
-Person B: Ciao!
-```
+> Person A: Ciao! Come stai?
+
+> Person B: Bene! E tu?
+
+> Person A: Molto bene, grazie.
+
+> Person B: Che bello vederti!
+
+> Person A: Anche tu! A presto!
+
+> Person B: Ciao!
 
 ## Practice Patterns
 

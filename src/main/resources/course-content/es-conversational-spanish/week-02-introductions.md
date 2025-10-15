@@ -72,27 +72,35 @@ Patterns to Practice:
 
 ### First Meeting at School
 
-```
-Person A: Hola, me llamo Ana. ¿Cómo te llamas?
-Person B: Me llamo Luis. Mucho gusto.
-Person A: ¿De dónde eres, Luis?
-Person B: Soy de Colombia. ¿Y tú?
-Person A: Yo soy de España. ¿Qué estudias?
-Person B: Estudio medicina. ¿Y tú?
-Person A: Yo estudio arte. ¡Qué interesante!
-```
+> Person A: Hola, me llamo Ana. ¿Cómo te llamas?
+
+> Person B: Me llamo Luis. Mucho gusto.
+
+> Person A: ¿De dónde eres, Luis?
+
+> Person B: Soy de Colombia. ¿Y tú?
+
+> Person A: Yo soy de España. ¿Qué estudias?
+
+> Person B: Estudio medicina. ¿Y tú?
+
+> Person A: Yo estudio arte. ¡Qué interesante!
 
 ### Professional Introduction
 
-```
-Person A: Buenos días. Me llamo María González.
-Person B: Mucho gusto, María. Yo soy Carlos Ruiz.
-Person A: ¿De dónde es usted?
-Person B: Soy de Argentina, pero vivo en México.
-Person A: ¡Ah, qué bien! ¿A qué se dedica?
-Person B: Soy ingeniero. ¿Y usted?
-Person A: Soy profesora de español.
-```
+> Person A: Buenos días. Me llamo María González.
+
+> Person B: Mucho gusto, María. Yo soy Carlos Ruiz.
+
+> Person A: ¿De dónde es usted?
+
+> Person B: Soy de Argentina, pero vivo en México.
+
+> Person A: ¡Ah, qué bien! ¿A qué se dedica?
+
+> Person B: Soy ingeniero. ¿Y usted?
+
+> Person A: Soy profesora de español.
 
 ## Practice Patterns
 

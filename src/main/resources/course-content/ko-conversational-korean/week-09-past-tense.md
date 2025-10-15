@@ -88,79 +88,41 @@ Examples:
 
 ### Talking About Yesterday
 
-```
-Person A: 어제 뭐 했어요?
-         (Eo-je mwo hae-sseo-yo?)
-         What did you do yesterday?
+> Person A: 어제 뭐 했어요?
 
-Person B: 친구를 만났어요. 같이 영화를 봤어요.
-         (Chin-gu-reul man-na-sseo-yo. Ga-chi yeong-hwa-reul bwa-sseo-yo.)
-         I met a friend. We watched a movie together.
+> Person B: 친구를 만났어요. 같이 영화를 봤어요.
 
-Person A: 영화 재미있었어요?
-         (Yeong-hwa jae-mi-i-sseo-sseo-yo?)
-         Was the movie fun?
+> Person A: 영화 재미있었어요?
 
-Person B: 네, 정말 재미있었어요! 그리고 저녁도 같이 먹었어요.
-         (Ne, jeong-mal jae-mi-i-sseo-sseo-yo! Geu-ri-go jeo-nyeok-do ga-chi meo-geo-sseo-yo.)
-         Yes, it was really fun! And we ate dinner together too.
+> Person B: 네, 정말 재미있었어요! 그리고 저녁도 같이 먹었어요.
 
-Person A: 어디에서 먹었어요?
-         (Eo-di-e-seo meo-geo-sseo-yo?)
-         Where did you eat?
+> Person A: 어디에서 먹었어요?
 
-Person B: 한국 식당에서 먹었어요. 불고기가 정말 맛있었어요.
-         (Han-guk sik-dang-e-seo meo-geo-sseo-yo. Bul-go-gi-ga jeong-mal ma-si-sseo-sseo-yo.)
-         We ate at a Korean restaurant. The bulgogi was really delicious.
-```
+> Person B: 한국 식당에서 먹었어요. 불고기가 정말 맛있었어요.
 
 ### Weekend Activities
 
-```
-Person A: 주말에 뭐 했어요?
-         (Ju-mal-e mwo hae-sseo-yo?)
-         What did you do on the weekend?
+> Person A: 주말에 뭐 했어요?
 
-Person B: 토요일에 집을 청소했어요. 그리고 빨래도 했어요.
-         (To-yo-il-e jip-eul cheong-so-hae-sseo-yo. Geu-ri-go ppal-lae-do hae-sseo-yo.)
-         On Saturday I cleaned the house. And I did laundry too.
+> Person B: 토요일에 집을 청소했어요. 그리고 빨래도 했어요.
 
-Person A: 일요일에는요?
-         (Il-yo-il-e-neun-yo?)
-         How about Sunday?
+> Person A: 일요일에는요?
 
-Person B: 일요일에는 가족하고 공원에 갔어요. 날씨가 정말 좋았어요.
-         (Il-yo-il-e-neun ga-jok-ha-go gong-won-e ga-sseo-yo. Nal-ssi-ga jeong-mal jo-a-sseo-yo.)
-         On Sunday I went to the park with my family. The weather was really good.
-```
+> Person B: 일요일에는 가족하고 공원에 갔어요. 날씨가 정말 좋았어요.
 
 ### Past Experiences
 
-```
-Person A: 한국에 가 봤어요?
-         (Han-gug-e ga bwa-sseo-yo?)
-         Have you been to Korea?
+> Person A: 한국에 가 봤어요?
 
-Person B: 네, 작년에 갔어요.
-         (Ne, jang-nyeon-e ga-sseo-yo.)
-         Yes, I went last year.
+> Person B: 네, 작년에 갔어요.
 
-Person A: 얼마나 있었어요?
-         (Eol-ma-na i-sseo-sseo-yo?)
-         How long were you there?
+> Person A: 얼마나 있었어요?
 
-Person B: 2주 동안 있었어요. 서울하고 부산에 갔어요.
-         (I-ju dong-an i-sseo-sseo-yo. Seo-ul-ha-go bu-san-e ga-sseo-yo.)
-         I was there for 2 weeks. I went to Seoul and Busan.
+> Person B: 2주 동안 있었어요. 서울하고 부산에 갔어요.
 
-Person A: 한국 음식 먹어 봤어요?
-         (Han-guk eum-sik meo-geo bwa-sseo-yo?)
-         Did you try Korean food?
+> Person A: 한국 음식 먹어 봤어요?
 
-Person B: 네, 김치찌개하고 비빔밥을 먹어 봤어요. 정말 맛있었어요!
-         (Ne, gim-chi-jji-gae-ha-go bi-bim-bap-eul meo-geo bwa-sseo-yo. Jeong-mal ma-si-sseo-sseo-yo!)
-         Yes, I tried kimchi stew and bibimbap. It was really delicious!
-```
+> Person B: 네, 김치찌개하고 비빔밥을 먹어 봤어요. 정말 맛있었어요!
 
 ## Practice Patterns
 

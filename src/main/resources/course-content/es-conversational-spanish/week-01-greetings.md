@@ -74,25 +74,31 @@ Patterns to Practice:
 
 ### Meeting Someone for the First Time
 
-```
-Person A: ¡Hola! Buenos días.
-Person B: Buenos días. ¿Cómo está usted?
-Person A: Muy bien, gracias. ¿Y usted?
-Person B: Bien, gracias. Me llamo María.
-Person A: Mucho gusto, María. Yo soy Carlos.
-Person B: Encantada, Carlos.
-```
+> Person A: ¡Hola! Buenos días.
+
+> Person B: Buenos días. ¿Cómo está usted?
+
+> Person A: Muy bien, gracias. ¿Y usted?
+
+> Person B: Bien, gracias. Me llamo María.
+
+> Person A: Mucho gusto, María. Yo soy Carlos.
+
+> Person B: Encantada, Carlos.
 
 ### Greeting a Friend
 
-```
-Person A: ¡Hola! ¿Cómo estás?
-Person B: ¡Bien! ¿Y tú?
-Person A: Muy bien, gracias.
-Person B: ¿Qué tal?
-Person A: Todo bien. Hasta luego.
-Person B: ¡Adiós!
-```
+> Person A: ¡Hola! ¿Cómo estás?
+
+> Person B: ¡Bien! ¿Y tú?
+
+> Person A: Muy bien, gracias.
+
+> Person B: ¿Qué tal?
+
+> Person A: Todo bien. Hasta luego.
+
+> Person B: ¡Adiós!
 
 ## Practice Patterns
 

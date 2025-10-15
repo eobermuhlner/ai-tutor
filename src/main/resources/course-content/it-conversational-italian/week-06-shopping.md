@@ -112,44 +112,29 @@ Colors:
 
 ### Shopping for Clothes
 
-```
-Customer: Buongiorno, quanto costa questa giacca?
-         Good morning, how much is this jacket?
+> Customer: Buongiorno, quanto costa questa giacca?
 
-Clerk: Costa ottanta euro. Vuole provarla?
-       It costs eighty euros. Would you like to try it?
+> Clerk: Costa ottanta euro. Vuole provarla?
 
-Customer: Sì, grazie. Avete la taglia M?
-         Yes, thanks. Do you have size M?
+> Customer: Sì, grazie. Avete la taglia M?
 
-Clerk: Certo! Il camerino è là.
-       Of course! The fitting room is over there.
+> Clerk: Certo! Il camerino è là.
 
-Customer: Va bene, la prendo. Accettate carte?
-         It's good, I'll take it. Do you accept cards?
+> Customer: Va bene, la prendo. Accettate carte?
 
-Clerk: Sì, certo. Ecco lo scontrino.
-       Yes, of course. Here's your receipt.
-```
+> Clerk: Sì, certo. Ecco lo scontrino.
 
 ### Asking About Colors and Styles
 
-```
-Customer: Buonasera, cerco una maglietta rossa.
-         Good evening, I'm looking for a red shirt.
+> Customer: Buonasera, cerco una maglietta rossa.
 
-Clerk: Abbiamo questo modello. Le piace?
-       We have this style. Do you like it?
+> Clerk: Abbiamo questo modello. Le piace?
 
-Customer: Sì, ma preferisco quella blu. Quanto costa?
-         Yes, but I prefer that blue one. How much is it?
+> Customer: Sì, ma preferisco quella blu. Quanto costa?
 
-Clerk: Costa venti euro.
-       It costs twenty euros.
+> Clerk: Costa venti euro.
 
-Customer: Perfetto! La prendo in taglia L.
-         Perfect! I'll take it in size L.
-```
+> Customer: Perfetto! La prendo in taglia L.
 
 ## Practice Patterns
 

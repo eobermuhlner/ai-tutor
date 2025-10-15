@@ -116,91 +116,47 @@ Examples:
 
 ### Self-Introduction - Formal
 
-```
-Person A: 안녕하세요. 저는 김민수입니다.
-         (An-nyeong-ha-se-yo. Jeo-neun gim-min-su-im-ni-da.)
-         Hello. I am Kim Min-su.
+> Person A: 안녕하세요. 저는 김민수입니다.
 
-Person B: 반갑습니다. 저는 이지원입니다.
-         (Ban-gap-seum-ni-da. Jeo-neun i-ji-won-im-ni-da.)
-         Nice to meet you. I am Lee Ji-won.
+> Person B: 반갑습니다. 저는 이지원입니다.
 
-Person A: 어디에서 오셨어요?
-         (Eo-di-e-seo o-syeo-sseo-yo?)
-         Where are you from?
+> Person A: 어디에서 오셨어요?
 
-Person B: 서울에서 왔어요. 민수 씨는요?
-         (Seo-ul-e-seo wa-sseo-yo. Min-su ssi-neun-yo?)
-         I'm from Seoul. How about you, Min-su?
+> Person B: 서울에서 왔어요. 민수 씨는요?
 
-Person A: 저는 부산에서 왔어요.
-         (Jeo-neun bu-san-e-seo wa-sseo-yo.)
-         I'm from Busan.
-```
+> Person A: 저는 부산에서 왔어요.
 
 ### Asking About Occupation
 
-```
-Person A: 직업이 뭐예요?
-         (Ji-geop-i mwo-ye-yo?)
-         What is your occupation?
+> Person A: 직업이 뭐예요?
 
-Person B: 저는 학생이에요. 당신은요?
-         (Jeo-neun hak-saeng-i-e-yo. Dang-sin-eun-yo?)
-         I'm a student. How about you?
+> Person B: 저는 학생이에요. 당신은요?
 
-Person A: 저는 회사원이에요.
-         (Jeo-neun hoe-sa-won-i-e-yo.)
-         I'm an office worker.
+> Person A: 저는 회사원이에요.
 
-Person B: 어느 회사에서 일하세요?
-         (Eo-neu hoe-sa-e-seo il-ha-se-yo?)
-         Which company do you work for?
-```
+> Person B: 어느 회사에서 일하세요?
 
 ### Meeting a Foreigner
 
-```
-Korean: 어디에서 오셨어요?
-        (Eo-di-e-seo o-syeo-sseo-yo?)
-        Where are you from?
+> Korean: 어디에서 오셨어요?
 
-Foreigner: 저는 미국 사람이에요.
-          (Jeo-neun mi-guk sa-ram-i-e-yo.)
-          I'm American.
+> Foreigner: 저는 미국 사람이에요.
 
-Korean: 한국말을 잘하시네요!
-        (Han-gung-ma-reul jal-ha-si-ne-yo!)
-        You speak Korean well!
+> Korean: 한국말을 잘하시네요!
 
-Foreigner: 아니에요. 아직 배우고 있어요.
-          (A-ni-e-yo. A-jik bae-u-go i-sseo-yo.)
-          No. I'm still learning.
+> Foreigner: 아니에요. 아직 배우고 있어요.
 
-Korean: 한국에 온 지 얼마나 됐어요?
-        (Han-gug-e on ji eol-ma-na dwae-sseo-yo?)
-        How long have you been in Korea?
+> Korean: 한국에 온 지 얼마나 됐어요?
 
-Foreigner: 6개월 됐어요.
-          (Yuk-gae-wol dwae-sseo-yo.)
-          It's been 6 months.
-```
+> Foreigner: 6개월 됐어요.
 
 ### Introducing Someone Else
 
-```
-Person A: 이쪽은 제 친구 박서준이에요.
-         (I-jjok-eun je chin-gu bak-seo-jun-i-e-yo.)
-         This is my friend Park Seo-jun.
+> Person A: 이쪽은 제 친구 박서준이에요.
 
-Person B: 안녕하세요. 만나서 반가워요.
-         (An-nyeong-ha-se-yo. Man-na-seo ban-ga-wo-yo.)
-         Hello. Nice to meet you.
+> Person B: 안녕하세요. 만나서 반가워요.
 
-Person C: 저도 반가워요. 서준이에요.
-         (Jeo-do ban-ga-wo-yo. Seo-jun-i-e-yo.)
-         Nice to meet you too. I'm Seo-jun.
-```
+> Person C: 저도 반가워요. 서준이에요.
 
 ## Practice Patterns
 

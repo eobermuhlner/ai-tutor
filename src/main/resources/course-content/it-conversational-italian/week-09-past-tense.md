@@ -103,66 +103,43 @@ targetCEFR: A2
 
 ### Talking About Yesterday
 
-```
-Person A: Cosa hai fatto ieri?
-         What did you do yesterday?
+> Person A: Cosa hai fatto ieri?
 
-Person B: Sono andato al cinema con amici.
-         I went to the cinema with friends.
+> Person B: Sono andato al cinema con amici.
 
-Person A: Che film avete visto?
-         What film did you see?
+> Person A: Che film avete visto?
 
-Person B: Abbiamo visto un film d'azione. È stato fantastico!
-         We saw an action film. It was fantastic!
+> Person B: Abbiamo visto un film d'azione. È stato fantastico!
 
-Person A: A che ora siete tornati a casa?
-         What time did you return home?
+> Person A: A che ora siete tornati a casa?
 
-Person B: Siamo tornati verso mezzanotte.
-         We returned around midnight.
-```
+> Person B: Siamo tornati verso mezzanotte.
 
 ### Weekend Activities
 
-```
-Person A: Com'è stato il tuo weekend?
-         How was your weekend?
+> Person A: Com'è stato il tuo weekend?
 
-Person B: Benissimo! Sabato ho lavorato, ma domenica sono andata al mare.
-         Great! Saturday I worked, but Sunday I went to the beach.
+> Person B: Benissimo! Sabato ho lavorato, ma domenica sono andata al mare.
 
-Person A: Con chi sei andata?
-         Who did you go with?
+> Person A: Con chi sei andata?
 
-Person B: Sono andata con mia sorella. Abbiamo mangiato pesce fresco.
-         I went with my sister. We ate fresh fish.
+> Person B: Sono andata con mia sorella. Abbiamo mangiato pesce fresco.
 
-Person A: Che bello! Io sono rimasto a casa.
-         How nice! I stayed at home.
-```
+> Person A: Che bello! Io sono rimasto a casa.
 
 ### Past Experiences
 
-```
-Person A: Sei mai stato in Italia?
-         Have you ever been to Italy?
+> Person A: Sei mai stato in Italia?
 
-Person B: Sì, sono andato due anni fa.
-         Yes, I went two years ago.
+> Person B: Sì, sono andato due anni fa.
 
-Person A: Quali città hai visitato?
-         Which cities did you visit?
+> Person A: Quali città hai visitato?
 
-Person B: Ho visitato Roma, Firenze e Venezia.
-         I visited Rome, Florence, and Venice.
+> Person B: Ho visitato Roma, Firenze e Venezia.
 
-Person A: Ti è piaciuta?
-         Did you like it?
+> Person A: Ti è piaciuta?
 
-Person B: Sì, moltissimo! È stata un'esperienza bellissima.
-         Yes, very much! It was a beautiful experience.
-```
+> Person B: Sì, moltissimo! È stata un'esperienza bellissima.
 
 ## Practice Patterns
 

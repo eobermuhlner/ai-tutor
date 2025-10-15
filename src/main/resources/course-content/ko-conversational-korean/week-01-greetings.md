@@ -96,75 +96,39 @@ targetCEFR: A1
 
 ### Meeting Someone - Formal
 
-```
-Person A: 안녕하세요.
-         (An-nyeong-ha-se-yo.)
-         Hello.
+> Person A: 안녕하세요.
 
-Person B: 안녕하세요. 처음 뵙겠습니다.
-         (An-nyeong-ha-se-yo. Cheo-eum boep-get-seum-ni-da.)
-         Hello. Nice to meet you.
+> Person B: 안녕하세요. 처음 뵙겠습니다.
 
-Person A: 만나서 반갑습니다.
-         (Man-na-seo ban-gap-seum-ni-da.)
-         Pleased to meet you.
+> Person A: 만나서 반갑습니다.
 
-Person B: 저도 반갑습니다.
-         (Jeo-do ban-gap-seum-ni-da.)
-         I'm pleased to meet you too.
-```
+> Person B: 저도 반갑습니다.
 
 ### Casual Greeting with Friends
 
-```
-Person A: 안녕!
-         (An-nyeong!)
-         Hi!
+> Person A: 안녕!
 
-Person B: 안녕! 잘 지내?
-         (An-nyeong! Jal ji-nae?)
-         Hi! How are you?
+> Person B: 안녕! 잘 지내?
 
-Person A: 응, 잘 지내. 너는?
-         (Eung, jal ji-nae. Neo-neun?)
-         Yeah, I'm good. You?
+> Person A: 응, 잘 지내. 너는?
 
-Person B: 나도 잘 지내!
-         (Na-do jal ji-nae!)
-         I'm good too!
-```
+> Person B: 나도 잘 지내!
 
 ### Saying Goodbye - Formal
 
-```
-Person A: 가봐야 해요. 안녕히 계세요.
-         (Ga-bwa-ya hae-yo. An-nyeong-hi gye-se-yo.)
-         I have to go. Goodbye (to person staying).
+> Person A: 가봐야 해요. 안녕히 계세요.
 
-Person B: 안녕히 가세요. 또 만나요!
-         (An-nyeong-hi ga-se-yo. Tto man-na-yo!)
-         Goodbye (to person leaving). See you again!
+> Person B: 안녕히 가세요. 또 만나요!
 
-Person A: 네, 좋은 하루 되세요.
-         (Ne, jo-eun ha-ru doe-se-yo.)
-         Yes, have a good day.
-```
+> Person A: 네, 좋은 하루 되세요.
 
 ### Thanking Someone
 
-```
-Person A: 도와주셔서 감사합니다.
-         (Do-wa-ju-syeo-seo gam-sa-ham-ni-da.)
-         Thank you for helping.
+> Person A: 도와주셔서 감사합니다.
 
-Person B: 천만에요. 괜찮아요.
-         (Cheon-man-e-yo. Gwaen-chan-a-yo.)
-         You're welcome. It's okay.
+> Person B: 천만에요. 괜찮아요.
 
-Person A: 정말 고맙습니다!
-         (Jeong-mal go-map-seum-ni-da!)
-         Thank you so much!
-```
+> Person A: 정말 고맙습니다!
 
 ## Practice Patterns
 

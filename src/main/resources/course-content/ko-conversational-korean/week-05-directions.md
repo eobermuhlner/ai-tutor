@@ -138,91 +138,47 @@ Examples:
 
 ### Asking for Directions - Polite
 
-```
-Tourist: 실례합니다. 지하철역이 어디에 있어요?
-        (Sil-lye-ham-ni-da. Ji-ha-cheol-yeok-i eo-di-e i-sseo-yo?)
-        Excuse me. Where is the subway station?
+> Tourist: 실례합니다. 지하철역이 어디에 있어요?
 
-Local: 이쪽으로 직진하세요. 그리고 신호등에서 좌회전하세요.
-       (I-jjok-eu-ro jik-jin-ha-se-yo. Geu-ri-go sin-ho-deung-e-seo jwa-hoe-jeon-ha-se-yo.)
-       Go straight this way. Then turn left at the traffic light.
+> Local: 이쪽으로 직진하세요. 그리고 신호등에서 좌회전하세요.
 
-Tourist: 얼마나 걸려요?
-        (Eol-ma-na geol-lyeo-yo?)
-        How long does it take?
+> Tourist: 얼마나 걸려요?
 
-Local: 걸어서 5분이요.
-       (Geol-eo-seo o-bun-i-yo.)
-       5 minutes on foot.
+> Local: 걸어서 5분이요.
 
-Tourist: 감사합니다!
-        (Gam-sa-ham-ni-da!)
-        Thank you!
-```
+> Tourist: 감사합니다!
 
 ### Asking About Nearby Places
 
-```
-Person A: 근처에 편의점 있어요?
-         (Geun-cheo-e pyeon-ui-jeom i-sseo-yo?)
-         Is there a convenience store nearby?
+> Person A: 근처에 편의점 있어요?
 
-Person B: 네, 저기 오른쪽에 있어요.
-         (Ne, jeo-gi o-reun-jjok-e i-sseo-yo.)
-         Yes, it's over there on the right.
+> Person B: 네, 저기 오른쪽에 있어요.
 
-Person A: 걸어서 갈 수 있어요?
-         (Geol-eo-seo gal su i-sseo-yo?)
-         Can I walk there?
+> Person A: 걸어서 갈 수 있어요?
 
-Person B: 네, 가까워요. 1분이면 돼요.
-         (Ne, ga-kka-wo-yo. Il-bun-i-myeon dwae-yo.)
-         Yes, it's close. One minute is enough.
-```
+> Person B: 네, 가까워요. 1분이면 돼요.
 
 ### More Complex Directions
 
-```
-Tourist: 명동에 어떻게 가요?
-        (Myeong-dong-e eo-tteo-ke ga-yo?)
-        How do I get to Myeongdong?
+> Tourist: 명동에 어떻게 가요?
 
-Local: 여기서 지하철을 타세요. 2호선으로 가세요.
-       (Yeo-gi-seo ji-ha-cheol-eul ta-se-yo. I-ho-seon-eu-ro ga-se-yo.)
-       Take the subway from here. Take Line 2.
+> Local: 여기서 지하철을 타세요. 2호선으로 가세요.
 
-Tourist: 어디에서 내려요?
-        (Eo-di-e-seo nae-ryeo-yo?)
-        Where do I get off?
+> Tourist: 어디에서 내려요?
 
-Local: 을지로입구역에서 내리세요. 그리고 3번 출구로 나가세요.
-       (Eul-ji-ro-ip-gu-yeok-e-seo nae-ri-se-yo. Geu-ri-go sam-beon chul-gu-ro na-ga-se-yo.)
-       Get off at Euljiro 1-ga Station. Then go out Exit 3.
+> Local: 을지로입구역에서 내리세요. 그리고 3번 출구로 나가세요.
 
-Tourist: 알겠습니다. 감사합니다!
-        (Al-get-seum-ni-da. Gam-sa-ham-ni-da!)
-        I understand. Thank you!
-```
+> Tourist: 알겠습니다. 감사합니다!
 
 ### Describing Location
 
-```
-Person A: 약국이 어디에 있어요?
-         (Yak-guk-i eo-di-e i-sseo-yo?)
-         Where is the pharmacy?
+> Person A: 약국이 어디에 있어요?
 
-Person B: 은행 옆에 있어요.
-         (Eun-haeng yeop-e i-sseo-yo.)
-         It's next to the bank.
+> Person B: 은행 옆에 있어요.
 
-Person A: 어느 은행이요?
-         (Eo-neu eun-haeng-i-yo?)
-         Which bank?
+> Person A: 어느 은행이요?
 
-Person B: 편의점 건너편에 있는 은행이요.
-         (Pyeon-ui-jeom geon-neo-pyeon-e in-neun eun-haeng-i-yo.)
-         The bank across from the convenience store.
-```
+> Person B: 편의점 건너편에 있는 은행이요.
 
 ## Practice Patterns
 

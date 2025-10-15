@@ -99,60 +99,39 @@ Examples:
 
 ### Talking About Weather
 
-```
-Person A: Che tempo fa oggi?
-         What's the weather like today?
+> Person A: Che tempo fa oggi?
 
-Person B: Fa bel tempo! C'è il sole.
-         It's nice weather! It's sunny.
+> Person B: Fa bel tempo! C'è il sole.
 
-Person A: Perfetto per andare al parco!
-         Perfect for going to the park!
+> Person A: Perfetto per andare al parco!
 
-Person B: Sì, ma domani pioverà.
-         Yes, but tomorrow it will rain.
+> Person B: Sì, ma domani pioverà.
 
-Person A: Allora facciamo una passeggiata oggi.
-         Then let's take a walk today.
-```
+> Person A: Allora facciamo una passeggiata oggi.
 
 ### Discussing Activities
 
-```
-Person A: Cosa fai nel tempo libero?
-         What do you do in your free time?
+> Person A: Cosa fai nel tempo libero?
 
-Person B: Mi piace fare sport. Vado in palestra tre volte a settimana.
-         I like to play sports. I go to the gym three times a week.
+> Person B: Mi piace fare sport. Vado in palestra tre volte a settimana.
 
-Person A: Che sport fai?
-         What sport do you do?
+> Person A: Che sport fai?
 
-Person B: Faccio nuoto e un po' di corsa. E tu?
-         I do swimming and some running. And you?
+> Person B: Faccio nuoto e un po' di corsa. E tu?
 
-Person A: Io preferisco leggere e ascoltare musica.
-         I prefer to read and listen to music.
-```
+> Person A: Io preferisco leggere e ascoltare musica.
 
 ### Seasonal Activities
 
-```
-Person A: Ti piace l'estate?
-         Do you like summer?
+> Person A: Ti piace l'estate?
 
-Person B: Sì, molto! In estate vado spesso al mare.
-         Yes, very much! In summer I often go to the beach.
+> Person B: Sì, molto! In estate vado spesso al mare.
 
-Person A: E in inverno?
-         And in winter?
+> Person A: E in inverno?
 
-Person B: In inverno vado in montagna a sciare.
-         In winter I go to the mountains to ski.
+> Person B: In inverno vado in montagna a sciare.
 
-Person A: Che bello! Io preferisco la primavera.
-         How nice! I prefer spring.
-```
+> Person A: Che bello! Io preferisco la primavera.
 
 ## Practice Patterns
 

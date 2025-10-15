@@ -107,75 +107,39 @@ Examples:
 
 ### Shopping for Clothes
 
-```
-Customer: 저기요, 이 티셔츠 얼마예요?
-         (Jeo-gi-yo, i ti-syeo-cheu eol-ma-ye-yo?)
-         Excuse me, how much is this t-shirt?
+> Customer: 저기요, 이 티셔츠 얼마예요?
 
-Clerk: 이만 오천 원이에요.
-       (I-man o-cheon won-i-e-yo.)
-       It's 25,000 won.
+> Clerk: 이만 오천 원이에요.
 
-Customer: 좀 비싸네요. 깎아 주세요.
-         (Jom bi-ssa-ne-yo. Kkak-ka ju-se-yo.)
-         That's a bit expensive. Please give a discount.
+> Customer: 좀 비싸네요. 깎아 주세요.
 
-Clerk: 그럼 이만 원에 드릴게요.
-       (Geu-reom i-man won-e deu-ril-ge-yo.)
-       Then I'll give it to you for 20,000 won.
+> Clerk: 그럼 이만 원에 드릴게요.
 
-Customer: 좋아요. 카드 돼요?
-         (Jo-a-yo. Ka-deu dwae-yo?)
-         Good. Do you take card?
+> Customer: 좋아요. 카드 돼요?
 
-Clerk: 네, 됩니다.
-       (Ne, doem-ni-da.)
-       Yes, we do.
-```
+> Clerk: 네, 됩니다.
 
 ### Asking About Colors and Sizes
 
-```
-Customer: 이 바지 다른 색깔 있어요?
-         (I ba-ji da-reun saek-kkal i-sseo-yo?)
-         Do you have these pants in other colors?
+> Customer: 이 바지 다른 색깔 있어요?
 
-Clerk: 네, 검은색하고 파란색 있어요.
-       (Ne, geom-eun-saek-ha-go pa-ran-saek i-sseo-yo.)
-       Yes, we have black and blue.
+> Clerk: 네, 검은색하고 파란색 있어요.
 
-Customer: 파란색으로 주세요. 큰 사이즈 있어요?
-         (Pa-ran-saek-eu-ro ju-se-yo. Keun sa-i-jeu i-sseo-yo?)
-         Give me the blue one. Do you have a large size?
+> Customer: 파란색으로 주세요. 큰 사이즈 있어요?
 
-Clerk: 네, 여기 있어요. 입어 보세요.
-       (Ne, yeo-gi i-sseo-yo. I-beo bo-se-yo.)
-       Yes, here it is. Please try it on.
-```
+> Clerk: 네, 여기 있어요. 입어 보세요.
 
 ### Comparing Items
 
-```
-Customer: 이거하고 저거 중에 뭐가 더 좋아요?
-         (I-geo-ha-go jeo-geo jung-e mwo-ga deo jo-a-yo?)
-         Between this and that, which is better?
+> Customer: 이거하고 저거 중에 뭐가 더 좋아요?
 
-Clerk: 저거가 더 인기가 많아요.
-       (Jeo-geo-ga deo in-gi-ga ma-na-yo.)
-       That one is more popular.
+> Clerk: 저거가 더 인기가 많아요.
 
-Customer: 그럼 저거로 주세요.
-         (Geu-reom jeo-geo-ro ju-se-yo.)
-         Then give me that one.
+> Customer: 그럼 저거로 주세요.
 
-Clerk: 네, 포장해 드릴까요?
-       (Ne, po-jang-hae deu-ril-kka-yo?)
-       Yes, shall I wrap it for you?
+> Clerk: 네, 포장해 드릴까요?
 
-Customer: 네, 감사합니다.
-         (Ne, gam-sa-ham-ni-da.)
-         Yes, thank you.
-```
+> Customer: 네, 감사합니다.
 
 ## Practice Patterns
 

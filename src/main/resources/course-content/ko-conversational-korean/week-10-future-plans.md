@@ -100,115 +100,59 @@ Examples:
 
 ### Making Weekend Plans
 
-```
-Person A: 이번 주말에 뭐 할 거예요?
-         (I-beon ju-mal-e mwo hal geo-ye-yo?)
-         What will you do this weekend?
+> Person A: 이번 주말에 뭐 할 거예요?
 
-Person B: 토요일에 친구를 만날 거예요.
-         (To-yo-il-e chin-gu-reul man-nal geo-ye-yo.)
-         I'll meet a friend on Saturday.
+> Person B: 토요일에 친구를 만날 거예요.
 
-Person A: 어디에서 만날 거예요?
-         (Eo-di-e-seo man-nal geo-ye-yo?)
-         Where will you meet?
+> Person A: 어디에서 만날 거예요?
 
-Person B: 강남에서 만날 거예요. 같이 쇼핑하려고 해요.
-         (Gang-nam-e-seo man-nal geo-ye-yo. Ga-chi syo-ping-ha-ryeo-go hae-yo.)
-         We'll meet in Gangnam. We're planning to shop together.
+> Person B: 강남에서 만날 거예요. 같이 쇼핑하려고 해요.
 
-Person A: 그럼 일요일에 우리 같이 영화 볼까요?
-         (Geu-reom il-yo-il-e u-ri ga-chi yeong-hwa bol-kka-yo?)
-         Then shall we watch a movie together on Sunday?
+> Person A: 그럼 일요일에 우리 같이 영화 볼까요?
 
-Person B: 좋아요! 제가 예약할게요.
-         (Jo-a-yo! Je-ga ye-yak-hal-ge-yo.)
-         Sounds good! I'll make the reservation.
-```
+> Person B: 좋아요! 제가 예약할게요.
 
 ### Discussing Future Plans
 
-```
-Person A: 방학에 뭐 할 거예요?
-         (Bang-hak-e mwo hal geo-ye-yo?)
-         What will you do during vacation?
+> Person A: 방학에 뭐 할 거예요?
 
-Person B: 여행을 갈 거예요. 제주도에 가려고 해요.
-         (Yeo-haeng-eul gal geo-ye-yo. Je-ju-do-e ga-ryeo-go hae-yo.)
-         I'll go traveling. I'm planning to go to Jeju Island.
+> Person B: 여행을 갈 거예요. 제주도에 가려고 해요.
 
-Person A: 누구하고 갈 거예요?
-         (Nu-gu-ha-go gal geo-ye-yo?)
-         Who will you go with?
+> Person A: 누구하고 갈 거예요?
 
-Person B: 가족하고 같이 갈 거예요. 일주일 동안 있을 거예요.
-         (Ga-jok-ha-go ga-chi gal geo-ye-yo. Il-ju-il dong-an i-sseul geo-ye-yo.)
-         I'll go with my family. We'll be there for one week.
+> Person B: 가족하고 같이 갈 거예요. 일주일 동안 있을 거예요.
 
-Person A: 좋겠어요! 사진 많이 찍으세요!
-         (Jo-ke-sseo-yo! Sa-jin ma-ni jji-geu-se-yo!)
-         That sounds great! Take lots of pictures!
+> Person A: 좋겠어요! 사진 많이 찍으세요!
 
-Person B: 네, 돌아와서 보여 줄게요.
-         (Ne, dol-a-wa-seo bo-yeo jul-ge-yo.)
-         Yes, I'll show you when I come back.
-```
+> Person B: 네, 돌아와서 보여 줄게요.
 
 ### Talking About Career Goals
 
-```
-Person A: 앞으로 뭐 하고 싶어요?
-         (Ap-eu-ro mwo ha-go si-peo-yo?)
-         What do you want to do in the future?
+> Person A: 앞으로 뭐 하고 싶어요?
 
-Person B: 대학교를 졸업한 후에 회사에서 일하고 싶어요.
-         (Dae-hak-gyo-reul jol-eop-han hu-e hoe-sa-e-seo il-ha-go si-peo-yo.)
-         After graduating from university, I want to work at a company.
+> Person B: 대학교를 졸업한 후에 회사에서 일하고 싶어요.
 
-Person A: 어떤 회사에서 일하고 싶어요?
-         (Eo-tteon hoe-sa-e-seo il-ha-go si-peo-yo?)
-         What kind of company do you want to work at?
+> Person A: 어떤 회사에서 일하고 싶어요?
 
-Person B: IT 회사에서 일하려고 해요. 그래서 지금 프로그래밍을 공부하고 있어요.
-         (IT hoe-sa-e-seo il-ha-ryeo-go hae-yo. Geu-rae-seo ji-geum peu-ro-geu-rae-ming-eul gong-bu-ha-go i-sseo-yo.)
-         I'm planning to work at an IT company. So I'm studying programming now.
+> Person B: IT 회사에서 일하려고 해요. 그래서 지금 프로그래밍을 공부하고 있어요.
 
-Person A: 한국에서 일할 거예요?
-         (Han-gug-e-seo il-hal geo-ye-yo?)
-         Will you work in Korea?
+> Person A: 한국에서 일할 거예요?
 
-Person B: 아직 모르겠어요. 기회가 있으면 외국에서도 일하고 싶어요.
-         (A-jik mo-reu-ge-sseo-yo. Gi-hoe-ga i-sseu-myeon oe-gug-e-seo-do il-ha-go si-peo-yo.)
-         I'm not sure yet. If there's an opportunity, I'd like to work abroad too.
-```
+> Person B: 아직 모르겠어요. 기회가 있으면 외국에서도 일하고 싶어요.
 
 ### Making Arrangements
 
-```
-Person A: 내일 몇 시에 만날까요?
-         (Nae-il myeot si-e man-nal-kka-yo?)
-         What time shall we meet tomorrow?
+> Person A: 내일 몇 시에 만날까요?
 
-Person B: 3시에 만날까요?
-         (Se-si-e man-nal-kka-yo?)
-         Shall we meet at 3?
+> Person B: 3시에 만날까요?
 
-Person A: 좋아요. 어디에서 만날까요?
-         (Jo-a-yo. Eo-di-e-seo man-nal-kka-yo?)
-         Sounds good. Where shall we meet?
+> Person A: 좋아요. 어디에서 만날까요?
 
-Person B: 지하철역 앞에서 만날까요?
-         (Ji-ha-cheol-yeok ap-e-seo man-nal-kka-yo?)
-         Shall we meet in front of the subway station?
+> Person B: 지하철역 앞에서 만날까요?
 
-Person A: 네, 그럼 내일 3시에 봐요!
-         (Ne, geu-reom nae-il se-si-e bwa-yo!)
-         Yes, then see you tomorrow at 3!
+> Person A: 네, 그럼 내일 3시에 봐요!
 
-Person B: 네, 내일 봬요! 문자할게요.
-         (Ne, nae-il bwae-yo! Mun-ja-hal-ge-yo.)
-         Yes, see you tomorrow! I'll text you.
-```
+> Person B: 네, 내일 봬요! 문자할게요.
 
 ## Practice Patterns
 

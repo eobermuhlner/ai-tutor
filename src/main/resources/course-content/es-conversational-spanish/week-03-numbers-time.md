@@ -76,24 +76,29 @@ Patterns to Practice:
 
 ### Asking for the Time
 
-```
-Person A: Perdón, ¿qué hora es?
-Person B: Son las tres y cuarto.
-Person A: Gracias. ¿A qué hora cierra la tienda?
-Person B: Cierra a las ocho de la noche.
-Person A: Perfecto, muchas gracias.
-```
+> Person A: Perdón, ¿qué hora es?
+
+> Person B: Son las tres y cuarto.
+
+> Person A: Gracias. ¿A qué hora cierra la tienda?
+
+> Person B: Cierra a las ocho de la noche.
+
+> Person A: Perfecto, muchas gracias.
 
 ### Making an Appointment
 
-```
-Person A: ¿Qué día es hoy?
-Person B: Hoy es martes.
-Person A: ¿Podemos vernos el jueves?
-Person B: Sí, ¿a qué hora?
-Person A: ¿A las cinco y media?
-Person B: Perfecto, nos vemos el jueves a las cinco y media.
-```
+> Person A: ¿Qué día es hoy?
+
+> Person B: Hoy es martes.
+
+> Person A: ¿Podemos vernos el jueves?
+
+> Person B: Sí, ¿a qué hora?
+
+> Person A: ¿A las cinco y media?
+
+> Person B: Perfecto, nos vemos el jueves a las cinco y media.
 
 ## Practice Patterns
 

@@ -97,47 +97,31 @@ Use "avere" to talk about age and family:
 
 ### Talking About Family
 
-```
-Person A: Hai fratelli o sorelle?
-         Do you have brothers or sisters?
+> Person A: Hai fratelli o sorelle?
 
-Person B: Sì, ho un fratello e una sorella.
-         Yes, I have a brother and a sister.
+> Person B: Sì, ho un fratello e una sorella.
 
-Person A: Quanti anni hanno?
-         How old are they?
+> Person A: Quanti anni hanno?
 
-Person B: Mio fratello ha 28 anni e mia sorella ha 22 anni.
-         My brother is 28 and my sister is 22.
+> Person B: Mio fratello ha 28 anni e mia sorella ha 22 anni.
 
-Person A: Vivono qui?
-         Do they live here?
+> Person A: Vivono qui?
 
-Person B: No, mio fratello vive a Roma e mia sorella studia a Bologna.
-         No, my brother lives in Rome and my sister studies in Bologna.
-```
+> Person B: No, mio fratello vive a Roma e mia sorella studia a Bologna.
 
 ### Describing Family Members
 
-```
-Person A: Com'è tuo padre?
-         What is your father like?
+> Person A: Com'è tuo padre?
 
-Person B: Mio padre è alto e simpatico. Lavora come medico.
-         My father is tall and nice. He works as a doctor.
+> Person B: Mio padre è alto e simpatico. Lavora come medico.
 
-Person A: E tua madre?
-         And your mother?
+> Person A: E tua madre?
 
-Person B: Mia madre è molto gentile. È insegnante.
-         My mother is very kind. She's a teacher.
+> Person B: Mia madre è molto gentile. È insegnante.
 
-Person A: Sei figlio unico?
-         Are you an only child?
+> Person A: Sei figlio unico?
 
-Person B: No, ho una sorella più giovane.
-         No, I have a younger sister.
-```
+> Person B: No, ho una sorella più giovane.
 
 ## Practice Patterns
 

@@ -89,71 +89,37 @@ Use 분 when talking about elders or to show respect.
 
 ### Talking About Family
 
-```
-Person A: 가족이 몇 명이에요?
-         (Ga-jok-i myeot myeong-i-e-yo?)
-         How many people are in your family?
+> Person A: 가족이 몇 명이에요?
 
-Person B: 다섯 명이에요. 부모님, 형, 저, 그리고 여동생이 있어요.
-         (Da-seot myeong-i-e-yo. Bu-mo-nim, hyeong, jeo, geu-ri-go yeo-dong-saeng-i i-sseo-yo.)
-         Five people. Parents, older brother, me, and younger sister.
+> Person B: 다섯 명이에요. 부모님, 형, 저, 그리고 여동생이 있어요.
 
-Person A: 형은 몇 살이에요?
-         (Hyeong-eun myeot sal-i-e-yo?)
-         How old is your older brother?
+> Person A: 형은 몇 살이에요?
 
-Person B: 서른 살이에요. 결혼했어요.
-         (Seo-reun sal-i-e-yo. Gyeol-hon-hae-sseo-yo.)
-         He's 30 years old. He's married.
-```
+> Person B: 서른 살이에요. 결혼했어요.
 
 ### Asking About Siblings
 
-```
-Person A: 형제자매가 있어요?
-         (Hyeong-je-ja-mae-ga i-sseo-yo?)
-         Do you have siblings?
+> Person A: 형제자매가 있어요?
 
-Person B: 네, 오빠가 한 명 있어요.
-         (Ne, o-ppa-ga han myeong i-sseo-yo.)
-         Yes, I have one older brother. (female speaker)
+> Person B: 네, 오빠가 한 명 있어요.
 
-Person A: 오빠는 뭐 해요?
-         (O-ppa-neun mwo hae-yo?)
-         What does your older brother do?
+> Person A: 오빠는 뭐 해요?
 
-Person B: 회사원이에요. 서울에서 일해요.
-         (Hoe-sa-won-i-e-yo. Seo-ul-e-seo il-hae-yo.)
-         He's an office worker. He works in Seoul.
-```
+> Person B: 회사원이에요. 서울에서 일해요.
 
 ### Describing Parents
 
-```
-Person A: 부모님은 어디에 사세요?
-         (Bu-mo-nim-eun eo-di-e sa-se-yo?)
-         Where do your parents live?
+> Person A: 부모님은 어디에 사세요?
 
-Person B: 부산에 사세요.
-         (Bu-san-e sa-se-yo.)
-         They live in Busan.
+> Person B: 부산에 사세요.
 
-Person A: 자주 만나요?
-         (Ja-ju man-na-yo?)
-         Do you meet them often?
+> Person A: 자주 만나요?
 
-Person B: 한 달에 한 번 정도 만나요.
-         (Han dal-e han beon jeong-do man-na-yo.)
-         About once a month.
+> Person B: 한 달에 한 번 정도 만나요.
 
-Person A: 부모님 연세가 어떻게 되세요?
-         (Bu-mo-nim yeon-se-ga eo-tteo-ke doe-se-yo?)
-         How old are your parents?
+> Person A: 부모님 연세가 어떻게 되세요?
 
-Person B: 아버지는 육십 세시고, 어머니는 오십팔 세세요.
-         (A-beo-ji-neun yuk-sip se-si-go, eo-meo-ni-neun o-sip-pal se-se-yo.)
-         My father is 60, and my mother is 58.
-```
+> Person B: 아버지는 육십 세시고, 어머니는 오십팔 세세요.
 
 ## Practice Patterns
 

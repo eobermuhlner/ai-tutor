@@ -135,99 +135,51 @@ Examples:
 
 ### Ordering at a Restaurant
 
-```
-Waiter: 어서 오세요! 몇 분이세요?
-        (Eo-seo o-se-yo! Myeot bun-i-se-yo?)
-        Welcome! How many people?
+> Waiter: 어서 오세요! 몇 분이세요?
 
-Customer: 두 명이요.
-         (Du myeong-i-yo.)
-         Two people.
+> Customer: 두 명이요.
 
-Waiter: 네, 이쪽으로 앉으세요. 주문하시겠어요?
-        (Ne, i-jjok-eu-ro an-jeu-se-yo. Ju-mun-ha-si-ge-sseo-yo?)
-        Yes, please sit here. Would you like to order?
+> Waiter: 네, 이쪽으로 앉으세요. 주문하시겠어요?
 
-Customer: 비빔밥 하나하고 불고기 하나 주세요.
-         (Bi-bim-bap ha-na-ha-go bul-go-gi ha-na ju-se-yo.)
-         One bibimbap and one bulgogi, please.
+> Customer: 비빔밥 하나하고 불고기 하나 주세요.
 
-Waiter: 음료는요?
-        (Eum-ryo-neun-yo?)
-        How about drinks?
+> Waiter: 음료는요?
 
-Customer: 물이랑 콜라 주세요.
-         (Mul-i-rang kol-la ju-se-yo.)
-         Water and coke, please.
-```
+> Customer: 물이랑 콜라 주세요.
 
 ### Asking for Recommendations
 
-```
-Customer: 뭐가 맛있어요?
-         (mwo-ga ma-si-sseo-yo?)
-         What's delicious?
+> Customer: 뭐가 맛있어요?
 
-Waiter: 불고기가 인기 많아요.
-        (Bul-go-gi-ga in-gi ma-na-yo.)
-        Bulgogi is very popular.
+> Waiter: 불고기가 인기 많아요.
 
-Customer: 맵지 않아요?
-         (Maep-ji a-na-yo?)
-         Is it not spicy?
+> Customer: 맵지 않아요?
 
-Waiter: 네, 안 매워요. 김치찌개는 매워요.
-        (Ne, an mae-wo-yo. Gim-chi-jji-gae-neun mae-wo-yo.)
-        No, it's not spicy. Kimchi stew is spicy.
+> Waiter: 네, 안 매워요. 김치찌개는 매워요.
 
-Customer: 그럼 불고기 주세요.
-         (Geu-reom bul-go-gi ju-se-yo.)
-         Then bulgogi, please.
-```
+> Customer: 그럼 불고기 주세요.
 
 ### Paying the Bill
 
-```
-Customer: 저기요, 계산할게요.
-         (Jeo-gi-yo, gye-san-hal-ge-yo.)
-         Excuse me, I'll pay.
+> Customer: 저기요, 계산할게요.
 
-Waiter: 네, 잠시만요. 카드 되세요?
-        (Ne, jam-si-man-yo. Ka-deu doe-se-yo?)
-        Yes, one moment. Do you take card?
+> Waiter: 네, 잠시만요. 카드 되세요?
 
-Customer: 네, 카드로 할게요.
-         (Ne, ka-deu-ro hal-ge-yo.)
-         Yes, I'll pay by card.
+> Customer: 네, 카드로 할게요.
 
-Waiter: 영수증 필요하세요?
-        (Yeong-su-jeung pi-ryo-ha-se-yo?)
-        Do you need a receipt?
+> Waiter: 영수증 필요하세요?
 
-Customer: 아니요, 괜찮아요. 잘 먹었습니다!
-         (A-ni-yo, gwaen-chan-a-yo. Jal meo-geo-sseum-ni-da!)
-         No, it's okay. Thank you for the meal!
-```
+> Customer: 아니요, 괜찮아요. 잘 먹었습니다!
 
 ### Discussing Food Preferences
 
-```
-Person A: 한국 음식 좋아해요?
-         (Han-guk eum-sik jo-a-hae-yo?)
-         Do you like Korean food?
+> Person A: 한국 음식 좋아해요?
 
-Person B: 네, 정말 좋아해요! 특히 김치찌개요.
-         (Ne, jeong-mal jo-a-hae-yo! Teuk-hi gim-chi-jji-gae-yo.)
-         Yes, I really like it! Especially kimchi stew.
+> Person B: 네, 정말 좋아해요! 특히 김치찌개요.
 
-Person A: 매운 거 잘 먹어요?
-         (Mae-un geo jal meo-geo-yo?)
-         Do you eat spicy food well?
+> Person A: 매운 거 잘 먹어요?
 
-Person B: 조금만 매운 건 괜찮아요.
-         (Jo-geum-man mae-un geon gwaen-chan-a-yo.)
-         A little spicy is okay.
-```
+> Person B: 조금만 매운 건 괜찮아요.
 
 ## Practice Patterns
 

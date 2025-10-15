@@ -99,32 +99,37 @@ Time Expressions:
 
 ### Asking for the Time
 
-```
-Person A: Scusa, che ore sono?
-Person B: Sono le tre e mezza.
-Person A: Grazie mille!
-Person B: Prego!
-```
+> Person A: Scusa, che ore sono?
+
+> Person B: Sono le tre e mezza.
+
+> Person A: Grazie mille!
+
+> Person B: Prego!
 
 ### Making Plans
 
-```
-Person A: A che ora ci vediamo domani?
-Person B: Alle dieci di mattina va bene?
-Person A: Perfetto! Dove?
-Person B: Al caffè in centro?
-Person A: Va bene. A domani!
-```
+> Person A: A che ora ci vediamo domani?
+
+> Person B: Alle dieci di mattina va bene?
+
+> Person A: Perfetto! Dove?
+
+> Person B: Al caffè in centro?
+
+> Person A: Va bene. A domani!
 
 ### Talking About Daily Schedule
 
-```
-Person A: A che ora lavori domani?
-Person B: Lavoro dalle nove alle cinque.
-Person A: Che giorno è oggi?
-Person B: È mercoledì.
-Person A: Ah sì, domani è giovedì.
-```
+> Person A: A che ora lavori domani?
+
+> Person B: Lavoro dalle nove alle cinque.
+
+> Person A: Che giorno è oggi?
+
+> Person B: È mercoledì.
+
+> Person A: Ah sì, domani è giovedì.
 
 ## Practice Patterns
 

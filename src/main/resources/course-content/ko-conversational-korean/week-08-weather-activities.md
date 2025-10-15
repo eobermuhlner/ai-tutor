@@ -101,71 +101,37 @@ Examples:
 
 ### Talking About Weather
 
-```
-Person A: 오늘 날씨 어때요?
-         (O-neul nal-ssi eo-ttae-yo?)
-         How's the weather today?
+> Person A: 오늘 날씨 어때요?
 
-Person B: 날씨가 정말 좋아요. 맑고 따뜻해요.
-         (Nal-ssi-ga jeong-mal jo-a-yo. Mal-go tta-tteu-tae-yo.)
-         The weather is really good. It's clear and warm.
+> Person B: 날씨가 정말 좋아요. 맑고 따뜻해요.
 
-Person A: 그럼 산책하러 갈까요?
-         (Geu-reom san-chaek-ha-reo gal-kka-yo?)
-         Then shall we go for a walk?
+> Person A: 그럼 산책하러 갈까요?
 
-Person B: 좋아요! 그런데 저녁에 비가 온대요.
-         (Jo-a-yo! Geu-reon-de jeo-nyeok-e bi-ga on-dae-yo.)
-         Sounds good! But they say it will rain in the evening.
+> Person B: 좋아요! 그런데 저녁에 비가 온대요.
 
-Person A: 그래서 지금 가는 게 좋겠어요.
-         (Geu-rae-seo ji-geum ga-neun ge jo-ke-sseo-yo.)
-         So it's better to go now.
-```
+> Person A: 그래서 지금 가는 게 좋겠어요.
 
 ### Discussing Activities
 
-```
-Person A: 주말에 뭐 하고 싶어요?
-         (Ju-mal-e mwo ha-go si-peo-yo?)
-         What do you want to do on the weekend?
+> Person A: 주말에 뭐 하고 싶어요?
 
-Person B: 날씨가 좋으면 등산하고 싶어요. 그리고 친구들도 만나고 싶어요.
-         (Nal-ssi-ga jo-eu-myeon deung-san-ha-go si-peo-yo. Geu-ri-go chin-gu-deul-do man-na-go si-peo-yo.)
-         If the weather is good, I want to hike. And I want to meet friends too.
+> Person B: 날씨가 좋으면 등산하고 싶어요. 그리고 친구들도 만나고 싶어요.
 
-Person A: 저는 수영하고 싶어요. 하지만 수영장이 멀어요.
-         (Jeo-neun su-yeong-ha-go si-peo-yo. Ha-ji-man su-yeong-jang-i meol-eo-yo.)
-         I want to swim. But the swimming pool is far.
+> Person A: 저는 수영하고 싶어요. 하지만 수영장이 멀어요.
 
-Person B: 그럼 같이 바다에 갈까요?
-         (Geu-reom ga-chi ba-da-e gal-kka-yo?)
-         Then shall we go to the beach together?
+> Person B: 그럼 같이 바다에 갈까요?
 
-Person A: 좋아요!
-         (Jo-a-yo!)
-         Sounds good!
-```
+> Person A: 좋아요!
 
 ### Seasonal Activities
 
-```
-Person A: 어느 계절을 제일 좋아해요?
-         (Eo-neu gye-jeol-eul je-il jo-a-hae-yo?)
-         Which season do you like best?
+> Person A: 어느 계절을 제일 좋아해요?
 
-Person B: 저는 가을을 좋아해요. 날씨가 시원하고 예뻐요.
-         (Jeo-neun ga-eul-eul jo-a-hae-yo. Nal-ssi-ga si-won-ha-go ye-ppeo-yo.)
-         I like autumn. The weather is cool and pretty.
+> Person B: 저는 가을을 좋아해요. 날씨가 시원하고 예뻐요.
 
-Person A: 가을에 뭐 해요?
-         (Ga-eul-e mwo hae-yo?)
-         What do you do in autumn?
+> Person A: 가을에 뭐 해요?
 
-Person B: 단풍구경 가고, 친구들하고 놀아요.
-         (Dan-pung-gu-gyeong ga-go, chin-gu-deul-ha-go nol-a-yo.)
-         I go see fall foliage and hang out with friends.
-```
+> Person B: 단풍구경 가고, 친구들하고 놀아요.
 
 ## Practice Patterns
 

@@ -505,7 +505,7 @@ ai-tutor:
           - Understand Italian culture
         displayOrder: 2
       - languageCode: fr-FR
-        nameEnglish: French Conversation
+        nameEnglish: Conversational French
         shortDescriptionEnglish: Develop fluency in everyday French
         descriptionEnglish: Practice natural French conversation skills from basic to intermediate level
         category: Conversational
@@ -519,7 +519,7 @@ ai-tutor:
           - Understand French culture
         displayOrder: 0
       - languageCode: de-DE
-        nameEnglish: German Fundamentals
+        nameEnglish: Conversational German
         shortDescriptionEnglish: Build a strong foundation in German
         descriptionEnglish: Comprehensive beginner to intermediate German course covering grammar and conversation
         category: General

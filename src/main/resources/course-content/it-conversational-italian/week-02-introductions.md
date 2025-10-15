@@ -102,38 +102,49 @@ Note: Adjectives ending in -e (like francese) have the same form for masculine a
 
 ### First Meeting - Informal
 
-```
-Person A: Ciao! Come ti chiami?
-Person B: Mi chiamo Marco. E tu?
-Person A: Io sono Sofia. Di dove sei?
-Person B: Sono di Roma. Tu di dove sei?
-Person A: Sono americana, di New York.
-Person B: Che bello! Parli bene l'italiano!
-Person A: Grazie! Studio da sei mesi.
-```
+> Person A: Ciao! Come ti chiami?
+
+> Person B: Mi chiamo Marco. E tu?
+
+> Person A: Io sono Sofia. Di dove sei?
+
+> Person B: Sono di Roma. Tu di dove sei?
+
+> Person A: Sono americana, di New York.
+
+> Person B: Che bello! Parli bene l'italiano!
+
+> Person A: Grazie! Studio da sei mesi.
 
 ### First Meeting - Formal
 
-```
-Person A: Buongiorno. Mi chiamo Laura Rossi.
-Person B: Piacere, signora Rossi. Io sono il dottor Marco Bianchi.
-Person A: Molto lieta. Lei di dov'è?
-Person B: Sono di Milano. E Lei?
-Person A: Vengo da Firenze, ma abito a Roma.
-Person B: Interessante! Lavora a Roma?
-Person A: Sì, lavoro in centro.
-```
+> Person A: Buongiorno. Mi chiamo Laura Rossi.
+
+> Person B: Piacere, signora Rossi. Io sono il dottor Marco Bianchi.
+
+> Person A: Molto lieta. Lei di dov'è?
+
+> Person B: Sono di Milano. E Lei?
+
+> Person A: Vengo da Firenze, ma abito a Roma.
+
+> Person B: Interessante! Lavora a Roma?
+
+> Person A: Sì, lavoro in centro.
 
 ### Talking About Languages
 
-```
-Person A: Che lingue parli?
-Person B: Parlo italiano e inglese. E tu?
-Person A: Io parlo inglese, un po' di francese e studio l'italiano.
-Person B: Da quanto tempo studi l'italiano?
-Person A: Da tre mesi. È una bella lingua!
-Person B: Bravo! Parli molto bene!
-```
+> Person A: Che lingue parli?
+
+> Person B: Parlo italiano e inglese. E tu?
+
+> Person A: Io parlo inglese, un po' di francese e studio l'italiano.
+
+> Person B: Da quanto tempo studi l'italiano?
+
+> Person A: Da tre mesi. È una bella lingua!
+
+> Person B: Bravo! Parli molto bene!
 
 ## Practice Patterns
 

@@ -130,46 +130,57 @@ Examples:
 
 ### Asking for Directions - Formal
 
-```
-Tourist: Scusi, dov'è la stazione?
-Local: La stazione? Vada sempre dritto, poi giri a destra al semaforo.
-Tourist: È lontano?
-Local: No, sono circa dieci minuti a piedi.
-Tourist: Grazie mille!
-Local: Prego, buona giornata!
-```
+> Tourist: Scusi, dov'è la stazione?
+
+> Local: La stazione? Vada sempre dritto, poi giri a destra al semaforo.
+
+> Tourist: È lontano?
+
+> Local: No, sono circa dieci minuti a piedi.
+
+> Tourist: Grazie mille!
+
+> Local: Prego, buona giornata!
 
 ### Asking for Directions - Informal
 
-```
-Person A: Scusa, come arrivo al Duomo?
-Person B: Allora, vai dritto per questa strada, poi gira a sinistra in Piazza Garibaldi.
-Person A: E poi?
-Person B: Continua sempre dritto e lo vedi sulla destra. È grande, non puoi sbagliare!
-Person A: Perfetto, grazie!
-Person B: Di niente!
-```
+> Person A: Scusa, come arrivo al Duomo?
+
+> Person B: Allora, vai dritto per questa strada, poi gira a sinistra in Piazza Garibaldi.
+
+> Person A: E poi?
+
+> Person B: Continua sempre dritto e lo vedi sulla destra. È grande, non puoi sbagliare!
+
+> Person A: Perfetto, grazie!
+
+> Person B: Di niente!
 
 ### More Complex Directions
 
-```
-Tourist: Mi scusi, dov'è il museo?
-Local: Allora, prenda la prima strada a destra, attraversi il ponte, e poi continui dritto per circa 200 metri.
-Tourist: E il museo è lì?
-Local: No, deve girare a sinistra al secondo incrocio. Il museo è proprio lì, sulla destra.
-Tourist: Capito. Grazie mille!
-Local: Prego! Buona visita!
-```
+> Tourist: Mi scusi, dov'è il museo?
+
+> Local: Allora, prenda la prima strada a destra, attraversi il ponte, e poi continui dritto per circa 200 metri.
+
+> Tourist: E il museo è lì?
+
+> Local: No, deve girare a sinistra al secondo incrocio. Il museo è proprio lì, sulla destra.
+
+> Tourist: Capito. Grazie mille!
+
+> Local: Prego! Buona visita!
 
 ### Describing Location
 
-```
-Person A: Dov'è la farmacia?
-Person B: La farmacia è accanto alla banca, di fronte al supermercato.
-Person A: In via Roma?
-Person B: Sì, esatto! È tra la banca e il bar.
-Person A: Grazie!
-```
+> Person A: Dov'è la farmacia?
+
+> Person B: La farmacia è accanto alla banca, di fronte al supermercato.
+
+> Person A: In via Roma?
+
+> Person B: Sì, esatto! È tra la banca e il bar.
+
+> Person A: Grazie!
 
 ## Practice Patterns
 

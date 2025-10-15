@@ -59,13 +59,15 @@ Patterns to Practice:
 
 ### At a Restaurant
 
-```
-Camarero: Buenos días. ¿Qué desean?
-Cliente: Quiero el menú del día, por favor.
-Camarero: Muy bien. ¿Y para beber?
-Cliente: Un agua, por favor.
-Camarero: Perfecto. Enseguida.
-```
+> Camarero: Buenos días. ¿Qué desean?
+
+> Cliente: Quiero el menú del día, por favor.
+
+> Camarero: Muy bien. ¿Y para beber?
+
+> Cliente: Un agua, por favor.
+
+> Camarero: Perfecto. Enseguida.
 
 ## Practice Patterns
 

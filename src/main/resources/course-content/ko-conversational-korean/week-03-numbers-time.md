@@ -141,75 +141,39 @@ Examples:
 
 ### Asking for the Time
 
-```
-Person A: 지금 몇 시예요?
-         (Ji-geum myeot si-ye-yo?)
-         What time is it now?
+> Person A: 지금 몇 시예요?
 
-Person B: 세 시 삼십 분이에요.
-         (Se si sam-sip bun-i-e-yo.)
-         It's 3:30.
+> Person B: 세 시 삼십 분이에요.
 
-Person A: 감사합니다!
-         (Gam-sa-ham-ni-da!)
-         Thank you!
-```
+> Person A: 감사합니다!
 
 ### Making Plans
 
-```
-Person A: 내일 몇 시에 만날까요?
-         (Nae-il myeot si-e man-nal-kka-yo?)
-         What time shall we meet tomorrow?
+> Person A: 내일 몇 시에 만날까요?
 
-Person B: 오후 두 시에 만나요.
-         (O-hu du si-e man-na-yo.)
-         Let's meet at 2 PM.
+> Person B: 오후 두 시에 만나요.
 
-Person A: 어디에서 만날까요?
-         (Eo-di-e-seo man-nal-kka-yo?)
-         Where shall we meet?
+> Person A: 어디에서 만날까요?
 
-Person B: 카페에서 만나요.
-         (Ka-pe-e-seo man-na-yo.)
-         Let's meet at the cafe.
-```
+> Person B: 카페에서 만나요.
 
 ### Talking About Schedule
 
-```
-Person A: 무슨 요일이 좋아요?
-         (Mu-seun yo-il-i jo-a-yo?)
-         What day is good?
+> Person A: 무슨 요일이 좋아요?
 
-Person B: 금요일이 좋아요.
-         (Geum-yo-il-i jo-a-yo.)
-         Friday is good.
+> Person B: 금요일이 좋아요.
 
-Person A: 금요일 오후 세 시는 어때요?
-         (Geum-yo-il o-hu se si-neun eo-ttae-yo?)
-         How about Friday at 3 PM?
+> Person A: 금요일 오후 세 시는 어때요?
 
-Person B: 완벽해요!
-         (Wan-byeok-hae-yo!)
-         Perfect!
-```
+> Person B: 완벽해요!
 
 ### Ordering Multiple Items
 
-```
-Customer: 커피 두 잔 주세요.
-         (Keo-pi du jan ju-se-yo.)
-         Two cups of coffee, please.
+> Customer: 커피 두 잔 주세요.
 
-Staff: 네, 커피 두 잔이요. 또 필요하신 거 있으세요?
-      (Ne, keo-pi du jan-i-yo. Tto pi-ryo-ha-sin geo i-sseu-se-yo?)
-      Yes, two cups of coffee. Do you need anything else?
+> Staff: 네, 커피 두 잔이요. 또 필요하신 거 있으세요?
 
-Customer: 샌드위치 한 개도 주세요.
-         (Saen-deu-wi-chi han gae-do ju-se-yo.)
-         One sandwich too, please.
-```
+> Customer: 샌드위치 한 개도 주세요.
 
 ## Practice Patterns
 

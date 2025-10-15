@@ -96,88 +96,57 @@ targetCEFR: A2-B1
 
 ### Making Weekend Plans
 
-```
-Person A: Cosa farai questo weekend?
-         What will you do this weekend?
+> Person A: Cosa farai questo weekend?
 
-Person B: Sabato andrò a trovare i miei genitori.
-         Saturday I will go visit my parents.
+> Person B: Sabato andrò a trovare i miei genitori.
 
-Person A: E domenica?
-         And Sunday?
+> Person A: E domenica?
 
-Person B: Domenica penso di restare a casa e rilassarmi.
-         Sunday I'm thinking of staying home and relaxing.
+> Person B: Domenica penso di restare a casa e rilassarmi.
 
-Person A: Vuoi venire al cinema con noi domenica sera?
-         Do you want to come to the cinema with us Sunday evening?
+> Person A: Vuoi venire al cinema con noi domenica sera?
 
-Person B: Sì, volentieri! A che ora?
-         Yes, gladly! At what time?
-```
+> Person B: Sì, volentieri! A che ora?
 
 ### Discussing Future Plans
 
-```
-Person A: Dove andrai in vacanza quest'estate?
-         Where will you go on vacation this summer?
+> Person A: Dove andrai in vacanza quest'estate?
 
-Person B: Andrò in Grecia. Passerò due settimane ad Atene.
-         I'll go to Greece. I'll spend two weeks in Athens.
+> Person B: Andrò in Grecia. Passerò due settimane ad Atene.
 
-Person A: Che bello! Viaggerai da solo?
-         How nice! Will you travel alone?
+> Person A: Che bello! Viaggerai da solo?
 
-Person B: No, verrà anche mio fratello. Visiteremo le isole greche.
-         No, my brother will come too. We'll visit the Greek islands.
+> Person B: No, verrà anche mio fratello. Visiteremo le isole greche.
 
-Person A: Sarà un viaggio fantastico!
-         It will be a fantastic trip!
-```
+> Person A: Sarà un viaggio fantastico!
 
 ### Talking About Career Goals
 
-```
-Person A: Quali sono i tuoi piani per il futuro?
-         What are your plans for the future?
+> Person A: Quali sono i tuoi piani per il futuro?
 
-Person B: L'anno prossimo finirò l'università.
-         Next year I'll finish university.
+> Person B: L'anno prossimo finirò l'università.
 
-Person A: E dopo? Cosa farai?
-         And after? What will you do?
+> Person A: E dopo? Cosa farai?
 
-Person B: Cercherò lavoro in una multinazionale. Voglio lavorare all'estero.
-         I'll look for work in a multinational. I want to work abroad.
+> Person B: Cercherò lavoro in una multinazionale. Voglio lavorare all'estero.
 
-Person A: In quale paese vorresti andare?
-         Which country would you like to go to?
+> Person A: In quale paese vorresti andare?
 
-Person B: Mi piacerebbe andare in Spagna o in Francia.
-         I would like to go to Spain or France.
-```
+> Person B: Mi piacerebbe andare in Spagna o in Francia.
 
 ### Making Arrangements
 
-```
-Person A: Ci vediamo domani?
-         Shall we see each other tomorrow?
+> Person A: Ci vediamo domani?
 
-Person B: Sì, a che ora?
-         Yes, at what time?
+> Person B: Sì, a che ora?
 
-Person A: Alle tre del pomeriggio va bene?
-         Is 3 in the afternoon okay?
+> Person A: Alle tre del pomeriggio va bene?
 
-Person B: Perfetto! Dove ci incontreremo?
-         Perfect! Where will we meet?
+> Person B: Perfetto! Dove ci incontreremo?
 
-Person A: Davanti alla stazione. Ti manderò un messaggio quando arrivo.
-         In front of the station. I'll send you a message when I arrive.
+> Person A: Davanti alla stazione. Ti manderò un messaggio quando arrivo.
 
-Person B: Va bene, a domani!
-         Okay, see you tomorrow!
-```
+> Person B: Va bene, a domani!
 
 ## Practice Patterns
 

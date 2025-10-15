@@ -106,50 +106,65 @@ Examples:
 
 ### Making a Reservation
 
-```
-Person A: Buonasera, vorrei prenotare un tavolo per stasera.
-Waiter: Per quante persone?
-Person A: Per quattro persone.
-Waiter: A che ora?
-Person A: Alle otto, se possibile.
-Waiter: Perfetto! A nome di chi?
-Person A: Rossi.
-Waiter: Benissimo, signor Rossi. A stasera!
-```
+> Person A: Buonasera, vorrei prenotare un tavolo per stasera.
+
+> Waiter: Per quante persone?
+
+> Person A: Per quattro persone.
+
+> Waiter: A che ora?
+
+> Person A: Alle otto, se possibile.
+
+> Waiter: Perfetto! A nome di chi?
+
+> Person A: Rossi.
+
+> Waiter: Benissimo, signor Rossi. A stasera!
 
 ### Ordering at a Restaurant
 
-```
-Waiter: Buonasera! Cosa prendete?
-Person A: Vorrei la pasta carbonara, per favore.
-Waiter: Benissimo. E da bere?
-Person A: Una bottiglia d'acqua naturale e un bicchiere di vino rosso.
-Waiter: Perfetto! Vuole anche un antipasto?
-Person A: No grazie, solo il primo.
-Waiter: Va bene, arrivo subito!
-```
+> Waiter: Buonasera! Cosa prendete?
+
+> Person A: Vorrei la pasta carbonara, per favore.
+
+> Waiter: Benissimo. E da bere?
+
+> Person A: Una bottiglia d'acqua naturale e un bicchiere di vino rosso.
+
+> Waiter: Perfetto! Vuole anche un antipasto?
+
+> Person A: No grazie, solo il primo.
+
+> Waiter: Va bene, arrivo subito!
 
 ### Asking for the Check
 
-```
-Person A: Scusi, il conto per favore!
-Waiter: Subito! Ecco il conto.
-Person A: Posso pagare con la carta?
-Waiter: Certo, nessun problema.
-Person A: Grazie, ottimo cibo!
-Waiter: Grazie a Lei! Arrivederci!
-```
+> Person A: Scusi, il conto per favore!
+
+> Waiter: Subito! Ecco il conto.
+
+> Person A: Posso pagare con la carta?
+
+> Waiter: Certo, nessun problema.
+
+> Person A: Grazie, ottimo cibo!
+
+> Waiter: Grazie a Lei! Arrivederci!
 
 ### Discussing Food Preferences
 
-```
-Person A: Ti piace la pizza?
-Person B: Sì, mi piace molto! E a te?
-Person A: Anch'io! Preferisci la pizza o la pasta?
-Person B: Preferisco la pasta. Tu?
-Person A: Dipende! Cosa ti piace sulla pizza?
-Person B: Mi piace la margherita, semplice e buona!
-```
+> Person A: Ti piace la pizza?
+
+> Person B: Sì, mi piace molto! E a te?
+
+> Person A: Anch'io! Preferisci la pizza o la pasta?
+
+> Person B: Preferisco la pasta. Tu?
+
+> Person A: Dipende! Cosa ti piace sulla pizza?
+
+> Person B: Mi piace la margherita, semplice e buona!
 
 ## Practice Patterns
 
