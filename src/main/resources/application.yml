@@ -602,7 +602,7 @@ ai-tutor:
           - Understand Korean culture and customs
         displayOrder: 0
       - languageCode: ko-KR
-        nameEnglish: Korean for Manhwa and Webtoons
+        nameEnglish: Korean for K-pop and K-drama fans
         shortDescriptionEnglish: Learn Korean through modern pop culture
         descriptionEnglish: Quick-start Korean course focusing on practical phrases from K-pop, K-dramas, and modern Korean culture
         category: Conversational
@@ -649,6 +649,157 @@ ai-tutor:
           - Build essential vocabulary
           - Form correct sentences
         displayOrder: 3
+      - languageCode: zh-CN
+        nameEnglish: Mandarin Pinyin Starter
+        shortDescriptionEnglish: Build tones and pinyin fundamentals from zero
+        descriptionEnglish: Master Mandarin’s four tones and pinyin spelling rules through focused listening, speaking, and minimal pairs so you can pronounce and understand clearly before characters
+        category: General
+        targetAudienceEnglish: Absolute beginners who want a pronunciation-first start
+        startingLevel: A1
+        targetLevel: A1
+        estimatedWeeks: 6
+        learningGoalsEnglish:
+          - Hear and produce the four tones plus neutral tone
+          - Read and type all pinyin initials and finals
+          - Use tone pairs and minimal pairs accurately
+          - Hold short self-introductions using pinyin only
+        displayOrder: 0
+      - languageCode: zh-CN
+        nameEnglish: Conversational Mandarin (Simplified)
+        shortDescriptionEnglish: Speak natural Mandarin for daily life
+        descriptionEnglish: Practical conversation training with simplified characters and pinyin support, covering greetings, routines, opinions, and common scenarios
+        category: Conversational
+        targetAudienceEnglish: Learners who want everyday fluency with Mainland usage
+        startingLevel: A1
+        targetLevel: B2
+        estimatedWeeks: 16
+        learningGoalsEnglish:
+          - Handle greetings, introductions, and daily routines
+          - Shop, order food, and ask for help
+          - Discuss preferences and make simple plans
+          - Navigate transportation and simple services
+          - Build core vocabulary with simplified characters
+        displayOrder: 1
+      - languageCode: zh-CN
+        nameEnglish: Mandarin Character Bridge (Simplified)
+        shortDescriptionEnglish: Transition from pinyin to simplified Hanzi
+        descriptionEnglish: Step-by-step literacy course introducing high-frequency simplified characters with mnemonic strategies and graded reading
+        category: General
+        targetAudienceEnglish: Pinyin users ready to read simplified characters
+        startingLevel: A1
+        targetLevel: A2
+        estimatedWeeks: 12
+        learningGoalsEnglish:
+          - Learn 300–400 high-frequency simplified characters
+          - Recognize common radicals and components
+          - Read graded dialogues with pinyin support
+          - Write essential characters with stroke order
+        displayOrder: 2
+      - languageCode: zh-CN
+        nameEnglish: Mandarin for Travelers (Mainland)
+        shortDescriptionEnglish: Essential phrases with simplified characters
+        descriptionEnglish: Quick-start travel Mandarin focusing on transport, hotels, food, payments, and basic emergencies in Mainland China
+        category: Travel
+        targetAudienceEnglish: Travelers visiting Mainland Chinese cities
+        startingLevel: A1
+        targetLevel: A2
+        estimatedWeeks: 6
+        learningGoalsEnglish:
+          - Buy tickets and ask for directions
+          - Check in at hotels and handle reservations
+          - Order food, pay, and handle dietary needs
+          - Manage simple problems and emergencies
+        displayOrder: 3
+      - languageCode: zh-TW
+        nameEnglish: Conversational Mandarin (Taiwan)
+        shortDescriptionEnglish: Speak naturally with Taiwanese usage
+        descriptionEnglish: Everyday conversation with traditional characters and Taiwan vocabulary; optional zhuyin support for reading and pronunciation
+        category: Conversational
+        targetAudienceEnglish: Learners focusing on Taiwanese Mandarin and culture
+        startingLevel: A1
+        targetLevel: B2
+        estimatedWeeks: 16
+        learningGoalsEnglish:
+          - Manage daily conversations with polite particles
+          - Use Taiwan-preferred vocabulary and expressions
+          - Order food, shop, and ask for directions
+          - Read common signs in traditional characters
+        displayOrder: 0
+      - languageCode: zh-TW
+        nameEnglish: Mandarin Character Bridge (Traditional)
+        shortDescriptionEnglish: Transition to traditional characters with confidence
+        descriptionEnglish: Literacy course introducing high-frequency traditional characters using radicals, components, and short graded readings; optional zhuyin support
+        category: General
+        targetAudienceEnglish: Learners moving from pinyin/romanization to traditional characters
+        startingLevel: A1
+        targetLevel: A2
+        estimatedWeeks: 12
+        learningGoalsEnglish:
+          - Learn 300–400 high-frequency traditional characters
+          - Recognize radicals and phonetic hints
+          - Read short dialogues without full pinyin dependence
+          - Write essential characters with correct stroke order
+        displayOrder: 1
+      - languageCode: zh-TW
+        nameEnglish: Mandarin for Travelers (Taiwan)
+        shortDescriptionEnglish: Travel essentials with traditional characters
+        descriptionEnglish: Practical phrases for transport, food, lodging, and simple emergencies in Taiwan’s contexts
+        category: Travel
+        targetAudienceEnglish: Tourists visiting Taiwan
+        startingLevel: A1
+        targetLevel: A2
+        estimatedWeeks: 6
+        learningGoalsEnglish:
+          - Navigate MRT/bus and purchase tickets
+          - Order at restaurants and night markets
+          - Handle accommodations and simple issues
+          - Ask for help politely using local norms
+        displayOrder: 2
+      - languageCode: zh-HK
+        nameEnglish: Cantonese Conversation (Hong Kong)
+        shortDescriptionEnglish: Master everyday Cantonese with tones
+        descriptionEnglish: Tone-focused conversational course using Hong Kong Cantonese; supports Jyutping in responses while accepting any romanization
+        category: Conversational
+        targetAudienceEnglish: Learners who want real-life Cantonese for Hong Kong
+        startingLevel: A1
+        targetLevel: B2
+        estimatedWeeks: 16
+        learningGoalsEnglish:
+          - Control six tones and common tone sandhi patterns
+          - Handle greetings, shopping, transport, and dining
+          - Use common particles for natural speech (e.g., laa, aa)
+          - Build core vocabulary with traditional characters
+        displayOrder: 0
+      - languageCode: zh-HK
+        nameEnglish: Cantonese Character Bridge (Traditional)
+        shortDescriptionEnglish: Read and write essential traditional characters
+        descriptionEnglish: High-frequency characters and colloquial Cantonese forms with graded dialogues; Jyutping support for pronunciation
+        category: General
+        targetAudienceEnglish: Cantonese learners transitioning to reading in Hong Kong
+        startingLevel: A1
+        targetLevel: A2
+        estimatedWeeks: 12
+        learningGoalsEnglish:
+          - Learn 300+ common traditional characters and colloquial forms
+          - Map characters to Jyutping reliably
+          - Read short messages, menus, and signs
+          - Write key characters with correct stroke order
+        displayOrder: 1
+      - languageCode: zh-HK
+        nameEnglish: Cantonese for Travelers (Hong Kong)
+        shortDescriptionEnglish: Essential phrases for visiting Hong Kong
+        descriptionEnglish: Survival Cantonese for transport, dining, shopping, payments, and quick help in Hong Kong settings
+        category: Travel
+        targetAudienceEnglish: Short-term visitors to Hong Kong
+        startingLevel: A1
+        targetLevel: A2
+        estimatedWeeks: 6
+        learningGoalsEnglish:
+          - Ask for and understand directions
+          - Order food and drinks confidently
+          - Handle Octopus card and payments
+          - Manage simple problems and emergencies
+        displayOrder: 2
       - languageCode: ru-RU
         nameEnglish: Russian Conversation
         shortDescriptionEnglish: Develop fluency in everyday Russian
