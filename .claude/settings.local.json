@@ -9,7 +9,8 @@
       "Bash(curl:*)",
       "Bash(netstat:*)",
       "Bash(tasklist)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "WebSearch"
     ],
     "deny": [],
     "ask": []

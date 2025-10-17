@@ -44,6 +44,8 @@ app:
     email: ${DEMO_EMAIL:demo@localhost}
 
 ai-tutor:
+  chat:
+    strict-schema-enforcement: true  # Enable strict JSON schema enforcement for OpenAI/Ollama
   context:
     max-tokens: 100000  # Safety margin below model's 128k limit
     recent-messages: 10  # Keep last 10 messages at full fidelity

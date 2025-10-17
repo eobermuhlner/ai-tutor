@@ -298,6 +298,13 @@ spring:
       dev: h2
 
 spring.ai.openai.chat.options.model: gpt-4o
+
+# AI Tutor specific configuration
+ai-tutor:
+  chat:
+    strict-schema-enforcement: true  # Enable strict JSON schema enforcement (default: true)
+                                      # OpenAI: Uses native JSON_SCHEMA with strict=true
+                                      # Ollama: Uses format parameter with schema map
 ```
 
 Database configuration in `src/main/resources/application-h2.yml`:

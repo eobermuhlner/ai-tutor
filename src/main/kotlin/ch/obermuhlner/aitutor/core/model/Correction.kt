@@ -1,6 +1,7 @@
 package ch.obermuhlner.aitutor.core.model
 
 import com.fasterxml.jackson.annotation.JsonClassDescription
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonPropertyDescription
 
 @JsonClassDescription("""
@@ -57,15 +58,21 @@ CLASSIFICATION DECISION TREE:
 4. Other issues → use appropriate specific type
 """)
 data class Correction(
+    @field:JsonProperty(required = true)
     @field:JsonPropertyDescription("Exact string of the learner's error.")
     val span: String,
+    @field:JsonProperty(required = true)
     val errorType: ErrorType,
+    @field:JsonProperty(required = true)
     @field:JsonPropertyDescription("Severity of the error based on comprehension impact. Consider chat context: missing accents, capitalization, or end punctuation in casual chat should be Low or ignored.")
     val severity: ErrorSeverity,
+    @field:JsonProperty(required = true)
     @field:JsonPropertyDescription("Corrected form of the exact string of the learner's error in {targetLanguage}.")
     val correctedTargetLanguage: String,
+    @field:JsonProperty(required = true)
     @field:JsonPropertyDescription("Simple explanation of the error in {sourceLanguage}, appropriate for the estimatedCEFRLevel of the learner.")
     val whySourceLanguage: String,
+    @field:JsonProperty(required = true)
     @field:JsonPropertyDescription("Simple explanation of the error in {targetLanguage}, appropriate for the estimatedCEFRLevel of the learner.")
     val whyTargetLanguage: String,
 )

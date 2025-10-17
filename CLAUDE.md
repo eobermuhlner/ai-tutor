@@ -81,7 +81,11 @@ Language learning assistant with conversational AI tutoring and vocabulary track
 - `SummaryQueryService` - Query and monitor summarization statistics
 - `ErrorAnalyticsService` - Error pattern tracking, trend analysis, and sample management
 - `CEFRAssessmentService` - Heuristic-based skill-specific CEFR level assessment (grammar, vocabulary, fluency, comprehension)
-- `AiChatService` - AI chat integration with streaming responses
+- `AiChatService` - AI chat integration with streaming responses and **strict JSON schema enforcement**
+  - **OpenAI**: Native `JSON_SCHEMA` response format with `strict=true` (gpt-4o, gpt-4o-mini)
+  - **Ollama**: Format parameter with JSON schema map and temperature=0
+  - **Configurable**: `ai-tutor.chat.strict-schema-enforcement` (default: true)
+  - **Fallback**: Soft enforcement (prompt-based) for unknown providers or when disabled
 - `VocabularyService` - Vocabulary tracking with context and exposure counting
 - `AuthService` / `AuthorizationService` / `JwtTokenService` - JWT-based authentication
 - `UserService` - User management and Spring Security integration

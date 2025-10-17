@@ -1,5 +1,5 @@
 courseId: conversational-korean
-
+progressionMode: TIME_BASED
 lessons:
   - id: week-01-greetings
     file: week-01-greetings.md
