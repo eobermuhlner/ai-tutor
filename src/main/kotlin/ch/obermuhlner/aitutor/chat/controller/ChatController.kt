@@ -13,6 +13,11 @@ import ch.obermuhlner.aitutor.chat.dto.UpdatePhaseRequest
 import ch.obermuhlner.aitutor.chat.dto.UpdateTopicRequest
 import ch.obermuhlner.aitutor.chat.dto.UpdateVocabularyReviewModeRequest
 import ch.obermuhlner.aitutor.chat.service.ChatService
+import ch.obermuhlner.aitutor.conversation.dto.SynthesizeRequest
+import ch.obermuhlner.aitutor.conversation.dto.VoiceListResponse
+import ch.obermuhlner.aitutor.conversation.service.AiAudioService
+import ch.obermuhlner.aitutor.conversation.config.AudioProperties
+import ch.obermuhlner.aitutor.core.model.catalog.TutorVoice
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import java.util.UUID
@@ -37,7 +42,9 @@ class ChatController(
     private val chatService: ChatService,
     private val authorizationService: AuthorizationService,
     private val catalogService: ch.obermuhlner.aitutor.catalog.service.CatalogService,
-    private val chatSessionRepository: ch.obermuhlner.aitutor.chat.repository.ChatSessionRepository
+    private val chatSessionRepository: ch.obermuhlner.aitutor.chat.repository.ChatSessionRepository,
+    private val audioService: AiAudioService,
+    private val audioProperties: AudioProperties
 ) {
 
     @PostMapping("/sessions")
@@ -259,5 +266,100 @@ class ChatController(
         }.start()
 
         return emitter
+    }
+
+    // ========== Text-to-Speech Endpoints ==========
+
+    @PostMapping("/synthesize", produces = ["audio/mpeg"])
+    @Operation(summary = "Synthesize speech from text", description = "Converts arbitrary text to speech audio using specified voice")
+    fun synthesizeSpeech(@RequestBody request: SynthesizeRequest): ResponseEntity<ByteArray> {
+        if (!audioService.isAvailable()) {
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build()
+        }
+
+        val voiceEnum = request.voiceId?.let {
+            try {
+                TutorVoice.valueOf(it)
+            } catch (e: IllegalArgumentException) {
+                return ResponseEntity.badRequest().build()
+            }
+        }
+
+        val audioBytes = try {
+            audioService.synthesizeSpeech(
+                text = request.text,
+                voiceId = voiceEnum,
+                speed = request.speed
+            )
+        } catch (e: Exception) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
+        }
+
+        return ResponseEntity.ok()
+            .contentType(MediaType.parseMediaType("audio/mpeg"))
+            .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"speech.mp3\"")
+            .body(audioBytes)
+    }
+
+    @PostMapping("/sessions/{sessionId}/messages/{messageId}/audio", produces = ["audio/mpeg"])
+    @Operation(summary = "Synthesize audio for a message", description = "Generates speech audio for a specific chat message using the tutor's voice")
+    fun synthesizeMessageAudio(
+        @PathVariable sessionId: UUID,
+        @PathVariable messageId: UUID,
+        @RequestParam(required = false) speed: Double?
+    ): ResponseEntity<ByteArray> {
+        if (!audioService.isAvailable()) {
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build()
+        }
+
+        val currentUserId = authorizationService.getCurrentUserId()
+
+        // Get session and validate ownership
+        val sessionEntity = chatSessionRepository.findById(sessionId).orElse(null)
+            ?: return ResponseEntity.notFound().build()
+
+        if (sessionEntity.userId != currentUserId) {
+            return ResponseEntity.notFound().build()
+        }
+
+        // Get message
+        val messageEntity = chatService.getMessage(sessionId, messageId)
+            ?: return ResponseEntity.notFound().build()
+
+        // Get tutor voice from session
+        val tutorVoice = sessionEntity.tutorVoiceId
+
+        val audioBytes = try {
+            audioService.synthesizeSpeech(
+                text = messageEntity.content,
+                voiceId = tutorVoice,
+                languageCode = sessionEntity.targetLanguageCode,
+                speed = speed
+            )
+        } catch (e: Exception) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
+        }
+
+        return ResponseEntity.ok()
+            .contentType(MediaType.parseMediaType("audio/mpeg"))
+            .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION,
+                "inline; filename=\"message-${messageId}.mp3\"")
+            .body(audioBytes)
+    }
+
+    @GetMapping("/audio/voices")
+    @Operation(summary = "Get available voices", description = "Lists all available abstract voices and their provider-specific mappings")
+    fun getAvailableVoices(): ResponseEntity<VoiceListResponse> {
+        if (!audioService.isAvailable()) {
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build()
+        }
+
+        val response = VoiceListResponse(
+            abstractVoices = TutorVoice.values().map { it.name },
+            voiceMappings = audioService.getVoiceMappings(),
+            defaultVoice = audioProperties.defaultVoice
+        )
+
+        return ResponseEntity.ok(response)
     }
 }

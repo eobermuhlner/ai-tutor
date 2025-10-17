@@ -11,3 +11,9 @@ spring.ai.model.audio.transcription: none
 
 spring.ai.ollama.base-url: http://localhost:11434
 spring.ai.ollama.chat.options.model: granite3.2:8b
+
+# TTS not supported by Ollama
+# External integration would be needed (e.g., Piper TTS, Coqui TTS)
+ai-tutor:
+  audio:
+    enabled: false

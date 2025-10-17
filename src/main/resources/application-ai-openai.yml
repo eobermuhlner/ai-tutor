@@ -6,10 +6,31 @@ spring.ai.model.embedding.text: none
 spring.ai.model.embedding.multimodal: none
 spring.ai.model.image: none
 spring.ai.model.moderation: none
-spring.ai.model.audio.speech: none
+spring.ai.model.audio.speech: openai
 spring.ai.model.audio.transcription: none
 
 
 spring.ai.openai.chat.options.model: gpt-4o
 spring.ai.openai.api-key: ${OPENAI_API_KEY}  # Optional: override env var
 spring.ai.openai.base-url: https://api.openai.com  # Optional: custom endpoint
+
+# OpenAI TTS configuration
+spring.ai.openai.audio.speech.options.model: tts-1  # or tts-1-hd for higher quality
+spring.ai.openai.audio.speech.options.response-format: mp3
+spring.ai.openai.audio.speech.options.speed: 1.0
+
+# Voice mappings (abstract voice → OpenAI voice)
+# OpenAI voices: alloy, echo, fable, onyx, nova, shimmer
+ai-tutor:
+  audio:
+    enabled: true
+    voice-mappings:
+      Warm: nova
+      Professional: onyx
+      Energetic: shimmer
+      Calm: alloy
+      Authoritative: echo
+      Friendly: fable
+    default-voice: alloy
+    default-speed: 1.0
+    default-model: tts-1

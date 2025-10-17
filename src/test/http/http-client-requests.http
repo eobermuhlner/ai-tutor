@@ -481,3 +481,70 @@ Accept: application/json
 POST {{host}}/api/v1/assessment/sessions/{{chatSessionId}}/reassess
 Authorization: Bearer {{accessToken}}
 Accept: application/json
+
+###
+
+###########################
+### Text-to-Speech Examples
+###########################
+
+### Get Available Voices
+GET {{host}}/api/v1/chat/audio/voices
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+### Synthesize Speech from Arbitrary Text (Default Voice)
+POST {{host}}/api/v1/chat/synthesize
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "text": "Hola, ¿cómo estás? Me llamo María y soy tu profesora de español."
+}
+
+### Synthesize Speech with Specific Voice (Warm)
+POST {{host}}/api/v1/chat/synthesize
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "text": "¡Buenos días! Hoy vamos a aprender sobre los verbos regulares.",
+  "voiceId": "Warm",
+  "speed": 1.0
+}
+
+### Synthesize Speech with Authoritative Voice
+POST {{host}}/api/v1/chat/synthesize
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "text": "Presta atención a la conjugación de estos verbos.",
+  "voiceId": "Authoritative",
+  "speed": 0.9
+}
+
+### Synthesize Audio for Specific Message
+# First send a message, then use the message ID from the response
+# @name sendMessageForAudio
+POST {{host}}/api/v1/chat/sessions/{{courseSessionId}}/messages
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "content": "Hola profesora"
+}
+
+> {%
+    client.global.set("lastMessageId", response.body.id);
+%}
+
+### Get Audio for Last Message
+POST {{host}}/api/v1/chat/sessions/{{courseSessionId}}/messages/{{lastMessageId}}/audio
+Authorization: Bearer {{accessToken}}
+
+### Get Audio for Last Message (Slower Speed)
+POST {{host}}/api/v1/chat/sessions/{{courseSessionId}}/messages/{{lastMessageId}}/audio?speed=0.75
+Authorization: Bearer {{accessToken}}
+
+###

@@ -265,6 +265,7 @@ class TutorService(
             "sourceLanguage" to sourceLanguage,
             "sourceLanguageCode" to sourceLanguageCode,
             "tutorName" to tutor.name,
+            "tutorGender" to (tutor.gender?.name ?: "Neutral"),
             "tutorPersona" to tutor.persona,
             "tutorDomain" to tutor.domain,
             "vocabularyGuidance" to vocabularyGuidance,

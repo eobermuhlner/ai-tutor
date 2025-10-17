@@ -71,6 +71,12 @@ class ChatControllerTest {
     @MockkBean(relaxed = true)
     private lateinit var customUserDetailsService: ch.obermuhlner.aitutor.user.service.CustomUserDetailsService
 
+    @MockkBean(relaxed = true)
+    private lateinit var audioService: ch.obermuhlner.aitutor.conversation.service.AiAudioService
+
+    @MockkBean(relaxed = true)
+    private lateinit var audioProperties: ch.obermuhlner.aitutor.conversation.config.AudioProperties
+
     @Test
     @WithMockUser
     fun `should create chat session with valid request`() {

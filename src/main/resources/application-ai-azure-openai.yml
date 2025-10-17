@@ -6,10 +6,29 @@ spring.ai.model.embedding.text: none
 spring.ai.model.embedding.multimodal: none
 spring.ai.model.image: none
 spring.ai.model.moderation: none
-spring.ai.model.audio.speech: none
+spring.ai.model.audio.speech: azure-openai
 spring.ai.model.audio.transcription: none
 
 spring.ai.azure.openai.api-key: ${AZURE_OPENAI_API_KEY}
 spring.ai.azure.openai.endpoint: ${AZURE_OPENAI_ENDPOINT}
 spring.ai.azure.openai.chat.options.deployment-name: gpt-4o  # Your Azure deployment name
 spring.ai.azure.openai.chat.options.model: gpt-4o
+
+# Azure OpenAI TTS configuration
+spring.ai.azure.openai.audio.speech.options.deployment-name: tts  # Your Azure TTS deployment
+spring.ai.azure.openai.audio.speech.options.response-format: mp3
+
+# Voice mappings (abstract voice → Azure Neural voice)
+# Note: Azure supports 70+ languages with region-specific voices
+ai-tutor:
+  audio:
+    enabled: true
+    voice-mappings:
+      Warm: en-US-JennyNeural
+      Professional: en-US-GuyNeural
+      Energetic: en-US-AriaNeural
+      Calm: en-US-DavisNeural
+      Authoritative: en-US-TonyNeural
+      Friendly: en-US-SaraNeural
+    default-voice: en-US-JennyNeural
+    default-speed: 1.0

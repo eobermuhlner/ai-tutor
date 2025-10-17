@@ -3,7 +3,9 @@ package ch.obermuhlner.aitutor.catalog.config
 import ch.obermuhlner.aitutor.core.model.CEFRLevel
 import ch.obermuhlner.aitutor.core.model.catalog.CourseCategory
 import ch.obermuhlner.aitutor.core.model.catalog.Difficulty
+import ch.obermuhlner.aitutor.core.model.catalog.TutorGender
 import ch.obermuhlner.aitutor.core.model.catalog.TutorPersonality
+import ch.obermuhlner.aitutor.core.model.catalog.TutorVoice
 import ch.obermuhlner.aitutor.tutor.domain.TeachingStyle
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.stereotype.Component
@@ -24,14 +26,16 @@ data class TutorArchetypeConfig(
     val descriptionTemplateEnglish: String,
     val personality: TutorPersonality,
     val teachingStyle: TeachingStyle = TeachingStyle.Reactive,
-    val displayOrder: Int
+    val displayOrder: Int,
+    val voiceId: TutorVoice? = null
 )
 
 data class TutorVariantConfig(
     val archetypeId: String,
     val name: String,
     val culturalNotes: String,
-    val displayOrderOverride: Int? = null
+    val displayOrderOverride: Int? = null,
+    val gender: TutorGender? = null  // Override archetype gender if needed
 )
 
 data class LanguageConfig(

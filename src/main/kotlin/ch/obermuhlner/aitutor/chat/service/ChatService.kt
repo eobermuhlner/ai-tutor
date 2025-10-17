@@ -76,6 +76,15 @@ class ChatService(
             .orElse(null)
     }
 
+    fun getMessage(sessionId: UUID, messageId: UUID): ChatMessageEntity? {
+        val message = chatMessageRepository.findById(messageId).orElse(null) ?: return null
+        // Validate message belongs to session
+        if (message.session.id != sessionId) {
+            return null
+        }
+        return message
+    }
+
     fun getUserSessions(userId: UUID): List<SessionResponse> {
         return chatSessionRepository.findByUserIdOrderByUpdatedAtDesc(userId)
             .map { toSessionResponse(it) }
@@ -248,7 +257,8 @@ class ChatService(
             domain = session.tutorDomain,
             teachingStyle = session.tutorTeachingStyle,
             sourceLanguageCode = session.sourceLanguageCode,
-            targetLanguageCode = session.targetLanguageCode
+            targetLanguageCode = session.targetLanguageCode,
+            gender = session.tutorGender
         )
 
         // Initialize effectivePhase if null (migration case)
@@ -418,6 +428,8 @@ class ChatService(
             tutorPersona = tutor.personaEnglish,
             tutorDomain = tutor.domainEnglish,
             tutorTeachingStyle = tutor.teachingStyle,
+            tutorVoiceId = tutor.voiceId,
+            tutorGender = tutor.gender,
             sourceLanguageCode = sourceLanguageCode,
             targetLanguageCode = tutor.targetLanguageCode,
             conversationPhase = course.defaultPhase,

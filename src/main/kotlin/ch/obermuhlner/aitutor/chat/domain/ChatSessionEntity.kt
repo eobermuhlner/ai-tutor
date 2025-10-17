@@ -1,6 +1,8 @@
 package ch.obermuhlner.aitutor.chat.domain
 
 import ch.obermuhlner.aitutor.core.model.CEFRLevel
+import ch.obermuhlner.aitutor.core.model.catalog.TutorGender
+import ch.obermuhlner.aitutor.core.model.catalog.TutorVoice
 import ch.obermuhlner.aitutor.tutor.domain.ConversationPhase
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -35,6 +37,14 @@ class ChatSessionEntity(
     @Enumerated(EnumType.STRING)
     @Column(name = "tutor_teaching_style", nullable = false, length = 16)
     var tutorTeachingStyle: ch.obermuhlner.aitutor.tutor.domain.TeachingStyle = ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Reactive,
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tutor_voice_id", length = 32)
+    var tutorVoiceId: TutorVoice? = null,
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tutor_gender", length = 16)
+    var tutorGender: TutorGender? = null,
 
     @Column(name = "source_language_code", nullable = false, length = 32)
     var sourceLanguageCode: String,
