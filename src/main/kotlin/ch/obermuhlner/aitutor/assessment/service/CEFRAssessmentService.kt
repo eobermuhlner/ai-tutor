@@ -74,7 +74,7 @@ class CEFRAssessmentService(
 
         if (patterns.isEmpty()) {
             // No error data yet, use conservative default
-            return CEFRLevel.A1
+            return CEFRLevel.None
         }
 
         // Compute weighted error score (Critical=3.0, High=2.0, Medium=1.0, Low=0.3)
@@ -86,7 +86,8 @@ class CEFRAssessmentService(
             totalScore < 3.0 -> CEFRLevel.B2   // Advanced grammar, few errors
             totalScore < 6.0 -> CEFRLevel.B1   // Intermediate, moderate errors
             totalScore < 10.0 -> CEFRLevel.A2  // Basic grammar, frequent errors
-            else -> CEFRLevel.A1               // Beginner, many errors
+            totalScore < 20.0 -> CEFRLevel.A1  // Beginner, many errors
+            else -> CEFRLevel.None             // Lots of errors
         }
     }
 
@@ -106,7 +107,8 @@ class CEFRAssessmentService(
             vocabCount >= 1200 -> CEFRLevel.B2  // Upper-intermediate
             vocabCount >= 600 -> CEFRLevel.B1   // Intermediate
             vocabCount >= 300 -> CEFRLevel.A2   // Elementary
-            else -> CEFRLevel.A1                // Beginner
+            vocabCount >= 20 -> CEFRLevel.A1    // Beginner
+            else -> CEFRLevel.None              // None
         }
     }
 
@@ -131,7 +133,8 @@ class CEFRAssessmentService(
             avgLength >= 15.0 -> CEFRLevel.B2  // Extended discourse
             avgLength >= 10.0 -> CEFRLevel.B1  // Connected sentences
             avgLength >= 7.0 -> CEFRLevel.A2   // Simple sentences
-            else -> CEFRLevel.A1               // Basic phrases
+            avgLength >= 2.0 -> CEFRLevel.A1   // Basic sentences
+            else -> CEFRLevel.None             // Single words
         }
     }
 
@@ -156,6 +159,7 @@ class CEFRAssessmentService(
     ): CEFRLevel {
         // Weighted average: grammar 40%, vocabulary 30%, fluency 20%, comprehension 10%
         val levelValues = mapOf(
+            CEFRLevel.None to 0,
             CEFRLevel.A1 to 1, CEFRLevel.A2 to 2,
             CEFRLevel.B1 to 3, CEFRLevel.B2 to 4,
             CEFRLevel.C1 to 5, CEFRLevel.C2 to 6

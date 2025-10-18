@@ -108,7 +108,7 @@ Language learning assistant with conversational AI tutoring and vocabulary track
   - Low (0.3): Minor/chat-acceptable issues
   - Recognizes casual chat norms (missing accents, caps, punctuation)
 - **Phase Decision Logic**: Severity-weighted scoring triggers phase transitions
-- **CEFR Levels**: A1-C2 language proficiency tracking
+- **CEFR Levels**: None-C2 language proficiency tracking
 - **Error Detection**: 9 error types with severity classification
 - **UI Integration**: Corrections displayed as hover tooltips with severity indicators
 - **Session Persistence**: Chat sessions and messages stored in H2 database

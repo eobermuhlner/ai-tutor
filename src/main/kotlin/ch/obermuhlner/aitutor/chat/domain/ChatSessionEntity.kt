@@ -62,7 +62,7 @@ class ChatSessionEntity(
 
     @Enumerated(EnumType.STRING)
     @Column(name = "estimated_cefr_level", nullable = false, length = 8)
-    var estimatedCEFRLevel: CEFRLevel = CEFRLevel.A1,
+    var estimatedCEFRLevel: CEFRLevel = CEFRLevel.None,
 
     // NEW: Skill-specific CEFR levels (Task 0010)
     @Enumerated(EnumType.STRING)

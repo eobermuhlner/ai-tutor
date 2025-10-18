@@ -13,6 +13,7 @@ import ch.obermuhlner.aitutor.vocabulary.service.VocabularyContextService
 import ch.obermuhlner.aitutor.lesson.service.LessonProgressionService
 import ch.obermuhlner.aitutor.lesson.domain.LessonContent
 import ch.obermuhlner.aitutor.chat.domain.ChatSessionEntity
+import ch.obermuhlner.aitutor.core.model.CEFRLevel
 import java.util.UUID
 import org.slf4j.LoggerFactory
 import org.springframework.ai.chat.messages.Message
@@ -30,6 +31,13 @@ class TutorService(
     private val lessonProgressionService: LessonProgressionService,
     private val supportedLanguages: Map<String, LanguageMetadata>,
     @Value("\${ai-tutor.prompts.system}") private val systemPromptTemplate: String,
+    @Value("\${ai-tutor.prompts.level-none}") private val levelNonePromptTemplate: String,
+    @Value("\${ai-tutor.prompts.level-a1}") private val levelA1PromptTemplate: String,
+    @Value("\${ai-tutor.prompts.level-a2}") private val levelA2PromptTemplate: String,
+    @Value("\${ai-tutor.prompts.level-b1}") private val levelB1PromptTemplate: String,
+    @Value("\${ai-tutor.prompts.level-b2}") private val levelB2PromptTemplate: String,
+    @Value("\${ai-tutor.prompts.level-c1}") private val levelC1PromptTemplate: String,
+    @Value("\${ai-tutor.prompts.level-c2}") private val levelC2PromptTemplate: String,
     @Value("\${ai-tutor.prompts.phase-free}") private val phaseFreePromptTemplate: String,
     @Value("\${ai-tutor.prompts.phase-correction}") private val phaseCorrectionPromptTemplate: String,
     @Value("\${ai-tutor.prompts.phase-drill}") private val phaseDrillPromptTemplate: String,
@@ -40,9 +48,21 @@ class TutorService(
     @Value("\${ai-tutor.prompts.teaching-style.course-based}") private val teachingStyleCourseBasedTemplate: String,
     @Value("\${ai-tutor.prompts.teaching-style.reactive}") private val teachingStyleReactiveTemplate: String,
     @Value("\${ai-tutor.prompts.teaching-style.guided}") private val teachingStyleGuidedTemplate: String,
-    @Value("\${ai-tutor.prompts.teaching-style.directive}") private val teachingStyleDirectiveTemplate: String
+    @Value("\${ai-tutor.prompts.teaching-style.directive}") private val teachingStyleDirectiveTemplate: String,
+    @Value("\${ai-tutor.prompts.lesson}") private val lessonPrompt: String,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
+
+    private val levelToPromptTemplateMap = mapOf(
+        CEFRLevel.None to levelNonePromptTemplate,
+        CEFRLevel.A1 to levelA1PromptTemplate,
+        CEFRLevel.A2 to levelA2PromptTemplate,
+        CEFRLevel.B1 to levelB1PromptTemplate,
+        CEFRLevel.B2 to levelB2PromptTemplate,
+        CEFRLevel.C1 to levelC1PromptTemplate,
+        CEFRLevel.C2 to levelC2PromptTemplate,
+    )
+
     data class TutorResponse(
         val reply: String,
         val conversationResponse: ConversationResponse
@@ -231,17 +251,7 @@ class TutorService(
             append("\n")
         }
 
-        append("""
-            IMPORTANT INSTRUCTION:
-            Your PRIMARY GOAL is to teach and practice the concepts from this lesson.
-            - Actively guide the conversation toward the lesson's focus areas and vocabulary
-            - Use the practice patterns as conversation prompts
-            - Introduce vocabulary from the essential list naturally in context
-            - Explain grammar points when relevant opportunities arise
-            - Watch for the common mistakes listed and gently correct them
-            - Keep the conversation within this lesson's scope - don't jump to unrelated topics
-            - Make the lesson feel conversational, not like a formal class, but ensure you actually teach the content
-        """.trimIndent())
+        append(lessonPrompt)
     }
 
     internal fun buildConsolidatedSystemPrompt(
@@ -266,6 +276,19 @@ class TutorService(
             "sourceLanguageCode" to sourceLanguageCode,
             "tutorName" to tutor.name,
             "tutorGender" to (tutor.gender?.name ?: "Neutral"),
+            "tutorPersona" to tutor.persona,
+            "tutorDomain" to tutor.domain,
+            "vocabularyGuidance" to vocabularyGuidance,
+            "teachingStyleGuidance" to teachingStyleGuidance
+        )))
+
+        val levelPromptTemplate = levelToPromptTemplateMap[conversationState.estimatedCEFRLevel]
+        append(PromptTemplate(levelPromptTemplate).render(mapOf(
+            "targetLanguage" to targetLanguage,
+            "targetLanguageCode" to targetLanguageCode,
+            "sourceLanguage" to sourceLanguage,
+            "sourceLanguageCode" to sourceLanguageCode,
+            "tutorName" to tutor.name,
             "tutorPersona" to tutor.persona,
             "tutorDomain" to tutor.domain,
             "vocabularyGuidance" to vocabularyGuidance,
