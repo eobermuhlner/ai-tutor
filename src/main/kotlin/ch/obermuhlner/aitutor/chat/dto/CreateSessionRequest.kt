@@ -12,6 +12,6 @@ data class CreateSessionRequest(
     val sourceLanguageCode: String,
     val targetLanguageCode: String,
     val conversationPhase: ConversationPhase = ConversationPhase.Auto,
-    val estimatedCEFRLevel: CEFRLevel = CEFRLevel.A1,
+    val estimatedCEFRLevel: CEFRLevel = CEFRLevel.None,
     val currentTopic: String? = null
 )

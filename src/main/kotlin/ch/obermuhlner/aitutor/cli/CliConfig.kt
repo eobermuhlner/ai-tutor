@@ -33,7 +33,7 @@ data class CliConfig(
     @Deprecated("Use course-based sessions instead")
     val defaultPhase: String = "Auto",
     @Deprecated("Use course-based sessions instead")
-    val defaultCEFRLevel: String = "A1"
+    val defaultCEFRLevel: String = "None"
 ) {
     companion object {
         private val json = Json {

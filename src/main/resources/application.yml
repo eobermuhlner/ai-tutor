@@ -506,7 +506,7 @@ ai-tutor:
         descriptionEnglish: Learn to communicate naturally in Spanish through practical conversations covering greetings, daily routines, opinions, and more
         category: Conversational
         targetAudienceEnglish: Anyone wanting to speak Spanish naturally
-        startingLevel: A1
+        startingLevel: None
         targetLevel: C1
         learningGoalsEnglish:
           - Greet people and introduce yourself
@@ -521,7 +521,7 @@ ai-tutor:
         descriptionEnglish: Quick-start Spanish course focusing on practical phrases you'll need for travel
         category: Travel
         targetAudienceEnglish: Travelers planning a trip to Spanish-speaking countries
-        startingLevel: A1
+        startingLevel: None
         targetLevel: A2
         estimatedWeeks: 6
         learningGoalsEnglish:
@@ -537,7 +537,7 @@ ai-tutor:
         descriptionEnglish: Learn to communicate naturally in Italian through practical conversations covering greetings, daily routines, opinions, and Italian culture
         category: Conversational
         targetAudienceEnglish: Anyone wanting to speak Italian naturally
-        startingLevel: A1
+        startingLevel: None
         targetLevel: C1
         learningGoalsEnglish:
           - Greet people and introduce yourself
@@ -552,7 +552,7 @@ ai-tutor:
         descriptionEnglish: Quick-start Italian course focusing on practical phrases you'll need for travel in Italy
         category: Travel
         targetAudienceEnglish: Travelers planning a trip to Italy
-        startingLevel: A1
+        startingLevel: None
         targetLevel: A2
         estimatedWeeks: 6
         learningGoalsEnglish:
@@ -568,7 +568,7 @@ ai-tutor:
         descriptionEnglish: Comprehensive beginner to intermediate Italian course covering grammar, verb conjugations, and conversation
         category: General
         targetAudienceEnglish: New Italian learners wanting a structured approach
-        startingLevel: A1
+        startingLevel: None
         targetLevel: B1
         estimatedWeeks: 12
         learningGoalsEnglish:
@@ -583,7 +583,7 @@ ai-tutor:
         descriptionEnglish: Practice natural French conversation skills from basic to intermediate level
         category: Conversational
         targetAudienceEnglish: Learners wanting to speak French confidently
-        startingLevel: A1
+        startingLevel: None
         targetLevel: B2
         learningGoalsEnglish:
           - Engage in everyday conversations
@@ -597,7 +597,7 @@ ai-tutor:
         descriptionEnglish: Comprehensive beginner to intermediate German course covering grammar and conversation
         category: General
         targetAudienceEnglish: New German learners wanting a structured approach
-        startingLevel: A1
+        startingLevel: None
         targetLevel: B1
         estimatedWeeks: 12
         learningGoalsEnglish:
@@ -612,7 +612,7 @@ ai-tutor:
         descriptionEnglish: Learn Swiss Standard German (Schweizer Hochdeutsch) with correct Swiss orthography (ss instead of ß) and vocabulary differences
         category: General
         targetAudienceEnglish: Learners wanting to communicate in Switzerland
-        startingLevel: A1
+        startingLevel: None
         targetLevel: B1
         estimatedWeeks: 12
         learningGoalsEnglish:
@@ -627,7 +627,7 @@ ai-tutor:
         descriptionEnglish: Practice natural Swiss Standard German conversation with focus on Swiss expressions and cultural understanding
         category: Conversational
         targetAudienceEnglish: Anyone wanting to speak Swiss German confidently
-        startingLevel: A1
+        startingLevel: None
         targetLevel: B2
         learningGoalsEnglish:
           - Engage in everyday Swiss conversations
@@ -641,7 +641,7 @@ ai-tutor:
         descriptionEnglish: Learn hiragana, katakana, and basic Japanese conversation step by step
         category: General
         targetAudienceEnglish: Complete beginners to Japanese
-        startingLevel: A1
+        startingLevel: None
         targetLevel: A2
         estimatedWeeks: 16
         learningGoalsEnglish:
@@ -656,7 +656,7 @@ ai-tutor:
         descriptionEnglish: Learn to communicate naturally in Korean through practical conversations covering greetings, daily routines, honorifics, and Korean culture
         category: Conversational
         targetAudienceEnglish: Anyone wanting to speak Korean naturally
-        startingLevel: A1
+        startingLevel: None
         targetLevel: B2
         learningGoalsEnglish:
           - Greet people and introduce yourself
@@ -671,7 +671,7 @@ ai-tutor:
         descriptionEnglish: Quick-start Korean course focusing on practical phrases from K-pop, K-dramas, and modern Korean culture
         category: Conversational
         targetAudienceEnglish: K-pop and K-drama enthusiasts
-        startingLevel: A1
+        startingLevel: None
         targetLevel: A2
         estimatedWeeks: 8
         learningGoalsEnglish:
@@ -687,7 +687,7 @@ ai-tutor:
         descriptionEnglish: A beginner-friendly Korean course that teaches vocabulary, expressions, and cultural context found in Korean manhwa and webtoons. Perfect for fans who want to read comics in the original language and understand character dialogues naturally.
         category: Conversational
         targetAudienceEnglish: Manhwa and webtoon enthusiasts
-        startingLevel: A1
+        startingLevel: None
         targetLevel: A2
         estimatedWeeks: 8
         learningGoalsEnglish:
@@ -703,7 +703,7 @@ ai-tutor:
         descriptionEnglish: Comprehensive beginner to intermediate Korean course covering grammar, verb conjugations, honorifics, and sentence structure
         category: General
         targetAudienceEnglish: Serious learners wanting structured grammar training
-        startingLevel: A1
+        startingLevel: None
         targetLevel: B1
         estimatedWeeks: 14
         learningGoalsEnglish:
@@ -719,7 +719,7 @@ ai-tutor:
         descriptionEnglish: Master Mandarin’s four tones and pinyin spelling rules through focused listening, speaking, and minimal pairs so you can pronounce and understand clearly before characters
         category: General
         targetAudienceEnglish: Absolute beginners who want a pronunciation-first start
-        startingLevel: A1
+        startingLevel: None
         targetLevel: A1
         estimatedWeeks: 6
         learningGoalsEnglish:
@@ -734,7 +734,7 @@ ai-tutor:
         descriptionEnglish: Practical conversation training with simplified characters and pinyin support, covering greetings, routines, opinions, and common scenarios
         category: Conversational
         targetAudienceEnglish: Learners who want everyday fluency with Mainland usage
-        startingLevel: A1
+        startingLevel: None
         targetLevel: B2
         estimatedWeeks: 16
         learningGoalsEnglish:
@@ -750,7 +750,7 @@ ai-tutor:
         descriptionEnglish: Step-by-step literacy course introducing high-frequency simplified characters with mnemonic strategies and graded reading
         category: General
         targetAudienceEnglish: Pinyin users ready to read simplified characters
-        startingLevel: A1
+        startingLevel: None
         targetLevel: A2
         estimatedWeeks: 12
         learningGoalsEnglish:
@@ -765,7 +765,7 @@ ai-tutor:
         descriptionEnglish: Quick-start travel Mandarin focusing on transport, hotels, food, payments, and basic emergencies in Mainland China
         category: Travel
         targetAudienceEnglish: Travelers visiting Mainland Chinese cities
-        startingLevel: A1
+        startingLevel: None
         targetLevel: A2
         estimatedWeeks: 6
         learningGoalsEnglish:
@@ -780,7 +780,7 @@ ai-tutor:
         descriptionEnglish: Everyday conversation with traditional characters and Taiwan vocabulary; optional zhuyin support for reading and pronunciation
         category: Conversational
         targetAudienceEnglish: Learners focusing on Taiwanese Mandarin and culture
-        startingLevel: A1
+        startingLevel: None
         targetLevel: B2
         estimatedWeeks: 16
         learningGoalsEnglish:
@@ -795,7 +795,7 @@ ai-tutor:
         descriptionEnglish: Literacy course introducing high-frequency traditional characters using radicals, components, and short graded readings; optional zhuyin support
         category: General
         targetAudienceEnglish: Learners moving from pinyin/romanization to traditional characters
-        startingLevel: A1
+        startingLevel: None
         targetLevel: A2
         estimatedWeeks: 12
         learningGoalsEnglish:
@@ -810,7 +810,7 @@ ai-tutor:
         descriptionEnglish: Practical phrases for transport, food, lodging, and simple emergencies in Taiwan’s contexts
         category: Travel
         targetAudienceEnglish: Tourists visiting Taiwan
-        startingLevel: A1
+        startingLevel: None
         targetLevel: A2
         estimatedWeeks: 6
         learningGoalsEnglish:
@@ -825,7 +825,7 @@ ai-tutor:
         descriptionEnglish: Tone-focused conversational course using Hong Kong Cantonese; supports Jyutping in responses while accepting any romanization
         category: Conversational
         targetAudienceEnglish: Learners who want real-life Cantonese for Hong Kong
-        startingLevel: A1
+        startingLevel: None
         targetLevel: B2
         estimatedWeeks: 16
         learningGoalsEnglish:
@@ -840,7 +840,7 @@ ai-tutor:
         descriptionEnglish: High-frequency characters and colloquial Cantonese forms with graded dialogues; Jyutping support for pronunciation
         category: General
         targetAudienceEnglish: Cantonese learners transitioning to reading in Hong Kong
-        startingLevel: A1
+        startingLevel: None
         targetLevel: A2
         estimatedWeeks: 12
         learningGoalsEnglish:
@@ -855,7 +855,7 @@ ai-tutor:
         descriptionEnglish: Survival Cantonese for transport, dining, shopping, payments, and quick help in Hong Kong settings
         category: Travel
         targetAudienceEnglish: Short-term visitors to Hong Kong
-        startingLevel: A1
+        startingLevel: None
         targetLevel: A2
         estimatedWeeks: 6
         learningGoalsEnglish:
@@ -870,7 +870,7 @@ ai-tutor:
         descriptionEnglish: Practice natural Russian conversation skills while mastering Cyrillic and basic grammar
         category: Conversational
         targetAudienceEnglish: Learners wanting to speak Russian confidently
-        startingLevel: A1
+        startingLevel: None
         targetLevel: B2
         learningGoalsEnglish:
           - Master Cyrillic alphabet and reading
@@ -884,7 +884,7 @@ ai-tutor:
         descriptionEnglish: Comprehensive course covering Russian grammar including the six-case system and verb aspects
         category: General
         targetAudienceEnglish: Serious learners wanting structured grammar training
-        startingLevel: A1
+        startingLevel: None
         targetLevel: B1
         estimatedWeeks: 14
         learningGoalsEnglish:
@@ -899,7 +899,7 @@ ai-tutor:
         descriptionEnglish: Learn to communicate naturally in Brazilian Portuguese through practical conversations and cultural immersion
         category: Conversational
         targetAudienceEnglish: Anyone wanting to speak Brazilian Portuguese
-        startingLevel: A1
+        startingLevel: None
         targetLevel: B2
         learningGoalsEnglish:
           - Engage in everyday conversations
@@ -913,7 +913,7 @@ ai-tutor:
         descriptionEnglish: Quick-start course focusing on practical phrases for traveling in Brazil
         category: Travel
         targetAudienceEnglish: Travelers planning a trip to Brazil
-        startingLevel: A1
+        startingLevel: None
         targetLevel: A2
         estimatedWeeks: 6
         learningGoalsEnglish:
@@ -929,7 +929,7 @@ ai-tutor:
         descriptionEnglish: Comprehensive beginner to intermediate European Portuguese course covering grammar and conversation
         category: General
         targetAudienceEnglish: New learners of European Portuguese
-        startingLevel: A1
+        startingLevel: None
         targetLevel: B1
         estimatedWeeks: 12
         learningGoalsEnglish:
@@ -944,7 +944,7 @@ ai-tutor:
         descriptionEnglish: Practice natural European Portuguese conversation skills and cultural understanding
         category: Conversational
         targetAudienceEnglish: Learners wanting conversational fluency
-        startingLevel: A1
+        startingLevel: None
         targetLevel: B2
         learningGoalsEnglish:
           - Engage in everyday conversations
@@ -958,7 +958,7 @@ ai-tutor:
         descriptionEnglish: Learn to communicate naturally in American English through practical conversations covering greetings, daily routines, opinions, and more
         category: Conversational
         targetAudienceEnglish: Anyone wanting to speak American English naturally
-        startingLevel: A1
+        startingLevel: None
         targetLevel: C1
         learningGoalsEnglish:
           - Greet people and introduce yourself
@@ -973,7 +973,7 @@ ai-tutor:
         descriptionEnglish: Quick-start American English course focusing on practical phrases you'll need for travel
         category: Travel
         targetAudienceEnglish: Travelers planning a trip to the United States
-        startingLevel: A1
+        startingLevel: None
         targetLevel: A2
         estimatedWeeks: 6
         learningGoalsEnglish:
@@ -989,7 +989,7 @@ ai-tutor:
         descriptionEnglish: Comprehensive beginner to intermediate American English course covering grammar and usage
         category: General
         targetAudienceEnglish: New English learners wanting a structured approach
-        startingLevel: A1
+        startingLevel: None
         targetLevel: B1
         estimatedWeeks: 12
         learningGoalsEnglish:
@@ -1004,7 +1004,7 @@ ai-tutor:
         descriptionEnglish: Learn to communicate naturally in British English through practical conversations covering greetings, daily routines, opinions, and more
         category: Conversational
         targetAudienceEnglish: Anyone wanting to speak British English naturally
-        startingLevel: A1
+        startingLevel: None
         targetLevel: C1
         learningGoalsEnglish:
           - Greet people and introduce yourself
@@ -1019,7 +1019,7 @@ ai-tutor:
         descriptionEnglish: Quick-start British English course focusing on practical phrases you'll need for travel
         category: Travel
         targetAudienceEnglish: Travelers planning a trip to the United Kingdom
-        startingLevel: A1
+        startingLevel: None
         targetLevel: A2
         estimatedWeeks: 6
         learningGoalsEnglish:
@@ -1035,7 +1035,7 @@ ai-tutor:
         descriptionEnglish: Comprehensive beginner to intermediate British English course covering grammar and usage
         category: General
         targetAudienceEnglish: New English learners wanting a structured approach
-        startingLevel: A1
+        startingLevel: None
         targetLevel: B1
         estimatedWeeks: 12
         learningGoalsEnglish:
