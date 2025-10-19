@@ -12,6 +12,7 @@ import ch.obermuhlner.aitutor.chat.dto.SessionWithProgressResponse
 import ch.obermuhlner.aitutor.chat.dto.TopicHistoryResponse
 import ch.obermuhlner.aitutor.chat.repository.ChatMessageRepository
 import ch.obermuhlner.aitutor.chat.repository.ChatSessionRepository
+import ch.obermuhlner.aitutor.core.model.CEFRLevel
 import ch.obermuhlner.aitutor.core.model.Correction
 import ch.obermuhlner.aitutor.core.model.NewVocabulary
 import ch.obermuhlner.aitutor.core.model.WordCard
@@ -44,6 +45,7 @@ class ChatService(
     private val topicDecisionService: ch.obermuhlner.aitutor.tutor.service.TopicDecisionService,
     private val catalogService: ch.obermuhlner.aitutor.catalog.service.CatalogService,
     private val errorAnalyticsService: ch.obermuhlner.aitutor.analytics.service.ErrorAnalyticsService,
+    private val userLanguageService: ch.obermuhlner.aitutor.user.service.UserLanguageService,
     private val objectMapper: ObjectMapper
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -51,6 +53,9 @@ class ChatService(
     @Transactional
     fun createSession(request: CreateSessionRequest): SessionResponse {
         logger.info("Creating chat session for user ${request.userId}: ${request.tutorName} (${request.targetLanguageCode})")
+
+        // Determine the initial CEFR level: use user's proficiency if available, otherwise use the request value
+        val initialCEFRLevel = determineInitialCEFRLevel(request.userId, request.targetLanguageCode, request.estimatedCEFRLevel)
 
         val session = ChatSessionEntity(
             userId = request.userId,
@@ -61,7 +66,7 @@ class ChatService(
             targetLanguageCode = request.targetLanguageCode,
             conversationPhase = request.conversationPhase,
             effectivePhase = if (request.conversationPhase == ConversationPhase.Auto) ConversationPhase.Correction else request.conversationPhase,
-            estimatedCEFRLevel = request.estimatedCEFRLevel,
+            estimatedCEFRLevel = initialCEFRLevel,
             currentTopic = request.currentTopic
         )
         val saved = chatSessionRepository.save(session)
@@ -411,6 +416,31 @@ class ChatService(
         return toMessageResponse(savedAssistantMessage)
     }
 
+    /**
+     * Determines the initial CEFR level for a new session.
+     * First checks the user's language proficiencies in their profile for the target language.
+     * If found and has a CEFR level, returns that level; otherwise returns the provided default.
+     */
+    private fun determineInitialCEFRLevel(userId: UUID, targetLanguageCode: String, defaultCEFRLevel: CEFRLevel): CEFRLevel {
+        try {
+            // Get user's language proficiencies for the target language
+            val userLanguages = userLanguageService.getLearningLanguages(userId)
+            val targetLanguageProficiency = userLanguages.find { it.languageCode == targetLanguageCode }
+            
+            // If the target language exists in user's proficiencies and has a CEFR level, use it
+            return if (targetLanguageProficiency?.cefrLevel != null) {
+                logger.debug("Using CEFR level ${targetLanguageProficiency.cefrLevel} from user profile for language $targetLanguageCode")
+                targetLanguageProficiency.cefrLevel!!
+            } else {
+                logger.debug("No CEFR level found in user profile for language $targetLanguageCode, using default: $defaultCEFRLevel")
+                defaultCEFRLevel
+            }
+        } catch (e: Exception) {
+            logger.warn("Failed to retrieve user language proficiencies for user $userId, using default CEFR level: $defaultCEFRLevel", e)
+            return defaultCEFRLevel
+        }
+    }
+
     @Transactional
     fun createSessionFromCourse(
         userId: UUID,
@@ -421,6 +451,10 @@ class ChatService(
     ): SessionResponse? {
         val course = catalogService.getCourseById(courseTemplateId) ?: return null
         val tutor = catalogService.getTutorById(tutorProfileId) ?: return null
+
+        // For course-based sessions, determine the initial CEFR level: use user's proficiency if available, 
+        // otherwise fall back to the course starting level
+        val initialCEFRLevel = determineInitialCEFRLevel(userId, tutor.targetLanguageCode, course.startingLevel)
 
         val session = ChatSessionEntity(
             userId = userId,
@@ -434,7 +468,7 @@ class ChatService(
             targetLanguageCode = tutor.targetLanguageCode,
             conversationPhase = course.defaultPhase,
             effectivePhase = if (course.defaultPhase == ConversationPhase.Auto) ConversationPhase.Correction else course.defaultPhase,
-            estimatedCEFRLevel = course.startingLevel,
+            estimatedCEFRLevel = initialCEFRLevel,
             courseTemplateId = courseTemplateId,
             tutorProfileId = tutorProfileId,
             customName = customName,

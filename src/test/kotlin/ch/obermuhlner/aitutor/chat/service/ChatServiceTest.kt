@@ -43,7 +43,7 @@ class ChatServiceTest {
     private lateinit var topicDecisionService: ch.obermuhlner.aitutor.tutor.service.TopicDecisionService
     private lateinit var catalogService: ch.obermuhlner.aitutor.catalog.service.CatalogService
     private lateinit var errorAnalyticsService: ch.obermuhlner.aitutor.analytics.service.ErrorAnalyticsService
-    private lateinit var cefrAssessmentService: ch.obermuhlner.aitutor.assessment.service.CEFRAssessmentService
+    private lateinit var userLanguageService: ch.obermuhlner.aitutor.user.service.UserLanguageService
     private lateinit var objectMapper: ObjectMapper
 
     @BeforeEach
@@ -57,7 +57,7 @@ class ChatServiceTest {
         topicDecisionService = mockk()
         catalogService = mockk()
         errorAnalyticsService = mockk(relaxed = true)
-        cefrAssessmentService = mockk(relaxed = true)
+        userLanguageService = mockk(relaxed = true)
         objectMapper = jacksonObjectMapper()
 
         chatService = ChatService(
@@ -70,7 +70,7 @@ class ChatServiceTest {
             topicDecisionService,
             catalogService,
             errorAnalyticsService,
-            cefrAssessmentService,
+            userLanguageService,
             objectMapper
         )
     }
