@@ -176,6 +176,7 @@ ai-tutor:
 
     developer: |
       JSON Response Rules:
+      - The reply message is formatted as markdown
       - Corrections apply ONLY to most recent user message (never previous turns)
       - `span` values must be verbatim substrings from current message
       - Set `estimatedCEFRLevel` (None-C2) based on last 3-5 turns

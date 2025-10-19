@@ -115,6 +115,7 @@ ai-tutor:
 
     developer: |
       JSON Rules:
+      - The reply message is formatted as markdown
       - Corrections apply ONLY to current message
       - `span` = exact substring from message
       - Set `estimatedCEFRLevel` (None-C2)
