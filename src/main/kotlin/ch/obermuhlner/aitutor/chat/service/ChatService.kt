@@ -335,8 +335,25 @@ class ChatService(
             dueVocabularyCount = dueCount
         )
 
-        val tutorResponse = tutorService.respond(tutor, conversationState, session.userId, messageHistory, session.id, session, onReplyChunk)
-            ?: return null
+        val tutorResponse = try {
+            tutorService.respond(tutor, conversationState, session.userId, messageHistory, session.id, session, onReplyChunk)
+        } catch (e: Exception) {
+            logger.error("ChatModel call failed for session ${session.id}, user ${session.userId}", e)
+            null
+        }
+
+        if (tutorResponse == null) {
+            // Create an error message response
+            val errorMessage = "Technical problems - please try again later."
+            val errorAssistantMessage = ChatMessageEntity(
+                session = session,
+                role = MessageRole.ASSISTANT,
+                content = errorMessage,
+                sequenceNumber = nextSequence + 1
+            )
+            val savedAssistantMessage = chatMessageRepository.save(errorAssistantMessage)
+            return toMessageResponse(savedAssistantMessage, errorMessage)
+        }
 
         // Update effective phase from PhaseDecisionService, not from LLM response
         // PhaseDecisionService has the fossilization detection logic
@@ -584,7 +601,7 @@ class ChatService(
         )
     }
 
-    private fun toMessageResponse(entity: ChatMessageEntity): MessageResponse {
+    private fun toMessageResponse(entity: ChatMessageEntity, errorMessage: String? = null): MessageResponse {
         val corrections: List<Correction>? = entity.correctionsJson?.let {
             objectMapper.readValue(it)
         }
@@ -622,6 +639,7 @@ class ChatService(
             corrections = corrections,
             newVocabulary = vocabularyWithImages,
             wordCards = wordCardsWithImages,
+            errorMessage = errorMessage,
             createdAt = entity.createdAt ?: java.time.Instant.now()
         )
     }

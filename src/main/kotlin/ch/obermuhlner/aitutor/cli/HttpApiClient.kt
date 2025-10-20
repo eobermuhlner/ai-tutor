@@ -66,7 +66,8 @@ class HttpApiClient(private val baseUrl: String) {
         val content: String,
         val corrections: List<Correction>? = null,
         val newVocabulary: List<NewVocabulary>? = null,
-        val wordCards: List<WordCard>? = null
+        val wordCards: List<WordCard>? = null,
+        val errorMessage: String? = null
     )
 
     @Serializable

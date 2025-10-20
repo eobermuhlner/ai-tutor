@@ -467,6 +467,7 @@ class TestExecutorTest {
         corrections = corrections,
         newVocabulary = emptyList(),
         wordCards = emptyList(),
+        errorMessage = null,
         createdAt = java.time.Instant.now()
     )
 

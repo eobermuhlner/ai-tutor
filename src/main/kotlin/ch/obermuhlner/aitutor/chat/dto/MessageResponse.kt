@@ -11,5 +11,6 @@ data class MessageResponse(
     val corrections: List<Correction>?,
     val newVocabulary: List<VocabularyWithImageResponse>?,
     val wordCards: List<WordCardResponse>?,
+    val errorMessage: String?,
     val createdAt: Instant
 )
