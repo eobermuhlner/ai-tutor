@@ -57,12 +57,15 @@ class ChatService(
         // Determine the initial CEFR level: use user's proficiency if available, otherwise use the request value
         val initialCEFRLevel = determineInitialCEFRLevel(request.userId, request.targetLanguageCode, request.estimatedCEFRLevel)
 
+        // Determine source language from user's native language profile
+        val sourceLanguageCode = userLanguageService.suggestSourceLanguage(request.userId, request.targetLanguageCode)
+
         val session = ChatSessionEntity(
             userId = request.userId,
             tutorName = request.tutorName,
             tutorPersona = request.tutorPersona,
             tutorDomain = request.tutorDomain,
-            sourceLanguageCode = request.sourceLanguageCode,
+            sourceLanguageCode = sourceLanguageCode,
             targetLanguageCode = request.targetLanguageCode,
             conversationPhase = request.conversationPhase,
             effectivePhase = if (request.conversationPhase == ConversationPhase.Auto) ConversationPhase.Correction else request.conversationPhase,
@@ -473,6 +476,9 @@ class ChatService(
         // otherwise fall back to the course starting level
         val initialCEFRLevel = determineInitialCEFRLevel(userId, tutor.targetLanguageCode, course.startingLevel)
 
+        // Determine source language from user's native language profile as per original design
+        val resolvedSourceLanguageCode = userLanguageService.suggestSourceLanguage(userId, tutor.targetLanguageCode)
+
         val session = ChatSessionEntity(
             userId = userId,
             tutorName = tutor.name,
@@ -481,7 +487,7 @@ class ChatService(
             tutorTeachingStyle = tutor.teachingStyle,
             tutorVoiceId = tutor.voiceId,
             tutorGender = tutor.gender,
-            sourceLanguageCode = sourceLanguageCode,
+            sourceLanguageCode = resolvedSourceLanguageCode,
             targetLanguageCode = tutor.targetLanguageCode,
             conversationPhase = course.defaultPhase,
             effectivePhase = if (course.defaultPhase == ConversationPhase.Auto) ConversationPhase.Correction else course.defaultPhase,

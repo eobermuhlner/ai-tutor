@@ -80,6 +80,13 @@ class TutorServiceTest {
             lessonProgressionService = lessonProgressionService,
             supportedLanguages = supportedLanguages,
             systemPromptTemplate = systemPromptTemplate,
+            levelNonePromptTemplate = "CEFR Level None template",
+            levelA1PromptTemplate = "CEFR Level A1 template",
+            levelA2PromptTemplate = "CEFR Level A2 template",
+            levelB1PromptTemplate = "CEFR Level B1 template",
+            levelB2PromptTemplate = "CEFR Level B2 template",
+            levelC1PromptTemplate = "CEFR Level C1 template",
+            levelC2PromptTemplate = "CEFR Level C2 template",
             phaseFreePromptTemplate = phaseFreePromptTemplate,
             phaseCorrectionPromptTemplate = phaseCorrectionPromptTemplate,
             phaseDrillPromptTemplate = phaseDrillPromptTemplate,
@@ -90,7 +97,8 @@ class TutorServiceTest {
             teachingStyleCourseBasedTemplate = "Course-based teaching style guidance",
             teachingStyleReactiveTemplate = "Reactive teaching style guidance",
             teachingStyleGuidedTemplate = "Guided teaching style guidance",
-            teachingStyleDirectiveTemplate = "Directive teaching style guidance"
+            teachingStyleDirectiveTemplate = "Directive teaching style guidance",
+            lessonPrompt = "Lesson template"
         )
     }
 
