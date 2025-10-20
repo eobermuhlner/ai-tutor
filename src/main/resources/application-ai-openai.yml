@@ -21,12 +21,39 @@ spring.ai.openai.audio.speech.options.speed: 1.0
 
 # Voice mappings (abstract voice → OpenAI voice)
 # OpenAI voices: alloy, echo, fable, onyx, nova, shimmer
+# Voice characteristics (from OpenAI docs):
+# - alloy: neutral, balanced (gender-neutral)
+# - echo: male, clear
+# - fable: British-accented, expressive (slightly male)
+# - onyx: deep male, authoritative
+# - nova: warm female, friendly
+# - shimmer: bright female, energetic
 ai-tutor:
   audio:
     enabled: true
     voice-mappings:
-      Warm: nova
-      Professional: onyx
+      # Gender-specific mappings (preferred)
+      Warm-Female: nova
+      Warm-Male: fable
+      Warm-Neutral: alloy
+      Professional-Female: nova
+      Professional-Male: onyx
+      Professional-Neutral: alloy
+      Energetic-Female: shimmer
+      Energetic-Male: echo
+      Energetic-Neutral: alloy
+      Calm-Female: nova
+      Calm-Male: fable
+      Calm-Neutral: alloy
+      Authoritative-Female: nova
+      Authoritative-Male: onyx
+      Authoritative-Neutral: echo
+      Friendly-Female: nova
+      Friendly-Male: fable
+      Friendly-Neutral: alloy
+      # Gender-neutral fallbacks (if gender not specified)
+      Warm: alloy
+      Professional: alloy
       Energetic: shimmer
       Calm: alloy
       Authoritative: echo

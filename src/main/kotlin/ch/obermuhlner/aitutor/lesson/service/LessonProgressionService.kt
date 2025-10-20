@@ -14,6 +14,7 @@ import java.time.Instant
 import java.util.UUID
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class LessonProgressionService(
@@ -25,7 +26,11 @@ class LessonProgressionService(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun checkAndProgressLesson(session: ChatSessionEntity): LessonContent? {
+    @Transactional
+    fun checkAndProgressLesson(sessionId: UUID): LessonContent? {
+        // Reload session within transaction to avoid stale entity and lock contention
+        val session = chatSessionRepository.findById(sessionId).orElse(null) ?: return null
+
         // Convert UUID to course slug identifier
         val courseSlug = getCourseSlug(session.courseTemplateId) ?: return null
         val curriculum = lessonContentService.getCurriculum(courseSlug) ?: return null
@@ -47,7 +52,11 @@ class LessonProgressionService(
         return lessonContentService.getLesson(curriculum.courseId, currentLessonId)
     }
 
-    fun forceAdvanceLesson(session: ChatSessionEntity): LessonContent? {
+    @Transactional
+    fun forceAdvanceLesson(sessionId: UUID): LessonContent? {
+        // Reload session within transaction to avoid stale entity and lock contention
+        val session = chatSessionRepository.findById(sessionId).orElse(null) ?: return null
+
         val courseSlug = getCourseSlug(session.courseTemplateId) ?: return null
         val curriculum = lessonContentService.getCurriculum(courseSlug) ?: return null
         val currentLessonId = session.currentLessonId ?: return null

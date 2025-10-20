@@ -77,10 +77,10 @@ class SeedDataServiceTest {
 
         val japaneseTutors = tutorProfileRepository.findByTargetLanguageCodeAndIsActiveTrueOrderByDisplayOrder("ja-JP")
         assertEquals(4, japaneseTutors.size, "Should have 4 Japanese tutors")
-        assertTrue(japaneseTutors.any { it.name == "Yuki" })
-        assertTrue(japaneseTutors.any { it.name == "Tanaka-sensei" })
-        assertTrue(japaneseTutors.any { it.name == "Kenji" })
-        assertTrue(japaneseTutors.any { it.name == "Sakura" })
+        assertTrue(japaneseTutors.any { it.name == "Yuki (ゆき)" })
+        assertTrue(japaneseTutors.any { it.name == "Tanaka-sensei (田中先生)" })
+        assertTrue(japaneseTutors.any { it.name == "Kenji (けんじ)" })
+        assertTrue(japaneseTutors.any { it.name == "Sakura (さくら)" })
     }
 
     @Test
@@ -100,11 +100,11 @@ class SeedDataServiceTest {
 
         val frenchCourses = courseTemplateRepository.findByLanguageCodeAndIsActiveTrueOrderByDisplayOrder("fr-FR")
         assertEquals(1, frenchCourses.size, "Should have 1 French course")
-        assertTrue(frenchCourses.any { it.nameJson.contains("French Conversation") })
+        assertTrue(frenchCourses.any { it.nameJson.contains("Conversational French") })
 
         val germanCourses = courseTemplateRepository.findByLanguageCodeAndIsActiveTrueOrderByDisplayOrder("de-DE")
         assertEquals(1, germanCourses.size, "Should have 1 German course")
-        assertTrue(germanCourses.any { it.nameJson.contains("German Fundamentals") })
+        assertTrue(germanCourses.any { it.nameJson.contains("Conversational German") })
 
         val japaneseCourses = courseTemplateRepository.findByLanguageCodeAndIsActiveTrueOrderByDisplayOrder("ja-JP")
         assertEquals(1, japaneseCourses.size, "Should have 1 Japanese course")

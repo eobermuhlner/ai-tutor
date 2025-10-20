@@ -285,10 +285,12 @@ class ChatController(
             }
         }
 
+        // For arbitrary text synthesis, gender defaults to null (uses gender-neutral mapping)
         val audioBytes = try {
             audioService.synthesizeSpeech(
                 text = request.text,
                 voiceId = voiceEnum,
+                gender = null,
                 speed = request.speed
             )
         } catch (e: Exception) {
@@ -326,19 +328,46 @@ class ChatController(
         val messageEntity = chatService.getMessage(sessionId, messageId)
             ?: return ResponseEntity.notFound().build()
 
-        // Get tutor voice from session
+        // Get tutor voice and gender from session
         val tutorVoice = sessionEntity.tutorVoiceId
+        val tutorGender = sessionEntity.tutorGender
 
+        // Build composite cache key: voice-gender (e.g., "Warm-Female")
+        val voiceIdString = if (tutorVoice != null && tutorGender != null) {
+            "${tutorVoice.name}-${tutorGender.name}"
+        } else {
+            tutorVoice?.name
+        }
+
+        // Check cache: audio is valid if voiceId and speed match
+        val cachedAudio = messageEntity.audioData
+        val cachedVoiceId = messageEntity.audioVoiceId
+        val cachedSpeed = messageEntity.audioSpeed
+
+        if (cachedAudio != null && cachedVoiceId == voiceIdString && cachedSpeed == speed) {
+            // Cache hit - return cached audio
+            return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("audio/mpeg"))
+                .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION,
+                    "inline; filename=\"message-${messageId}.mp3\"")
+                .body(cachedAudio)
+        }
+
+        // Cache miss - generate audio with gender-aware voice selection
         val audioBytes = try {
             audioService.synthesizeSpeech(
                 text = messageEntity.content,
                 voiceId = tutorVoice,
+                gender = tutorGender,
                 languageCode = sessionEntity.targetLanguageCode,
                 speed = speed
             )
         } catch (e: Exception) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
         }
+
+        // Save to cache with composite key
+        chatService.updateMessageAudioCache(sessionId, messageId, audioBytes, voiceIdString, speed)
 
         return ResponseEntity.ok()
             .contentType(MediaType.parseMediaType("audio/mpeg"))

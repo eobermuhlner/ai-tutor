@@ -85,6 +85,21 @@ class ChatService(
         return message
     }
 
+    @Transactional
+    fun updateMessageAudioCache(
+        sessionId: UUID,
+        messageId: UUID,
+        audioData: ByteArray,
+        voiceId: String?,
+        speed: Double?
+    ): ChatMessageEntity? {
+        val message = getMessage(sessionId, messageId) ?: return null
+        message.audioData = audioData
+        message.audioVoiceId = voiceId
+        message.audioSpeed = speed
+        return chatMessageRepository.save(message)
+    }
+
     fun getUserSessions(userId: UUID): List<SessionResponse> {
         return chatSessionRepository.findByUserIdOrderByUpdatedAtDesc(userId)
             .map { toSessionResponse(it) }

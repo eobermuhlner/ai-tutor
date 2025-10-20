@@ -283,6 +283,7 @@ ai-tutor:
           - archetypeId: de-swiss-german-specialist
             name: Hans
             culturalNotes: from Zürich
+            gender: Male
       - code: ja-JP
         nameJson: '{"en": "Japanese (Japan)", "es": "Japonés (Japón)", "de": "Japanisch (Japan)", "fr": "Japonais (Japon)", "ja": "日本語（日本）"}'
         flagEmoji: "🇯🇵"
@@ -293,15 +294,19 @@ ai-tutor:
           - archetypeId: encouraging-general
             name: Yuki (ゆき)
             culturalNotes: from Tokyo who specializes in helping beginners
+            gender: Female
           - archetypeId: strict-academic
             name: Tanaka-sensei (田中先生)
             culturalNotes: focused on proper form and cultural etiquette
+            gender: Male
           - archetypeId: jp-romaji-specialist
             name: Kenji (けんじ)
             culturalNotes: from Tokyo
+            gender: Male
           - archetypeId: jp-hiragana-bridge
             name: Sakura (さくら)
             culturalNotes: who helps transition from romaji to hiragana
+            gender: Female
       - code: zh-CN
         nameJson: '{"en": "Chinese (Mandarin, China)", "es": "Chino mandarín (China)", "de": "Chinesisch (Mandarin, China)", "fr": "Chinois (mandarin, Chine)", "zh": "中文（普通话，中国）"}'
         flagEmoji: "🇨🇳"
@@ -312,15 +317,19 @@ ai-tutor:
           - archetypeId: encouraging-general
             name: Li Mei (李美)
             culturalNotes: from Beijing who makes learning Mandarin enjoyable and clear
+            gender: Female
           - archetypeId: strict-academic
             name: Zhang Laoshi (张老师)
             culturalNotes: focused on pronunciation accuracy and proper tone usage
+            gender: Male
           - archetypeId: zh-romanization-specialist
             name: Chen (陈)
             culturalNotes: from Shanghai who teaches entirely in pinyin for beginners not yet ready for Chinese characters
+            gender: Male
           - archetypeId: zh-character-bridge
             name: Hua (华)
             culturalNotes: who accepts pinyin input and responds in both characters and pinyin to help learners transition to Hanzi
+            gender: Female
       - code: zh-TW
         nameJson: '{"en": "Chinese (Mandarin, Taiwan)", "es": "Chino mandarín (Taiwán)", "de": "Chinesisch (Mandarin, Taiwan)", "fr": "Chinois (mandarin, Taïwan)", "zh": "中文（普通話，台灣）"}'
         flagEmoji: "🇹🇼"
@@ -331,9 +340,11 @@ ai-tutor:
           - archetypeId: encouraging-general
             name: Lin Mei (林美)
             culturalNotes: from Taipei who makes learning Mandarin with traditional characters enjoyable and clear
+            gender: Female
           - archetypeId: strict-academic
             name: Wang Laoshi (王老師)
             culturalNotes: focused on pronunciation and cultural expressions used in Taiwan
+            gender: Male
       - code: zh-HK
         nameJson: '{"en": "Chinese (Cantonese, Hong Kong)", "es": "Chino cantonés (Hong Kong)", "de": "Kantonesisch (Hongkong)", "fr": "Chinois cantonais (Hong Kong)", "zh": "中文（粵語，香港）"}'
         flagEmoji: "🇭🇰"
@@ -344,9 +355,11 @@ ai-tutor:
           - archetypeId: encouraging-general
             name: Mei-ling (美玲)
             culturalNotes: from Hong Kong who helps learners master conversational Cantonese
+            gender: Female
           - archetypeId: strict-academic
             name: Chan Laoshi (陳老師)
             culturalNotes: focused on tone precision and character comprehension
+            gender: Male
       - code: ko-KR
         nameJson: '{"en": "Korean (South Korea)", "es": "Coreano (Corea del Sur)", "de": "Koreanisch (Südkorea)", "fr": "Coréen (Corée du Sud)", "ko": "한국어 (대한민국)"}'
         flagEmoji: "🇰🇷"
@@ -357,21 +370,27 @@ ai-tutor:
           - archetypeId: encouraging-general
             name: Ji-won (지원)
             culturalNotes: from Seoul who makes learning Korean enjoyable and accessible
+            gender: Female
           - archetypeId: strict-academic
             name: Kim Seonsaengnim (김선생님)
             culturalNotes: expert in Korean grammar and formal speech levels
+            gender: Male
           - archetypeId: casual-friend
             name: Min-ho (민호)
             culturalNotes: from Busan who teaches through K-pop and modern culture
+            gender: Male
           - archetypeId: casual-friend
             name: Soo-jin (수진)
             culturalNotes: from Seoul who loves sharing Korean culture and food
+            gender: Female
           - archetypeId: ko-romanization-specialist
             name: Hye-jin (혜진)
             culturalNotes: who teaches entirely in romanization for learners not yet ready for Hangul
+            gender: Female
           - archetypeId: ko-hangul-bridge
             name: Dae-hyun (대현)
             culturalNotes: who accepts romanized input and responds in Hangul to ease the script transition
+            gender: Male
       - code: ru-RU
         nameJson: '{"en": "Russian (Russia)", "es": "Ruso (Rusia)", "de": "Russisch (Russland)", "fr": "Russe (Russie)", "ru": "Русский (Россия)"}'
         flagEmoji: "🇷🇺"
@@ -382,18 +401,23 @@ ai-tutor:
           - archetypeId: encouraging-general
             name: Natasha (Наташа)
             culturalNotes: from Moscow who specializes in helping beginners with Cyrillic
+            gender: Female
           - archetypeId: strict-academic
             name: Dmitri Petrovich (Дмитрий Петрович)
             culturalNotes: focused on proper grammar and the six-case system
+            gender: Male
           - archetypeId: casual-friend
             name: Mikhail (Михаил)
             culturalNotes: from St. Petersburg
+            gender: Male
           - archetypeId: ru-romanization-specialist
             name: Irina (Ирина)
             culturalNotes: who teaches Russian entirely in romanized form for learners not yet ready for Cyrillic
+            gender: Female
           - archetypeId: ru-cyrillic-bridge
             name: Alexei (Алексей)
             culturalNotes: who accepts romanized Russian and responds in Cyrillic to ease the alphabet transition
+            gender: Male
       - code: pt-BR
         nameJson: '{"en": "Portuguese (Brazil)", "es": "Portugués (Brasil)", "de": "Portugiesisch (Brasilien)", "fr": "Portugais (Brésil)", "pt": "Português (Brasil)"}'
         flagEmoji: "🇧🇷"
@@ -404,12 +428,15 @@ ai-tutor:
           - archetypeId: encouraging-general
             name: Camila
             culturalNotes: from São Paulo who loves sharing Brazilian culture and language
+            gender: Female
           - archetypeId: casual-friend
             name: Lucas
             culturalNotes: from Rio who teaches through culture, music, and everyday conversations
+            gender: Male
           - archetypeId: strict-academic
             name: Professor Silva
             culturalNotes: in Brazilian Portuguese grammar and literature
+            gender: Female
       - code: pt-PT
         nameJson: '{"en": "Portuguese (Portugal)", "es": "Portugués (Portugal)", "de": "Portugiesisch (Portugal)", "fr": "Portugais (Portugal)", "pt": "Português (Portugal)"}'
         flagEmoji: "🇵🇹"
@@ -420,12 +447,15 @@ ai-tutor:
           - archetypeId: encouraging-general
             name: Sofia
             culturalNotes: from Lisbon who helps learners master European Portuguese
+            gender: Female
           - archetypeId: casual-friend
             name: João
             culturalNotes: from Porto
+            gender: Male
           - archetypeId: strict-academic
             name: Professor Oliveira
             culturalNotes: focused on proper European Portuguese grammar and formal register
+            gender: Male
       - code: en-US
         nameJson: '{"en": "English (US)", "es": "Inglés (Estados Unidos)", "de": "Englisch (USA)", "fr": "Anglais (États-Unis)"}'
         flagEmoji: "🇺🇸"
@@ -436,15 +466,19 @@ ai-tutor:
           - archetypeId: encouraging-general
             name: Sarah
             culturalNotes: from New York who specializes in helping beginners feel confident
+            gender: Female
           - archetypeId: casual-friend
             name: Mike
             culturalNotes: from California who makes learning fun and relaxed
+            gender: Male
           - archetypeId: strict-academic
             name: Professor Johnson
             culturalNotes: from Boston with expertise in American English grammar and literature
+            gender: Female
           - archetypeId: casual-friend
             name: Emily
             culturalNotes: from Texas
+            gender: Female
       - code: en-GB
         nameJson: '{"en": "English (UK)", "es": "Inglés (Reino Unido)", "de": "Englisch (Großbritannien)", "fr": "Anglais (Royaume-Uni)"}'
         flagEmoji: "🇬🇧"
@@ -455,12 +489,15 @@ ai-tutor:
           - archetypeId: encouraging-general
             name: Emma
             culturalNotes: from London who helps learners master British English
+            gender: Female
           - archetypeId: casual-friend
             name: James
             culturalNotes: from Manchester
+            gender: Male
           - archetypeId: strict-academic
             name: Professor Williams
             culturalNotes: from Oxford with expertise in British English grammar and literature
+            gender: Male
 
     courses:
       - languageCode: es-ES

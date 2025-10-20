@@ -32,8 +32,8 @@ class CatalogPropertiesTest {
         assertTrue(archetypes.any { it.id == "casual-friend" })
 
         // Verify specialized archetypes
-        assertTrue(archetypes.any { it.id == "romaji-specialist" })
-        assertTrue(archetypes.any { it.id == "hiragana-bridge" })
+        assertTrue(archetypes.any { it.id == "jp-romaji-specialist" })
+        assertTrue(archetypes.any { it.id == "jp-hiragana-bridge" })
     }
 
     @Test

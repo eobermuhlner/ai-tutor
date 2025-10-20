@@ -544,6 +544,8 @@ class ChatServiceTest {
         every { tutor.domainEnglish } returns "general"
         every { tutor.teachingStyle } returns ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Reactive
         every { tutor.targetLanguageCode } returns "es"
+        every { tutor.voiceId } returns ch.obermuhlner.aitutor.core.model.catalog.TutorVoice.Warm
+        every { tutor.gender } returns ch.obermuhlner.aitutor.core.model.catalog.TutorGender.Female
 
         val savedSession = TestDataFactory.createSessionEntity()
 

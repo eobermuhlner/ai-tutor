@@ -83,9 +83,10 @@ class LessonProgressionServiceTest {
 
         val lessonContent = mockk<LessonContent>()
         every { lessonContentService.getLesson("es-conversational-spanish", "week-01-greetings") } returns lessonContent
+        every { chatSessionRepository.findById(session.id) } returns java.util.Optional.of(session)
         every { chatSessionRepository.save(any()) } returns session
 
-        val result = lessonProgressionService.checkAndProgressLesson(session)
+        val result = lessonProgressionService.checkAndProgressLesson(session.id)
 
         assertNotNull(result)
         assertEquals("week-01-greetings", session.currentLessonId)
@@ -110,8 +111,9 @@ class LessonProgressionServiceTest {
         )
 
         every { catalogService.getCourseById(any()) } returns null
+        every { chatSessionRepository.findById(session.id) } returns java.util.Optional.of(session)
 
-        val result = lessonProgressionService.checkAndProgressLesson(session)
+        val result = lessonProgressionService.checkAndProgressLesson(session.id)
 
         assertNull(result)
     }
@@ -153,8 +155,9 @@ class LessonProgressionServiceTest {
         val lessonContent = mockk<LessonContent>()
         every { lessonContentService.getLesson("es-conversational-spanish", "week-01-greetings") } returns lessonContent
         every { chatMessageRepository.countBySessionId(any()) } returns 10L
+        every { chatSessionRepository.findById(session.id) } returns java.util.Optional.of(session)
 
-        val result = lessonProgressionService.checkAndProgressLesson(session)
+        val result = lessonProgressionService.checkAndProgressLesson(session.id)
 
         assertNotNull(result)
         assertEquals("week-01-greetings", session.currentLessonId) // Should stay on same lesson
@@ -199,9 +202,10 @@ class LessonProgressionServiceTest {
         val lessonContent = mockk<LessonContent>()
         every { lessonContentService.getLesson("es-conversational-spanish", "week-02-introductions") } returns lessonContent
         every { chatMessageRepository.countBySessionId(sessionId) } returns 10L // Exceeds required 5 turns
+        every { chatSessionRepository.findById(sessionId) } returns java.util.Optional.of(session)
         every { chatSessionRepository.save(any()) } returns session
 
-        val result = lessonProgressionService.checkAndProgressLesson(session)
+        val result = lessonProgressionService.checkAndProgressLesson(sessionId)
 
         assertNotNull(result)
         assertEquals("week-02-introductions", session.currentLessonId)
@@ -246,8 +250,9 @@ class LessonProgressionServiceTest {
         val lessonContent = mockk<LessonContent>()
         every { lessonContentService.getLesson("es-conversational-spanish", "week-10-future-plans") } returns lessonContent
         every { chatMessageRepository.countBySessionId(sessionId) } returns 20L
+        every { chatSessionRepository.findById(sessionId) } returns java.util.Optional.of(session)
 
-        val result = lessonProgressionService.checkAndProgressLesson(session)
+        val result = lessonProgressionService.checkAndProgressLesson(sessionId)
 
         // TODO: Service currently returns null when on last lesson and criteria met to advance
         // Consider returning current lesson content instead
@@ -291,9 +296,10 @@ class LessonProgressionServiceTest {
 
         val lessonContent = mockk<LessonContent>()
         every { lessonContentService.getLesson("es-conversational-spanish", "week-02-introductions") } returns lessonContent
+        every { chatSessionRepository.findById(sessionId) } returns java.util.Optional.of(session)
         every { chatSessionRepository.save(any()) } returns session
 
-        val result = lessonProgressionService.forceAdvanceLesson(session)
+        val result = lessonProgressionService.forceAdvanceLesson(sessionId)
 
         assertNotNull(result)
         assertEquals("week-02-introductions", session.currentLessonId)
@@ -330,8 +336,9 @@ class LessonProgressionServiceTest {
             )
         )
         every { lessonContentService.getCurriculum("es-conversational-spanish") } returns curriculum
+        every { chatSessionRepository.findById(session.id) } returns java.util.Optional.of(session)
 
-        val result = lessonProgressionService.forceAdvanceLesson(session)
+        val result = lessonProgressionService.forceAdvanceLesson(session.id)
 
         assertNull(result)
     }

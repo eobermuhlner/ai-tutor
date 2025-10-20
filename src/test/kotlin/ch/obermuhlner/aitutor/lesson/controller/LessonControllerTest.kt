@@ -153,7 +153,7 @@ class LessonControllerTest {
 
         every { authorizationService.getCurrentUserId() } returns userId
         every { chatSessionRepository.findById(sessionId) } returns Optional.of(session)
-        every { lessonProgressionService.checkAndProgressLesson(session) } returns lesson
+        every { lessonProgressionService.checkAndProgressLesson(sessionId) } returns lesson
 
         val response = lessonController.getCurrentLesson(sessionId)
 
@@ -264,14 +264,14 @@ class LessonControllerTest {
 
         every { authorizationService.getCurrentUserId() } returns userId
         every { chatSessionRepository.findById(sessionId) } returns Optional.of(session)
-        every { lessonProgressionService.forceAdvanceLesson(session) } returns nextLesson
+        every { lessonProgressionService.forceAdvanceLesson(sessionId) } returns nextLesson
 
         val response = lessonController.advanceLesson(sessionId)
 
         assertEquals(HttpStatus.OK, response.statusCode)
         assertNotNull(response.body)
         assertEquals("week-02-introductions", response.body?.id)
-        verify { lessonProgressionService.forceAdvanceLesson(session) }
+        verify { lessonProgressionService.forceAdvanceLesson(sessionId) }
     }
 
     @Test
@@ -296,7 +296,7 @@ class LessonControllerTest {
 
         every { authorizationService.getCurrentUserId() } returns userId
         every { chatSessionRepository.findById(sessionId) } returns Optional.of(session)
-        every { lessonProgressionService.forceAdvanceLesson(session) } returns null
+        every { lessonProgressionService.forceAdvanceLesson(sessionId) } returns null
 
         val response = lessonController.advanceLesson(sessionId)
 

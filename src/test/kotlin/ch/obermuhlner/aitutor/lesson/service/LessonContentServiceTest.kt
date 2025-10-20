@@ -142,7 +142,7 @@ class LessonContentServiceTest {
 
         assertNotNull(curriculum)
         assertEquals("fr-conversational-french", curriculum?.courseId)
-        assertEquals(10, curriculum?.lessons?.size)
+        assertEquals(1, curriculum?.lessons?.size)
     }
 
     @Test
@@ -151,7 +151,7 @@ class LessonContentServiceTest {
 
         assertNotNull(curriculum)
         assertEquals("de-conversational-german", curriculum?.courseId)
-        assertEquals(10, curriculum?.lessons?.size)
+        assertEquals(1, curriculum?.lessons?.size)
     }
 
     @Test

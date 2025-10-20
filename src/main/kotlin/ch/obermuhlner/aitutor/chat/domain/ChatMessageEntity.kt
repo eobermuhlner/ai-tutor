@@ -43,6 +43,16 @@ class ChatMessageEntity(
     @Column(name = "sequence_number", nullable = false)
     var sequenceNumber: Int = 0,
 
+    // Audio caching fields (to avoid expensive TTS regeneration)
+    @Column(name = "audio_data", columnDefinition = "BLOB")
+    var audioData: ByteArray? = null,
+
+    @Column(name = "audio_voice_id", length = 32)
+    var audioVoiceId: String? = null,
+
+    @Column(name = "audio_speed")
+    var audioSpeed: Double? = null,
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     val createdAt: Instant? = null

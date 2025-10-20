@@ -89,7 +89,7 @@ class LessonController(
             return ResponseEntity.badRequest().build()
         }
 
-        val lesson = lessonProgressionService.checkAndProgressLesson(session)
+        val lesson = lessonProgressionService.checkAndProgressLesson(sessionId)
             ?: return ResponseEntity.notFound().build()
 
         val response = toLessonContentResponse(lesson)
@@ -116,7 +116,7 @@ class LessonController(
             return ResponseEntity.badRequest().build()
         }
 
-        val nextLesson = lessonProgressionService.forceAdvanceLesson(session)
+        val nextLesson = lessonProgressionService.forceAdvanceLesson(sessionId)
             ?: return ResponseEntity.notFound().build()
 
         val response = toLessonContentResponse(nextLesson)

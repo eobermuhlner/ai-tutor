@@ -151,8 +151,8 @@ class LessonContentService(
         val scenariosSection = Regex("""## Conversation Scenarios\s*\n(.*?)(?=\n##|\z)""", RegexOption.DOT_MATCHES_ALL)
             .find(markdown)?.groupValues?.get(1) ?: return emptyList()
 
-        // Flexible regex: tolerate any amount of whitespace between title and code block
-        return Regex("""### (.*?)\s*\n\s*```\s*\n(.*?)\n```""", RegexOption.DOT_MATCHES_ALL)
+        // Try code blocks first (triple backticks)
+        val codeBlockScenarios = Regex("""### (.*?)\s*\n\s*```\s*\n(.*?)\n```""", RegexOption.DOT_MATCHES_ALL)
             .findAll(scenariosSection)
             .map { match ->
                 Scenario(
@@ -161,6 +161,33 @@ class LessonContentService(
                 )
             }
             .toList()
+
+        if (codeBlockScenarios.isNotEmpty()) {
+            return codeBlockScenarios
+        }
+
+        // Fall back to blockquotes (lines starting with >)
+        val subsections = Regex("""### (.*?)\s*\n(.*?)(?=\n###|\z)""", RegexOption.DOT_MATCHES_ALL)
+            .findAll(scenariosSection)
+            .mapNotNull { match ->
+                val title = match.groupValues[1].trim()
+                val content = match.groupValues[2]
+
+                // Extract lines starting with >
+                val dialogueLines = content.lines()
+                    .filter { it.trim().startsWith(">") }
+                    .map { it.trim().removePrefix(">").trim() }
+                    .filter { it.isNotEmpty() }
+
+                if (dialogueLines.isEmpty()) null
+                else Scenario(
+                    title = title,
+                    dialogue = dialogueLines.joinToString("\n")
+                )
+            }
+            .toList()
+
+        return subsections
     }
 
     private fun extractBulletPoints(text: String, header: String): List<String> {

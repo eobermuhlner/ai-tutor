@@ -74,7 +74,7 @@ class TutorService(
 
         // Get current lesson if session is course-based
         val currentLesson = if (session != null && session.courseTemplateId != null) {
-            lessonProgressionService.checkAndProgressLesson(session)
+            lessonProgressionService.checkAndProgressLesson(session.id)
         } else {
             null
         }
