@@ -11,6 +11,8 @@ import org.springframework.http.client.MultipartBodyBuilder
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestClient
 import org.springframework.web.client.body
+import org.springframework.web.util.UriBuilder
+import org.springframework.web.util.UriComponentsBuilder.*
 
 @Service
 @EnableConfigurationProperties(ImageStoreProperties::class)
@@ -75,13 +77,28 @@ class ImageStoreClient(
             .toBodilessEntity()
     }
 
-    fun searchImagesByTag(concept: String): List<ImageMetadataResponse> {
-        logger.debug("Searching images by concept tag: $concept")
+    fun searchImagesByTags(
+        required: List<String>,
+        optional: List<String> = emptyList(),
+        forbidden: List<String> = emptyList(),
+    ): List<ImageMetadataResponse> {
+        logger.debug("Searching images by required: $required, optional: $optional, forbidden: $forbidden")
+
+        val uri = fromPath("/api/images/search")
+            .addQueryParamIfAny("required", required)
+            .addQueryParamIfAny("optional", optional)
+            .addQueryParamIfAny("forbidden", forbidden)
+            .toUriString()
 
         return restClient.get()
-            .uri("/api/images/search?required={concept}", concept)
+            .uri(uri)
             .retrieve()
             .body<List<ImageMetadataResponse>>() ?: emptyList()
+    }
+
+    private fun UriBuilder.addQueryParamIfAny(name: String, values: List<String>): UriBuilder {
+        val cleaned = values.map { it.trim() }.filter { it.isNotEmpty() }
+        return if (cleaned.isEmpty()) this else this.queryParam(name, *cleaned.toTypedArray())
     }
 
     fun getImageUrl(imagestoreId: Long): String {

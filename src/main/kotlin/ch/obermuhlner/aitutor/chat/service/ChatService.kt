@@ -282,7 +282,8 @@ class ChatService(
             teachingStyle = session.tutorTeachingStyle,
             sourceLanguageCode = session.sourceLanguageCode,
             targetLanguageCode = session.targetLanguageCode,
-            gender = session.tutorGender
+            gender = session.tutorGender,
+            age = session.tutorAge
         )
 
         // Initialize effectivePhase if null (migration case)
@@ -487,6 +488,9 @@ class ChatService(
             tutorPersona = tutor.personaEnglish,
             tutorDomain = tutor.domainEnglish,
             tutorTeachingStyle = tutor.teachingStyle,
+            tutorAge = tutor.age,
+            tutorImage = "/api/v1/images/tutor/${tutor.id}/data",
+            tutorEmoji = tutor.emoji,
             tutorVoiceId = tutor.voiceId,
             tutorGender = tutor.gender,
             sourceLanguageCode = resolvedSourceLanguageCode,
@@ -588,6 +592,9 @@ class ChatService(
             tutorPersona = entity.tutorPersona,
             tutorDomain = entity.tutorDomain,
             tutorTeachingStyle = entity.tutorTeachingStyle,
+            tutorAge = entity.tutorAge,
+            tutorImage = entity.tutorImage,
+            tutorEmoji = entity.tutorEmoji,
             sourceLanguageCode = entity.sourceLanguageCode,
             targetLanguageCode = entity.targetLanguageCode,
             conversationPhase = entity.conversationPhase,

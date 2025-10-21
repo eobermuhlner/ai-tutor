@@ -66,6 +66,7 @@ class SeedDataService(
                     teachingStyle = archetype.teachingStyle,
                     voiceId = archetype.voiceId,
                     gender = variant.gender,
+                    age = variant.age,
                     targetLanguageCode = language.code,
                     isActive = true,
                     displayOrder = variant.displayOrderOverride ?: archetype.displayOrder

@@ -27,6 +27,9 @@ class ImageControllerTest {
     @MockkBean
     private lateinit var imageService: ImageService
 
+    @MockkBean
+    private lateinit var tutorProfileRepository: ch.obermuhlner.aitutor.catalog.repository.TutorProfileRepository
+
     @MockkBean(relaxed = true)
     private lateinit var jwtTokenService: ch.obermuhlner.aitutor.auth.service.JwtTokenService
 

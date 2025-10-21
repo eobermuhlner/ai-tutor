@@ -9,7 +9,8 @@ data class Tutor(
     val teachingStyle: TeachingStyle = TeachingStyle.Reactive,
     val sourceLanguageCode: String,
     val targetLanguageCode: String,
-    val gender: TutorGender? = null
+    val gender: TutorGender? = null,
+    val age: Int = 30
 )
 
 enum class TeachingStyle {

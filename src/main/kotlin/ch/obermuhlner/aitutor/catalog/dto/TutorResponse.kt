@@ -15,5 +15,7 @@ data class TutorResponse(
     val description: String,          // Localized
     val targetLanguageCode: String,
     val culturalBackground: String?,  // Localized
+    val age: Int,
+    val imageUrl: String?,            // URL to tutor image endpoint
     val displayOrder: Int
 )

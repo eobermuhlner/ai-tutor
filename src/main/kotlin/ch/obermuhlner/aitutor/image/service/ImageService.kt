@@ -1,7 +1,72 @@
 package ch.obermuhlner.aitutor.image.service
 
-interface ImageService {
-    fun getImageByConcept(concept: String): ImageData?
+import ch.obermuhlner.aitutor.core.model.catalog.TutorGender
+import ch.obermuhlner.aitutor.image.dto.ImageMetadataResponse
+import org.slf4j.LoggerFactory
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+
+@Service
+class ImageService(
+    private val imageStoreClient: ImageStoreClient
+) {
+
+    private val logger = LoggerFactory.getLogger(ImageService::class.java)
+
+    @Transactional(readOnly = true)
+    fun getImageByConcept(concept: String): ImageData? {
+        val searchResults = try {
+            imageStoreClient.searchImagesByTags(listOf(concept))
+        } catch (e: Exception) {
+            logger.error("Failed to search images", e)
+            emptyList()
+        }
+
+        if (searchResults.isEmpty()) {
+            logger.debug("No image found for concept: $concept")
+            return null
+        }
+
+        // Take first match
+        val metadata = searchResults.first()
+
+        return getImage(metadata)
+    }
+
+    @Transactional(readOnly = true)
+    fun getImageByPerson(countryCode: String, gender: TutorGender, age: Int, text: String): ImageData? {
+        val searchResults = try {
+            imageStoreClient.searchImagesByTags(
+                listOf("person"),
+                listOf(countryCode, gender.toString(), "age_$age") + text.split(" ").map { it.trim() },
+            )
+        } catch (e: Exception) {
+            logger.error("Failed to search images", e)
+            emptyList()
+        }
+
+        if (searchResults.isEmpty()) {
+            logger.debug("No image found for person: $countryCode $gender")
+            return null
+        }
+
+        // Take first match
+        val metadata = searchResults.first()
+
+        return getImage(metadata)
+    }
+
+    private fun getImage(metadata: ImageMetadataResponse): ImageData? {
+        return try {
+            val data = imageStoreClient.getImageData(metadata.id)
+            val format = metadata.contentType.substringAfter("/", "png")
+            ImageData(data, format, metadata.contentType)
+        } catch (e: Exception) {
+            logger.error("Failed to fetch image from imagestore: id=${metadata.id}", e)
+            null
+        }
+    }
+
 }
 
 data class ImageData(

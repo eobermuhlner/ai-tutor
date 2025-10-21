@@ -90,6 +90,8 @@ class CatalogController(
                 culturalBackground = tutor.culturalBackgroundJson?.let {
                     localizationService.getLocalizedText(it, locale, "", "en")
                 },
+                age = tutor.age,
+                imageUrl = "/api/v1/images/tutor/${tutor.id}/data",
                 displayOrder = tutor.displayOrder
             )
         }
@@ -145,6 +147,8 @@ class CatalogController(
                 culturalBackground = tutor.culturalBackgroundJson?.let {
                     localizationService.getLocalizedText(it, locale, "", "en")
                 },
+                age = tutor.age,
+                imageUrl = "/api/v1/images/tutor/${tutor.id}/data",
                 displayOrder = tutor.displayOrder
             )
         }
@@ -169,6 +173,8 @@ class CatalogController(
             culturalBackground = tutor.culturalBackgroundJson?.let {
                 localizationService.getLocalizedText(it, locale, "", "en")
             },
+            age = tutor.age,
+            imageUrl = "/api/v1/images/tutor/${tutor.id}/data",
             createdAt = tutor.createdAt ?: java.time.Instant.now(),
             updatedAt = tutor.updatedAt ?: java.time.Instant.now()
         )
@@ -194,6 +200,8 @@ class CatalogController(
             culturalBackground = tutor.culturalBackgroundJson?.let {
                 localizationService.getLocalizedText(it, locale, "", "en")
             },
+            age = tutor.age,
+            imageUrl = "/api/v1/images/tutor/${tutor.id}/data",
             createdAt = tutor.createdAt ?: java.time.Instant.now(),
             updatedAt = tutor.updatedAt ?: java.time.Instant.now()
         )

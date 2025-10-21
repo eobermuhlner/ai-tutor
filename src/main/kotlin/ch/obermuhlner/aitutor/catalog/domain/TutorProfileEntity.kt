@@ -67,6 +67,9 @@ class TutorProfileEntity(
     @Column(name = "gender", length = 16)
     var gender: TutorGender? = null,
 
+    @Column(name = "age", nullable = false)
+    var age: Int = 30,
+
     @Column(name = "target_language_code", nullable = false, length = 32)
     var targetLanguageCode: String,
 

@@ -17,12 +17,12 @@ import org.mockito.kotlin.whenever
 class ImageServiceTest {
 
     private lateinit var imageStoreClient: ImageStoreClient
-    private lateinit var imageServiceImpl: ImageServiceImpl
+    private lateinit var imageServiceImpl: ImageService
 
     @BeforeEach
     fun setUp() {
         imageStoreClient = mock(ImageStoreClient::class.java)
-        imageServiceImpl = ImageServiceImpl(imageStoreClient)
+        imageServiceImpl = ImageService(imageStoreClient)
     }
 
     @Test
@@ -40,7 +40,7 @@ class ImageServiceTest {
             tags = listOf(concept)
         )
 
-        whenever(imageStoreClient.searchImagesByTag(any())).thenReturn(listOf(metadata))
+        whenever(imageStoreClient.searchImagesByTags(any(), any(), any())).thenReturn(listOf(metadata))
         whenever(imageStoreClient.getImageData(any())).thenReturn(imageBytes)
 
         val result = imageServiceImpl.getImageByConcept(concept)
@@ -50,7 +50,7 @@ class ImageServiceTest {
         assertEquals("png", result?.format)
         assertEquals("image/png", result?.contentType)
 
-        verify(imageStoreClient, times(1)).searchImagesByTag(concept)
+        verify(imageStoreClient, times(1)).searchImagesByTags(listOf(concept), emptyList(), emptyList())
         verify(imageStoreClient, times(1)).getImageData(1L)
     }
 
@@ -58,13 +58,13 @@ class ImageServiceTest {
     fun `getImageByConcept should return null if no search results`() {
         val concept = "nonexistent"
 
-        whenever(imageStoreClient.searchImagesByTag(any())).thenReturn(emptyList())
+        whenever(imageStoreClient.searchImagesByTags(any(), any(), any())).thenReturn(emptyList())
 
         val result = imageServiceImpl.getImageByConcept(concept)
 
         assertNull(result)
 
-        verify(imageStoreClient, times(1)).searchImagesByTag(concept)
+        verify(imageStoreClient, times(1)).searchImagesByTags(listOf(concept), emptyList(), emptyList())
         verify(imageStoreClient, never()).getImageData(any())
     }
 
@@ -82,14 +82,14 @@ class ImageServiceTest {
             tags = listOf(concept)
         )
 
-        whenever(imageStoreClient.searchImagesByTag(any())).thenReturn(listOf(metadata))
+        whenever(imageStoreClient.searchImagesByTags(any(), any(), any())).thenReturn(listOf(metadata))
         whenever(imageStoreClient.getImageData(any())).thenThrow(RuntimeException("Network error"))
 
         val result = imageServiceImpl.getImageByConcept(concept)
 
         assertNull(result)
 
-        verify(imageStoreClient, times(1)).searchImagesByTag(concept)
+        verify(imageStoreClient, times(1)).searchImagesByTags(listOf(concept), emptyList(), emptyList())
         verify(imageStoreClient, times(1)).getImageData(1L)
     }
 }

@@ -71,7 +71,8 @@ class ChatServiceTest {
             catalogService,
             errorAnalyticsService,
             userLanguageService,
-            objectMapper
+            objectMapper,
+            "An error occurred"
         )
     }
 

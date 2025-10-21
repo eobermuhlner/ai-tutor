@@ -35,7 +35,8 @@ data class TutorVariantConfig(
     val name: String,
     val culturalNotes: String,
     val displayOrderOverride: Int? = null,
-    val gender: TutorGender? = null  // Override archetype gender if needed
+    val gender: TutorGender? = null,  // Override archetype gender if needed
+    val age: Int = 30  // Tutor age (default 30)
 )
 
 data class LanguageConfig(
