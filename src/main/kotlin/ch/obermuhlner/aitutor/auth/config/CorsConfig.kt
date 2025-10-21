@@ -14,7 +14,7 @@ class CorsConfig {
         val configuration = CorsConfiguration()
 
         // Allow frontend origin
-        configuration.allowedOrigins = listOf("http://localhost:5173")
+        configuration.allowedOrigins = listOf("http://localhost:5173", "http://localhost:5174")
 
         // Allow all HTTP methods
         configuration.allowedMethods = listOf("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")

@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.ai.chat.messages.AssistantMessage
 import org.springframework.ai.chat.messages.Message
 import org.springframework.ai.chat.messages.UserMessage
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -46,7 +47,8 @@ class ChatService(
     private val catalogService: ch.obermuhlner.aitutor.catalog.service.CatalogService,
     private val errorAnalyticsService: ch.obermuhlner.aitutor.analytics.service.ErrorAnalyticsService,
     private val userLanguageService: ch.obermuhlner.aitutor.user.service.UserLanguageService,
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
+    @Value("\${ai-tutor.messages.technical-error}") private val technicalErrorMessage: String,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -347,7 +349,7 @@ class ChatService(
 
         if (tutorResponse == null) {
             // Create an error message response
-            val errorMessage = "Technical problems - please try again later."
+            val errorMessage = technicalErrorMessage
             val errorAssistantMessage = ChatMessageEntity(
                 session = session,
                 role = MessageRole.ASSISTANT,

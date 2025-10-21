@@ -1,0 +1,12 @@
+${AnsiColor.BRIGHT_CYAN}
+ █████╗ ██╗    ████████╗██╗   ██╗████████╗ ██████╗ ██████╗ ${AnsiColor.CYAN}
+██╔══██╗██║    ╚══██╔══╝██║   ██║╚══██╔══╝██╔═══██╗██╔══██╗${AnsiColor.BRIGHT_BLUE}
+███████║██║       ██║   ██║   ██║   ██║   ██║   ██║██████╔╝${AnsiColor.BLUE}
+██╔══██║██║       ██║   ██║   ██║   ██║   ██║   ██║██╔══██╗${AnsiColor.MAGENTA}
+██║  ██║██║       ██║   ╚██████╔╝   ██║   ╚██████╔╝██║  ██║${AnsiColor.BRIGHT_MAGENTA}
+╚═╝  ╚═╝╚═╝       ╚═╝    ╚═════╝    ╚═╝    ╚═════╝ ╚═╝  ╚═╝${AnsiColor.DEFAULT}
+
+${AnsiStyle.BOLD}${spring.application.name} ${application.version}${AnsiStyle.NORMAL}
+Spring Boot ${spring-boot.version}
+
+

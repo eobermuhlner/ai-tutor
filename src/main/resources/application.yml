@@ -5,9 +5,11 @@ spring:
   profiles:
     active: dev-ollama
     group:
-      dev-openai: h2,dev,ai-openai,prompts-large
-      dev-azure-openai: h2,dev,ai-azure-openai,prompts-large
-      dev-ollama: h2,dev,ai-ollama,prompts-small
+      dev-openai: dev,h2-file,ai-openai,prompts-large
+      dev-azure-openai: dev,h2-file,ai-azure-openai,prompts-large
+      dev-ollama: dev,h2-file,ai-ollama,prompts-small
+      dev-dummy: dev,h2-mem,ai-dummy,prompts-small
+      test: test,h2-mem,ai-dummy,prompts-small
 
 springdoc:
   swagger-ui:
@@ -1044,6 +1046,9 @@ ai-tutor:
           - Form correct sentences
           - Understand British culture
         displayOrder: 2
+
+  messages:
+    technical-error: "Technical problems - please try again later."
 
   prompts:
     system: |
