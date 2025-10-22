@@ -224,6 +224,227 @@ ch.obermuhlner.aitutor
     └── util/               # Utilities (LlmJson, Placeholder)
 ```
 
+## Course Lesson Writing Guidelines
+
+### Overview
+Course lessons are markdown files with YAML frontmatter located in `src/main/resources/course-content/{course-id}/`. Each lesson follows a standardized structure to ensure pedagogical consistency and quality across all language courses.
+
+### Directory Structure
+```
+src/main/resources/course-content/
+├── de-conversational-german/
+│   ├── curriculum.yml              # Course structure and lesson sequence
+│   ├── week-01-greetings.md        # Individual lesson files
+│   ├── week-02-introductions.md
+│   └── ...
+├── es-conversational-spanish/
+│   ├── curriculum.yml
+│   └── ...
+├── fr-conversational-french/
+│   ├── curriculum.yml
+│   └── ...
+└── ja-conversational-japanese/
+    ├── curriculum.yml
+    └── ...
+```
+
+### File Naming Convention
+- Pattern: `week-{NN}-{topic-slug}.md`
+- Examples: `week-01-greetings.md`, `week-04-food-ordering.md`, `week-09-past-tense.md`
+- Use lowercase, hyphen-separated topic names
+- Week numbers are zero-padded (01, 02, ..., 10)
+
+### Lesson Structure
+Every lesson must include these sections in order:
+
+#### 1. YAML Frontmatter (Required)
+```yaml
+---
+lessonId: week-01-greetings
+title: Grüße und erste Worte            # In target language
+weekNumber: 1
+estimatedDuration: 1 week
+focusAreas:
+  - Basic greetings                     # 2-4 focus areas
+  - Polite expressions
+  - Common questions
+targetCEFR: A1                          # A1, A2, B1, B2, C1, or C2
+---
+```
+
+#### 2. This Week's Goals
+- 3-5 bullet points describing learning objectives
+- Use active, learner-focused language
+- Example: "Greet people in formal and informal contexts"
+
+#### 3. Grammar Focus
+- **CRITICAL**: Grammar explanations must be linguistically accurate
+- Include clear rules with examples for each grammar point
+- Use bold for important rules: `**Rule:** Subject + verb + object`
+- Show conjugation tables when relevant
+- Provide 3-5 examples per grammar point
+- Include negative forms and question forms
+
+Example structure:
+```markdown
+### Present Tense Regular Verbs
+
+**Rule:** Regular verbs follow this pattern: stem + ending
+
+Conjugation of hablar (to speak):
+- Yo hablo (I speak)
+- Tú hablas (You speak)
+...
+
+Examples:
+- Yo hablo español (I speak Spanish)
+- ¿Hablas inglés? (Do you speak English?)
+```
+
+#### 4. Vocabulary
+- Organize by semantic categories (e.g., "Greetings", "Time Expressions", "Food Items")
+- Use bold for target language: `**Hola** - Hello`
+- 30-60 vocabulary items total
+- Include common phrases and collocations
+- **CRITICAL**: Translations must be accurate
+
+Example:
+```markdown
+### Greetings
+- **Hola** - Hello
+- **Buenos días** - Good morning
+- **Buenas tardes** - Good afternoon
+```
+
+#### 5. Conversation Scenarios
+- **AI-FIRST DESIGN**: Do NOT write full dialogues
+- Provide brief scenario descriptions (2-4 sentences)
+- Describe topics the AI tutor will guide learners through
+- Include sample phrases and key vocabulary to use
+- Focus on communicative goals, not scripted exchanges
+
+**CORRECT Approach:**
+```markdown
+### Ordering at a Café
+
+Practice ordering food and drinks in a café setting.
+
+Topics to cover:
+- "Ich möchte einen Kaffee, bitte" (I'd like a coffee, please)
+- "Was kostet das?" (How much does that cost?)
+- "Die Rechnung, bitte" (The bill, please)
+```
+
+**WRONG Approach (too scripted):**
+```markdown
+### Ordering at a Café
+
+Waiter: Guten Tag! Was möchten Sie?
+Student: Ich möchte einen Kaffee.
+Waiter: Gerne. Mit Milch?
+Student: Ja, mit Milch, bitte.
+...
+```
+
+#### 6. Practice Patterns
+- 4-8 bullet points with specific practice activities
+- Focus on production, not just comprehension
+- Examples: "Form questions using all pronouns", "Describe your daily routine using present tense"
+
+#### 7. Common Mistakes to Watch
+- List 5-10 common errors learners make
+- Show incorrect → correct with explanation
+- Format: `Wrong form → Correct form (explanation)`
+- Example: `"Yo soy hambre" → "Yo tengo hambre" (use tener, not ser!)`
+
+#### 8. Cultural Notes
+- 3-6 bullet points about cultural context
+- Include social norms, regional variations, usage tips
+- Connect language to real-world situations
+- Example: "In Spain, lunch is the main meal and typically eaten 2-3pm"
+
+### Size Requirements
+- **Target**: 100-200 lines of markdown per lesson
+- **Minimum**: 100 lines (pedagogically complete)
+- **Recommended**: 150-180 lines (comprehensive without being overwhelming)
+- **Maximum**: 230 lines (avoid information overload)
+
+Lines are counted including YAML frontmatter, headers, and blank lines.
+
+### Quality Standards
+
+#### Grammar and Vocabulary Accuracy
+- **CRITICAL**: All grammar explanations must be linguistically correct
+- Verify verb conjugations, noun genders, case systems, etc.
+- Use authoritative references for grammar rules
+- Double-check vocabulary translations
+- Be consistent with terminology throughout the course
+
+#### Pedagogical Completeness
+- Each lesson should be self-contained for one week of study
+- Progressive difficulty: build on previous lessons
+- Balance comprehension (input) and production (output)
+- Include recognition and production vocabulary
+- Cover all major grammar points for the CEFR level
+
+#### AI-First Design
+- Remember: The AI tutor will conduct actual conversations
+- Scenario descriptions guide the AI, not the learner directly
+- Focus on communicative goals and key phrases
+- Let the AI adapt to learner level and interests
+- Avoid rigid dialogue scripts
+
+### Connecting Lessons to Courses
+
+Lessons are connected to courses via **explicit declaration** in `curriculum.yml`:
+
+```yaml
+courseId: de-conversational-german
+progressionMode: TIME_BASED           # or SEQUENTIAL
+lessons:
+  - id: week-01-greetings            # Must match lessonId in frontmatter
+    file: week-01-greetings.md       # Filename in same directory
+    unlockAfterDays: 0                # Day 0 = immediately available
+    requiredTurns: 5                  # Minimum conversation turns to complete
+  - id: week-02-introductions
+    file: week-02-introductions.md
+    unlockAfterDays: 7                # Unlocks after 7 days
+    requiredTurns: 8
+  # ... additional lessons
+```
+
+**Important:**
+- `lessonId` in YAML frontmatter must match `id` in curriculum.yml
+- `file` path is relative to the course directory
+- `unlockAfterDays` controls time-based progression
+- `requiredTurns` sets minimum engagement before lesson completion
+
+### Reference Examples
+
+**High-quality reference lessons:**
+- Spanish: `src/main/resources/course-content/es-conversational-spanish/week-01-greetings.md` (117 lines)
+- German: `src/main/resources/course-content/de-conversational-german/week-01-greetings.md` (165 lines)
+- French: `src/main/resources/course-content/fr-conversational-french/week-02-introductions.md` (157 lines)
+
+Study these files for examples of:
+- Clear grammar explanations with multiple examples
+- Well-organized vocabulary sections
+- AI-friendly conversation scenario descriptions
+- Balanced lesson length and content density
+
+### Checklist Before Adding a New Lesson
+
+- [ ] YAML frontmatter is complete and valid
+- [ ] lessonId matches the pattern `week-NN-topic`
+- [ ] All 8 required sections are present
+- [ ] Grammar explanations are linguistically accurate
+- [ ] Vocabulary translations are correct
+- [ ] Conversation scenarios are summaries, not full dialogues
+- [ ] Common mistakes section shows wrong → correct forms
+- [ ] Lesson is 100-200 lines
+- [ ] Cultural notes provide real-world context
+- [ ] Lesson is added to curriculum.yml with correct id and file path
+
 ## Development Guidelines
 
 ### When Adding New REST Endpoints
