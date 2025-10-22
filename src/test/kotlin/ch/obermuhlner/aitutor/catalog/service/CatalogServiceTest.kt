@@ -371,6 +371,7 @@ class CatalogServiceTest {
             personaJson = """{"en": "Patient teacher"}""",
             domainJson = """{"en": "General"}""",
             descriptionJson = """{"en": "A patient tutor"}""",
+            location = null,
             personality = TutorPersonality.Encouraging,
             teachingStyle = TeachingStyle.Reactive,
             targetLanguageCode = "es",

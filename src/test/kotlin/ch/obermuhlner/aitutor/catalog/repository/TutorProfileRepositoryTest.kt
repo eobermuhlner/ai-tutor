@@ -92,6 +92,7 @@ class TutorProfileRepositoryTest {
             domainJson = """{"en": "general conversation"}""",
             descriptionJson = """{"en": "Patient coach who loves helping beginners"}""",
             culturalBackgroundJson = null,
+            location = null,
             personality = TutorPersonality.Encouraging,
             targetLanguageCode = languageCode,
             isActive = isActive,

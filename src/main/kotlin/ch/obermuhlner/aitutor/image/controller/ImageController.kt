@@ -33,14 +33,11 @@ class ImageController(
         val tutor = tutorProfileRepository.findById(tutorId).orElse(null)
             ?: return ResponseEntity.notFound().build()
 
-        // If no gender is set, cannot fetch image
         val gender = tutor.gender ?: return ResponseEntity.notFound().build()
 
-        // Extract country code from language code (e.g., "es-ES" -> "ES")
         val countryCode = tutor.targetLanguageCode.substringAfterLast("-").uppercase()
 
-        // Combine text from multiple fields for image search
-        val combinedText = "${tutor.personaEnglish} ${tutor.domainEnglish} ${tutor.culturalBackgroundJson ?: ""}"
+        val combinedText = "${tutor.location} ${tutor.personaEnglish}}"
 
         val imageData = imageService.getImageByPerson(
             countryCode = countryCode,

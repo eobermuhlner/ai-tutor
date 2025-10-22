@@ -51,6 +51,9 @@ class TutorProfileEntity(
     @Column(name = "cultural_background_json", columnDefinition = "TEXT")
     var culturalBackgroundJson: String? = null,
 
+    @Column(name = "location", length = 128)
+    var location: String? = null,
+
     @Enumerated(EnumType.STRING)
     @Column(name = "personality", nullable = false, length = 32)
     var personality: TutorPersonality,

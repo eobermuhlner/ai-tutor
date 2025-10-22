@@ -2,6 +2,7 @@ package ch.obermuhlner.aitutor.image.service
 
 import ch.obermuhlner.aitutor.core.model.catalog.TutorGender
 import ch.obermuhlner.aitutor.image.dto.ImageMetadataResponse
+import java.text.Normalizer
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -33,14 +34,21 @@ class ImageService(
         return getImage(metadata)
     }
 
-    val nonAlphaNumericRegex = Regex("[^A-Za-z0-9]+")
+    private val separatorRegex = Regex("[\\p{Punct}\\s]+")
+    private val markRegex = Regex("\\p{M}+")
 
     @Transactional(readOnly = true)
     fun getImageByPerson(countryCode: String, gender: TutorGender, age: Int, text: String): ImageData? {
         val requiredTags = listOf("person", countryCode, gender.toString(), "age_$age")
-        val optionalTags = text.split(nonAlphaNumericRegex)
+        val optionalTags = text.split(separatorRegex)
             .map { it.trim() }
             .filter { it.isNotEmpty() }
+            .flatMap { word ->
+                val normalized = normalizeToAscii(word)
+                if (normalized.equals(word, ignoreCase = true)) listOf(word)
+                else listOf(word, normalized)
+            }
+            .distinct()
 
         val searchResults = try {
             imageStoreClient.searchImagesByTags(
@@ -61,6 +69,11 @@ class ImageService(
         val metadata = searchResults.first()
 
         return getImage(metadata)
+    }
+
+    private fun normalizeToAscii(input: String): String {
+        val normalized = Normalizer.normalize(input, Normalizer.Form.NFD)
+        return normalized.replace(markRegex, "")
     }
 
     private fun getImage(metadata: ImageMetadataResponse): ImageData? {

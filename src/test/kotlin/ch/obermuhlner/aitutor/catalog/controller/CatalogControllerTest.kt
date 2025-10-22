@@ -133,6 +133,7 @@ class CatalogControllerTest {
             personaJson = """{"en": "Patient teacher"}""",
             domainJson = """{"en": "General conversation"}""",
             descriptionJson = """{"en": "A patient tutor"}""",
+            location = null,
             personality = TutorPersonality.Encouraging,
             targetLanguageCode = "es",
             displayOrder = 1
@@ -165,6 +166,7 @@ class CatalogControllerTest {
             personaJson = """{"en": "Patient teacher"}""",
             domainJson = """{"en": "General conversation"}""",
             descriptionJson = """{"en": "A patient tutor"}""",
+            location = null,
             personality = TutorPersonality.Encouraging,
             targetLanguageCode = "es",
             displayOrder = 1
@@ -196,6 +198,7 @@ class CatalogControllerTest {
             personaJson = """{"en": "Patient teacher"}""",
             domainJson = """{"en": "General conversation"}""",
             descriptionJson = """{"en": "A patient tutor"}""",
+            location = null,
             personality = TutorPersonality.Encouraging,
             targetLanguageCode = "es",
             displayOrder = 1
@@ -294,6 +297,7 @@ class CatalogControllerTest {
             domainJson = """{"en": "general topics"}""",
             descriptionJson = """{"en": "A great tutor"}""",
             culturalBackgroundJson = null,
+            location = null,
             isActive = true,
             displayOrder = 0
         )
@@ -344,6 +348,7 @@ class CatalogControllerTest {
             domainJson = """{"en": "general topics"}""",
             descriptionJson = """{"en": "A great tutor"}""",
             culturalBackgroundJson = """{"en": "From Spain"}""",
+            location = null,
             isActive = true,
             displayOrder = 0
         )
@@ -438,6 +443,7 @@ class CatalogControllerTest {
             domainJson = """{"en": "general topics", "es": "temas generales"}""",
             descriptionJson = """{"en": "A great tutor", "es": "Una gran profesora"}""",
             culturalBackgroundJson = """{"en": "From Spain", "es": "De España"}""",
+            location = null,
             isActive = true,
             displayOrder = 0
         )

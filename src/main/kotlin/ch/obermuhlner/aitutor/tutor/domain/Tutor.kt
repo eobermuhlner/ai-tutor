@@ -10,7 +10,8 @@ data class Tutor(
     val sourceLanguageCode: String,
     val targetLanguageCode: String,
     val gender: TutorGender? = null,
-    val age: Int = 30
+    val age: Int = 30,
+    val location: String? = null
 )
 
 enum class TeachingStyle {

@@ -62,6 +62,7 @@ class SeedDataService(
                     domainJson = """{"en": "${archetype.domainEnglish}"}""",
                     descriptionJson = """{"en": "$description"}""",
                     culturalBackgroundJson = """{"en": "${variant.culturalNotes}"}""",
+                    location = variant.location,
                     personality = archetype.personality,
                     teachingStyle = archetype.teachingStyle,
                     voiceId = archetype.voiceId,

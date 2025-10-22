@@ -55,6 +55,9 @@ class ChatSessionEntity(
     @Column(name = "tutor_emoji", nullable = true, length = 16)
     var tutorEmoji: String? = null,
 
+    @Column(name = "tutor_location", length = 128)
+    var tutorLocation: String? = null,
+
     @Column(name = "source_language_code", nullable = false, length = 32)
     var sourceLanguageCode: String,
 

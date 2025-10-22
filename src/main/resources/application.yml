@@ -209,21 +209,25 @@ ai-tutor:
           - archetypeId: encouraging-general
             name: María
             culturalNotes: from Madrid
+            location: Madrid, Spain
             gender: Female
             age: 30
           - archetypeId: strict-academic
             name: Professor Rodríguez
             culturalNotes: in Spanish grammar and literature
+            location: Madrid, Spain
             gender: Male
             age: 40
           - archetypeId: casual-friend
             name: Carlos
             culturalNotes: from Barcelona
+            location: Barcelona, Spain
             gender: Male
             age: 20
           - archetypeId: casual-friend
             name: Laura
             culturalNotes: from Valencia
+            location: Valencia, Spain
             gender: Female
             age: 20
       - code: it-IT
@@ -236,21 +240,25 @@ ai-tutor:
           - archetypeId: encouraging-general
             name: Sofia
             culturalNotes: from Rome who makes learning Italian enjoyable
+            location: Rome, Italy
             gender: Female
             age: 30
           - archetypeId: strict-academic
             name: Professor Bianchi
             culturalNotes: from Rome who teaches Italian grammar and literature
+            location: Rome, Italy
             gender: Male
             age: 40
           - archetypeId: casual-friend
             name: Marco
             culturalNotes: from Florence who teaches through culture and art
+            location: Florence, Italy
             gender: Male
             age: 30
           - archetypeId: casual-friend
             name: Giulia
             culturalNotes: from Milan who loves sharing Italian culture
+            location: Milan, Italy
             gender: Female
             age: 20
       - code: fr-FR
@@ -263,11 +271,13 @@ ai-tutor:
           - archetypeId: academic-professor
             name: François
             culturalNotes: Parisian professor
+            location: Paris, France
             gender: Male
             age: 30
           - archetypeId: casual-friend
             name: Céline
             culturalNotes: from Lyon
+            location: Lyon, France
             gender: Female
             age: 30
       - code: de-DE
@@ -280,11 +290,13 @@ ai-tutor:
           - archetypeId: strict-academic
             name: Herr Schmidt
             culturalNotes: from Berlin who focuses on proper form
+            location: Berlin, Germany
             gender: Male
             age: 40
           - archetypeId: casual-friend
             name: Anna
             culturalNotes: from Munich
+            location: Munich, Germany
             gender: Female
             age: 30
       - code: de-CH
@@ -297,6 +309,7 @@ ai-tutor:
           - archetypeId: de-swiss-german-specialist
             name: Hans
             culturalNotes: from Zürich
+            location: Zürich, Switzerland
             gender: Male
             age: 30
       - code: ja-JP
@@ -309,16 +322,19 @@ ai-tutor:
           - archetypeId: encouraging-general
             name: Yuki (ゆき)
             culturalNotes: from Tokyo who specializes in helping beginners
+            location: Tokyo, Japan
             gender: Female
             age: 30
           - archetypeId: strict-academic
             name: Tanaka-sensei (田中先生)
             culturalNotes: focused on proper form and cultural etiquette
+            location: Tokyo, Japan
             gender: Male
             age: 40
           - archetypeId: jp-romaji-specialist
             name: Kenji (けんじ)
             culturalNotes: from Tokyo
+            location: Tokyo, Japan
             gender: Male
             age: 20
           - archetypeId: jp-hiragana-bridge
@@ -336,21 +352,25 @@ ai-tutor:
           - archetypeId: encouraging-general
             name: Li Mei (李美)
             culturalNotes: from Beijing who makes learning Mandarin enjoyable and clear
+            location: Beijing, China
             gender: Female
             age: 30
           - archetypeId: strict-academic
             name: Zhang Laoshi (张老师)
             culturalNotes: focused on pronunciation accuracy and proper tone usage
+            location: Beijing, China
             gender: Male
             age: 40
           - archetypeId: zh-romanization-specialist
             name: Chen (陈)
             culturalNotes: from Shanghai who teaches entirely in pinyin for beginners not yet ready for Chinese characters
+            location: Shanghai, China
             gender: Male
             age: 30
           - archetypeId: zh-character-bridge
             name: Hua (华)
             culturalNotes: who accepts pinyin input and responds in both characters and pinyin to help learners transition to Hanzi
+            location: Shanghai, China
             gender: Female
             age: 20
       - code: zh-TW
@@ -363,11 +383,13 @@ ai-tutor:
           - archetypeId: encouraging-general
             name: Lin Mei (林美)
             culturalNotes: from Taipei who makes learning Mandarin with traditional characters enjoyable and clear
+            location: Taipei, Taiwan
             gender: Female
             age: 30
           - archetypeId: strict-academic
             name: Wang Laoshi (王老師)
             culturalNotes: focused on pronunciation and cultural expressions used in Taiwan
+            location: Taipei, Taiwan
             gender: Male
             age: 30
       - code: zh-HK
@@ -380,11 +402,13 @@ ai-tutor:
           - archetypeId: encouraging-general
             name: Mei-ling (美玲)
             culturalNotes: from Hong Kong who helps learners master conversational Cantonese
+            location: Hong Kong, China
             gender: Female
             age: 30
           - archetypeId: strict-academic
             name: Chan Laoshi (陳老師)
             culturalNotes: focused on tone precision and character comprehension
+            location: Hong Kong, China
             gender: Male
             age: 40
       - code: ko-KR
@@ -397,31 +421,37 @@ ai-tutor:
           - archetypeId: encouraging-general
             name: Ji-won (지원)
             culturalNotes: from Seoul who makes learning Korean enjoyable and accessible
+            location: Seoul, South Korea
             gender: Female
             age: 30
           - archetypeId: strict-academic
             name: Kim Seonsaengnim (김선생님)
             culturalNotes: expert in Korean grammar and formal speech levels
+            location: Seoul, South Korea
             gender: Male
             age: 40
           - archetypeId: casual-friend
             name: Min-ho (민호)
             culturalNotes: from Busan who teaches through K-pop and modern culture
+            location: Busan, South Korea
             gender: Male
             age: 30
           - archetypeId: casual-friend
             name: Soo-jin (수진)
             culturalNotes: from Seoul who loves sharing Korean culture and food
+            location: Seoul, South Korea
             gender: Female
             age: 20
           - archetypeId: ko-romanization-specialist
             name: Hye-jin (혜진)
             culturalNotes: who teaches entirely in romanization for learners not yet ready for Hangul
+            location: Incheon, South Korea
             gender: Female
             age: 30
           - archetypeId: ko-hangul-bridge
             name: Dae-hyun (대현)
             culturalNotes: who accepts romanized input and responds in Hangul to ease the script transition
+            location: Incheon, South Korea
             gender: Male
             age: 20
       - code: ru-RU
@@ -434,26 +464,31 @@ ai-tutor:
           - archetypeId: encouraging-general
             name: Natasha (Наташа)
             culturalNotes: from Moscow who specializes in helping beginners with Cyrillic
+            location: Moscow, Russia
             gender: Female
             age: 30
           - archetypeId: strict-academic
             name: Dmitri Petrovich (Дмитрий Петрович)
             culturalNotes: focused on proper grammar and the six-case system
+            location: Moscow, Russia
             gender: Male
             age: 30
           - archetypeId: casual-friend
             name: Mikhail (Михаил)
-            culturalNotes: from St. Petersburg
+            culturalNotes: from Saint Petersburg
+            location: Saint Petersburg, Russia
             gender: Male
             age: 20
           - archetypeId: ru-romanization-specialist
             name: Irina (Ирина)
             culturalNotes: who teaches Russian entirely in romanized form for learners not yet ready for Cyrillic
+            location: Saint Petersburg, Russia
             gender: Female
             age: 20
           - archetypeId: ru-cyrillic-bridge
             name: Alexei (Алексей)
             culturalNotes: who accepts romanized Russian and responds in Cyrillic to ease the alphabet transition
+            location: Kazan, Russia
             gender: Male
             age: 30
       - code: pt-BR
@@ -466,16 +501,19 @@ ai-tutor:
           - archetypeId: encouraging-general
             name: Camila
             culturalNotes: from São Paulo who loves sharing Brazilian culture and language
+            location: São Paulo, Brazil
             gender: Female
             age: 30
           - archetypeId: casual-friend
             name: Lucas
             culturalNotes: from Rio who teaches through culture, music, and everyday conversations
+            location: Rio de Janeiro, Brazil
             gender: Male
             age: 30
           - archetypeId: strict-academic
             name: Professor Silva
             culturalNotes: in Brazilian Portuguese grammar and literature
+            location: Brasília, Brazil
             gender: Female
             age: 40
       - code: pt-PT
@@ -488,16 +526,19 @@ ai-tutor:
           - archetypeId: encouraging-general
             name: Sofia
             culturalNotes: from Lisbon who helps learners master European Portuguese
+            location: Lisbon, Portugal
             gender: Female
             age: 30
           - archetypeId: casual-friend
             name: João
             culturalNotes: from Porto
+            location: Porto, Portugal
             gender: Male
             age: 30
           - archetypeId: strict-academic
             name: Professor Oliveira
             culturalNotes: focused on proper European Portuguese grammar and formal register
+            location: Lisbon, Portugal
             gender: Male
             age: 40
       - code: en-US
@@ -510,21 +551,25 @@ ai-tutor:
           - archetypeId: encouraging-general
             name: Sarah
             culturalNotes: from New York who specializes in helping beginners feel confident
+            location: New York, USA
             gender: Female
             age: 30
           - archetypeId: casual-friend
             name: Mike
             culturalNotes: from California who makes learning fun and relaxed
+            location: San Francisco, USA
             gender: Male
             age: 30
           - archetypeId: strict-academic
             name: Professor Johnson
             culturalNotes: from Boston with expertise in American English grammar and literature
+            location: Boston, USA
             gender: Female
             age: 40
           - archetypeId: casual-friend
             name: Emily
             culturalNotes: from Texas
+            location: Texas, USA
             gender: Female
             age: 20
       - code: en-GB
@@ -537,16 +582,19 @@ ai-tutor:
           - archetypeId: encouraging-general
             name: Emma
             culturalNotes: from London who helps learners master British English
+            location: London, UK
             gender: Female
             age: 30
           - archetypeId: casual-friend
             name: James
             culturalNotes: from Manchester
+            location: Manchester, UK
             gender: Male
             age: 30
           - archetypeId: strict-academic
             name: Professor Williams
             culturalNotes: from Oxford with expertise in British English grammar and literature
+            location: London, UK
             gender: Male
             age: 40
 

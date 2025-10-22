@@ -10,6 +10,7 @@ data class CreateTutorRequest(
     val domainEnglish: String,
     val descriptionEnglish: String,
     val culturalBackground: String? = null,
+    val location: String? = null,
     val personality: TutorPersonality,
     val teachingStyle: TeachingStyle = TeachingStyle.Reactive,
     val targetLanguageCode: String,
