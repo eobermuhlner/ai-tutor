@@ -10,7 +10,11 @@
       "Bash(netstat:*)",
       "Bash(tasklist)",
       "Bash(git add:*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(for file in course-content/*/*.md)",
+      "Bash(done)",
+      "Bash(for file in ./src/main/resources/course-content/*/*.md)",
+      "Bash(sort:*)"
     ],
     "deny": [],
     "ask": []
