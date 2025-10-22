@@ -33,12 +33,19 @@ class ImageService(
         return getImage(metadata)
     }
 
+    val nonAlphaNumericRegex = Regex("[^A-Za-z0-9]+")
+
     @Transactional(readOnly = true)
     fun getImageByPerson(countryCode: String, gender: TutorGender, age: Int, text: String): ImageData? {
+        val requiredTags = listOf("person", countryCode, gender.toString(), "age_$age")
+        val optionalTags = text.split(nonAlphaNumericRegex)
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+
         val searchResults = try {
             imageStoreClient.searchImagesByTags(
-                listOf("person"),
-                listOf(countryCode, gender.toString(), "age_$age") + text.split(" ").map { it.trim() },
+                requiredTags,
+                optionalTags,
             )
         } catch (e: Exception) {
             logger.error("Failed to search images", e)
@@ -46,7 +53,7 @@ class ImageService(
         }
 
         if (searchResults.isEmpty()) {
-            logger.debug("No image found for person: $countryCode $gender")
+            logger.debug("No image found for person: $requiredTags")
             return null
         }
 

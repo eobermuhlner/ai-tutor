@@ -215,17 +215,17 @@ ai-tutor:
             name: Professor Rodríguez
             culturalNotes: in Spanish grammar and literature
             gender: Male
-            age: 30
+            age: 40
           - archetypeId: casual-friend
             name: Carlos
             culturalNotes: from Barcelona
             gender: Male
-            age: 30
+            age: 20
           - archetypeId: casual-friend
             name: Laura
             culturalNotes: from Valencia
             gender: Female
-            age: 30
+            age: 20
       - code: it-IT
         nameJson: '{"en": "Italian (Italy)", "es": "Italiano (Italia)", "de": "Italienisch (Italien)", "fr": "Italien (Italie)", "it": "Italiano (Italia)"}'
         flagEmoji: "🇮🇹"
@@ -240,9 +240,9 @@ ai-tutor:
             age: 30
           - archetypeId: strict-academic
             name: Professor Bianchi
-            culturalNotes: in Italian grammar and literature
+            culturalNotes: from Rome who teaches Italian grammar and literature
             gender: Male
-            age: 30
+            age: 40
           - archetypeId: casual-friend
             name: Marco
             culturalNotes: from Florence who teaches through culture and art
@@ -252,7 +252,7 @@ ai-tutor:
             name: Giulia
             culturalNotes: from Milan who loves sharing Italian culture
             gender: Female
-            age: 30
+            age: 20
       - code: fr-FR
         nameJson: '{"en": "French (France)", "es": "Francés (Francia)", "de": "Französisch (Frankreich)", "fr": "Français (France)"}'
         flagEmoji: "🇫🇷"
@@ -281,7 +281,7 @@ ai-tutor:
             name: Herr Schmidt
             culturalNotes: from Berlin who focuses on proper form
             gender: Male
-            age: 30
+            age: 40
           - archetypeId: casual-friend
             name: Anna
             culturalNotes: from Munich
@@ -315,17 +315,17 @@ ai-tutor:
             name: Tanaka-sensei (田中先生)
             culturalNotes: focused on proper form and cultural etiquette
             gender: Male
-            age: 30
+            age: 40
           - archetypeId: jp-romaji-specialist
             name: Kenji (けんじ)
             culturalNotes: from Tokyo
             gender: Male
-            age: 30
+            age: 20
           - archetypeId: jp-hiragana-bridge
             name: Sakura (さくら)
             culturalNotes: who helps transition from romaji to hiragana
             gender: Female
-            age: 30
+            age: 20
       - code: zh-CN
         nameJson: '{"en": "Chinese (Mandarin, China)", "es": "Chino mandarín (China)", "de": "Chinesisch (Mandarin, China)", "fr": "Chinois (mandarin, Chine)", "zh": "中文（普通话，中国）"}'
         flagEmoji: "🇨🇳"
@@ -342,7 +342,7 @@ ai-tutor:
             name: Zhang Laoshi (张老师)
             culturalNotes: focused on pronunciation accuracy and proper tone usage
             gender: Male
-            age: 30
+            age: 40
           - archetypeId: zh-romanization-specialist
             name: Chen (陈)
             culturalNotes: from Shanghai who teaches entirely in pinyin for beginners not yet ready for Chinese characters
@@ -352,7 +352,7 @@ ai-tutor:
             name: Hua (华)
             culturalNotes: who accepts pinyin input and responds in both characters and pinyin to help learners transition to Hanzi
             gender: Female
-            age: 30
+            age: 20
       - code: zh-TW
         nameJson: '{"en": "Chinese (Mandarin, Taiwan)", "es": "Chino mandarín (Taiwán)", "de": "Chinesisch (Mandarin, Taiwan)", "fr": "Chinois (mandarin, Taïwan)", "zh": "中文（普通話，台灣）"}'
         flagEmoji: "🇹🇼"
@@ -386,7 +386,7 @@ ai-tutor:
             name: Chan Laoshi (陳老師)
             culturalNotes: focused on tone precision and character comprehension
             gender: Male
-            age: 30
+            age: 40
       - code: ko-KR
         nameJson: '{"en": "Korean (South Korea)", "es": "Coreano (Corea del Sur)", "de": "Koreanisch (Südkorea)", "fr": "Coréen (Corée du Sud)", "ko": "한국어 (대한민국)"}'
         flagEmoji: "🇰🇷"
@@ -403,7 +403,7 @@ ai-tutor:
             name: Kim Seonsaengnim (김선생님)
             culturalNotes: expert in Korean grammar and formal speech levels
             gender: Male
-            age: 30
+            age: 40
           - archetypeId: casual-friend
             name: Min-ho (민호)
             culturalNotes: from Busan who teaches through K-pop and modern culture
@@ -413,7 +413,7 @@ ai-tutor:
             name: Soo-jin (수진)
             culturalNotes: from Seoul who loves sharing Korean culture and food
             gender: Female
-            age: 30
+            age: 20
           - archetypeId: ko-romanization-specialist
             name: Hye-jin (혜진)
             culturalNotes: who teaches entirely in romanization for learners not yet ready for Hangul
@@ -423,7 +423,7 @@ ai-tutor:
             name: Dae-hyun (대현)
             culturalNotes: who accepts romanized input and responds in Hangul to ease the script transition
             gender: Male
-            age: 30
+            age: 20
       - code: ru-RU
         nameJson: '{"en": "Russian (Russia)", "es": "Ruso (Rusia)", "de": "Russisch (Russland)", "fr": "Russe (Russie)", "ru": "Русский (Россия)"}'
         flagEmoji: "🇷🇺"
@@ -445,12 +445,12 @@ ai-tutor:
             name: Mikhail (Михаил)
             culturalNotes: from St. Petersburg
             gender: Male
-            age: 30
+            age: 20
           - archetypeId: ru-romanization-specialist
             name: Irina (Ирина)
             culturalNotes: who teaches Russian entirely in romanized form for learners not yet ready for Cyrillic
             gender: Female
-            age: 30
+            age: 20
           - archetypeId: ru-cyrillic-bridge
             name: Alexei (Алексей)
             culturalNotes: who accepts romanized Russian and responds in Cyrillic to ease the alphabet transition
@@ -477,7 +477,7 @@ ai-tutor:
             name: Professor Silva
             culturalNotes: in Brazilian Portuguese grammar and literature
             gender: Female
-            age: 30
+            age: 40
       - code: pt-PT
         nameJson: '{"en": "Portuguese (Portugal)", "es": "Portugués (Portugal)", "de": "Portugiesisch (Portugal)", "fr": "Portugais (Portugal)", "pt": "Português (Portugal)"}'
         flagEmoji: "🇵🇹"
@@ -499,7 +499,7 @@ ai-tutor:
             name: Professor Oliveira
             culturalNotes: focused on proper European Portuguese grammar and formal register
             gender: Male
-            age: 30
+            age: 40
       - code: en-US
         nameJson: '{"en": "English (US)", "es": "Inglés (Estados Unidos)", "de": "Englisch (USA)", "fr": "Anglais (États-Unis)"}'
         flagEmoji: "🇺🇸"
@@ -521,12 +521,12 @@ ai-tutor:
             name: Professor Johnson
             culturalNotes: from Boston with expertise in American English grammar and literature
             gender: Female
-            age: 30
+            age: 40
           - archetypeId: casual-friend
             name: Emily
             culturalNotes: from Texas
             gender: Female
-            age: 30
+            age: 20
       - code: en-GB
         nameJson: '{"en": "English (UK)", "es": "Inglés (Reino Unido)", "de": "Englisch (Großbritannien)", "fr": "Anglais (Royaume-Uni)"}'
         flagEmoji: "🇬🇧"
@@ -548,7 +548,7 @@ ai-tutor:
             name: Professor Williams
             culturalNotes: from Oxford with expertise in British English grammar and literature
             gender: Male
-            age: 30
+            age: 40
 
     courses:
       - languageCode: es-ES

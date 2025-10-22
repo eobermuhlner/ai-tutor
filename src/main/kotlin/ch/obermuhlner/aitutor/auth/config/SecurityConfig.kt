@@ -33,7 +33,6 @@ class SecurityConfig(
                     // Public endpoints
                     .requestMatchers("/api/v1/auth/register", "/api/v1/auth/login", "/api/v1/auth/refresh").permitAll()
                     .requestMatchers("/api/v1/images/concept/*/data").permitAll()
-                    .requestMatchers("/api/v1/images/tutor/*/data").permitAll()
                     .requestMatchers("/h2-console/**").permitAll()
                     .requestMatchers("/error").permitAll()
                     // OpenAPI/Swagger endpoints
