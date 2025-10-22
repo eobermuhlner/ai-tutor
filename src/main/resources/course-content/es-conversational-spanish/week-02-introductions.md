@@ -49,7 +49,7 @@ Patterns to Practice:
 - ¿De dónde eres? - Soy de...
 - ¿Cuántos años tienes? - Tengo... años
 
-## Essential Vocabulary
+## Vocabulary
 
 - **Me llamo...** - My name is...
 - **¿Cómo te llamas?** - What's your name? (informal)

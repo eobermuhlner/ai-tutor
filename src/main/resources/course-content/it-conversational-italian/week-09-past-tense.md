@@ -74,30 +74,27 @@ targetCEFR: A2
 - rimanere → rimasto (stayed)
 - nascere → nato (born)
 
-## Essential Vocabulary
+## Vocabulary
 
-### Time Expressions for Past
 - **ieri** - yesterday
 - **ieri sera** - last night/yesterday evening
 - **la settimana scorsa** - last week
 - **il mese scorso** - last month
 - **l'anno scorso** - last year
 - **due giorni fa** - two days ago
-- **stamattina** - this morning
-- **già** - already
-- **ancora** - yet/still
-- **mai** - ever/never
-- **una volta** - once
-
-### Past Experience Verbs
+- **Ho parlato** - I spoke
+- **Ho mangiato** - I ate
+- **Sono andato/a** - I went (masculine/feminine)
+- **Sono tornato/a** - I returned (masculine/feminine)
 - **visitare** - to visit
 - **viaggiare** - to travel
 - **comprare** - to buy
 - **incontrare** - to meet
 - **dimenticare** - to forget
-- **perdere** - to lose
 - **trovare** - to find
-- **lasciare** - to leave (something)
+- **Ho visto** - I saw
+- **Ho fatto** - I did/made
+- **Siamo andati/e** - We went
 
 ## Conversation Scenarios
 

@@ -32,7 +32,7 @@ Patterns to Practice:
 - Quiero + noun (I want...)
 - ¿Quieres + noun? (Do you want...?)
 
-## Essential Vocabulary
+## Vocabulary
 
 - **El menú** - The menu
 - **La cuenta** - The bill
@@ -53,7 +53,6 @@ Patterns to Practice:
 - **Tengo hambre** - I'm hungry
 - **Tengo sed** - I'm thirsty
 - **¿Qué recomienda?** - What do you recommend?
-- **La propina** - The tip
 
 ## Conversation Scenarios
 

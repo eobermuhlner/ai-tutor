@@ -59,43 +59,32 @@ Examples:
 - 먹고 싶어요 (meok-go si-peo-yo) - I want to eat
 - 자고 싶어요 (ja-go si-peo-yo) - I want to sleep
 
-## Essential Vocabulary
+## Vocabulary
 
-### Weather
 - **날씨** (nal-ssi) - weather
 - **비** (bi) - rain
 - **눈** (nun) - snow
 - **바람** (ba-ram) - wind
-- **구름** (gu-reum) - cloud
 - **더워요** (deo-wo-yo) - hot
 - **추워요** (chu-wo-yo) - cold
 - **따뜻해요** (tta-tteu-tae-yo) - warm
-- **시원해요** (si-won-hae-yo) - cool/refreshing
 - **맑아요** (mal-ga-yo) - clear
-- **흐려요** (heu-ryeo-yo) - cloudy
-
-### Seasons
 - **봄** (bom) - spring
 - **여름** (yeo-reum) - summer
 - **가을** (ga-eul) - autumn/fall
 - **겨울** (gyeo-ul) - winter
-
-### Activities
 - **운동하다** (un-dong-ha-da) - to exercise
 - **수영하다** (su-yeong-ha-da) - to swim
 - **등산하다** (deung-san-ha-da) - to hike
 - **여행하다** (yeo-haeng-ha-da) - to travel
 - **요리하다** (yo-ri-ha-da) - to cook
-- **쉬다** (swi-da) - to rest
-- **놀다** (nol-da) - to play/hang out
 - **산책하다** (san-chaek-ha-da) - to take a walk
-
-### Places for Activities
+- **놀다** (nol-da) - to play/hang out
 - **바다** (ba-da) - sea/ocean
 - **산** (san) - mountain
 - **공원** (gong-won) - park
-- **체육관** (che-yuk-gwan) - gymnasium
-- **수영장** (su-yeong-jang) - swimming pool
+- **날씨가 어때요?** (nal-ssi-ga eo-ttae-yo?) - How's the weather?
+- **가고 싶어요** (ga-go si-peo-yo) - I want to go
 
 ## Conversation Scenarios
 

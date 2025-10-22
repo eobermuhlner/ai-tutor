@@ -16,11 +16,21 @@ targetCEFR: A1
 - Use possessive adjectives (mi, tu, su)
 - Describe physical appearance and personality
 
-## Essential Vocabulary
+## Vocabulary
 
 - **La familia** - Family
-- **El padre/La madre** - Father/Mother
-- **El hermano/La hermana** - Brother/Sister
-- **Mi, tu, su** - My, your, his/her
-- **Alto, bajo** - Tall, short
-- **Simpático** - Nice
+- **El padre** - Father
+- **La madre** - Mother
+- **El hermano** - Brother
+- **La hermana** - Sister
+- **El hijo** - Son
+- **La hija** - Daughter
+- **El abuelo** - Grandfather
+- **La abuela** - Grandmother
+- **Mi familia** - My family
+- **Tu casa** - Your house
+- **Su trabajo** - His/Her job
+- **Alto/a** - Tall (masculine/feminine)
+- **Bajo/a** - Short (masculine/feminine)
+- **Guapo/a** - Handsome/Pretty
+- **Simpático/a** - Nice/Friendly

@@ -16,16 +16,25 @@ targetCEFR: A1
 - Ask about prices and sizes
 - Describe colors and styles
 
-## Essential Vocabulary
+## Vocabulary
 
 - **¿Cuánto cuesta?** - How much does it cost?
 - **La tienda** - Store
 - **La ropa** - Clothing
 - **La camisa** - Shirt
 - **Los pantalones** - Pants
-- **Rojo, azul, verde** - Red, blue, green
-- **Grande, pequeño** - Big, small
-- **Caro, barato** - Expensive, cheap
+- **El vestido** - Dress
+- **Rojo** - Red
+- **Azul** - Blue
+- **Verde** - Green
+- **Amarillo** - Yellow
+- **Blanco** - White
+- **Negro** - Black
+- **Grande** - Big/Large
+- **Pequeño** - Small
+- **Mediano** - Medium
+- **Caro** - Expensive
+- **Barato** - Cheap
 
 ## Practice Patterns
 

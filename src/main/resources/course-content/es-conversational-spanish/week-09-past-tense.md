@@ -16,11 +16,24 @@ targetCEFR: A2
 - Talk about what you did yesterday
 - Use time expressions with past tense
 
-## Essential Vocabulary
+## Vocabulary
 
 - **Ayer** - Yesterday
 - **Anoche** - Last night
 - **La semana pasada** - Last week
+- **El mes pasado** - Last month
 - **Hablé** - I spoke
 - **Comí** - I ate
+- **Bebí** - I drank
 - **Viví** - I lived
+- **Trabajé** - I worked
+- **Estudié** - I studied
+- **Fui** - I went
+- **Hice** - I did/made
+- **Dormí** - I slept
+- **Miré** - I looked/watched
+- **Caminé** - I walked
+- **Jugué** - I played
+- **Llegué** - I arrived
+- **Salí** - I left
+- **Volví** - I returned

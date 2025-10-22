@@ -47,7 +47,7 @@ Patterns to Practice:
 - Include pronouns only for emphasis or clarity
 - Learn to recognize subjects from verb endings
 
-## Essential Vocabulary
+## Vocabulary
 
 - **Hola** - Hello
 - **Buenos días** - Good morning

@@ -51,47 +51,31 @@ Use "avere" to talk about age and family:
 - Ho 25 anni (I am 25 years old)
 - Ho due fratelli (I have two brothers)
 
-## Essential Vocabulary
+## Vocabulary
 
-### Immediate Family
-- **il padre/papà** - father/dad
-- **la madre/mamma** - mother/mom
+- **il padre** - father
+- **la madre** - mother
 - **il fratello** - brother
 - **la sorella** - sister
 - **il figlio** - son
 - **la figlia** - daughter
 - **i genitori** - parents
-- **i figli** - children
-
-### Extended Family
 - **il nonno** - grandfather
 - **la nonna** - grandmother
 - **lo zio** - uncle
 - **la zia** - aunt
 - **il cugino** - cousin (male)
 - **la cugina** - cousin (female)
-- **il nipote** - nephew/grandson
-- **la nipote** - niece/granddaughter
-
-### Relationships
-- **il marito** - husband
-- **la moglie** - wife
-- **il fidanzato** - boyfriend/fiancé
-- **la fidanzata** - girlfriend/fiancée
-- **single** - single
-- **sposato/a** - married
-- **divorziato/a** - divorced
-
-### Descriptions
 - **giovane** - young
-- **vecchio** - old
 - **alto** - tall
 - **basso** - short
-- **magro** - thin
-- **grasso** - fat
-- **simpatico** - nice/friendly
+- **simpatico/a** - nice/friendly (masculine/feminine)
 - **gentile** - kind
 - **intelligente** - intelligent
+- **mio padre** - my father
+- **mia madre** - my mother
+- **Ho... fratelli** - I have... brothers/sisters
+- **Com'è...?** - What is... like?
 
 ## Conversation Scenarios
 

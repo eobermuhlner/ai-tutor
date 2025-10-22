@@ -16,11 +16,24 @@ targetCEFR: A1
 - Talk about hobbies and free time
 - Make plans and suggestions
 
-## Essential Vocabulary
+## Vocabulary
 
 - **Hace sol** - It's sunny
 - **Hace frío** - It's cold
+- **Hace calor** - It's hot
 - **Llueve** - It's raining
+- **Nieva** - It's snowing
+- **Está nublado** - It's cloudy
+- **Hace viento** - It's windy
 - **Jugar** - To play
 - **Nadar** - To swim
+- **Correr** - To run
+- **Leer** - To read
+- **Comer** - To eat
+- **Cocinar** - To cook
+- **Cantar** - To sing
+- **Bailar** - To dance
+- **Ver la televisión** - To watch TV
+- **Pasear** - To take a walk
 - **¿Qué te gusta hacer?** - What do you like to do?
+- **Me gusta...** - I like...

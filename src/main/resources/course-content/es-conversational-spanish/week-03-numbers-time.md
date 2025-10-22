@@ -48,7 +48,7 @@ Patterns to Practice:
 - y cuarto (quarter past), y media (half past)
 - menos cuarto (quarter to)
 
-## Essential Vocabulary
+## Vocabulary
 
 - **¿Qué hora es?** - What time is it?
 - **Es la una** - It's one o'clock
@@ -66,7 +66,9 @@ Patterns to Practice:
 - **Viernes** - Friday
 - **Sábado** - Saturday
 - **Domingo** - Sunday
-- **Enero, febrero, marzo** - January, February, March
+- **Enero** - January
+- **Febrero** - February
+- **Marzo** - March
 - **¿Cuándo?** - When?
 - **Hoy** - Today
 - **Mañana** - Tomorrow

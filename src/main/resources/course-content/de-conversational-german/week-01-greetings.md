@@ -60,33 +60,27 @@ Examples:
 
 ---
 
-## Essential Vocabulary
+## Vocabulary
 
-| German | English |
-|---------|----------|
-| Hallo | Hello |
-| Guten Morgen | Good morning |
-| Guten Tag | Good day / Hello |
-| Guten Abend | Good evening |
-| Gute Nacht | Good night |
-| Tschüss | Bye |
-| Auf Wiedersehen | Goodbye (formal) |
-| Bis später | See you later |
-| Bitte | Please / You’re welcome |
-| Danke | Thank you |
-| Danke schön / Vielen Dank | Thank you very much |
-| Entschuldigung | Excuse me / Sorry |
-| Wie geht’s? | How’s it going? (informal) |
-| Wie geht es Ihnen? | How are you? (formal) |
-| Gut | Good |
-| Sehr gut | Very good |
-| Nicht so gut | Not so good |
-| So lala | So-so |
-| Und dir? | And you? (informal) |
-| Und Ihnen? | And you? (formal) |
-| Freut mich | Nice to meet you |
-| Schön, dich kennenzulernen | Nice to meet you (informal) |
-| Schön, Sie kennenzulernen | Nice to meet you (formal) |
+- **Hallo** - Hello
+- **Guten Morgen** - Good morning
+- **Guten Tag** - Good day / Hello
+- **Guten Abend** - Good evening
+- **Tschüss** - Bye
+- **Auf Wiedersehen** - Goodbye (formal)
+- **Bitte** - Please / You're welcome
+- **Danke** - Thank you
+- **Entschuldigung** - Excuse me / Sorry
+- **Wie geht's?** - How's it going? (informal)
+- **Wie geht es Ihnen?** - How are you? (formal)
+- **Gut** - Good
+- **Sehr gut** - Very good
+- **Nicht so gut** - Not so good
+- **So lala** - So-so
+- **Und dir?** - And you? (informal)
+- **Und Ihnen?** - And you? (formal)
+- **Freut mich** - Nice to meet you
+- **Schön, Sie kennenzulernen** - Nice to meet you (formal)
 
 ---
 

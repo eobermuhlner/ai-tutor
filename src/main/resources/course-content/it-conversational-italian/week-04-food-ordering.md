@@ -54,28 +54,18 @@ Examples:
 - Voglio dei biscotti (I want some cookies) - masculine plural
 - Compro delle mele (I'm buying some apples) - feminine plural
 
-## Essential Vocabulary
+## Vocabulary
 
-### Meals
 - **colazione** - breakfast
 - **pranzo** - lunch
 - **cena** - dinner
-- **spuntino** - snack
-- **aperitivo** - pre-dinner drink with snacks
-
-### Drinks
-- **acqua** - water (naturale - still, frizzante - sparkling)
-- **vino** - wine (rosso - red, bianco - white)
+- **acqua** - water
+- **vino** - wine
 - **birra** - beer
-- **caffè** - espresso
+- **caffè** - coffee
 - **cappuccino** - cappuccino
-- **tè** - tea
-- **succo** - juice
-- **spremuta** - fresh-squeezed juice
-
-### Common Italian Dishes
-- **pasta** - pasta (al pomodoro, carbonara, amatriciana)
-- **pizza** - pizza (margherita, marinara, quattro formaggi)
+- **pasta** - pasta
+- **pizza** - pizza
 - **risotto** - risotto
 - **insalata** - salad
 - **antipasto** - appetizer
@@ -84,23 +74,14 @@ Examples:
 - **contorno** - side dish
 - **dolce** - dessert
 - **gelato** - ice cream
-- **tiramisù** - tiramisu
-
-### Restaurant Phrases
 - **il menù** - the menu
 - **il conto** - the check/bill
-- **il tavolo** - the table
-- **la prenotazione** - the reservation
-- **il servizio** - the service
-- **la mancia** - the tip
-- **il coperto** - cover charge
-
-### Useful Verbs
 - **ordinare** - to order
 - **prendere** - to take/have
 - **bere** - to drink
 - **mangiare** - to eat
-- **pagare** - to pay
+- **Vorrei...** - I would like...
+- **Per favore** - Please
 
 ## Conversation Scenarios
 

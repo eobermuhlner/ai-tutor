@@ -73,66 +73,34 @@ Examples:
 - 여기서 좌회전하세요 (yeo-gi-seo jwa-hoe-jeon-ha-se-yo) - Turn left here
 - 이쪽으로 가세요 (i-jjok-eu-ro ga-se-yo) - Go this way
 
-## Essential Vocabulary
+## Vocabulary
 
-### Places in the City
-- **역** (yeok) - station
-- **공항** (gong-hang) - airport
-- **버스 정류장** (beo-seu jeong-ryu-jang) - bus stop
-- **지하철역** (ji-ha-cheol-yeok) - subway station
 - **은행** (eun-haeng) - bank
 - **우체국** (u-che-guk) - post office
 - **병원** (byeong-won) - hospital
 - **약국** (yak-guk) - pharmacy
 - **편의점** (pyeon-ui-jeom) - convenience store
-- **마트** (ma-teu) - mart/supermarket
-- **백화점** (baek-hwa-jeom) - department store
-- **식당** (sik-dang) - restaurant
-- **카페** (ka-pe) - cafe
-- **호텔** (ho-tel) - hotel
 - **학교** (hak-gyo) - school
 - **도서관** (do-seo-gwan) - library
 - **공원** (gong-won) - park
-- **교회** (gyo-hoe) - church
-- **사거리** (sa-geo-ri) - intersection (four-way)
-- **횡단보도** (hoeng-dan-bo-do) - crosswalk
-- **신호등** (sin-ho-deung) - traffic light
-
-### Direction Words
+- **지하철역** (ji-ha-cheol-yeok) - subway station
+- **버스 정류장** (beo-seu jeong-ryu-jang) - bus stop
+- **호텔** (ho-tel) - hotel
+- **카페** (ka-pe) - cafe
 - **왼쪽** (oen-jjok) - left
 - **오른쪽** (o-reun-jjok) - right
-- **직진** (jik-jin) - straight
-- **앞** (ap) - front
-- **뒤** (dwi) - back/behind
-- **위** (wi) - top/above
-- **아래** (a-rae) - bottom/below
-- **옆** (yeop) - beside/next to
-- **건너편** (geon-neo-pyeon) - across/opposite side
+- **직진** (jik-jin) - straight ahead
+- **여기** (yeo-gi) - here
+- **저기** (jeo-gi) - there
 - **가까이** (ga-kka-i) - close/near
 - **멀리** (meol-li) - far
-- **여기** (yeo-gi) - here
-- **저기** (jeo-gi) - there (far)
-- **거기** (geo-gi) - there (medium distance)
-- **이쪽** (i-jjok) - this way/direction
-- **저쪽** (jeo-jjok) - that way/direction
 - **좌회전** (jwa-hoe-jeon) - left turn
 - **우회전** (u-hoe-jeon) - right turn
-
-### Distance and Time
-- **가깝다** (ga-kkap-da) - to be close
-- **멀다** (meol-da) - to be far
-- **걸어서** (geol-eo-seo) - by walking/on foot
-- **~분** (bun) - minutes
-- **~미터** (mi-teo) - meters
-- **얼마나 걸려요?** (eol-ma-na geol-lyeo-yo?) - How long does it take?
-
-### Useful Verbs
 - **가다** (ga-da) - to go
 - **오다** (o-da) - to come
 - **걷다** (geot-da) - to walk
-- **돌다** (dol-da) - to turn
-- **건너다** (geon-neo-da) - to cross
-- **찾다** (chat-da) - to find/search
+- **어디에 있어요?** (eo-di-e i-sseo-yo?) - Where is it?
+- **얼마나 걸려요?** (eol-ma-na geol-lyeo-yo?) - How long does it take?
 
 ## Conversation Scenarios
 

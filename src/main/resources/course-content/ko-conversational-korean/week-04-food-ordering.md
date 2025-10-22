@@ -68,68 +68,32 @@ Examples:
 - 김치**를** 먹어요 (gim-chi-**reul** meo-geo-yo) - eat kimchi (김치 ends in vowel)
 - 불고기**를** 주세요 (bul-go-gi-**reul** ju-se-yo) - bulgogi, please
 
-## Essential Vocabulary
+## Vocabulary
 
-### Meals
 - **아침** (a-chim) - breakfast
 - **점심** (jeom-sim) - lunch
 - **저녁** (jeo-nyeok) - dinner
-- **간식** (gan-sik) - snack
-- **야식** (ya-sik) - late-night snack
-
-### Drinks
 - **물** (mul) - water
 - **차** (cha) - tea
 - **커피** (keo-pi) - coffee
-- **주스** (ju-seu) - juice
-- **우유** (u-yu) - milk
-- **소주** (so-ju) - soju (Korean liquor)
-- **맥주** (maek-ju) - beer
-- **막걸리** (mak-geol-li) - makgeolli (rice wine)
-
-### Popular Korean Dishes
-- **김치** (gim-chi) - kimchi (fermented vegetables)
+- **김치** (gim-chi) - kimchi
 - **비빔밥** (bi-bim-bap) - bibimbap (mixed rice)
 - **불고기** (bul-go-gi) - bulgogi (marinated beef)
-- **삼겹살** (sam-gyeop-sal) - samgyeopsal (pork belly)
 - **김치찌개** (gim-chi-jji-gae) - kimchi stew
 - **된장찌개** (dwen-jang-jji-gae) - soybean paste stew
-- **냉면** (naeng-myeon) - cold noodles
-- **떡볶이** (tteok-bok-i) - spicy rice cakes
 - **만두** (man-du) - dumplings
 - **김밥** (gim-bap) - seaweed rice rolls
-- **라면** (ra-myeon) - ramen
-- **치킨** (chi-kin) - fried chicken
-- **갈비** (gal-bi) - ribs
-
-### Basic Foods
 - **밥** (bap) - cooked rice
 - **국** (guk) - soup
-- **면** (myeon) - noodles
 - **고기** (go-gi) - meat
-- **채소** (chae-so) - vegetables
-- **과일** (gwa-il) - fruit
-
-### Restaurant Vocabulary
 - **메뉴** (me-nyu) - menu
 - **주문** (ju-mun) - order
 - **계산** (gye-san) - bill/check
-- **음식점** (eum-sik-jeom) - restaurant
-- **식당** (sik-dang) - restaurant/dining hall
-- **카페** (ka-pe) - cafe
-- **반찬** (ban-chan) - side dishes
-- **맛** (mat) - taste/flavor
-- **맵다** (maep-da) - spicy
-- **짜다** (jja-da) - salty
-- **달다** (dal-da) - sweet
-
-### Useful Phrases
 - **맛있어요** (ma-si-sseo-yo) - It's delicious
-- **배불러요** (bae-bul-leo-yo) - I'm full
 - **배고파요** (bae-go-pa-yo) - I'm hungry
-- **목말라요** (mok-mal-la-yo) - I'm thirsty
-- **맵지 않아요** (maep-ji a-na-yo) - It's not spicy
-- **얼마예요?** (eol-ma-ye-yo?) - How much is it?
+- **맵다** (maep-da) - spicy
+- **달다** (dal-da) - sweet
+- **[dish] 주세요** - Please give me [dish]
 
 ## Conversation Scenarios
 

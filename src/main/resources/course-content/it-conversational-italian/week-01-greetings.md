@@ -48,7 +48,7 @@ Patterns to Practice:
 - Include pronouns only for emphasis or clarity
 - Learn to recognize subjects from verb endings
 
-## Essential Vocabulary
+## Vocabulary
 
 - **Ciao** - Hello/Bye (informal)
 - **Buongiorno** - Good morning/Good day
@@ -70,8 +70,6 @@ Patterns to Practice:
 - **Così così** - So-so
 - **E tu?** - And you? (informal)
 - **E Lei?** - And you? (formal)
-- **Piacere** - Nice to meet you
-- **Molto lieto/a** - Pleased to meet you
 
 ## Conversation Scenarios
 

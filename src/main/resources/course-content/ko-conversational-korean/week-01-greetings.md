@@ -57,40 +57,23 @@ targetCEFR: A1
 2. You're clearly older/senior
 3. You're very close friends
 
-## Essential Vocabulary
+## Vocabulary
 
-### Basic Greetings
 - **안녕하세요** (an-nyeong-ha-se-yo) - Hello (formal)
 - **안녕** (an-nyeong) - Hi/Bye (informal)
 - **안녕히 가세요** (an-nyeong-hi ga-se-yo) - Goodbye (to person leaving - formal)
 - **안녕히 계세요** (an-nyeong-hi gye-se-yo) - Goodbye (to person staying - formal)
 - **또 만나요** (tto man-na-yo) - See you again
-- **내일 봐요** (nae-il bwa-yo) - See you tomorrow
-- **잘 가** (jal ga) - Bye (informal)
-
-### Courtesy Expressions
 - **감사합니다** (gam-sa-ham-ni-da) - Thank you (formal)
-- **고맙습니다** (go-map-seum-ni-da) - Thank you (formal, warmer)
 - **고마워** (go-ma-wo) - Thanks (informal)
 - **죄송합니다** (joe-song-ham-ni-da) - I'm sorry (formal)
 - **미안해요** (mi-an-hae-yo) - I'm sorry (polite)
-- **미안해** (mi-an-hae) - Sorry (informal)
-- **괜찮아요** (gwaen-chan-a-yo) - It's okay
-- **천만에요** (cheon-man-e-yo) - You're welcome
 - **네** (ne) - Yes (formal)
 - **아니요** (a-ni-yo) - No (formal)
-- **응/어** (eung/eo) - Yeah (informal)
-- **아니** (a-ni) - No (informal)
-
-### Time Expressions
 - **좋은 아침이에요** (jo-eun a-chim-i-e-yo) - Good morning
 - **좋은 하루 되세요** (jo-eun ha-ru doe-se-yo) - Have a good day
-- **안녕히 주무세요** (an-nyeong-hi ju-mu-se-yo) - Good night (sleep well)
-
-### Question Words
 - **어떻게 지내세요?** (eo-tteo-ke ji-nae-se-yo?) - How are you? (formal)
 - **잘 지내요?** (jal ji-nae-yo?) - How are you doing? (polite)
-- **뭐 해?** (mwo hae?) - What are you doing? (informal)
 
 ## Conversation Scenarios
 

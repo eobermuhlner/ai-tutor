@@ -68,33 +68,25 @@ Examples:
 - 공부하려고 해요 (gong-bu-ha-ryeo-go hae-yo) - I'm planning to study
 - 사려고 해요 (sa-ryeo-go hae-yo) - I'm planning to buy
 
-## Essential Vocabulary
+## Vocabulary
 
-### Time Expressions for Future
 - **내일** (nae-il) - tomorrow
 - **모레** (mo-re) - day after tomorrow
 - **다음 주** (da-eum ju) - next week
 - **다음 달** (da-eum dal) - next month
 - **내년** (nae-nyeon) - next year
-- **곧** (got) - soon
-- **나중에** (na-jung-e) - later
-- **이따가** (i-tta-ga) - later today
-- **오늘 저녁** (o-neul jeo-nyeok) - this evening
-
-### Planning Vocabulary
 - **계획** (gye-hoek) - plan
 - **목표** (mok-pyo) - goal
 - **꿈** (kkum) - dream
 - **약속** (yak-sok) - promise/appointment
 - **준비하다** (jun-bi-ha-da) - to prepare
-- **예약하다** (ye-yak-ha-da) - to reserve
 - **결정하다** (gyeol-jeong-ha-da) - to decide
-
-### Modal Expressions
-- **-고 싶다** (want to)
-- **-(으)ㄹ 수 있다** (can/be able to)
-- **-(으)ㄹ 수 없다** (cannot)
-- **-아/어야 하다** (must/have to)
+- **할 거예요** (hal geo-ye-yo) - will do
+- **갈 거예요** (gal geo-ye-yo) - will go
+- **올 거예요** (ol geo-ye-yo) - will come
+- **만날 거예요** (man-nal geo-ye-yo) - will meet
+- **내일 봬요** (nae-il bwe-yo) - See you tomorrow
+- **뭐 할 거예요?** (mwo hal geo-ye-yo?) - What will you do?
 
 ## Conversation Scenarios
 

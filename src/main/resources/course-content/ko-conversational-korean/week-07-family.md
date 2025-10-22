@@ -54,34 +54,25 @@ Use 분 when talking about elders or to show respect.
 **Asking age (formal/respectful):**
 - 연세가 어떻게 되세요? (yeon-se-ga eo-tteo-ke doe-se-yo?) - What is your age? (very polite)
 
-## Essential Vocabulary
+## Vocabulary
 
-### Immediate Family
 - **가족** (ga-jok) - family
-- **아버지/아빠** (a-beo-ji/a-ppa) - father/dad
-- **어머니/엄마** (eo-meo-ni/eom-ma) - mother/mom
-- **부모님** (bu-mo-nim) - parents (respectful)
+- **아버지** (a-beo-ji) - father
+- **어머니** (eo-meo-ni) - mother
+- **부모님** (bu-mo-nim) - parents (respectful term)
 - **형** (hyeong) - older brother (speaker is male)
 - **오빠** (o-ppa) - older brother (speaker is female)
 - **누나** (nu-na) - older sister (speaker is male)
 - **언니** (eon-ni) - older sister (speaker is female)
 - **남동생** (nam-dong-saeng) - younger brother
 - **여동생** (yeo-dong-saeng) - younger sister
-- **동생** (dong-saeng) - younger sibling
-
-### Extended Family
 - **할아버지** (ha-ra-beo-ji) - grandfather
 - **할머니** (hal-meo-ni) - grandmother
 - **삼촌** (sam-chon) - uncle (father's brother)
 - **이모** (i-mo) - aunt (mother's sister)
-- **고모** (go-mo) - aunt (father's sister)
-- **사촌** (sa-chon) - cousin
-
-### Relationships
-- **남편** (nam-pyeon) - husband
-- **아내/부인** (a-nae/bu-in) - wife
-- **남자친구** (nam-ja-chin-gu) - boyfriend
-- **여자친구** (yeo-ja-chin-gu) - girlfriend
+- **나누나** - my older sister (when speaker is male)
+- **가족이 몇 명이에요?** (ga-jok-i myeot myeong-i-e-yo?) - How many family members do you have?
+- **형제자매가 있어요?** (hyeong-je-ja-mae-ga i-sseo-yo?) - Do you have siblings?
 - **결혼했어요** (gyeol-hon-hae-sseo-yo) - married
 - **미혼이에요** (mi-hon-i-e-yo) - unmarried/single
 

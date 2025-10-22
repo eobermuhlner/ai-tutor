@@ -55,45 +55,34 @@ Examples:
 - Sta piovendo (It is raining)
 - Stiamo studiando (We are studying)
 
-## Essential Vocabulary
+## Vocabulary
 
-### Weather
 - **il tempo** - weather
 - **il sole** - sun
 - **la pioggia** - rain
 - **la neve** - snow
 - **il vento** - wind
-- **la nebbia** - fog
-- **le nuvole** - clouds
 - **C'è il sole** - It's sunny
 - **Piove** - It's raining
 - **Nevica** - It's snowing
-- **Tira vento** - It's windy
-
-### Seasons
+- **Fa caldo** - It's hot
+- **Fa freddo** - It's cold
 - **la primavera** - spring
 - **l'estate** - summer
 - **l'autunno** - autumn/fall
 - **l'inverno** - winter
-
-### Activities
 - **nuotare** - to swim
 - **correre** - to run
 - **camminare** - to walk
 - **sciare** - to ski
 - **leggere** - to read
-- **guardare la TV** - to watch TV
 - **ascoltare musica** - to listen to music
 - **giocare** - to play
 - **cucinare** - to cook
 - **ballare** - to dance
-
-### Places for Activities
 - **la spiaggia** - beach
 - **la montagna** - mountain
 - **il parco** - park
-- **la piscina** - pool
-- **la palestra** - gym
 
 ## Conversation Scenarios
 

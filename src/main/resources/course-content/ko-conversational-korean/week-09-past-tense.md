@@ -61,28 +61,26 @@ Examples:
 - 바쁘다 → 바빴어요 (ba-ppa-sseo-yo) - was busy
 - 재미있다 → 재미있었어요 (jae-mi-i-sseo-sseo-yo) - was fun
 
-## Essential Vocabulary
+## Vocabulary
 
-### Time Expressions for Past
 - **어제** (eo-je) - yesterday
-- **그저께** (geu-jeo-kke) - day before yesterday
 - **지난주** (ji-nan-ju) - last week
 - **지난달** (ji-nan-dal) - last month
 - **작년** (jang-nyeon) - last year
-- **아까** (a-kka) - a while ago
-- **조금 전에** (jo-geum jeon-e) - a moment ago
-- **~전에** (jeon-e) - ago
-- **~년 전** (nyeon jeon) - years ago
-- **~시간 전** (si-gan jeon) - hours ago
-
-### Common Past Tense Verbs
-- **만나다** → 만났어요 (man-na-sseo-yo) - met
-- **사다** → 샀어요 (sa-sseo-yo) - bought
-- **읽다** → 읽었어요 (ilg-eo-sseo-yo) - read
-- **쓰다** → 썼어요 (sseo-sseo-yo) - wrote/used
+- **만났어요** (man-na-sseo-yo) - met
+- **갔어요** (ga-sseo-yo) - went
+- **왔어요** (wa-sseo-yo) - came
+- **봤어요** (bwa-sseo-yo) - saw
+- **먹었어요** (meo-geo-sseo-yo) - ate
+- **마셨어요** (ma-syeo-sseo-yo) - drank
 - **자다** → 잤어요 (ja-sseo-yo) - slept
 - **일어나다** → 일어났어요 (il-eo-na-sseo-yo) - woke up
-- **끝나다** → 끝났어요 (kkeut-na-sseo-yo) - ended/finished
+- **공부했어요** (gong-bu-hae-sseo-yo) - studied
+- **요리했어요** (yo-ri-hae-sseo-yo) - cooked
+- **좋았어요** (jo-a-sseo-yo) - was good
+- **재미있었어요** (jae-mi-i-sseo-sseo-yo) - was fun
+- **어제 뭐 했어요?** (eo-je mwo haess-eo-yo?) - What did you do yesterday?
+- **어디 갔어요?** (eo-di gass-eo-yo?) - Where did you go?
 
 ## Conversation Scenarios
 

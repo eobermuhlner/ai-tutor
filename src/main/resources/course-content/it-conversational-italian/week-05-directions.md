@@ -73,58 +73,34 @@ Examples:
 - Come arrivo al Colosseo? (How do I get to the Colosseum?)
 - Quanto è lontano? (How far is it?)
 
-## Essential Vocabulary
+## Vocabulary
 
-### Places in the City
 - **la stazione** - the train station
 - **l'aeroporto** - the airport
 - **la piazza** - the square
 - **la chiesa** - the church
 - **il museo** - the museum
-- **il duomo** - the cathedral
 - **la banca** - the bank
 - **l'ufficio postale** - the post office
 - **la farmacia** - the pharmacy
 - **l'ospedale** - the hospital
-- **l'hotel/albergo** - the hotel
+- **l'hotel** - the hotel
 - **il ristorante** - the restaurant
-- **il bar/caffè** - the cafe
 - **il supermercato** - the supermarket
-- **il negozio** - the shop
 - **il centro** - the city center
 - **la strada** - the street
-- **la via** - the road/way
-- **il corso** - the main street
-- **la fermata** - the bus/tram stop
-
-### Direction Words
 - **destra** - right
 - **sinistra** - left
-- **dritto/diritto** - straight
-- **sempre dritto** - straight ahead
+- **dritto** - straight
 - **avanti** - forward/ahead
-- **indietro** - back/backward
 - **qui** - here
 - **lì/là** - there
-- **vicino** - near/close
 - **lontano** - far
-- **primo** - first
-- **secondo** - second
-- **terzo** - third
-- **l'angolo** - the corner
+- **vicino** - near
 - **il semaforo** - the traffic light
-- **l'incrocio** - the intersection
-- **il ponte** - the bridge
-
-### Useful Verbs
+- **prendere** - to take
 - **andare** - to go
 - **girare** - to turn
-- **attraversare** - to cross
-- **prendere** - to take
-- **continuare** - to continue
-- **seguire** - to follow
-- **camminare** - to walk
-- **arrivare** - to arrive
 
 ## Conversation Scenarios
 

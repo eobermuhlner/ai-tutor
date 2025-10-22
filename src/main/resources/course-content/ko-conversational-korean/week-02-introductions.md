@@ -73,44 +73,24 @@ Examples:
 - 이/가 emphasizes the subject (who/what)
 - 은/는 marks the topic (speaking about)
 
-## Essential Vocabulary
+## Vocabulary
 
-### Personal Information
 - **이름** (i-reum) - name
 - **이름이 뭐예요?** (i-reum-i mwo-ye-yo?) - What is your name?
-- **성함이 어떻게 되세요?** (seong-ham-i eo-tteo-ke doe-se-yo?) - What is your name? (very formal)
 - **나이** (na-i) - age
 - **몇 살이에요?** (myeot sal-i-e-yo?) - How old are you?
 - **국적** (guk-jeok) - nationality
-- **출신** (chul-sin) - origin/hometown
-- **직업** (ji-geop) - occupation
-
-### Countries and Nationalities
-- **한국** (han-guk) - Korea → **한국 사람** (han-guk sa-ram) - Korean person
-- **미국** (mi-guk) - USA → **미국 사람** (mi-guk sa-ram) - American
-- **영국** (yeong-guk) - UK → **영국 사람** (yeong-guk sa-ram) - British
-- **중국** (jung-guk) - China → **중국 사람** (jung-guk sa-ram) - Chinese
-- **일본** (il-bon) - Japan → **일본 사람** (il-bon sa-ram) - Japanese
-- **프랑스** (peu-rang-seu) - France → **프랑스 사람** (peu-rang-seu sa-ram) - French
-- **독일** (dok-il) - Germany → **독일 사람** (dok-il sa-ram) - German
-- **스페인** (seu-pe-in) - Spain → **스페인 사람** (seu-pe-in sa-ram) - Spanish
-
-### Occupations
+- **한국** (han-guk) - Korea
+- **미국** (mi-guk) - USA
+- **중국** (jung-guk) - China
+- **일본** (il-bon) - Japan
 - **학생** (hak-saeng) - student
 - **선생님** (seon-saeng-nim) - teacher
 - **의사** (ui-sa) - doctor
 - **간호사** (gan-ho-sa) - nurse
 - **회사원** (hoe-sa-won) - office worker
-- **엔지니어** (en-ji-ni-eo) - engineer
-- **요리사** (yo-ri-sa) - chef
-
-### Pronouns
-- **저** (jeo) - I/me (humble/formal)
-- **나** (na) - I/me (informal)
-- **저는** (jeo-neun) - I (topic marker, formal)
-- **나는** (na-neun) - I (topic marker, informal)
-- **당신** (dang-sin) - you (formal, rarely used)
-- **너** (neo) - you (informal)
+- **저는...** (jeo-neun) - I am (formal)
+- **저는 미국 사람이에요** (jeo-neun mi-guk sa-ram-i-e-yo) - I am American
 
 ## Conversation Scenarios
 

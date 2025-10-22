@@ -63,34 +63,30 @@ targetCEFR: A2-B1
 - Penso di andare (I'm thinking of going)
 - Pensiamo di partire domani (We're thinking of leaving tomorrow)
 
-## Essential Vocabulary
+## Vocabulary
 
-### Time Expressions for Future
 - **domani** - tomorrow
 - **dopodomani** - day after tomorrow
 - **la prossima settimana** - next week
 - **il prossimo mese** - next month
 - **l'anno prossimo** - next year
-- **tra due giorni** - in two days
-- **fra una settimana** - in a week
-- **presto** - soon
-- **più tardi** - later
-- **stasera** - tonight/this evening
-
-### Planning Vocabulary
+- **parlerò** - I will speak
+- **andrò** - I will go
+- **avrò** - I will have
+- **sarò** - I will be
+- **farò** - I will do/make
+- **vorrò** - I will want
+- **potrò** - I will be able to
+- **dovrò** - I will have to
 - **progetto** - project/plan
 - **obiettivo** - goal
-- **intenzione** - intention
 - **speranza** - hope
 - **sogno** - dream
 - **decidere** - to decide
 - **organizzare** - to organize
 - **preparare** - to prepare
-
-### Modal Verbs for Future Plans
-- **dovere** - must/have to
-- **potere** - can/be able to
-- **volere** - want to
+- **Cosa farai?** - What will you do?
+- **Dove andrai?** - Where will you go?
 
 ## Conversation Scenarios
 

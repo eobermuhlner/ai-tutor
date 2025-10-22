@@ -64,9 +64,8 @@ Time Expressions:
 - **e un quarto** - quarter past
 - **meno un quarto** - quarter to
 
-## Essential Vocabulary
+## Vocabulary
 
-### Days of the Week
 - **lunedì** - Monday
 - **martedì** - Tuesday
 - **mercoledì** - Wednesday
@@ -74,26 +73,24 @@ Time Expressions:
 - **venerdì** - Friday
 - **sabato** - Saturday
 - **domenica** - Sunday
-
-### Months
-- **gennaio** - January, **febbraio** - February, **marzo** - March
-- **aprile** - April, **maggio** - May, **giugno** - June
-- **luglio** - July, **agosto** - August, **settembre** - September
-- **ottobre** - October, **novembre** - November, **dicembre** - December
-
-### Time Expressions
-- **mattina** - morning
-- **pomeriggio** - afternoon
-- **sera** - evening
-- **notte** - night
-- **mezzogiorno** - noon
-- **mezzanotte** - midnight
+- **gennaio** - January
+- **febbraio** - February
+- **marzo** - March
+- **aprile** - April
+- **maggio** - May
+- **giugno** - June
+- **luglio** - July
+- **agosto** - August
+- **settembre** - September
+- **ottobre** - October
+- **novembre** - November
+- **dicembre** - December
 - **oggi** - today
 - **domani** - tomorrow
 - **ieri** - yesterday
-- **ora** - now/hour
-- **presto** - early
-- **tardi** - late
+- **mattina** - morning
+- **pomeriggio** - afternoon
+- **sera** - evening
 
 ## Conversation Scenarios
 

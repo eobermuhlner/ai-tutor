@@ -96,46 +96,33 @@ Examples:
 - **마리** (ma-ri) - animals
   - 한 마리 (han ma-ri) - one animal
 
-## Essential Vocabulary
+## Vocabulary
 
-### Days of the Week
-- **월요일** (wo-ryo-il) - Monday (Moon day)
-- **화요일** (hwa-yo-il) - Tuesday (Fire day)
-- **수요일** (su-yo-il) - Wednesday (Water day)
-- **목요일** (mo-gyo-il) - Thursday (Wood day)
-- **금요일** (geum-yo-il) - Friday (Gold day)
-- **토요일** (to-yo-il) - Saturday (Earth day)
-- **일요일** (i-ryo-il) - Sunday (Sun day)
-
-**Note:** Days use Sino-Korean number for date: 월요일 (1st day), 화요일 (2nd day), etc.
-
-### Months (Sino-Korean numbers + 월)
-- **1월** (i-rwol) - January, **2월** (i-wol) - February, **3월** (sa-mwol) - March
-- **4월** (sa-wol) - April, **5월** (o-wol) - May, **6월** (yu-gwol) - June
-- **7월** (chi-rwol) - July, **8월** (pa-rwol) - August, **9월** (gu-wol) - September
-- **10월** (si-wol) - October, **11월** (si-bi-rwol) - November, **12월** (si-bi-wol) - December
-
-### Time Expressions
-- **시** (si) - o'clock (hour)
+- **월요일** (wo-ryo-il) - Monday
+- **화요일** (hwa-yo-il) - Tuesday
+- **수요일** (su-yo-il) - Wednesday
+- **목요일** (mo-gyo-il) - Thursday
+- **금요일** (geum-yo-il) - Friday
+- **토요일** (to-yo-il) - Saturday
+- **일요일** (i-ryo-il) - Sunday
+- **1월** (i-rwol) - January
+- **2월** (i-wol) - February
+- **3월** (sa-mwol) - March
+- **4월** (sa-wol) - April
+- **5월** (o-wol) - May
+- **시** (si) - hour/'clock
 - **분** (bun) - minute
-- **초** (cho) - second
-- **반** (ban) - half (30 minutes)
-- **오전** (o-jeon) - AM, morning
-- **오후** (o-hu) - PM, afternoon
+- **오전** (o-jeon) - AM
+- **오후** (o-hu) - PM
 - **아침** (a-chim) - morning
-- **점심** (jeom-sim) - lunch time/noon
+- **점심** (jeom-sim) - lunch time
 - **저녁** (jeo-nyeok) - evening
-- **밤** (bam) - night
 - **오늘** (o-neul) - today
 - **내일** (nae-il) - tomorrow
 - **어제** (eo-je) - yesterday
 - **지금** (ji-geum) - now
-- **나중에** (na-jung-e) - later
-
-### Question Words
-- **몇** (myeot) - how many/what (for numbers)
-- **언제** (eon-je) - when
 - **며칠** (myeo-chil) - what date
+- **몇 시예요?** (myeot si-ye-yo?) - What time is it?
 
 ## Conversation Scenarios
 

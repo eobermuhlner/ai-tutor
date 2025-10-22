@@ -26,7 +26,7 @@ Examples:
 - El banco está al lado del hotel (The bank is next to the hotel)
 - La farmacia está enfrente de la plaza (The pharmacy is across from the square)
 
-## Essential Vocabulary
+## Vocabulary
 
 - **¿Dónde está...?** - Where is...?
 - **A la derecha** - To the right
@@ -40,6 +40,10 @@ Examples:
 - **La estación** - Station
 - **Cerca** - Near
 - **Lejos** - Far
+- **Enfrente de** - Across from
+- **Al lado de** - Next to
+- **Detrás de** - Behind
+- **Delante de** - In front of
 
 ## Practice Patterns
 

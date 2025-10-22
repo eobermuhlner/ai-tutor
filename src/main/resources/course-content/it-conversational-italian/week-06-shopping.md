@@ -61,9 +61,8 @@ Colors:
 - nero/a/i/e (black)
 - bianco/a/hi/he (white)
 
-## Essential Vocabulary
+## Vocabulary
 
-### Clothing
 - **la maglietta** - t-shirt
 - **la camicia** - shirt
 - **i pantaloni** - pants
@@ -71,40 +70,22 @@ Colors:
 - **la gonna** - skirt
 - **il vestito** - dress
 - **la giacca** - jacket
-- **il cappotto** - coat
 - **le scarpe** - shoes
-- **gli stivali** - boots
-- **le scarpe da ginnastica** - sneakers
 - **il maglione** - sweater
 - **la borsa** - bag
-- **la cintura** - belt
-- **il cappello** - hat
-
-### Colors
 - **rosso** - red
 - **blu** - blue
 - **verde** - green
 - **giallo** - yellow
 - **nero** - black
 - **bianco** - white
-- **grigio** - gray
-- **marrone** - brown
-- **rosa** - pink
-- **arancione** - orange
-
-### Sizes
 - **piccolo** - small
 - **medio** - medium
 - **grande** - large
 - **la taglia** - size (clothing)
-- **il numero** - size (shoes)
-
-### Shopping Phrases
 - **Quanto costa?** - How much does it cost?
 - **Posso provare?** - Can I try it on?
 - **Avete la taglia M?** - Do you have size M?
-- **È troppo caro** - It's too expensive
-- **C'è uno sconto?** - Is there a discount?
 - **Lo prendo** - I'll take it
 - **Pago con carta** - I'll pay by card
 

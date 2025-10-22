@@ -54,54 +54,32 @@ Examples:
 **이/가 (i/ga) - Subject marker:**
 - 가격**이** 비싸요 (ga-gyeok-**i** bi-ssa-yo) - The price is expensive
 
-## Essential Vocabulary
+## Vocabulary
 
-### Clothing
 - **옷** (ot) - clothes
 - **티셔츠** (ti-syeo-cheu) - t-shirt
 - **바지** (ba-ji) - pants
 - **치마** (chi-ma) - skirt
 - **원피스** (won-pi-seu) - dress
-- **재킷** (jae-kit) - jacket
-- **코트** (ko-teu) - coat
 - **신발** (sin-bal) - shoes
-- **운동화** (un-dong-hwa) - sneakers
 - **가방** (ga-bang) - bag
 - **모자** (mo-ja) - hat
-- **안경** (an-gyeong) - glasses
-
-### Colors
 - **빨간색** (ppal-gan-saek) - red
 - **파란색** (pa-ran-saek) - blue
 - **노란색** (no-ran-saek) - yellow
-- **초록색** (cho-rok-saek) - green
 - **검은색** (geom-eun-saek) - black
 - **흰색** (hin-saek) - white
-- **회색** (hoe-saek) - gray
-- **분홍색** (bun-hong-saek) - pink
-
-### Sizes
 - **큰** (keun) - big/large
 - **작은** (ja-geun) - small
-- **큰 사이즈** (keun sa-i-jeu) - large size
-- **작은 사이즈** (ja-geun sa-i-jeu) - small size
-- **중간 사이즈** (jung-gan sa-i-jeu) - medium size
-
-### Shopping Phrases
+- **중간** (jung-gan) - medium
 - **얼마예요?** (eol-ma-ye-yo?) - How much is it?
 - **비싸요** (bi-ssa-yo) - It's expensive
 - **싸요** (ssa-yo) - It's cheap
-- **깎아 주세요** (kkak-ka ju-se-yo) - Please give a discount
 - **이거 주세요** (i-geo ju-se-yo) - Please give me this
 - **입어 봐도 돼요?** (i-beo bwa-do dwae-yo?) - Can I try it on?
 - **카드 돼요?** (ka-deu dwae-yo?) - Do you take card?
-
-### Money
 - **원** (won) - Korean won (currency)
-- **천 원** (cheon won) - 1,000 won
 - **만 원** (man won) - 10,000 won
-- **현금** (hyeon-geum) - cash
-- **카드** (ka-deu) - card
 
 ## Conversation Scenarios
 

@@ -61,42 +61,28 @@ Patterns:
 
 Note: Adjectives ending in -e (like francese) have the same form for masculine and feminine singular
 
-## Essential Vocabulary
+## Vocabulary
 
-### Personal Information
 - **Nome** - Name
 - **Cognome** - Surname/Last name
 - **Età** - Age
 - **Nazionalità** - Nationality
-- **Provenienza** - Origin
-- **Città** - City
 - **Paese** - Country
-
-### Question Words
-- **Come** - How/What (for names)
-- **Di dove** - From where
-- **Dove** - Where
-- **Che** - What
-- **Quanti anni** - How many years (for age)
-
-### Countries and Nationalities
-- **Italia** - Italy → italiano/a
-- **Stati Uniti** - United States → americano/a
-- **Francia** - France → francese
-- **Germania** - Germany → tedesco/a
-- **Spagna** - Spain → spagnolo/a
-- **Inghilterra** - England → inglese
-- **Giappone** - Japan → giapponese
-- **Cina** - China → cinese
-- **Brasile** - Brazil → brasiliano/a
-
-### Useful Expressions
+- **Città** - City
 - **Mi chiamo...** - My name is...
 - **Sono di...** - I am from...
 - **Vengo da...** - I come from...
-- **Parlo...** - I speak...
 - **Ho ... anni** - I am ... years old
 - **Abito a...** - I live in...
+- **Parlo...** - I speak...
+- **Italiano/a** - Italian (masculine/feminine)
+- **Americano/a** - American (masculine/feminine)
+- **Francese** - French
+- **Tedesco/a** - German (masculine/feminine)
+- **Spagnolo/a** - Spanish (masculine/feminine)
+- **Inglese** - English
+- **Come ti chiami?** - What's your name? (informal)
+- **Di dove sei?** - Where are you from?
 
 ## Conversation Scenarios
 
