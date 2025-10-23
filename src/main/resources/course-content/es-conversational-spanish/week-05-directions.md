@@ -98,47 +98,34 @@ Patterns to Practice:
 
 ## Conversation Scenarios
 
+The AI tutor will guide you through conversations about:
+
 ### Asking for Directions
 
-> Person A: Perdón, ¿dónde está la farmacia?
+Practice asking where places are and understanding location responses.
 
-> Person B: La farmacia está al lado del banco, a la derecha.
-
-> Person A: ¿Está cerca de aquí?
-
-> Person B: Sí, está muy cerca. Está en esta calle.
-
-> Person A: Gracias por tu ayuda.
-
-> Person B: De nada. ¡Adiós!
+Topics to cover:
+- "¿Dónde está la farmacia?" (Where is the pharmacy?)
+- "¿Está cerca de aquí?" (Is it near here?)
+- "¿Cómo llego a...?" (How do I get to...?)
 
 ### Giving Detailed Directions
 
-> Person A: Disculpe, ¿cómo llego al hospital?
+Practice providing clear directions using prepositions and landmarks.
 
-> Person B: El hospital está lejos. Tienes que tomar la avenida Principal.
-
-> Person A: ¿Hacia la derecha o la izquierda?
-
-> Person B: Sigue recto por esta calle, luego gira a la izquierda en el semáforo.
-
-> Person A: ¿Y después?
-
-> Person B: Cruza la plaza y el hospital está enfrente. No te puedes perder.
-
-> Person A: Muchísimas gracias.
+Topics to cover:
+- "Sigue recto" (Go straight)
+- "Gira a la derecha/izquierda" (Turn right/left)
+- "Está entre la farmacia y la estación" (It's between the pharmacy and the station)
 
 ### Asking Near Landmarks
 
-> Person A: ¿Hay un banco por aquí?
+Practice inquiring about locations using nearby landmarks.
 
-> Person B: Sí, hay uno. Está entre la farmacia y la estación.
-
-> Person A: ¿Está abierto ahora?
-
-> Person B: Creo que sí. Normalmente abre a las nueve de la mañana.
-
-> Person A: Perfecto, gracias.
+Topics to cover:
+- "¿Hay un banco por aquí?" (Is there a bank around here?)
+- "¿Está abierto ahora?" (Is it open now?)
+- "Está detrás del hospital" (It's behind the hospital)
 
 ## Practice Patterns
 

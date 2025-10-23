@@ -70,37 +70,27 @@ Patterns to Practice:
 
 ## Conversation Scenarios
 
-### First Meeting at School
+The AI tutor will guide you through conversations about:
 
-> Person A: Hola, me llamo Ana. ¿Cómo te llamas?
+### Introducing Yourself at School
 
-> Person B: Me llamo Luis. Mucho gusto.
+Practice giving your name, nationality, and studies using the verb "ser" correctly.
 
-> Person A: ¿De dónde eres, Luis?
-
-> Person B: Soy de Colombia. ¿Y tú?
-
-> Person A: Yo soy de España. ¿Qué estudias?
-
-> Person B: Estudio medicina. ¿Y tú?
-
-> Person A: Yo estudio arte. ¡Qué interesante!
+Topics to cover:
+- "Me llamo Ana" (My name is Ana)
+- "Soy de España" (I'm from Spain)
+- "Estudio arte" (I study art)
+- "¿De dónde eres?" (Where are you from?)
 
 ### Professional Introduction
 
-> Person A: Buenos días. Me llamo María González.
+Practice formal introductions in professional settings.
 
-> Person B: Mucho gusto, María. Yo soy Carlos Ruiz.
-
-> Person A: ¿De dónde es usted?
-
-> Person B: Soy de Argentina, pero vivo en México.
-
-> Person A: ¡Ah, qué bien! ¿A qué se dedica?
-
-> Person B: Soy ingeniero. ¿Y usted?
-
-> Person A: Soy profesora de español.
+Topics to cover:
+- "Mucho gusto" (Nice to meet you)
+- "Soy profesora de español" (I'm a Spanish teacher)
+- "¿A qué se dedica?" (What do you do?)
+- Formal vs informal address ("usted" vs "tú")
 
 ## Practice Patterns
 
@@ -117,3 +107,44 @@ Patterns to Practice:
 - Saying "Yo soy 25 años" instead of "Tengo 25 años" (age uses "tener", not "ser")
 - Mixing up "de" (from) and "en" (in): "Soy de Francia" vs. "Vivo en París"
 - Forgetting the accent in "¿Cómo?" when asking questions
+
+## Cultural Notes
+
+- In Spanish-speaking countries, people often use formal "usted" until invited to use "tú"
+- Physical greetings vary by country: handshakes are common, with cheek kisses depending on region
+- When introducing yourself, it's common to give both first and last name: "Soy María López"
+- In professional settings, titles like "ingeniero", "doctor", etc., are often used
+- Family connections and regional origins are often important in introductions
+
+## Additional Grammar: Nationality Adjectives
+
+**Rule:** Nationality adjectives must agree in gender and number with the noun they modify.
+
+Examples:
+- Soy español/española (I am Spanish - masculine/feminine)
+- Soy mexicano/mexicana (I am Mexican - masculine/feminine)
+- Ellos son americanos/americanas (They are American - masculine/feminine plural)
+
+Patterns to Practice:
+- "Soy + nationality adjective" with proper gender agreement
+- "Ella es + nationality" matching gender
+- "Nosotros somos + nationality" with plural agreement
+
+## Numbers 1-30
+
+Learning numbers helps with stating your age and other personal information:
+
+1-10: uno, dos, tres, cuatro, cinco, seis, siete, ocho, nueve, diez
+11-20: once, doce, trece, catorce, quince, dieciséis, diecisiete, dieciocho, diecinueve, veinte
+21-30: veintiuno, veintidós, veintitrés, veinticuatro, veinticinco, veintiséis, veintisiete, veintiocho, veintinueve, treinta
+
+Special note: "veintiuno" changes to "veintiuna" when referring to feminine nouns.
+
+## Practice Patterns
+
+- Introduce yourself using your complete name: "Soy [first name] [last name]"
+- State your nationality with proper gender agreement: "Soy [nationality]"
+- Give your age: "Tengo [number] años"
+- Mention where you're from: "Soy de [country/city]"
+- Ask about someone's profession: "¿A qué te dedicas?"
+- Practice both formal and informal question forms

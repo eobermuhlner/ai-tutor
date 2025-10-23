@@ -90,59 +90,50 @@ targetCEFR: A2-B1
 
 ## Conversation Scenarios
 
+The AI tutor will guide you through conversations about:
+
 ### Making Weekend Plans
 
-> Person A: Cosa farai questo weekend?
+Practice discussing upcoming weekend activities and making invitations.
 
-> Person B: Sabato andrò a trovare i miei genitori.
-
-> Person A: E domenica?
-
-> Person B: Domenica penso di restare a casa e rilassarmi.
-
-> Person A: Vuoi venire al cinema con noi domenica sera?
-
-> Person B: Sì, volentieri! A che ora?
+Topics to cover:
+- "Cosa farai questo weekend?" (What will you do this weekend?)
+- "Sabato andrò a trovare i miei genitori" (Saturday I'll visit my parents)
+- "Domenica penso di restare a casa" (Sunday I think I'll stay home)
+- "Vuoi venire al cinema con noi domenica sera?" (Do you want to come to the cinema with us Sunday evening?)
 
 ### Discussing Future Plans
 
-> Person A: Dove andrai in vacanza quest'estate?
+Practice talking about vacation plans and travel arrangements.
 
-> Person B: Andrò in Grecia. Passerò due settimane ad Atene.
-
-> Person A: Che bello! Viaggerai da solo?
-
-> Person B: No, verrà anche mio fratello. Visiteremo le isole greche.
-
-> Person A: Sarà un viaggio fantastico!
+Topics to cover:
+- "Dove andrai in vacanza quest'estate?" (Where will you go for vacation this summer?)
+- "Andrò in Grecia" (I'll go to Greece)
+- "Passerò due settimane ad Atene" (I'll spend two weeks in Athens)
+- "Visiteremo le isole greche" (We'll visit the Greek islands)
 
 ### Talking About Career Goals
 
-> Person A: Quali sono i tuoi piani per il futuro?
+Practice discussing future professional aspirations and plans.
 
-> Person B: L'anno prossimo finirò l'università.
-
-> Person A: E dopo? Cosa farai?
-
-> Person B: Cercherò lavoro in una multinazionale. Voglio lavorare all'estero.
-
-> Person A: In quale paese vorresti andare?
-
-> Person B: Mi piacerebbe andare in Spagna o in Francia.
+Topics to cover:
+- "Quali sono i tuoi piani per il futuro?" (What are your plans for the future?)
+- "L'anno prossimo finirò l'università" (Next year I'll finish university)
+- "Cercherò lavoro in una multinazionale" (I'll look for work at a multinational company)
+- "Mi piacerebbe andare in Spagna o in Francia" (I'd like to go to Spain or France)
 
 ### Making Arrangements
 
-> Person A: Ci vediamo domani?
+### Making Plans for the Near Future
 
-> Person B: Sì, a che ora?
+Practice arranging to meet someone in the future.
 
-> Person A: Alle tre del pomeriggio va bene?
-
-> Person B: Perfetto! Dove ci incontreremo?
-
-> Person A: Davanti alla stazione. Ti manderò un messaggio quando arrivo.
-
-> Person B: Va bene, a domani!
+Topics to cover:
+- "Ci vediamo domani?" (Shall we see each other tomorrow?)
+- "A che ora?" (At what time?)
+- "Alle tre del pomeriggio va bene?" (Is 3 PM good?)
+- "Dove ci incontreremo?" (Where shall we meet?)
+- "Ti manderò un messaggio" (I'll send you a message)
 
 ## Practice Patterns
 

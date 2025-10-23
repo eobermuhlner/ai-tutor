@@ -102,3 +102,47 @@ Topics to cover:
 - "Pois" and "pois é" are uniquely European expressions
 - Closed vowels in European pronunciation (vs open in Brazilian)
 - European Portuguese drops unstressed vowels heavily
+
+## Additional Grammar: Verb Tenses with Different Pronouns
+
+**Rule:** Different pronouns take different verb forms in European Portuguese
+
+Examples:
+- Tu forms: Tu falas, Tu comes, Tu tens (you speak, eat, have)
+- Você/O senhor forms: Você fala, O senhor fala (you speak)
+
+Patterns to Practice:
+- Tu commands: "Tu vais" (you go) vs "Você vai" (you go)
+- Tu questions: "Tu estás bem?" vs "Você está bem?"
+
+## Pronunciation Focus: European vs Brazilian Portuguese
+
+- European "s" at the end of syllables sounds like "sh": "mesmo" sounds like "mesh-mo"
+- European vowels are more closed and pronounced: "pão" is more open in Brazil
+- "R" sound varies significantly between dialects
+- European Portuguese has more dropped consonants in casual speech
+
+## Extended Vocabulary
+
+### Additional Greetings by Time
+- **Bom dia** - Good morning (until roughly noon)
+- **Boa tarde** - Good afternoon (from noon until 6 PM)
+- **Boa noite** - Good evening/night (after 6 PM, can be used for sleeping)
+
+### Formal vs Informal Expressions
+- **Senhor/Senhora** - Mr./Mrs./Ms.
+- **Rapaz/Senhora** - Young man/lady (more regional)
+- **Companheiro/Companheira** - Colleague (formal in some contexts)
+
+### Regional Expressions
+- **P'ra cima** - Up with (Portuguese expression of support)
+- **Ora** - Expression of surprise or emphasis
+
+## Practice Patterns
+
+- Greet using appropriate formality level: "Olá, como está?" vs "Olá, como estás?"
+- Introduce yourself with "Chamo-me..." using European reflexive placement
+- Ask for someone's name with appropriate formality
+- Use "Adeus" instead of "Tchau" (Brazilian)
+- Practice the "tu" vs "você" distinction
+- Use "Pois" naturally in conversation

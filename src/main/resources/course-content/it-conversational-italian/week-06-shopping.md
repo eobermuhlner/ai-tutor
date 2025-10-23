@@ -91,31 +91,27 @@ Colors:
 
 ## Conversation Scenarios
 
+The AI tutor will guide you through conversations about:
+
 ### Shopping for Clothes
 
-> Customer: Buongiorno, quanto costa questa giacca?
+Practice buying clothes and asking about sizes, prices, and trying on items.
 
-> Clerk: Costa ottanta euro. Vuole provarla?
-
-> Customer: Sì, grazie. Avete la taglia M?
-
-> Clerk: Certo! Il camerino è là.
-
-> Customer: Va bene, la prendo. Accettate carte?
-
-> Clerk: Sì, certo. Ecco lo scontrino.
+Topics to cover:
+- "Quanto costa questa giacca?" (How much does this jacket cost?)
+- "Vuole provarla?" (Do you want to try it on?)
+- "Avete la taglia M?" (Do you have size M?)
+- "Accettate carte?" (Do you accept cards?)
 
 ### Asking About Colors and Styles
 
-> Customer: Buonasera, cerco una maglietta rossa.
+Practice discussing different colors, styles, and making purchases.
 
-> Clerk: Abbiamo questo modello. Le piace?
-
-> Customer: Sì, ma preferisco quella blu. Quanto costa?
-
-> Clerk: Costa venti euro.
-
-> Customer: Perfetto! La prendo in taglia L.
+Topics to cover:
+- "Cerco una maglietta rossa" (I'm looking for a red t-shirt)
+- "Le piace?" (Do you like it?)
+- "Preferisco quella blu" (I prefer the blue one)
+- "La prendo in taglia L" (I'll take it in size L)
 
 ## Practice Patterns
 

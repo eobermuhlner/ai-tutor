@@ -104,59 +104,50 @@ Examples:
 
 ## Conversation Scenarios
 
+The AI tutor will guide you through conversations about:
+
 ### Asking for Directions - Formal
 
-> Tourist: Scusi, dov'è la stazione?
+Practice asking for directions using formal register.
 
-> Local: La stazione? Vada sempre dritto, poi giri a destra al semaforo.
-
-> Tourist: È lontano?
-
-> Local: No, sono circa dieci minuti a piedi.
-
-> Tourist: Grazie mille!
-
-> Local: Prego, buona giornata!
+Topics to cover:
+- "Scusi, dov'è la stazione?" (Excuse me, where is the train station?)
+- "Vada sempre dritto" (Go straight)
+- "Sono circa dieci minuti a piedi" (It's about ten minutes on foot)
 
 ### Asking for Directions - Informal
 
-> Person A: Scusa, come arrivo al Duomo?
+Practice asking for directions using informal register.
 
-> Person B: Allora, vai dritto per questa strada, poi gira a sinistra in Piazza Garibaldi.
-
-> Person A: E poi?
-
-> Person B: Continua sempre dritto e lo vedi sulla destra. È grande, non puoi sbagliare!
-
-> Person A: Perfetto, grazie!
-
-> Person B: Di niente!
+Topics to cover:
+- "Scusa, come arrivo al Duomo?" (Excuse me, how do I get to the Duomo?)
+- "Vai dritto per questa strada" (Go straight on this street)
+- "Non puoi sbagliare!" (You can't go wrong!)
 
 ### More Complex Directions
 
-> Tourist: Mi scusi, dov'è il museo?
+Practice giving and receiving complex directions.
 
-> Local: Allora, prenda la prima strada a destra, attraversi il ponte, e poi continui dritto per circa 200 metri.
+Topics to cover:
+- "Prenda la prima strada a destra" (Take the first road on the right)
+- "Attraversi il ponte" (Cross the bridge)
+- "Sulla destra" (On the right)
 
-> Tourist: E il museo è lì?
+### Ending the Direction Conversation
 
-> Local: No, deve girare a sinistra al secondo incrocio. Il museo è proprio lì, sulla destra.
+Practice concluding a conversation after receiving directions.
 
-> Tourist: Capito. Grazie mille!
-
-> Local: Prego! Buona visita!
+Topics to cover:
+- "Prego! Buona visita!" (You're welcome! Enjoy your visit!)
 
 ### Describing Location
 
-> Person A: Dov'è la farmacia?
+Practice describing where things are using prepositions.
 
-> Person B: La farmacia è accanto alla banca, di fronte al supermercato.
-
-> Person A: In via Roma?
-
-> Person B: Sì, esatto! È tra la banca e il bar.
-
-> Person A: Grazie!
+Topics to cover:
+- "La farmacia è accanto alla banca" (The pharmacy is next to the bank)
+- "Di fronte al supermercato" (Across from the supermarket)
+- "Tra la banca e il bar" (Between the bank and the bar)
 
 ## Practice Patterns
 

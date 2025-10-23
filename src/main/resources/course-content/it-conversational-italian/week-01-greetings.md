@@ -73,31 +73,27 @@ Patterns to Practice:
 
 ## Conversation Scenarios
 
+The AI tutor will guide you through conversations about:
+
 ### Meeting Someone for the First Time
 
-> Person A: Buongiorno! Come sta?
+Practice formal greetings and polite introductions in Italian.
 
-> Person B: Molto bene, grazie. E Lei?
-
-> Person A: Bene, grazie. Mi chiamo Maria.
-
-> Person B: Piacere, Maria. Io sono Carlo.
-
-> Person A: Molto lieta, Carlo.
+Topics to cover:
+- "Buongiorno! Come sta?" (Good morning! How are you? - formal)
+- "Molto bene, grazie. E Lei?" (Very well, thank you. And you?)
+- "Mi chiamo Maria" (My name is Maria)
+- "Molto lieta" (Pleased to meet you)
 
 ### Greeting a Friend
 
-> Person A: Ciao! Come stai?
+Practice casual greetings with informal register.
 
-> Person B: Bene! E tu?
-
-> Person A: Molto bene, grazie.
-
-> Person B: Che bello vederti!
-
-> Person A: Anche tu! A presto!
-
-> Person B: Ciao!
+Topics to cover:
+- "Ciao! Come stai?" (Hi! How are you?)
+- "Bene! E tu?" (Fine! And you?)
+- "Che bello vederti!" (Nice to see you!)
+- "A presto!" (See you soon!)
 
 ## Practice Patterns
 
@@ -114,3 +110,38 @@ Patterns to Practice:
 - Confusing "piacere" (nice to meet you) with "per piacere" (please - less common than "per favore")
 - Pronouncing double consonants incorrectly (e.g., "bello" should have a strong double-l sound)
 - Using "buonasera" too early (typically used after 4-5 PM)
+
+## Cultural Notes
+
+- Italians often use physical greetings (handshakes, kisses on cheeks depending on region)
+- "Piacere" is said when meeting someone for the first time, not used casually
+- Greetings are important in Italian culture and skipping them is considered rude
+- The time for switching from "buongiorno" to "buonasera" is typically around 6-7 PM
+- "Ciao" is only for familiar relationships, never for strangers or business
+
+## Pronunciation Focus
+
+- Double consonants are pronounced as two separate sounds: "bello" (bell-o) vs "velo" (vay-lo)
+- The "gl" sound as in "piacere" is pronounced like the "lli" in "million"
+- Stress typically falls on the second-to-last syllable
+- The "h" in Italian is always silent (as in "hotel", "hanno")
+- The "gn" sound as in "signore" is pronounced as "ni" in "onion"
+
+## Additional Vocabulary
+
+### Time-Specific Greetings
+- **Buongiorno** - Good morning / Good day (until ~1 PM)
+- **Buon pomeriggio** - Good afternoon (1-6 PM)
+- **Buonasera** - Good evening (after 6 PM)
+- **Buonanotte** - Good night (for sleeping)
+
+### Greeting Responses
+- **Tutto bene** - All good
+- **Così così** - So-so
+- **Non c'è male** - Not bad
+- **Grazie per aver chiesto** - Thank you for asking
+
+### Polite Expressions
+- **Mi permetta** - Allow me (more formal than "permesso")
+- **Per cortesia** - Out of courtesy (rarely used for "please")
+- **Buon proseguimento** - Good continuation (when leaving)

@@ -1,4 +1,4 @@
----
+﻿---
 lessonId: week-01-greetings
 title: Greetings and Basic Expressions
 weekNumber: 1
@@ -14,7 +14,7 @@ targetCEFR: A1
 ## This Week's Goals
 
 - Master common German greetings for different times of day
-- Learn how to ask “How are you?” and respond naturally
+- Learn how to ask "How are you?" and respond naturally
 - Practice formal vs. informal address (Sie vs. du)
 - Get comfortable with pronunciation of basic German sounds
 
@@ -88,38 +88,34 @@ Examples:
 
 ### Meeting Someone for the First Time (Formal)
 
-> Person A: Guten Tag! Wie geht es Ihnen?
+Practice formal greetings and polite introductions in German.
 
-> Person B: Sehr gut, danke. Und Ihnen?
-
-> Person A: Auch gut, danke. Ich heiße Anna Müller.
-
-> Person B: Freut mich, Frau Müller. Ich bin Herr Becker.
-
-> Person A: Schön, Sie kennenzulernen.
+Topics to cover:
+- "Guten Tag! Wie geht es Ihnen?" (Good day! How are you? - formal)
+- "Sehr gut, danke. Und Ihnen?" (Very well, thank you. And you? - formal)
+- "Ich heiße Anna Müller" (My name is Anna Müller)
+- "Freut mich" / "Schön, Sie kennenzulernen" (Nice to meet you - formal)
 
 ### Greeting a Friend (Informal)
 
-> Person A: Hallo! Wie geht’s?
+Practice casual greetings with informal register.
 
-> Person B: Gut, danke! Und dir?
-
-> Person A: Ganz gut. Was machst du so?
-
-> Person B: Nicht viel. Bis später!
-
-> Person A: Tschüss!
+Topics to cover:
+- "Hallo! Wie geht's?" (Hi! How's it going?)
+- "Gut, danke! Und dir?" (Good, thanks! And you?)
+- "Was machst du so?" (What are you doing these days?)
+- "Bis später!" / "Tschüss!" (See you later! / Bye!)
 
 ---
 
 ## Pronunciation Focus
 
 - **ch** → Two main sounds:
-    - In *ich, nicht*: soft “hiss” sound (like “hue” without h)
+    - In *ich, nicht*: soft "hiss" sound (like "hue" without h)
     -  In *Bach, acht*: harsher sound in the throat
 - **ä, ö, ü** → Umlauts change vowel quality:
-    - *ä* = like “e” in *bed*
-    - *ö* = rounded lips, like “sir” but shorter
+    - *ä* = like "e" in *bed*
+    - *ö* = rounded lips, like "sir" but shorter
     - *ü* = lips rounded, tongue forward (like French *tu*)
 
 Practice:  
@@ -130,8 +126,8 @@ Practice:
 ## Practice Patterns
 
 - Greet your tutor in the morning, afternoon, and evening
-- Introduce yourself using “Ich heiße…” or “Mein Name ist…”
-- Ask “Wie geht’s?” or “Wie geht es Ihnen?”
+- Introduce yourself using "Ich heiße…" or "Mein Name ist…"
+- Ask "Wie geht's?" or "Wie geht es Ihnen?"
 - Practice both *du* and *Sie* forms
 - End conversations with various farewell expressions
 
@@ -140,10 +136,10 @@ Practice:
 ## Common Mistakes to Watch
 
 - Using *du* in formal contexts (default to *Sie* with strangers)
-- Confusing *Bitte* (please/you’re welcome) and *Danke* (thank you)
-- Forgetting to capitalize *Sie* when it means “you (formal)”
-- Saying *Gute Nacht* as a greeting (it’s only for bedtime)
-- Overpronouncing “h” in *ich* or *nicht* — it’s soft, not hard
+- Confusing *Bitte* (please/you're welcome) and *Danke* (thank you)
+- Forgetting to capitalize *Sie* when it means "you (formal)"
+- Saying *Gute Nacht* as a greeting (it's only for bedtime)
+- Overpronouncing "h" in *ich* or *nicht* — it's soft, not hard
 
 ---
 
@@ -151,7 +147,7 @@ Practice:
 
 In German-speaking countries, politeness and formality matter.  
 Using *Sie* shows respect, especially in business or with elders.  
-People usually switch to *du* only when invited — e.g., *“Wollen wir uns duzen?”* (“Shall we use *du*?”)
+People usually switch to *du* only when invited — e.g., *"Wollen wir uns duzen?"* ("Shall we use *du*?")
 
 ---
 

@@ -86,41 +86,45 @@ Examples:
 
 ## Conversation Scenarios
 
+The AI tutor will guide you through conversations about:
+
 ### Talking About Weather
 
-> Person A: Che tempo fa oggi?
+Practice discussing current and future weather conditions.
 
-> Person B: Fa bel tempo! C'è il sole.
-
-> Person A: Perfetto per andare al parco!
-
-> Person B: Sì, ma domani pioverà.
-
-> Person A: Allora facciamo una passeggiata oggi.
+Topics to cover:
+- "Che tempo fa oggi?" (What's the weather like today?)
+- "Fa bel tempo! C'è il sole" (It's nice weather! There's sunshine)
+- "Domani pioverà?" (Will it rain tomorrow?)
+- "Perfetto per andare al parco!" (Perfect for going to the park!)
 
 ### Discussing Activities
 
-> Person A: Cosa fai nel tempo libero?
+Practice talking about hobbies and free-time activities.
 
-> Person B: Mi piace fare sport. Vado in palestra tre volte a settimana.
-
-> Person A: Che sport fai?
-
-> Person B: Faccio nuoto e un po' di corsa. E tu?
-
-> Person A: Io preferisco leggere e ascoltare musica.
+Topics to cover:
+- "Cosa fai nel tempo libero?" (What do you do in your free time?)
+- "Mi piace fare sport" (I like to do sports)
+- "Vado in palestra tre volte a settimana" (I go to the gym three times a week)
+- "Faccio nuoto e un po' di corsa" (I swim and do some running)
 
 ### Seasonal Activities
 
-> Person A: Ti piace l'estate?
+Practice discussing seasonal preferences and activities.
 
-> Person B: Sì, molto! In estate vado spesso al mare.
+Topics to cover:
+- "Ti piace l'estate?" (Do you like summer?)
+- "In estate vado spesso al mare" (In summer I often go to the sea)
+- "I preferisci l'inverno o l'estate?" (Do you prefer winter or summer?)
 
-> Person A: E in inverno?
+### Talking About Seasonal Preferences
 
-> Person B: In inverno vado in montagna a sciare.
+Practice discussing favorite seasons and activities for each.
 
-> Person A: Che bello! Io preferisco la primavera.
+Topics to cover:
+- "E in inverno?" (And in winter?)
+- "In inverno vado in montagna a sciare" (In winter I go to the mountains to ski)
+- "Io preferisco la primavera" (I prefer spring)
 
 ## Practice Patterns
 

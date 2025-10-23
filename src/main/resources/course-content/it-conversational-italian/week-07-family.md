@@ -79,33 +79,27 @@ Use "avere" to talk about age and family:
 
 ## Conversation Scenarios
 
+The AI tutor will guide you through conversations about:
+
 ### Talking About Family
 
-> Person A: Hai fratelli o sorelle?
+Practice discussing family members and their characteristics.
 
-> Person B: Sì, ho un fratello e una sorella.
-
-> Person A: Quanti anni hanno?
-
-> Person B: Mio fratello ha 28 anni e mia sorella ha 22 anni.
-
-> Person A: Vivono qui?
-
-> Person B: No, mio fratello vive a Roma e mia sorella studia a Bologna.
+Topics to cover:
+- "Hai fratelli o sorelle?" (Do you have brothers or sisters?)
+- "Ho un fratello e una sorella" (I have a brother and a sister)
+- "Quanti anni hanno?" (How old are they?)
+- "Vivono qui?" (Do they live here?)
 
 ### Describing Family Members
 
-> Person A: Com'è tuo padre?
+Practice describing physical appearance and personality traits of family members.
 
-> Person B: Mio padre è alto e simpatico. Lavora come medico.
-
-> Person A: E tua madre?
-
-> Person B: Mia madre è molto gentile. È insegnante.
-
-> Person A: Sei figlio unico?
-
-> Person B: No, ho una sorella più giovane.
+Topics to cover:
+- "Com'è tuo padre?" (What is your father like?)
+- "Mio padre è alto e simpatico" (My father is tall and nice)
+- "Mia madre è molto gentile" (My mother is very kind)
+- "È insegnante" (She is a teacher)
 
 ## Practice Patterns
 
@@ -122,3 +116,41 @@ Use "avere" to talk about age and family:
 - Wrong agreement of possessives: use gender/number of thing possessed
 - Confusing "suo" (his/her) with "loro" (their)
 - Not recognizing "nipote" means both nephew/niece AND grandson/granddaughter
+
+## Extended Vocabulary
+
+### Extended Family
+- **I nonni** - Grandparents (plural)
+- **Il nonno** - Grandfather
+- **La nonna** - Grandmother
+- **Lo zio** - Uncle
+- **La zia** - Aunt
+- **Il cugino** - Cousin (male)
+- **La cugina** - Cousin (female)
+- **Il nipote** - Nephew/Grandson
+- **La nipote** - Niece/Granddaughter
+
+### Family Relationships
+- **La famiglia allargata** - Extended family
+- **I genitori** - Parents (plural)
+- **La coppia sposata** - Married couple
+- **Il matrimonio** - Marriage
+- **Le nozze** - Wedding
+- **Il figlio maggiore** - Eldest child
+- **Il figlio minore** - Youngest child
+
+## Cultural Notes
+
+- Italian families traditionally place strong importance on family bonds and multigenerational relationships
+- Sunday lunch with extended family is a common tradition
+- Family names often follow the father's surname
+- "La famiglia" is used to refer to one's spouse and children specifically
+- Italian family structures are often close-knit with frequent interactions between relatives
+
+## Practice Patterns
+
+- Introduce your entire family: "Ho due fratelli e una sorella..."
+- Describe physical characteristics: "Mia madre è bassa e bionda"
+- Discuss professions: "Mio padre è ingegnere"
+- Use possessive adjectives correctly with family members
+- Ask about family relationships: "Quanti zii hai?"

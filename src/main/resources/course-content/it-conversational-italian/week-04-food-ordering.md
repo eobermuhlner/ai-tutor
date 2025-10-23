@@ -85,67 +85,53 @@ Examples:
 
 ## Conversation Scenarios
 
+The AI tutor will guide you through conversations about:
+
 ### Making a Reservation
 
-> Person A: Buonasera, vorrei prenotare un tavolo per stasera.
+Practice making restaurant reservations in Italian.
 
-> Waiter: Per quante persone?
-
-> Person A: Per quattro persone.
-
-> Waiter: A che ora?
-
-> Person A: Alle otto, se possibile.
-
-> Waiter: Perfetto! A nome di chi?
-
-> Person A: Rossi.
-
-> Waiter: Benissimo, signor Rossi. A stasera!
+Topics to cover:
+- "Vorrei prenotare un tavolo per stasera" (I'd like to reserve a table for tonight)
+- "Per quattro persone" (For four people)
+- "Alle otto, se possibile" (At 8, if possible)
+- "A nome di chi?" (In whose name?)
 
 ### Ordering at a Restaurant
 
-> Waiter: Buonasera! Cosa prendete?
+Practice ordering food and drinks at Italian restaurants.
 
-> Person A: Vorrei la pasta carbonara, per favore.
-
-> Waiter: Benissimo. E da bere?
-
-> Person A: Una bottiglia d'acqua naturale e un bicchiere di vino rosso.
-
-> Waiter: Perfetto! Vuole anche un antipasto?
-
-> Person A: No grazie, solo il primo.
-
-> Waiter: Va bene, arrivo subito!
+Topics to cover:
+- "Vorrei la pasta carbonara, per favore" (I'd like carbonara pasta, please)
+- "Una bottiglia d'acqua naturale" (A bottle of still water)
+- "Un bicchiere di vino rosso" (A glass of red wine)
 
 ### Asking for the Check
 
-> Person A: Scusi, il conto per favore!
+Practice requesting the bill and making payment.
 
-> Waiter: Subito! Ecco il conto.
+Topics to cover:
+- "Il conto per favore!" (The check, please!)
+- "Posso pagare con la carta?" (Can I pay with card?)
+- "Ecco il conto" (Here's the bill)
 
-> Person A: Posso pagare con la carta?
+### Finishing the Meal
 
-> Waiter: Certo, nessun problema.
+Practice concluding a meal and thanking the staff.
 
-> Person A: Grazie, ottimo cibo!
-
-> Waiter: Grazie a Lei! Arrivederci!
+Topics to cover:
+- "Grazie, ottimo cibo!" (Thank you, excellent food!)
+- "Arrivederci!" (Goodbye!)
 
 ### Discussing Food Preferences
 
-> Person A: Ti piace la pizza?
+Practice talking about food likes and dislikes.
 
-> Person B: Sì, mi piace molto! E a te?
-
-> Person A: Anch'io! Preferisci la pizza o la pasta?
-
-> Person B: Preferisco la pasta. Tu?
-
-> Person A: Dipende! Cosa ti piace sulla pizza?
-
-> Person B: Mi piace la margherita, semplice e buona!
+Topics to cover:
+- "Ti piace la pizza?" (Do you like pizza?)
+- "Anch'io!" (Me too!)
+- "Preferisci la pizza o la pasta?" (Do you prefer pizza or pasta?)
+- "Mi piace la margherita" (I like margherita)
 
 ## Practice Patterns
 

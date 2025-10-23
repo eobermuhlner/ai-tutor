@@ -76,31 +76,27 @@ Patterns to Practice:
 
 ## Conversation Scenarios
 
-### Asking for the Time
+The AI tutor will guide you through conversations about:
 
-> Person A: Perdón, ¿qué hora es?
+### Asking for and Giving the Time
 
-> Person B: Son las tres y cuarto.
+Practice asking about time and making appointments.
 
-> Person A: Gracias. ¿A qué hora cierra la tienda?
-
-> Person B: Cierra a las ocho de la noche.
-
-> Person A: Perfecto, muchas gracias.
+Topics to cover:
+- "¿Qué hora es?" (What time is it?)
+- "Son las tres y cuarto" (It's quarter past three)
+- "¿A qué hora cierra la tienda?" (What time does the store close?)
+- Using "de la mañana/tarde/noche" for clarity
 
 ### Making an Appointment
 
-> Person A: ¿Qué día es hoy?
+Practice scheduling appointments using days and times.
 
-> Person B: Hoy es martes.
-
-> Person A: ¿Podemos vernos el jueves?
-
-> Person B: Sí, ¿a qué hora?
-
-> Person A: ¿A las cinco y media?
-
-> Person B: Perfecto, nos vemos el jueves a las cinco y media.
+Topics to cover:
+- "¿Qué día es hoy?" (What day is today?)
+- "Hoy es martes" (Today is Tuesday)
+- "¿Podemos vernos el jueves?" (Can we meet on Thursday?)
+- "A las cinco y media" (At half past five)
 
 ## Practice Patterns
 
@@ -117,3 +113,35 @@ Patterns to Practice:
 - Saying "quince" instead of "y cuarto" for 15 minutes past
 - Mixing up "martes" (Tuesday) and "marzo" (March)
 - Not capitalizing days and months (they're lowercase in Spanish)
+
+## Cultural Notes
+
+- In Spain and Latin America, people often use 24-hour time in formal settings
+- "Mañana" can mean both "tomorrow" and "in the morning"
+- When scheduling appointments, it's respectful to confirm: "Confirmo nuestra reunión para mañana a las tres"
+- Spanish uses periods instead of commas for thousands: 1.000 (not 1,000)
+- In Latin America, punctuality standards may vary by region
+
+## Extended Numbers (30-100)
+
+Learning more numbers helps with expressing time, age, and other quantities:
+
+30-39: treinta, treinta y uno, treinta y dos... treinta y nueve
+40-49: cuarenta, cuarenta y uno... cuarenta y nueve
+50-59: cincuenta, cincuenta y uno... cincuenta y nueve
+60-69: sesenta, sesenta y uno... sesenta y nueve
+70-79: setenta, setenta y uno... setenta y nueve
+80-89: ochenta, ochenta y uno... ochenta y nueve
+90-99: noventa, noventa y uno... noventa y nueve
+100: cien
+
+Note: Numbers like 21, 31, etc., change form when preceding a feminine noun: "veintiuna personas" (21 people)
+
+## Practice Patterns
+
+- Practice telling time at different hours using "Es la" and "Son las"
+- Count from 0 to 100 in Spanish
+- Ask for and give appointment times
+- Practice dates: "Hoy es lunes 15 de marzo"
+- Use numbers for ages: "Tengo veinticinco años"
+- Practice phone numbers digit by digit

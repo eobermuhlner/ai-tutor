@@ -79,25 +79,23 @@ Patterns to Practice:
 
 ### Meeting Someone for the First Time
 
-> Person A: Bonjour! Comment allez-vous?
+Practice formal greetings and polite introductions in French.
 
-> Person B: Très bien, merci. Et vous?
-
-> Person A: Bien, merci. Je m'appelle Marie.
-
-> Person B: Enchanté, Marie. Je suis Pierre.
+Topics to cover:
+- "Bonjour! Comment allez-vous?" (Hello! How are you? - formal)
+- "Très bien, merci. Et vous?" (Very well, thank you. And you? - formal)
+- "Je m'appelle Marie" (My name is Marie)
+- "Enchanté/e" (Nice to meet you)
 
 ### Greeting a Friend
 
-> Person A: Salut! Ça va?
+Practice casual greetings with informal register.
 
-> Person B: Ça va bien! Et toi?
-
-> Person A: Très bien, merci!
-
-> Person B: À plus tard!
-
-> Person A: Au revoir!
+Topics to cover:
+- "Salut! Ça va?" (Hi! How's it going?)
+- "Ça va bien! Et toi?" (It's going well! And you?)
+- "Très bien, merci!" (Very well, thanks!)
+- "À plus tard!" / "Au revoir!" (See you later! / Goodbye!)
 
 ## Practice Patterns
 

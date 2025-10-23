@@ -98,45 +98,36 @@ targetCEFR: A2
 
 ## Conversation Scenarios
 
+The AI tutor will guide you through conversations about:
+
 ### Talking About Yesterday
 
-> Person A: Cosa hai fatto ieri?
+Practice describing what you did yesterday using past tense verbs.
 
-> Person B: Sono andato al cinema con amici.
-
-> Person A: Che film avete visto?
-
-> Person B: Abbiamo visto un film d'azione. È stato fantastico!
-
-> Person A: A che ora siete tornati a casa?
-
-> Person B: Siamo tornati verso mezzanotte.
+Topics to cover:
+- "Cosa hai fatto ieri?" (What did you do yesterday?)
+- "Sono andato al cinema con amici" (I went to the cinema with friends)
+- "Abbiamo visto un film d'azione" (We saw an action movie)
+- "Siamo tornati verso mezzanotte" (We came back around midnight)
 
 ### Weekend Activities
 
-> Person A: Com'è stato il tuo weekend?
+Practice discussing past weekend experiences.
 
-> Person B: Benissimo! Sabato ho lavorato, ma domenica sono andata al mare.
-
-> Person A: Con chi sei andata?
-
-> Person B: Sono andata con mia sorella. Abbiamo mangiato pesce fresco.
-
-> Person A: Che bello! Io sono rimasto a casa.
+Topics to cover:
+- "Com'è stato il tuo weekend?" (How was your weekend?)
+- "Sabato ho lavorato, ma domenica sono andata al mare" (Saturday I worked, but Sunday I went to the sea)
+- "Sono andata con mia sorella" (I went with my sister)
+- "Abbiamo mangiato pesce fresco" (We ate fresh fish)
 
 ### Past Experiences
 
-> Person A: Sei mai stato in Italia?
+Practice talking about experiences you've had using "sei mai stato/a" constructions.
 
-> Person B: Sì, sono andato due anni fa.
-
-> Person A: Quali città hai visitato?
-
-> Person B: Ho visitato Roma, Firenze e Venezia.
-
-> Person A: Ti è piaciuta?
-
-> Person B: Sì, moltissimo! È stata un'esperienza bellissima.
+Topics to cover:
+- "Sei mai stato in Italia?" (Have you ever been to Italy?)
+- "Ho visitato Roma, Firenze e Venezia" (I visited Rome, Florence and Venice)
+- "È stata un'esperienza bellissima" (It was a beautiful experience)
 
 ## Practice Patterns
 

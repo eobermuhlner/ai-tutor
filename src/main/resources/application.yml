@@ -815,7 +815,7 @@ ai-tutor:
       - languageCode: zh-CN
         nameEnglish: Mandarin Pinyin Starter
         shortDescriptionEnglish: Build tones and pinyin fundamentals from zero
-        descriptionEnglish: Master Mandarin’s four tones and pinyin spelling rules through focused listening, speaking, and minimal pairs so you can pronounce and understand clearly before characters
+        descriptionEnglish: Master Mandarin's four tones and pinyin spelling rules through focused listening, speaking, and minimal pairs so you can pronounce and understand clearly before characters
         category: General
         targetAudienceEnglish: Absolute beginners who want a pronunciation-first start
         startingLevel: None
@@ -906,7 +906,7 @@ ai-tutor:
       - languageCode: zh-TW
         nameEnglish: Mandarin for Travelers (Taiwan)
         shortDescriptionEnglish: Travel essentials with traditional characters
-        descriptionEnglish: Practical phrases for transport, food, lodging, and simple emergencies in Taiwan’s contexts
+        descriptionEnglish: Practical phrases for transport, food, lodging, and simple emergencies in Taiwan's contexts
         category: Travel
         targetAudienceEnglish: Tourists visiting Taiwan
         startingLevel: None
@@ -1507,12 +1507,12 @@ ai-tutor:
         Your goal is to let the learner choose topics while subtly guiding their language growth.
           
         INTERACTION STYLE
-        - Follow the learner’s interests and respond naturally, as in a real conversation.
+        - Follow the learner's interests and respond naturally, as in a real conversation.
         - When you notice useful teaching opportunities, pause briefly to highlight them.
         - Give light, in-flow feedback: correct only key errors, explain briefly, and invite a retry.
         - Introduce new vocabulary naturally when the learner lacks a word or expression.
-          Example: “In English, we often say ‘take a break’ — it means to rest for a short time.”
-        - Encourage autonomy: ask reflective questions like “How else could you say that?” or “Does that sound right to you?”
+          Example: "In English, we often say ‘take a break' — it means to rest for a short time."
+        - Encourage autonomy: ask reflective questions like "How else could you say that?" or "Does that sound right to you?"
         - Avoid dominating the talk — keep your turns short and conversational.
         - End each short exchange with one question or prompt that helps the learner keep talking.
           
@@ -1520,9 +1520,9 @@ ai-tutor:
           Follow the learner → Notice a language point → Give gentle feedback or new word → Let learner try → Continue conversation.
           
         EXAMPLE TURN
-        Learner: “I’m so boring today.”
-        Tutor: “Almost — you mean ‘bored.’ *Boring* describes something, *bored* describes you.
-          What’s something boring to you?”
+        Learner: "I'm so boring today."
+        Tutor: "Almost — you mean ‘bored.' *Boring* describes something, *bored* describes you.
+          What's something boring to you?"
 
       guided: |
         Teaching Style: Balance conversation with strategic teaching moments.
@@ -1538,19 +1538,19 @@ ai-tutor:
           
         Socratic Method (operational)
         - Lead the learner to notice patterns before explaining them.
-        - Use short, open prompts like: “Does that sound right to you?” or “What happens if we change the tense?”
+        - Use short, open prompts like: "Does that sound right to you?" or "What happens if we change the tense?"
         - Confirm insights and summarize in one sentence.
           
         TEACHING BEHAVIOR
-        - Take initiative. Don’t wait for permission to introduce a lesson.
+        - Take initiative. Don't wait for permission to introduce a lesson.
         - Keep your turns concise (≤5 sentences) and end each with a clear question or task.
         - Encourage creativity but stay focused on communicative accuracy.
           
         EXAMPLE TURN
-          “Nice! You said *I have went there* — almost perfect.
-          What’s the past participle of *go* again?
+          "Nice! You said *I have went there* — almost perfect.
+          What's the past participle of *go* again?
           Right — *gone*.
-          Try that sentence again using *gone*.”
+          Try that sentence again using *gone*."
 
       directive: |
         Teaching Style: Structure conversations as explicit teaching sequences.
@@ -1575,10 +1575,10 @@ ai-tutor:
         TONE & STYLE
         - Be encouraging but structured, like a good teacher leading a mini lesson.
         - Use natural, clear language — not too academic.
-        - Use quick, explicit transitions (“Now let’s practice that.”, “Let’s use it in conversation.”).
+        - Use quick, explicit transitions ("Now let's practice that.", "Let's use it in conversation.").
           
         EXAMPLE TURN
-          Plan: Today we’ll learn the past perfect.
+          Plan: Today we'll learn the past perfect.
           Rule: Use *had + past participle* for an earlier past action.
-          Example: “I had eaten before he arrived.”
+          Example: "I had eaten before he arrived."
           Your turn: Write 3 sentences using *had + past participle*.

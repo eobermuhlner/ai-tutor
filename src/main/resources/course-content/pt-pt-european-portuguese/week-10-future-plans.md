@@ -88,3 +88,56 @@ ParabÃ©ns! You've completed the A1-A2 European Portuguese foundation course. You
 - Use past and future tenses
 
 Next steps: Practice with native Portuguese speakers, explore subjunctive mood, and dive into Portuguese literature and fado music!
+
+## Extended Grammar: Future Tense
+
+### Simple Future Formation
+- Add endings to infinitive: -ei, -ás, -á, -emos, -eis, -ão
+
+Examples:
+- Falar: eu falarei, tu falarás, ele falará
+- Comer: eu comerei, tu comerás, ele comerá
+- Partir: eu partirei, tu partirás, ele partirá
+
+## Additional Grammar: Near Future with Ir + a Infinitive
+
+### Formation: Ir (conjugated) + a + infinitive
+- **Vou estudar** - I will study / I am going to study
+- **Vais viajar** - You will travel / You are going to travel
+- **Vai trabalhar** - He/She will work
+
+## Extended Vocabulary
+
+### Future Time Expressions
+- **Amanhã** - Tomorrow
+- **Na próxima semana** - Next week
+- **No próximo mês** - Next month
+- **No próximo ano** - Next year
+- **Daqui a pouco** - In a little while
+- **Em breve** - Soon
+- **Mais tarde** - Later
+
+### Future Plans and Intentions
+- **Quero** - I want
+- **Planeio** - I plan
+- **Espero** - I hope
+- **Tenho intenção de** - I intend to
+- **Vou tentar** - I will try
+
+### Career and Life Goals
+- **Vou ser professor** - I will become a teacher
+- **Quero viajar pelo mundo** - I want to travel the world
+- **Planeio mudar de cidade** - I plan to change cities
+- **Espero aprender português** - I hope to learn Portuguese
+
+## Cultural Notes
+
+- Portuguese often make concrete plans for future
+- Family important in future discussions
+- Career aspirations highly valued
+
+## Practice Patterns
+
+- Express future plans: "Amanhã vou estudar português"
+- Talk about goals: "Quero visitar Lisboa"
+- Make predictions: "Acho que vai chover" (I think it will rain)

@@ -94,39 +94,34 @@ Time Expressions:
 
 ## Conversation Scenarios
 
+The AI tutor will guide you through conversations about:
+
 ### Asking for the Time
 
-> Person A: Scusa, che ore sono?
+Practice asking and telling time in Italian.
 
-> Person B: Sono le tre e mezza.
-
-> Person A: Grazie mille!
-
-> Person B: Prego!
+Topics to cover:
+- "Scusa, che ore sono?" (Excuse me, what time is it?)
+- "Sono le tre e mezza" (It's half past three)
+- "Grazie mille!" (Thank you very much!)
 
 ### Making Plans
 
-> Person A: A che ora ci vediamo domani?
+Practice scheduling appointments and meetings.
 
-> Person B: Alle dieci di mattina va bene?
-
-> Person A: Perfetto! Dove?
-
-> Person B: Al caffè in centro?
-
-> Person A: Va bene. A domani!
+Topics to cover:
+- "A che ora ci vediamo domani?" (What time shall we meet tomorrow?)
+- "Alle dieci di mattina va bene?" (Is 10 AM OK?)
+- "Al caffè in centro" (At the café downtown)
 
 ### Talking About Daily Schedule
 
-> Person A: A che ora lavori domani?
+Practice discussing work schedules and days of the week.
 
-> Person B: Lavoro dalle nove alle cinque.
-
-> Person A: Che giorno è oggi?
-
-> Person B: È mercoledì.
-
-> Person A: Ah sì, domani è giovedì.
+Topics to cover:
+- "Lavoro dalle nove alle cinque" (I work from 9 to 5)
+- "Che giorno è oggi?" (What day is today?)
+- "Domani è giovedì" (Tomorrow is Thursday)
 
 ## Practice Patterns
 

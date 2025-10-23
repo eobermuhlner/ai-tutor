@@ -77,41 +77,46 @@ targetCEFR: A1
 
 ## Conversation Scenarios
 
+The AI tutor will guide you through conversations about:
+
 ### Meeting Someone - Formal
 
-> Person A: 안녕하세요.
+Practice formal greetings in Korean.
 
-> Person B: 안녕하세요. 처음 뵙겠습니다.
-
-> Person A: 만나서 반갑습니다.
-
-> Person B: 저도 반갑습니다.
+Topics to cover:
+- "안녕하세요." (Hello.)
+- "처음 뵙겠습니다." (Nice to meet you for the first time.)
+- "만나서 반갑습니다." (Nice to meet you.)
+- "저도 반갑습니다." (I'm glad to meet you too.)
 
 ### Casual Greeting with Friends
 
-> Person A: 안녕!
+Practice informal greetings with friends.
 
-> Person B: 안녕! 잘 지내?
-
-> Person A: 응, 잘 지내. 너는?
-
-> Person B: 나도 잘 지내!
+Topics to cover:
+- "안녕!" (Hi!)
+- "잘 지내?" (How are you doing?)
+- "응, 잘 지내. 너는?" (Yeah, doing well. How about you?)
+- "나도 잘 지내!" (I'm doing well too!)
 
 ### Saying Goodbye - Formal
 
-> Person A: 가봐야 해요. 안녕히 계세요.
+Practice formal ways to say goodbye.
 
-> Person B: 안녕히 가세요. 또 만나요!
-
-> Person A: 네, 좋은 하루 되세요.
+Topics to cover:
+- "가봐야 해요." (I need to go.)
+- "안녕히 계세요." (Please stay in peace. - said to someone staying)
+- "안녕히 가세요." (Please go in peace. - said to someone leaving)
+- "좋은 하루 되세요." (Have a good day.)
 
 ### Thanking Someone
 
-> Person A: 도와주셔서 감사합니다.
+Practice expressing gratitude in Korean.
 
-> Person B: 천만에요. 괜찮아요.
-
-> Person A: 정말 고맙습니다!
+Topics to cover:
+- "도와주셔서 감사합니다." (Thank you for your help.)
+- "천만에요. 괜찮아요." (You're welcome. It's okay.)
+- "정말 고맙습니다!" (Thank you very much!)
 
 ## Practice Patterns
 

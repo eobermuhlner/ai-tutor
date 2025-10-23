@@ -73,3 +73,62 @@ Topics to cover:
 - Markets great for fresh produce
 - Traditional shops still common
 - VAT refund for tourists
+
+## Extended Vocabulary
+
+### Shopping Items
+- **Artigos de higiene** - Hygiene items
+- **Produtos de limpeza** - Cleaning products
+- **Vestuário** - Clothing
+- **Calçado** - Footwear
+- **Acessórios** - Accessories
+
+### Shopping Phrases
+- **Onde posso encontrar...?** - Where can I find...?
+- **Tem isto em outro tamanho/cor?** - Do you have this in another size/color?
+- **Aceitam cartões?** - Do you accept cards?
+
+## Cultural Notes
+
+- Portuguese markets common (Mercado da Ribeira, Time Out Market)
+- Haggling rare, except in markets or Feiras (fairs)
+- Christmas shopping special (Natal)
+- Portuguese sales periods (2x por ano)
+
+## Practice Patterns
+
+- Compare prices: "É mais barato aqui ou ali?"
+- Ask about sizes: "Tem tamanho pequeno, médio, grande?"
+- Practice numbers for prices: "Quanto custa?"
+
+## Additional Grammar: Demonstratives
+
+### This/That (Singular)
+- **Este/Esta** - This (masculine/feminine)
+- **Esse/Esta** - That (close by)
+- **Aquele/Aquela** - That (farther away)
+
+Examples:
+- Este livro (This book)
+- Esta mesa (This table)
+- Esse carro (That car - nearby)
+- Aquela casa (That house - farther)
+
+## Numbers for Shopping
+
+### Price Expressions
+- **Custa...** - It costs...
+- **Quanto custa?** - How much does it cost?
+- **É caro/barato** - It is expensive/cheap
+- **Tem desconto?** - Do you have a discount?
+
+## More Shopping Scenarios
+
+### Returning Items
+- **Gostava de devolver isto** - I would like to return this
+- **Tem garantia** - It has warranty
+
+### Asking for Help
+- **Preciso de ajuda** - I need help
+- **Por favor, ajude-me** - Please help me
+

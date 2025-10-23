@@ -81,3 +81,64 @@ Topics to cover:
 - Summers hot and dry
 - Atlantic influence on weather
 - Football (futebol) is passion
+
+## Extended Vocabulary
+
+### Weather Expressions
+- **Faz sol** - It's sunny
+- **Está nublado** - It's cloudy
+- **Está chuvoso** - It's rainy
+- **Faz frio** - It's cold
+- **Faz calor** - It's hot
+- **Há vento** - It's windy
+
+### Seasons
+- **Inverno** - Winter
+- **Primavera** - Spring
+- **Verão** - Summer
+- **Outono** - Autumn
+
+### Activities
+- **Andar de bicicleta** - To ride a bike
+- **Ir à praia** - To go to the beach
+- **Fazer caminhada** - To go hiking
+- **Jogar futebol** - To play football
+
+## Additional Grammar: Present Continuous
+
+### Formation: Estar + Gerúndio
+- **Estou a andar** - I am walking
+- **Estás a correr** - You are running
+- **Está a chover** - It is raining
+
+Examples:
+- **Estou a estudar** - I am studying
+- **Estás a trabalhar** - You are working
+- **Ele está a comer** - He is eating
+
+## Cultural Notes
+
+- Portuguese enjoy outdoor activities year-round
+- Beach culture strong (Algarve, Lisbon coast)
+- Football (futebol) national passion
+
+## Practice Patterns
+
+- Describe weather: "Hoje faz sol"
+- Talk about activities: "Estou a aprender português"
+- Express preferences: "Gosto de andar de bicicleta"
+
+
+
+### More Weather Phrases
+- **Amanhece cedo/tarde** - Dawn comes early/late
+- **O tempo está bom/mau** - The weather is good/bad
+- **Chove em abundância** - It rains a lot
+- **Há tempestades** - There are storms
+
+### Seasonal Activities
+- **No verão, vamos à praia** - In summer, we go to the beach
+- **No inverno, fazemos caminhadas** - In winter, we go hiking
+- **Na primavera, passeamos no parque** - In spring, we walk in the park
+- **No outono, visitamos sítios históricos** - In autumn, we visit historical sites
+
