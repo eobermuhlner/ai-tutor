@@ -690,6 +690,37 @@ ai-tutor:
           - Discuss various topics naturally
           - Understand French culture
         displayOrder: 0
+      - languageCode: fr-FR
+        nameEnglish: French for Travelers
+        shortDescriptionEnglish: Essential phrases for tourists visiting France
+        descriptionEnglish: Quick-start French course focusing on practical phrases you'll need for travel in France
+        category: Travel
+        targetAudienceEnglish: Travelers planning a trip to France
+        startingLevel: None
+        targetLevel: A2
+        estimatedWeeks: 6
+        learningGoalsEnglish:
+          - Navigate airports and transportation
+          - Check into hotels and accommodations
+          - Order food at restaurants
+          - Ask for directions and help
+          - Handle basic situations
+        displayOrder: 1
+      - languageCode: fr-FR
+        nameEnglish: French Grammar Fundamentals
+        shortDescriptionEnglish: Build a strong foundation in French grammar
+        descriptionEnglish: Comprehensive beginner to intermediate French course covering grammar, verb conjugations, and conversation
+        category: General
+        targetAudienceEnglish: New French learners wanting a structured approach
+        startingLevel: None
+        targetLevel: B1
+        estimatedWeeks: 12
+        learningGoalsEnglish:
+          - Master French verb conjugations
+          - Build essential vocabulary
+          - Form correct sentences
+          - Understand French culture
+        displayOrder: 2
       - languageCode: de-DE
         nameEnglish: Conversational German
         shortDescriptionEnglish: Build a strong foundation in German
@@ -705,6 +736,37 @@ ai-tutor:
           - Form correct sentences
           - Understand German culture
         displayOrder: 0
+      - languageCode: de-DE
+        nameEnglish: German for Travelers
+        shortDescriptionEnglish: Essential phrases for tourists visiting Germany
+        descriptionEnglish: Quick-start German course focusing on practical phrases you'll need for travel in Germany
+        category: Travel
+        targetAudienceEnglish: Travelers planning a trip to Germany
+        startingLevel: None
+        targetLevel: A2
+        estimatedWeeks: 6
+        learningGoalsEnglish:
+          - Navigate airports and transportation
+          - Check into hotels and accommodations
+          - Order food at restaurants
+          - Ask for directions and help
+          - Handle basic situations
+        displayOrder: 1
+      - languageCode: de-DE
+        nameEnglish: German Grammar Fundamentals
+        shortDescriptionEnglish: Build a strong foundation in German grammar
+        descriptionEnglish: Comprehensive beginner to intermediate German course covering grammar, cases, and verb conjugations
+        category: General
+        targetAudienceEnglish: New German learners wanting a structured approach
+        startingLevel: None
+        targetLevel: B1
+        estimatedWeeks: 12
+        learningGoalsEnglish:
+          - Master German cases (Nominativ, Akkusativ, Dativ, Genitiv)
+          - Build essential vocabulary
+          - Form correct sentences
+          - Understand German culture
+        displayOrder: 2
       - languageCode: de-CH
         nameEnglish: Swiss German Essentials
         shortDescriptionEnglish: Master Swiss Standard German with proper orthography
@@ -749,6 +811,37 @@ ai-tutor:
           - Understand Japanese sentence structure
           - Practice polite conversation
         displayOrder: 0
+      - languageCode: ja-JP
+        nameEnglish: Japanese for Travelers
+        shortDescriptionEnglish: Essential phrases for tourists visiting Japan
+        descriptionEnglish: Quick-start Japanese course focusing on practical phrases you'll need for travel in Japan
+        category: Travel
+        targetAudienceEnglish: Travelers planning a trip to Japan
+        startingLevel: None
+        targetLevel: A2
+        estimatedWeeks: 6
+        learningGoalsEnglish:
+          - Navigate airports and transportation
+          - Check into hotels and accommodations
+          - Order food at restaurants
+          - Ask for directions and help
+          - Handle basic situations
+        displayOrder: 1
+      - languageCode: ja-JP
+        nameEnglish: Japanese Grammar Fundamentals
+        shortDescriptionEnglish: Build a strong foundation in Japanese grammar
+        descriptionEnglish: Comprehensive beginner to intermediate Japanese course covering grammar, particles, and sentence structure
+        category: General
+        targetAudienceEnglish: Serious learners wanting structured grammar training
+        startingLevel: None
+        targetLevel: B1
+        estimatedWeeks: 14
+        learningGoalsEnglish:
+          - Master Japanese particles (は, が, を, に, で, etc.)
+          - Learn verb conjugation patterns
+          - Understand sentence structure (SOV)
+          - Build essential vocabulary
+        displayOrder: 2
       - languageCode: ko-KR
         nameEnglish: Conversational Korean
         shortDescriptionEnglish: Master everyday Korean conversations
