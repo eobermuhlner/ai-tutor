@@ -1,0 +1,7 @@
+courseId: ko-korean-for-k-pop-and-k-drama-fans
+progressionMode: TIME_BASED
+lessons:
+  - id: week-01-introduction
+    file: week-01-introduction.md
+    unlockAfterDays: 0
+    requiredTurns: 5

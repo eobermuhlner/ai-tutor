@@ -1,0 +1,51 @@
+courseId: ru-russian-grammar-fundamentals
+progressionMode: TIME_BASED
+lessons:
+  - id: week-01-noun-cases-introduction
+    file: week-01-noun-cases-introduction.md
+    unlockAfterDays: 0
+    requiredTurns: 5
+  - id: week-02-accusative-case
+    file: week-02-accusative-case.md
+    unlockAfterDays: 7
+    requiredTurns: 6
+  - id: week-03-dative-case
+    file: week-03-dative-case.md
+    unlockAfterDays: 14
+    requiredTurns: 6
+  - id: week-04-genitive-case
+    file: week-04-genitive-case.md
+    unlockAfterDays: 21
+    requiredTurns: 7
+  - id: week-05-prepositional-case
+    file: week-05-prepositional-case.md
+    unlockAfterDays: 28
+    requiredTurns: 6
+  - id: week-06-instrumental-case
+    file: week-06-instrumental-case.md
+    unlockAfterDays: 35
+    requiredTurns: 6
+  - id: week-07-verb-aspects
+    file: week-07-verb-aspects.md
+    unlockAfterDays: 42
+    requiredTurns: 6
+  - id: week-08-verb-conjugation
+    file: week-08-verb-conjugation.md
+    unlockAfterDays: 49
+    requiredTurns: 5
+  - id: week-09-questions-and-answers
+    file: week-09-questions-and-answers.md
+    unlockAfterDays: 56
+    requiredTurns: 6
+  - id: week-10-grammar-review
+    file: week-10-grammar-review.md
+    unlockAfterDays: 63
+    requiredTurns: 7
+  - id: week-11-advanced-cases
+    file: week-11-advanced-cases.md
+    unlockAfterDays: 70
+    requiredTurns: 6
+  - id: week-12-grammar-completion
+    file: week-12-grammar-completion.md
+    unlockAfterDays: 77
+    requiredTurns: 7

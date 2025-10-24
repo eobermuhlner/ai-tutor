@@ -66,6 +66,7 @@ Language learning assistant with conversational AI tutoring and vocabulary track
 - **UserLanguageService** - Manage user's language proficiency profiles
 - **LocalizationService** - Handle multilingual content with AI translation fallback
 - **TranslationService** - AI-powered translation (OpenAI)
+- **SeedDataService** - Database seed service with curriculum validation to ensure all configured courses have corresponding curriculum files at startup
 - **ChatSessionRepository** / **ChatMessageRepository** - JPA persistence
 - **TutorProfileRepository** / **CourseTemplateRepository** - Catalog persistence
 - **UserLanguageProficiencyRepository** - User language profiles
@@ -228,6 +229,9 @@ ch.obermuhlner.aitutor
 
 ### Overview
 Course lessons are markdown files with YAML frontmatter located in `src/main/resources/course-content/{course-id}/`. Each lesson follows a standardized structure to ensure pedagogical consistency and quality across all language courses.
+
+### Curriculum Validation
+Starting with the enhanced system, the application validates that all configured courses in `catalogProperties.courses` have corresponding curriculum files at startup. If a course is configured but its curriculum file is missing, the application will fail to start with an error message. This ensures that all courses registered in the system have valid curriculum content.
 
 ### Directory Structure
 ```

@@ -1,0 +1,43 @@
+courseId: zh-cn-mandarin-for-travelers
+progressionMode: TIME_BASED
+lessons:
+  - id: week-01-airport-basics
+    file: week-01-airport-basics.md
+    unlockAfterDays: 0
+    requiredTurns: 5
+  - id: week-02-hotel-checkin
+    file: week-02-hotel-checkin.md
+    unlockAfterDays: 7
+    requiredTurns: 6
+  - id: week-03-transportation
+    file: week-03-transportation.md
+    unlockAfterDays: 14
+    requiredTurns: 6
+  - id: week-04-restaurant-ordering
+    file: week-04-restaurant-ordering.md
+    unlockAfterDays: 21
+    requiredTurns: 7
+  - id: week-05-shopping
+    file: week-05-shopping.md
+    unlockAfterDays: 28
+    requiredTurns: 6
+  - id: week-06-asking-directions
+    file: week-06-asking-directions.md
+    unlockAfterDays: 35
+    requiredTurns: 6
+  - id: week-07-emergencies
+    file: week-07-emergencies.md
+    unlockAfterDays: 42
+    requiredTurns: 6
+  - id: week-08-cultural-tips
+    file: week-08-cultural-tips.md
+    unlockAfterDays: 49
+    requiredTurns: 5
+  - id: week-09-travel-situations
+    file: week-09-travel-situations.md
+    unlockAfterDays: 56
+    requiredTurns: 6
+  - id: week-10-travel-review
+    file: week-10-travel-review.md
+    unlockAfterDays: 63
+    requiredTurns: 7

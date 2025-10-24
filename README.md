@@ -269,6 +269,13 @@ ch.obermuhlner.aitutor
 │   └── dto/            # AI chat DTOs (AiChatRequest, AiChatResponse)
 ├── language/
 │   └── service/        # Language utilities (LanguageService)
+├── catalog/            # Catalog-based tutor/course management
+│   ├── controller/     # CatalogController (/api/v1/catalog)
+│   ├── service/        # CatalogService, SeedDataService (with curriculum validation)
+│   ├── repository/     # TutorProfileRepository, CourseTemplateRepository
+│   ├── domain/         # TutorProfileEntity, CourseTemplateEntity
+│   └── dto/            # LanguageResponse, CourseResponse, CourseDetailResponse,
+│                       # TutorResponse, TutorDetailResponse
 ├── cli/                # Standalone CLI client (AiTutorCli, HttpApiClient, CliConfig)
 └── core/
     ├── model/          # Shared domain models (CEFRLevel, ErrorType, ErrorSeverity,

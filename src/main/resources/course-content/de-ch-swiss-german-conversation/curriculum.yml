@@ -1,0 +1,7 @@
+courseId: de-ch-swiss-german-conversation
+progressionMode: TIME_BASED
+lessons:
+  - id: week-01-introduction
+    file: week-01-introduction.md
+    unlockAfterDays: 0
+    requiredTurns: 5

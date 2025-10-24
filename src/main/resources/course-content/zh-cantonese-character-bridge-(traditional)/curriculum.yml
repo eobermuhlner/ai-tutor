@@ -1,0 +1,7 @@
+courseId: zh-cantonese-character-bridge-(traditional)
+progressionMode: TIME_BASED
+lessons:
+  - id: week-01-introduction
+    file: week-01-introduction.md
+    unlockAfterDays: 0
+    requiredTurns: 5

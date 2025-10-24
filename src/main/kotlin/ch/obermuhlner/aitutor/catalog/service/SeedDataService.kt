@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.annotation.PostConstruct
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Profile
+import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Component
 
 @Component
@@ -32,10 +33,47 @@ class SeedDataService(
 
         logger.debug("Seeding catalog data from configuration...")
 
+        // Validate curriculum files exist before seeding
+        validateCurriculumFiles()
+
         val tutors = seedTutors()
         val courses = seedCourses(tutors)
 
         logger.info("Seeded ${tutors.size} tutors and ${courses.size} courses")
+    }
+
+    private fun validateCurriculumFiles() {
+        logger.info("Validating curriculum files for configured courses...")
+        
+        var validCourses = 0
+        var invalidCourses = 0
+        val missingCourses = mutableListOf<String>()
+        
+        for (config in catalogProperties.courses) {
+            // Generate slug as per LessonProgressionService logic
+            val languageOnly = config.languageCode.lowercase().substringBefore("-")
+            val nameEnglish = config.nameEnglish
+            val courseSlug = "$languageOnly-${nameEnglish.lowercase().replace(" ", "-")}"
+            
+            val curriculumResource = ClassPathResource("course-content/$courseSlug/curriculum.yml")
+            if (curriculumResource.exists()) {
+                logger.debug("Found curriculum file for course $courseSlug: ${curriculumResource.path}")
+                validCourses++
+            } else {
+                logger.error("Missing curriculum file for course $courseSlug: course-content/$courseSlug/curriculum.yml")
+                invalidCourses++
+                missingCourses.add("$courseSlug (${config.nameEnglish} - ${config.languageCode})")
+            }
+        }
+        
+        if (invalidCourses > 0) {
+            logger.error("Found $invalidCourses course(s) without corresponding curriculum files:")
+            missingCourses.forEach { logger.error("  - $it") }
+            logger.error("Please ensure all configured courses have curriculum files in src/main/resources/course-content/")
+            throw IllegalStateException("Some courses are configured without corresponding curriculum files")
+        }
+        
+        logger.info("Curriculum validation completed: $validCourses valid, $invalidCourses missing")
     }
 
     private fun seedTutors(): Map<String, List<TutorProfileEntity>> {
