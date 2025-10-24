@@ -849,6 +849,12 @@ Regex patterns are too brittle for parsing actual language text:
 - String operations (split, substring, indexOf) for simple text extraction
 - Structured data formats (YAML frontmatter, JSON) when possible
 
+**Use Standard Quotes and Apostrophes:**
+- Use only standard ASCII quotes (`'` and `"`) in prompts and lesson text
+- Avoid "smart" or "curly" quotes (`‘’` and `""`) and fancy apostrophes (`'`)
+- These "strange" characters can cause parsing issues and encoding problems
+- Stick to plain ASCII characters for maximum compatibility across systems
+
 ### Git Commit Guidelines
 
 ⚠️ **CRITICAL: FOLLOW THESE RULES EXACTLY - NO EXCEPTIONS** ⚠️
