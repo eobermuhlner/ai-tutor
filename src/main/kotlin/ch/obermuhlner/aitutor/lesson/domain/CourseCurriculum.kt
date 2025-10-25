@@ -9,7 +9,7 @@ data class CourseCurriculum(
 data class LessonMetadata(
     val id: String,
     val file: String,
-    val unlockAfterDays: Int,
+    val minimumDays: Int,  // Minimum days to spend on this lesson
     val requiredTurns: Int
 )
 

@@ -3,49 +3,49 @@ progressionMode: TIME_BASED
 lessons:
   - id: week-01-formal-vs-informal-language
     file: week-01-formal-vs-informal-language.md
-    unlockAfterDays: 0
+    minimumDays: 0
     requiredTurns: 5
   - id: week-02-business-email-writing
     file: week-02-business-email-writing.md
-    unlockAfterDays: 7
+    minimumDays: 7
     requiredTurns: 6
   - id: week-03-presentations-meetings
     file: week-03-presentations-meetings.md
-    unlockAfterDays: 14
+    minimumDays: 14
     requiredTurns: 6
   - id: week-04-reports-proposals
     file: week-04-reports-proposals.md
-    unlockAfterDays: 21
+    minimumDays: 21
     requiredTurns: 7
   - id: week-05-negotiations-contracts
     file: week-05-negotiations-contracts.md
-    unlockAfterDays: 28
+    minimumDays: 28
     requiredTurns: 6
   - id: week-06-telephone-conferences
     file: week-06-telephone-conferences.md
-    unlockAfterDays: 35
+    minimumDays: 35
     requiredTurns: 6
   - id: week-07-formal-correspondence
     file: week-07-formal-correspondence.md
-    unlockAfterDays: 42
+    minimumDays: 42
     requiredTurns: 6
   - id: week-08-business-vocabulary
     file: week-08-business-vocabulary.md
-    unlockAfterDays: 49
+    minimumDays: 49
     requiredTurns: 5
   - id: week-09-cross-cultural-communication
     file: week-09-cross-cultural-communication.md
-    unlockAfterDays: 56
+    minimumDays: 56
     requiredTurns: 6
   - id: week-10-advanced-business-structures
     file: week-10-advanced-business-structures.md
-    unlockAfterDays: 63
+    minimumDays: 63
     requiredTurns: 7
   - id: week-11-professional-writing
     file: week-11-professional-writing.md
-    unlockAfterDays: 70
+    minimumDays: 70
     requiredTurns: 6
   - id: week-12-business-grammar-completion
     file: week-12-business-grammar-completion.md
-    unlockAfterDays: 77
+    minimumDays: 77
     requiredTurns: 7

@@ -46,7 +46,7 @@ class LessonController(
                 LessonMetadataResponse(
                     id = metadata.id,
                     file = metadata.file,
-                    unlockAfterDays = metadata.unlockAfterDays,
+                    minimumDays = metadata.minimumDays,
                     requiredTurns = metadata.requiredTurns
                 )
             }

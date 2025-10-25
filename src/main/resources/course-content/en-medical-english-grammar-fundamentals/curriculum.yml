@@ -3,49 +3,49 @@ progressionMode: TIME_BASED
 lessons:
   - id: week-01-medical-terminology-basics
     file: week-01-medical-terminology-basics.md
-    unlockAfterDays: 0
-    requiredTurns: 5
+    minimumDays: 1
+    requiredTurns: 20
   - id: week-02-patient-history-taking
     file: week-02-patient-history-taking.md
-    unlockAfterDays: 7
-    requiredTurns: 6
+    minimumDays: 7
+    requiredTurns: 25
   - id: week-03-physical-examination
     file: week-03-physical-examination.md
-    unlockAfterDays: 14
-    requiredTurns: 6
+    minimumDays: 7
+    requiredTurns: 30
   - id: week-04-diagnosis-treatment-plans
     file: week-04-diagnosis-treatment-plans.md
-    unlockAfterDays: 21
-    requiredTurns: 7
+    minimumDays: 7
+    requiredTurns: 30
   - id: week-05-medical-reports-writing
     file: week-05-medical-reports-writing.md
-    unlockAfterDays: 28
-    requiredTurns: 6
+    minimumDays: 7
+    requiredTurns: 35
   - id: week-06-informed-consent-communication
     file: week-06-informed-consent-communication.md
-    unlockAfterDays: 35
-    requiredTurns: 6
+    minimumDays: 7
+    requiredTurns: 35
   - id: week-07-breaking-bad-news
     file: week-07-breaking-bad-news.md
-    unlockAfterDays: 42
-    requiredTurns: 6
+    minimumDays: 7
+    requiredTurns: 35
   - id: week-08-medical-research-writing
     file: week-08-medical-research-writing.md
-    unlockAfterDays: 49
-    requiredTurns: 5
+    minimumDays: 7
+    requiredTurns: 40
   - id: week-09-pharmaceutical-communication
     file: week-09-pharmaceutical-communication.md
-    unlockAfterDays: 56
-    requiredTurns: 6
+    minimumDays: 7
+    requiredTurns: 40
   - id: week-10-medical-conferences-presentations
     file: week-10-medical-conferences-presentations.md
-    unlockAfterDays: 63
-    requiredTurns: 7
+    minimumDays: 7
+    requiredTurns: 40
   - id: week-11-cross-cultural-medical-communication
     file: week-11-cross-cultural-medical-communication.md
-    unlockAfterDays: 70
-    requiredTurns: 6
+    minimumDays: 7
+    requiredTurns: 40
   - id: week-12-medical-grammar-completion
     file: week-12-medical-grammar-completion.md
-    unlockAfterDays: 77
-    requiredTurns: 7
+    minimumDays: 7
+    requiredTurns: 40

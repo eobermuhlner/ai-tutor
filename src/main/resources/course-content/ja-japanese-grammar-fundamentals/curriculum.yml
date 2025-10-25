@@ -3,49 +3,49 @@ progressionMode: TIME_BASED
 lessons:
   - id: week-01-hiragana-katakana-introduction
     file: week-01-hiragana-katakana-introduction.md
-    unlockAfterDays: 0
+    minimumDays: 0
     requiredTurns: 5
   - id: week-02-particle-usage
     file: week-02-particle-usage.md
-    unlockAfterDays: 7
+    minimumDays: 7
     requiredTurns: 6
   - id: week-03-present-tense-politeness
     file: week-03-present-tense-politeness.md
-    unlockAfterDays: 14
+    minimumDays: 14
     requiredTurns: 6
   - id: week-04-question-forms
     file: week-04-question-forms.md
-    unlockAfterDays: 21
+    minimumDays: 21
     requiredTurns: 7
   - id: week-05-negative-forms
     file: week-05-negative-forms.md
-    unlockAfterDays: 28
+    minimumDays: 28
     requiredTurns: 6
   - id: week-06-past-tense
     file: week-06-past-tense.md
-    unlockAfterDays: 35
+    minimumDays: 35
     requiredTurns: 6
   - id: week-07-te-form-usage
     file: week-07-te-form-usage.md
-    unlockAfterDays: 42
+    minimumDays: 42
     requiredTurns: 6
   - id: week-08-adjectives-descriptive
     file: week-08-adjectives-descriptive.md
-    unlockAfterDays: 49
+    minimumDays: 49
     requiredTurns: 5
   - id: week-09-verbs-potential-causative
     file: week-09-verbs-potential-causative.md
-    unlockAfterDays: 56
+    minimumDays: 56
     requiredTurns: 6
   - id: week-10-conditionals-hypotheticals
     file: week-10-conditionals-hypotheticals.md
-    unlockAfterDays: 63
+    minimumDays: 63
     requiredTurns: 7
   - id: week-11-keigo-honorifics
     file: week-11-keigo-honorifics.md
-    unlockAfterDays: 70
+    minimumDays: 70
     requiredTurns: 6
   - id: week-12-grammar-completion
     file: week-12-grammar-completion.md
-    unlockAfterDays: 77
+    minimumDays: 77
     requiredTurns: 7

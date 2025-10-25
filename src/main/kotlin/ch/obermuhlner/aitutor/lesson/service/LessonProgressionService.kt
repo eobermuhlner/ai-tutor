@@ -86,8 +86,8 @@ class LessonProgressionService(
     ): ProgressionResult {
         val metadata = curriculum.lessons.find { it.id == currentLessonId } ?: return ProgressionResult(false)
 
-        // Check time criteria
-        val daysElapsed = Duration.between(
+        // Calculate days elapsed since this specific lesson started
+        val daysSinceLessonStart = Duration.between(
             session.lessonStartedAt ?: Instant.now(),
             Instant.now()
         ).toDays()
@@ -97,8 +97,11 @@ class LessonProgressionService(
         val progress = parseProgress(session.lessonProgressJson)
 
         val shouldAdvance = when (curriculum.progressionMode) {
-            ProgressionMode.TIME_BASED ->
-                daysElapsed >= metadata.unlockAfterDays && turnCount >= metadata.requiredTurns
+            ProgressionMode.TIME_BASED -> {
+                // Standard TIME_BASED behavior: must meet both time and turn requirements
+                // minimumDays represents minimum days to spend on this lesson
+                daysSinceLessonStart >= metadata.minimumDays && turnCount >= metadata.requiredTurns
+            }
             ProgressionMode.COMPLETION_BASED ->
                 turnCount >= metadata.requiredTurns && progress.goalsCompleted
         }

@@ -734,19 +734,19 @@ progressionMode: TIME_BASED           # or SEQUENTIAL
 lessons:
   - id: week-01-greetings            # Must match lessonId in frontmatter
     file: week-01-greetings.md       # Filename in same directory
-    unlockAfterDays: 0                # Day 0 = immediately available
-    requiredTurns: 5                  # Minimum conversation turns to complete
+    minimumDays: 1                    # Must spend at least 1 day on this lesson  
+    requiredTurns: 20                 # Minimum conversation turns to complete
   - id: week-02-introductions
     file: week-02-introductions.md
-    unlockAfterDays: 7                # Unlocks after 7 days
-    requiredTurns: 8
+    minimumDays: 7                    # Must spend at least 7 days on this lesson
+    requiredTurns: 25                 # Minimum conversation turns to complete
   # ... additional lessons
 ```
 
 **Important:**
 - `lessonId` in YAML frontmatter must match `id` in curriculum.yml
 - `file` path is relative to the course directory
-- `unlockAfterDays` controls time-based progression
+- `minimumDays` controls time-based progression (minimum days to spend on current lesson)
 - `requiredTurns` sets minimum engagement before lesson completion
 
 ### Reference Examples
