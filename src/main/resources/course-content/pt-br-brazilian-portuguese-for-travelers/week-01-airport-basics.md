@@ -1,125 +1,209 @@
 ---
 lessonId: week-01-airport-basics
-title: Brazilian Portuguese for Travelers - Airport Basics
+title: Airport Basics
 weekNumber: 1
 estimatedDuration: 1 week
 focusAreas:
-  - Airport vocabulary
-  - Checking in procedures
-  - Immigration phrases
-  - Basic travel directions
-targetCEFR: A2
+  - Airport vocabulary and phrases
+  - Checking in and boarding
+  - Immigration and customs
+  - Basic survival communication
+targetCEFR: A1
 ---
 
 ## This Week's Goals
 
-- Navigate airport check-in procedures in Brazilian Portuguese
-- Understand and respond to basic questions from staff
-- Ask for help at the airport
-- Use essential travel vocabulary
+- Navigate airport check-in and boarding procedures
+- Understand and respond to basic staff questions
+- Ask for help and clarification when needed
+- Handle immigration and customs interactions
+- Use essential survival phrases in airport contexts
 
 ## Grammar Focus
 
-### Present Tense Regular Verbs
-**Rule:** Infinitive endings (-ar, -er, -ir) replaced with personal endings
+### Asking Questions at the Airport
 
-**-ar verbs (falar - to speak):**
-- Eu falo, você fala, ele/ela fala
-- Nós falamos, vocês falam, eles/elas falam
+**Rule:** Use "Onde fica...?" (Where is...?) for locations and "A que horas...?" (At what time...?) for schedules. These are your survival questions.
 
-**-er verbs (comer - to eat):**
-- Eu como, você come, ele/ela come
-- Nós comemos, vocês comem, eles/elas comem
+Examples:
+- "Onde fica o portão de embarque?" (Where is the boarding gate?)
+- "A que horas sai o voo?" (At what time does the flight leave?)
+- "Onde ficam os banheiros?" (Where are the bathrooms?)
 
-**-ir verbs (partir - to leave):**
-- Eu parto, você parte, ele/ela parte
-- Nós partimos, vocês partem, eles/elas partem
+### Essential Survival Phrases
 
-**Examples:**
-- Eu **chego** no aeroporto (I arrive at the airport)
-- Você **pergunta** informações (You ask for information)
+**Rule:** Learn these complete phrases as chunks. Don't worry about grammar - just use them exactly as shown.
 
-### Articles and Contractions
-In Portuguese, prepositions contract with articles:
+Examples:
+- "Não falo português" (I don't speak Portuguese)
+- "Você fala inglês?" (Do you speak English?)
+- "Não entendo" (I don't understand)
+- "Mais devagar, por favor" (Slower, please)
 
-- A + a = **à** (feminine)
-- A + as = **às** (feminine plural)
-- De + o = **do**
-- De + a = **da**
-- De + os = **dos**
-- De + as = **das**
-- Em + o = **no**
-- Em + a = **na**
-- Em + os = **nos**
-- Em + as = **nas**
-- Para + o = **pro**
-- Para + a = **pra**
+## Vocabulary
 
-**Examples:**
-- Vou **ao** aeroporto (I go to the airport)
-- Venho **do** Brasil (I come from Brazil)
+### Survival Phrases
+- **Você fala inglês?** - Do you speak English?
+- **Não falo português** - I don't speak Portuguese
+- **Não entendo** - I don't understand
+- **Por favor, mais devagar** - Please, slower
+- **Pode me ajudar?** - Can you help me?
+- **Pode repetir?** - Can you repeat?
+- **Obrigado/Obrigada** - Thank you (male/female speaker)
+- **Por favor** - Please
+- **Com licença** - Excuse me
+- **Onde fica...?** - Where is...?
 
-## Essential Vocabulary
-
-### At the Airport
+### Airport Locations
 - **O aeroporto** - Airport
 - **O terminal** - Terminal
-- **O portão** - Gate
 - **O balcão de check-in** - Check-in counter
-- **A passagem de embarque** - Boarding pass
+- **O portão de embarque** - Boarding gate
+- **O portão** - Gate
+- **A sala de espera** - Waiting area
+- **Os banheiros** - Bathrooms/Restrooms
+- **A saída** - Exit
+- **A chegada** - Arrival
+- **A segurança** - Security checkpoint
+- **A alfândega** - Customs
+- **A imigração** - Immigration
+- **A esteira de bagagem** - Baggage claim
+- **A informação** - Information
+
+### Documents and Essentials
 - **O passaporte** - Passport
 - **O visto** - Visa
+- **O bilhete** - Ticket
+- **O cartão de embarque** - Boarding pass
+- **A passagem de embarque** - Boarding pass
+- **O documento** - Document
+- **A identidade** - ID
+- **O formulário** - Form
+- **Pode ver seu passaporte?** - Can I see your passport?
+- **Aqui está** - Here it is
+
+### Luggage and Baggage
+- **A bagagem** - Luggage/Baggage
 - **A mala** - Suitcase
 - **A bagagem de mão** - Carry-on luggage
-- **A esteira rolante** - Conveyor belt
+- **A mochila** - Backpack
+- **A bolsa** - Bag
+- **Despachar bagagem** - To check luggage
+- **Quantas malas?** - How many suitcases?
+- **Uma mala** - One suitcase
+- **Duas malas** - Two suitcases
+- **Posso despachar esta mala?** - Can I check this suitcase?
+- **Excesso de bagagem** - Excess baggage
+- **Limite de peso** - Weight limit
 
-### Key Phrases
-- **Onde fica...?** - Where is...? (Where is located...)
-- **Você fala inglês?** - Do you speak English?
-- **A que horas...?** - At what time...?
+### Flight Information
+- **O voo** - Flight
+- **O avião** - Airplane
+- **O assento** - Seat
+- **A fileira** - Row
+- **Janela** - Window (seat)
+- **Corredor** - Aisle (seat)
+- **Partida** - Departure
+- **Chegada** - Arrival
+- **Atraso** - Delay
+- **Cancelado** - Cancelled
+- **No horário** - On time
+- **A que horas sai?** - What time does it leave?
+- **A que horas chega?** - What time does it arrive?
+- **De qual portão sai?** - Which gate does it leave from?
+- **Meu voo está atrasado** - My flight is delayed
+
+### Common Airport Phrases
+- **Quero fazer check-in** - I want to check in
+- **Onde é o check-in?** - Where is check-in?
+- **Qual é meu assento?** - What is my seat?
+- **Prefiro janela** - I prefer window (seat)
+- **Prefiro corredor** - I prefer aisle (seat)
+- **Quanto pesa?** - How much does it weigh?
+- **Onde fica meu portão?** - Where is my gate?
+- **Está embarcando?** - Is it boarding?
+- **Onde espero?** - Where do I wait?
+- **Quando embarcamos?** - When do we board?
+
+### Emergency Airport Phrases
+- **Perdi meu passaporte** - I've lost my passport
+- **Perdi meu bilhete** - I've lost my ticket
+- **Perdi minha mala** - I've lost my suitcase
+- **Vou perder meu voo** - I'm going to miss my flight
 - **Preciso de ajuda** - I need help
-- **Quanto custa?** - How much does it cost?
-
-### Politeness Markers
-- **Com licença** - Excuse me
-- **Por favor** - Please
-- **Obrigado/Obrigada** - Thank you (masculine/feminine)
-- **De nada** - You're welcome
+- **Onde fica a informação?** - Where is information?
 
 ## Conversation Scenarios
 
-### Checking In
-**Staff:** Bom dia, como posso ajudá-lo?
-**Traveler:** Bom dia, gostaria de fazer o check-in para meu voo.
-**Staff:** Tem seu passaporte e bilhete, por favor?
-**Traveler:** Sim, aqui estão. Posso despachar uma mala?
+### Checking In for Your Flight
 
-### At Security
-**Officer:** Está viajando com líquidos?
-**Traveler:** Não, somente itens pessoais.
-**Officer:** Por favor, coloque suas coisas nesta bandeja.
-**Traveler:** Claro, obrigado.
+Practice checking in at the airline counter, answering basic questions about luggage, and getting your boarding pass.
+
+Key phrases:
+- "Quero fazer check-in" (I want to check in)
+- "Aqui está meu passaporte" (Here is my passport)
+- "Posso despachar uma mala?" (Can I check one suitcase?)
+- "Prefiro assento de janela" (I prefer a window seat)
+- "De qual portão sai?" (Which gate does it leave from?)
+
+### Going Through Security
+
+Practice communicating at security checkpoint, understanding instructions about liquids and electronics, and asking for clarification.
+
+Key phrases:
+- "Onde fica a segurança?" (Where is security?)
+- "Posso levar isto?" (Can I bring this?)
+- "Não entendo" (I don't understand)
+- "Pode repetir, por favor?" (Can you repeat, please?)
+
+### Finding Your Gate and Boarding
+
+Practice locating your gate, asking about boarding time, and understanding boarding announcements.
+
+Key phrases:
+- "Onde fica o portão 15?" (Where is gate 15?)
+- "A que horas embarcamos?" (What time do we board?)
+- "O voo está atrasado?" (Is the flight delayed?)
+- "Onde ficam os banheiros?" (Where are the bathrooms?)
+
+### Immigration and Customs
+
+Practice answering basic questions at immigration (purpose of visit, length of stay) and declaring items at customs.
+
+Key phrases:
+- "Turismo" (Tourism)
+- "Uma semana" (One week)
+- "Duas semanas" (Two weeks)
+- "Não tenho nada a declarar" (I have nothing to declare)
+- "Onde fica a saída?" (Where is the exit?)
 
 ## Practice Patterns
 
-- Form sentences using regular -ar, -er, -ir verbs
-- Ask for locations using "Onde fica...?"
-- Express needs using "Preciso de..."
-- Use polite expressions with "por favor" and "obrigado"
+- Successfully check in for a flight and get boarding pass
+- Navigate to your gate using only Portuguese directions
+- Handle a delayed flight situation and ask for information
+- Go through immigration and answer basic questions
+- Find baggage claim and report a missing suitcase
 
 ## Common Mistakes to Watch
 
-- Wrong form → Correct form (explanation)
-- "Vou ao aeroporto" ✓ (correct contraction)
-- "Você fala inglês?" ✓ (correct formal question)
-- "Preciso de ajuda" ✓ (correct construction with de)
-- "Onde está?" → "Onde fica?" (more natural for locations in Portuguese)
-- "Gostaria de" ✓ (conditional for polite requests)
+- "Onde é o portão?" → "Onde fica o portão?" (use "fica" for locations, critical for finding gates!)
+- "Não falo português" spoken too quietly → Speak clearly - staff need to hear you
+- "Meu voo tem atraso" → "Meu voo está atrasado" (more natural phrasing)
+- "Pode levar isto?" spoken without "com licença" first → "Com licença, pode levar isto?" (be polite)
+- Forgetting gender: "O mala" → "A mala" (suitcase is feminine)
+- "Passaporte, por favor" without greeting → Say "Bom dia" or "Boa tarde" first
+- Not saying "obrigado/obrigada" → Always thank staff (use -o if you're male, -a if female)
 
 ## Cultural Notes
 
-- "Bom dia" (good morning), "Boa tarde" (good afternoon), "Boa noite" (good evening/night) are important greetings
-- Brazilian airport staff are generally friendly and helpful
-- Brazilians appreciate when visitors attempt Portuguese and often respond with enthusiasm
-- "Jeitinho Brasileiro" (Brazilian way) means there might be some flexibility with procedures
-- Tipping culture: 10% is common in restaurants but not expected at airports
+- **Arrive early**: Brazilian airports can have long lines, especially during peak travel seasons. Arrive 3 hours early for international flights.
+- **Greetings matter**: Always greet staff with "Bom dia" (good morning), "Boa tarde" (good afternoon), or "Boa noite" (good evening) before making requests.
+- **"Com licença" is essential**: Start every question with "Com licença" (excuse me). Not doing so seems rude.
+- **Immigration questions**: Be prepared for "Qual o motivo da viagem?" (reason for trip) and "Quanto tempo vai ficar?" (how long staying). "Turismo, uma semana" works fine.
+- **Baggage weight**: Limits are enforced but sometimes flexibility exists. Be polite if overweight - "jeitinho brasileiro" may help.
+- **Speaking English**: Major airports (GRU, GIG) have English-speaking staff, but attempting Portuguese first shows respect and gets friendlier service.
+- **Boarding process**: Boarding may be less organized than in some countries. Listen for your row or zone number.
+- **Security is thorough**: Liquid limits (100ml containers), no sharp objects, electronics out. Rules enforced - don't argue.
+- **Documents ready**: Keep passport and boarding pass accessible. You'll show them multiple times.
+- **Friendly atmosphere**: Brazilian airport staff are generally warm and friendly. Smile and be personable - it goes a long way.
