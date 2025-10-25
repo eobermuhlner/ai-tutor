@@ -419,6 +419,32 @@ class ChatService(
             session.currentTopic = topicDecision.topic
         }
 
+        // Handle lesson switching requests from LLM (only for course-based sessions)
+        val requestedLessonAction = tutorResponse.conversationResponse.conversationState.requestedLessonAction
+        if (requestedLessonAction != null && session.courseTemplateId != null) {
+            val lessonSwitched = when (requestedLessonAction.lowercase()) {
+                "next" -> {
+                    logger.info("LLM requested lesson advancement for session $sessionId")
+                    lessonProgressionService.navigateToNextLesson(sessionId) != null
+                }
+                "previous" -> {
+                    logger.info("LLM requested previous lesson for session $sessionId")
+                    lessonProgressionService.navigateToPreviousLesson(sessionId) != null
+                }
+                "stay" -> {
+                    logger.debug("LLM requested to stay on current lesson for session $sessionId")
+                    false
+                }
+                else -> {
+                    logger.warn("Unknown lesson action requested by LLM: $requestedLessonAction for session $sessionId")
+                    false
+                }
+            }
+            if (lessonSwitched) {
+                logger.info("Lesson switched successfully based on LLM recommendation: $requestedLessonAction")
+            }
+        }
+
         chatSessionRepository.save(session)
 
         // Save assistant message with next sequence number

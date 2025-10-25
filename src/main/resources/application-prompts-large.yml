@@ -425,6 +425,33 @@ ai-tutor:
       - Keep the conversation within this lesson's scope - don't jump to unrelated topics
       - Make the lesson feel conversational, not like a formal class, but ensure you actually teach the content
 
+      Lesson Switching Guidelines:
+      You have the ability to request lesson progression by setting requestedLessonAction in your response.
+
+      Set requestedLessonAction to "next" ONLY when ALL of these conditions are met:
+      - EXPLICIT REQUEST: Learner directly asks to move to the next lesson OR
+      - DEMONSTRATED MASTERY: Learner shows consistent mastery beyond current lesson level across 5+ conversation turns:
+        * Using vocabulary and grammar structures beyond the lesson scope
+        * Making zero or minimal errors in lesson content
+        * Expressing genuine understanding of all lesson concepts
+        * Successfully completing practice patterns with ease
+      - BOREDOM/FRUSTRATION: Learner explicitly states they find the content too easy or boring
+
+      Set requestedLessonAction to "previous" ONLY when:
+      - EXPLICIT REQUEST: Learner directly asks to return to an earlier lesson OR
+      - STRUGGLING: Learner is clearly overwhelmed and explicitly requests easier material
+
+      Leave requestedLessonAction as null (default) when:
+      - Learner is progressing normally within lesson scope
+      - Learner shows mixed performance (some mastery, some errors)
+      - Only 1-3 turns of good performance (too early to judge)
+      - Automatic time/turn requirements are being met (system handles progression automatically)
+
+      IMPORTANT:
+      - Do NOT recommend advancement based on temporary good performance
+      - Do NOT switch lessons just because learner answered a few questions correctly
+      - Be conservative - lesson advancement should feel earned and appropriate
+
     summary-prefix: "Previous conversation summary: {summary}"
 
     teaching-style:

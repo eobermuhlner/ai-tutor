@@ -1045,4 +1045,179 @@ class ChatServiceTest {
         assertNotNull(result?.messages?.get(0)?.wordCards)
         assertNull(result?.messages?.get(0)?.wordCards?.get(0)?.imageUrl)
     }
+
+    @Test
+    fun `should advance lesson when LLM requests next lesson for course-based session`() {
+        val session = TestDataFactory.createSessionEntity()
+        session.courseTemplateId = UUID.randomUUID()  // Course-based session
+
+        val userMessage = TestDataFactory.createMessageEntity(session)
+        val assistantMessage = TestDataFactory.createMessageEntity(session, MessageRole.ASSISTANT, "Great! Let's move to the next lesson.")
+
+        val tutorResponse = TutorService.TutorResponse(
+            reply = "Great! Let's move to the next lesson.",
+            conversationResponse = ConversationResponse(
+                conversationState = ConversationState(
+                    phase = ConversationPhase.Correction,
+                    estimatedCEFRLevel = CEFRLevel.A1,
+                    requestedLessonAction = "next"  // LLM requests lesson advancement
+                ),
+                corrections = emptyList(),
+                newVocabulary = emptyList()
+            )
+        )
+
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+        every { chatMessageRepository.save(any<ChatMessageEntity>()) } returns userMessage andThen assistantMessage
+        every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(any()) } returns emptyList()
+        every { topicDecisionService.decideTopic(any(), any(), any(), any()) } returns TopicDecision(null, 0, "Free conversation", emptyList())
+        every { tutorService.respond(any(), any(), any(), any(), any(), any(), any()) } returns tutorResponse
+        every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns session
+        every { lessonProgressionService.navigateToNextLesson(TestDataFactory.TEST_SESSION_ID) } returns mockk()  // Mock successful lesson switch
+
+        val result = chatService.sendMessage(TestDataFactory.TEST_SESSION_ID, "I'm ready for the next lesson", TestDataFactory.TEST_USER_ID)
+
+        assertNotNull(result)
+        verify { lessonProgressionService.navigateToNextLesson(TestDataFactory.TEST_SESSION_ID) }
+    }
+
+    @Test
+    fun `should go to previous lesson when LLM requests previous lesson for course-based session`() {
+        val session = TestDataFactory.createSessionEntity()
+        session.courseTemplateId = UUID.randomUUID()  // Course-based session
+
+        val userMessage = TestDataFactory.createMessageEntity(session)
+        val assistantMessage = TestDataFactory.createMessageEntity(session, MessageRole.ASSISTANT, "OK, let's review the previous lesson.")
+
+        val tutorResponse = TutorService.TutorResponse(
+            reply = "OK, let's review the previous lesson.",
+            conversationResponse = ConversationResponse(
+                conversationState = ConversationState(
+                    phase = ConversationPhase.Correction,
+                    estimatedCEFRLevel = CEFRLevel.A1,
+                    requestedLessonAction = "previous"  // LLM requests previous lesson
+                ),
+                corrections = emptyList(),
+                newVocabulary = emptyList()
+            )
+        )
+
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+        every { chatMessageRepository.save(any<ChatMessageEntity>()) } returns userMessage andThen assistantMessage
+        every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(any()) } returns emptyList()
+        every { topicDecisionService.decideTopic(any(), any(), any(), any()) } returns TopicDecision(null, 0, "Free conversation", emptyList())
+        every { tutorService.respond(any(), any(), any(), any(), any(), any(), any()) } returns tutorResponse
+        every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns session
+        every { lessonProgressionService.navigateToPreviousLesson(TestDataFactory.TEST_SESSION_ID) } returns mockk()  // Mock successful lesson switch
+
+        val result = chatService.sendMessage(TestDataFactory.TEST_SESSION_ID, "Can we go back to the previous lesson?", TestDataFactory.TEST_USER_ID)
+
+        assertNotNull(result)
+        verify { lessonProgressionService.navigateToPreviousLesson(TestDataFactory.TEST_SESSION_ID) }
+    }
+
+    @Test
+    fun `should not call lesson progression service when LLM requests lesson switch for non-course session`() {
+        val session = TestDataFactory.createSessionEntity()
+        session.courseTemplateId = null  // Not a course-based session
+
+        val userMessage = TestDataFactory.createMessageEntity(session)
+        val assistantMessage = TestDataFactory.createMessageEntity(session, MessageRole.ASSISTANT, "Reply")
+
+        val tutorResponse = TutorService.TutorResponse(
+            reply = "Reply",
+            conversationResponse = ConversationResponse(
+                conversationState = ConversationState(
+                    phase = ConversationPhase.Correction,
+                    estimatedCEFRLevel = CEFRLevel.A1,
+                    requestedLessonAction = "next"  // LLM requests lesson advancement but not in course session
+                ),
+                corrections = emptyList(),
+                newVocabulary = emptyList()
+            )
+        )
+
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+        every { chatMessageRepository.save(any<ChatMessageEntity>()) } returns userMessage andThen assistantMessage
+        every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(any()) } returns emptyList()
+        every { topicDecisionService.decideTopic(any(), any(), any(), any()) } returns TopicDecision(null, 0, "Free conversation", emptyList())
+        every { tutorService.respond(any(), any(), any(), any(), any(), any(), any()) } returns tutorResponse
+        every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns session
+
+        val result = chatService.sendMessage(TestDataFactory.TEST_SESSION_ID, "Next lesson please", TestDataFactory.TEST_USER_ID)
+
+        assertNotNull(result)
+        verify(exactly = 0) { lessonProgressionService.navigateToNextLesson(any()) }
+        verify(exactly = 0) { lessonProgressionService.navigateToPreviousLesson(any()) }
+    }
+
+    @Test
+    fun `should not call lesson progression service when requestedLessonAction is null`() {
+        val session = TestDataFactory.createSessionEntity()
+        session.courseTemplateId = UUID.randomUUID()  // Course-based session
+
+        val userMessage = TestDataFactory.createMessageEntity(session)
+        val assistantMessage = TestDataFactory.createMessageEntity(session, MessageRole.ASSISTANT, "Reply")
+
+        val tutorResponse = TutorService.TutorResponse(
+            reply = "Reply",
+            conversationResponse = ConversationResponse(
+                conversationState = ConversationState(
+                    phase = ConversationPhase.Correction,
+                    estimatedCEFRLevel = CEFRLevel.A1,
+                    requestedLessonAction = null  // No lesson action requested
+                ),
+                corrections = emptyList(),
+                newVocabulary = emptyList()
+            )
+        )
+
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+        every { chatMessageRepository.save(any<ChatMessageEntity>()) } returns userMessage andThen assistantMessage
+        every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(any()) } returns emptyList()
+        every { topicDecisionService.decideTopic(any(), any(), any(), any()) } returns TopicDecision(null, 0, "Free conversation", emptyList())
+        every { tutorService.respond(any(), any(), any(), any(), any(), any(), any()) } returns tutorResponse
+        every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns session
+
+        val result = chatService.sendMessage(TestDataFactory.TEST_SESSION_ID, "Normal conversation", TestDataFactory.TEST_USER_ID)
+
+        assertNotNull(result)
+        verify(exactly = 0) { lessonProgressionService.navigateToNextLesson(any()) }
+        verify(exactly = 0) { lessonProgressionService.navigateToPreviousLesson(any()) }
+    }
+
+    @Test
+    fun `should handle stay lesson action without calling progression service`() {
+        val session = TestDataFactory.createSessionEntity()
+        session.courseTemplateId = UUID.randomUUID()  // Course-based session
+
+        val userMessage = TestDataFactory.createMessageEntity(session)
+        val assistantMessage = TestDataFactory.createMessageEntity(session, MessageRole.ASSISTANT, "Let's continue with this lesson.")
+
+        val tutorResponse = TutorService.TutorResponse(
+            reply = "Let's continue with this lesson.",
+            conversationResponse = ConversationResponse(
+                conversationState = ConversationState(
+                    phase = ConversationPhase.Correction,
+                    estimatedCEFRLevel = CEFRLevel.A1,
+                    requestedLessonAction = "stay"  // Explicitly stay on current lesson
+                ),
+                corrections = emptyList(),
+                newVocabulary = emptyList()
+            )
+        )
+
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+        every { chatMessageRepository.save(any<ChatMessageEntity>()) } returns userMessage andThen assistantMessage
+        every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(any()) } returns emptyList()
+        every { topicDecisionService.decideTopic(any(), any(), any(), any()) } returns TopicDecision(null, 0, "Free conversation", emptyList())
+        every { tutorService.respond(any(), any(), any(), any(), any(), any(), any()) } returns tutorResponse
+        every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns session
+
+        val result = chatService.sendMessage(TestDataFactory.TEST_SESSION_ID, "Continue", TestDataFactory.TEST_USER_ID)
+
+        assertNotNull(result)
+        verify(exactly = 0) { lessonProgressionService.navigateToNextLesson(any()) }
+        verify(exactly = 0) { lessonProgressionService.navigateToPreviousLesson(any()) }
+    }
 }

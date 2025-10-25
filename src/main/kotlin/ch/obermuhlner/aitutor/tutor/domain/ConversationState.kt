@@ -33,5 +33,10 @@ data class ConversationState(
     val vocabularyReviewMode: Boolean = false,
     @field:JsonProperty(required = true)
     @field:JsonPropertyDescription("Count of vocabulary items due for review (for context).")
-    val dueVocabularyCount: Long? = null
+    val dueVocabularyCount: Long? = null,
+
+    // Lesson switching control
+    @field:JsonProperty(required = true)
+    @field:JsonPropertyDescription("Request to change lesson: 'next' (advance to next lesson), 'previous' (go back one lesson), null (remain on current lesson, default). Set when learner explicitly requests lesson change or when tutor determines learner is ready for advancement based on demonstrated mastery.")
+    val requestedLessonAction: String? = null
 )
