@@ -47,6 +47,7 @@ class ChatService(
     private val catalogService: ch.obermuhlner.aitutor.catalog.service.CatalogService,
     private val errorAnalyticsService: ch.obermuhlner.aitutor.analytics.service.ErrorAnalyticsService,
     private val userLanguageService: ch.obermuhlner.aitutor.user.service.UserLanguageService,
+    private val lessonProgressionService: ch.obermuhlner.aitutor.lesson.service.LessonProgressionService,
     private val objectMapper: ObjectMapper,
     @Value("\${ai-tutor.messages.technical-error}") private val technicalErrorMessage: String,
 ) {
@@ -219,6 +220,31 @@ class ChatService(
         val saved = chatSessionRepository.save(session)
         logger.info("Vocabulary review mode ${if (enabled) "enabled" else "disabled"} for session $sessionId")
         return toSessionResponse(saved)
+    }
+
+    @Transactional
+    fun updateSessionLesson(sessionId: UUID, direction: ch.obermuhlner.aitutor.chat.dto.LessonNavigationDirection, currentUserId: UUID): SessionResponse? {
+        val session = chatSessionRepository.findById(sessionId).orElse(null) ?: return null
+
+        // Validate ownership
+        if (session.userId != currentUserId) {
+            return null
+        }
+
+        // Only allow lesson navigation for course-based sessions
+        if (session.courseTemplateId == null) {
+            logger.warn("Attempt to navigate lessons in non-course session: $sessionId")
+            return null
+        }
+
+        val lessonContent = when (direction) {
+            ch.obermuhlner.aitutor.chat.dto.LessonNavigationDirection.NEXT -> 
+                lessonProgressionService.navigateToNextLesson(sessionId)
+            ch.obermuhlner.aitutor.chat.dto.LessonNavigationDirection.PREVIOUS -> 
+                lessonProgressionService.navigateToPreviousLesson(sessionId)
+        }
+
+        return if (lessonContent != null) toSessionResponse(session) else null
     }
 
     fun getTopicHistory(sessionId: UUID, currentUserId: UUID): TopicHistoryResponse? {

@@ -64,6 +64,30 @@ class LessonProgressionService(
         return advanceToNextLesson(session, curriculum, currentLessonId)
     }
 
+    @Transactional
+    fun navigateToNextLesson(sessionId: UUID): LessonContent? {
+        // Reload session within transaction to avoid stale entity and lock contention
+        val session = chatSessionRepository.findById(sessionId).orElse(null) ?: return null
+
+        val courseSlug = getCourseSlug(session.courseTemplateId) ?: return null
+        val curriculum = lessonContentService.getCurriculum(courseSlug) ?: return null
+        val currentLessonId = session.currentLessonId ?: return null
+
+        return advanceToNextLesson(session, curriculum, currentLessonId)
+    }
+
+    @Transactional
+    fun navigateToPreviousLesson(sessionId: UUID): LessonContent? {
+        // Reload session within transaction to avoid stale entity and lock contention
+        val session = chatSessionRepository.findById(sessionId).orElse(null) ?: return null
+
+        val courseSlug = getCourseSlug(session.courseTemplateId) ?: return null
+        val curriculum = lessonContentService.getCurriculum(courseSlug) ?: return null
+        val currentLessonId = session.currentLessonId ?: return null
+
+        return advanceToPreviousLesson(session, curriculum, currentLessonId)
+    }
+
     private fun activateFirstLesson(
         session: ChatSessionEntity,
         curriculum: CourseCurriculum
@@ -125,6 +149,28 @@ class LessonProgressionService(
         logger.info("Advanced session ${session.id} to lesson ${nextLesson.id}")
 
         return lessonContentService.getLesson(curriculum.courseId, nextLesson.id)
+    }
+
+    private fun advanceToPreviousLesson(
+        session: ChatSessionEntity,
+        curriculum: CourseCurriculum,
+        currentLessonId: String
+    ): LessonContent? {
+        val currentIndex = curriculum.lessons.indexOfFirst { it.id == currentLessonId }
+        val previousLesson = if (currentIndex > 0) curriculum.lessons[currentIndex - 1] else null
+        if (previousLesson == null) {
+            logger.info("No previous lesson available for session ${session.id}, already at first lesson")
+            return null
+        }
+
+        session.currentLessonId = previousLesson.id
+        session.lessonStartedAt = Instant.now()
+        session.lessonProgressJson = """{"turnCount": 0}"""
+        chatSessionRepository.save(session)
+
+        logger.info("Advanced session ${session.id} to previous lesson ${previousLesson.id}")
+
+        return lessonContentService.getLesson(curriculum.courseId, previousLesson.id)
     }
 
     private fun parseProgress(json: String?): LessonProgress {

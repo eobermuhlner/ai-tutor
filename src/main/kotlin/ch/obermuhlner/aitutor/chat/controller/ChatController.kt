@@ -9,6 +9,7 @@ import ch.obermuhlner.aitutor.chat.dto.SessionResponse
 import ch.obermuhlner.aitutor.chat.dto.SessionWithMessagesResponse
 import ch.obermuhlner.aitutor.chat.dto.SessionWithProgressResponse
 import ch.obermuhlner.aitutor.chat.dto.TopicHistoryResponse
+import ch.obermuhlner.aitutor.chat.dto.UpdateLessonRequest
 import ch.obermuhlner.aitutor.chat.dto.UpdatePhaseRequest
 import ch.obermuhlner.aitutor.chat.dto.UpdateTopicRequest
 import ch.obermuhlner.aitutor.chat.dto.UpdateVocabularyReviewModeRequest
@@ -204,6 +205,17 @@ class ChatController(
     ): ResponseEntity<SessionResponse> {
         val currentUserId = authorizationService.getCurrentUserId()
         val session = chatService.updateVocabularyReviewMode(sessionId, request.enabled, currentUserId)
+            ?: return ResponseEntity.notFound().build()
+        return ResponseEntity.ok(session)
+    }
+
+    @PatchMapping("/sessions/{sessionId}/lesson")
+    fun updateSessionLesson(
+        @PathVariable sessionId: UUID,
+        @RequestBody request: UpdateLessonRequest
+    ): ResponseEntity<SessionResponse> {
+        val currentUserId = authorizationService.getCurrentUserId()
+        val session = chatService.updateSessionLesson(sessionId, request.direction, currentUserId)
             ?: return ResponseEntity.notFound().build()
         return ResponseEntity.ok(session)
     }
