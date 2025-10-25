@@ -33,6 +33,9 @@ class TutorServiceTest {
     private lateinit var languageService: LanguageService
     private lateinit var vocabularyContextService: VocabularyContextService
     private lateinit var lessonProgressionService: ch.obermuhlner.aitutor.lesson.service.LessonProgressionService
+    private lateinit var lessonContentService: ch.obermuhlner.aitutor.lesson.service.LessonContentService
+    private lateinit var catalogService: ch.obermuhlner.aitutor.catalog.service.CatalogService
+    private lateinit var objectMapper: com.fasterxml.jackson.databind.ObjectMapper
     private lateinit var tutorService: TutorService
 
     private val systemPromptTemplate = "You are {tutorName}, teaching {targetLanguage} to {sourceLanguage} speakers. Persona: {tutorPersona}. Domain: {tutorDomain}. {vocabularyGuidance}"
@@ -49,6 +52,9 @@ class TutorServiceTest {
         languageService = mockk()
         vocabularyContextService = mockk()
         lessonProgressionService = mockk(relaxed = true)
+        lessonContentService = mockk(relaxed = true)
+        catalogService = mockk(relaxed = true)
+        objectMapper = mockk(relaxed = true)
         val mockSummarizationService = mockk<ConversationSummarizationService>(relaxed = true)
         val mockProgressiveSummarizationService = mockk<ProgressiveSummarizationService>(relaxed = true)
         val messageCompactionService = MessageCompactionService(
@@ -78,6 +84,9 @@ class TutorServiceTest {
             vocabularyContextService = vocabularyContextService,
             messageCompactionService = messageCompactionService,
             lessonProgressionService = lessonProgressionService,
+            lessonContentService = lessonContentService,
+            catalogService = catalogService,
+            objectMapper = objectMapper,
             supportedLanguages = supportedLanguages,
             systemPromptTemplate = systemPromptTemplate,
             levelNonePromptTemplate = "CEFR Level None template",

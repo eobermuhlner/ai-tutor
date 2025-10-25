@@ -11,9 +11,14 @@ import ch.obermuhlner.aitutor.tutor.domain.TeachingStyle
 import ch.obermuhlner.aitutor.tutor.domain.Tutor
 import ch.obermuhlner.aitutor.vocabulary.service.VocabularyContextService
 import ch.obermuhlner.aitutor.lesson.service.LessonProgressionService
+import ch.obermuhlner.aitutor.lesson.service.LessonContentService
 import ch.obermuhlner.aitutor.lesson.domain.LessonContent
+import ch.obermuhlner.aitutor.lesson.domain.CourseCurriculum
 import ch.obermuhlner.aitutor.chat.domain.ChatSessionEntity
+import ch.obermuhlner.aitutor.catalog.service.CatalogService
 import ch.obermuhlner.aitutor.core.model.CEFRLevel
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import java.util.UUID
 import org.slf4j.LoggerFactory
 import org.springframework.ai.chat.messages.Message
@@ -29,6 +34,9 @@ class TutorService(
     private val vocabularyContextService: VocabularyContextService,
     private val messageCompactionService: MessageCompactionService,
     private val lessonProgressionService: LessonProgressionService,
+    private val lessonContentService: LessonContentService,
+    private val catalogService: CatalogService,
+    private val objectMapper: ObjectMapper,
     private val supportedLanguages: Map<String, LanguageMetadata>,
     @Value("\${ai-tutor.prompts.system}") private val systemPromptTemplate: String,
     @Value("\${ai-tutor.prompts.level-none}") private val levelNonePromptTemplate: String,
@@ -92,9 +100,17 @@ class TutorService(
 
         val vocabularyGuidance = buildVocabularyGuidance(vocabContext)
 
-        // Get current lesson if session is course-based
+        // Get current lesson and curriculum if session is course-based
         val currentLesson = if (session != null && session.courseTemplateId != null) {
             lessonProgressionService.checkAndProgressLesson(session.id)
+        } else {
+            null
+        }
+
+        // Get curriculum for course overview
+        val curriculum = if (session != null && session.courseTemplateId != null && currentLesson != null) {
+            val courseSlug = getCourseSlug(session)
+            courseSlug?.let { lessonContentService.getCurriculum(it) }
         } else {
             null
         }
@@ -126,7 +142,8 @@ class TutorService(
             sourceLanguageCode = sourceLanguageCode,
             vocabularyGuidance = vocabularyGuidance,
             teachingStyleGuidance = teachingStyleGuidance,
-            currentLesson = currentLesson
+            currentLesson = currentLesson,
+            curriculum = curriculum
         )
 
         val systemMessages = listOf(SystemMessage(consolidatedSystemPrompt))
@@ -198,7 +215,22 @@ class TutorService(
         }
     }
 
-    private fun buildLessonContextPrompt(lesson: LessonContent): String = buildString {
+    private fun buildLessonContextPrompt(lesson: LessonContent, curriculum: CourseCurriculum?): String = buildString {
+        // Course Overview (if curriculum available)
+        if (curriculum != null) {
+            append("=== Course Overview ===\n")
+            append("You are teaching from a structured course with ${curriculum.lessons.size} lessons.\n\n")
+            append("Full Course Curriculum:\n")
+            curriculum.lessons.forEachIndexed { index, lessonMeta ->
+                // Load lesson title for each lesson in the curriculum
+                val lessonContent = lessonContentService.getLesson(curriculum.courseId, lessonMeta.id)
+                val lessonTitle = lessonContent?.title ?: lessonMeta.id
+                val marker = if (lessonMeta.id == lesson.id) " <-- CURRENT LESSON" else ""
+                append("${index + 1}. $lessonTitle$marker\n")
+            }
+            append("\n")
+        }
+
         append("=== This Week's Lesson ===\n")
         append("Lesson: ${lesson.title}\n")
         if (lesson.weekNumber != null) {
@@ -266,7 +298,8 @@ class TutorService(
         sourceLanguageCode: String,
         vocabularyGuidance: String,
         teachingStyleGuidance: String,
-        currentLesson: LessonContent? = null
+        currentLesson: LessonContent? = null,
+        curriculum: CourseCurriculum? = null
     ): String = buildString {
         // Base system prompt (role, persona, languages)
         append(PromptTemplate(systemPromptTemplate).render(mapOf(
@@ -326,7 +359,7 @@ class TutorService(
 
         // Lesson Context (if course-based session)
         if (currentLesson != null) {
-            append(buildLessonContextPrompt(currentLesson))
+            append(buildLessonContextPrompt(currentLesson, curriculum))
             append("\n\n")
         }
 
@@ -350,5 +383,26 @@ class TutorService(
 
         // Language metadata
         append(buildLanguageMetadataPrompt(targetLanguageCode))
+    }
+
+    // Helper: Map session to course slug for file system lookup
+    private fun getCourseSlug(session: ChatSessionEntity): String? {
+        val courseTemplateId = session.courseTemplateId ?: return null
+        val course = catalogService.getCourseById(courseTemplateId) ?: return null
+
+        // Parse English name from JSON
+        val nameEnglish = try {
+            val nameMap = objectMapper.readValue<Map<String, String>>(course.nameJson)
+            nameMap["en"] ?: "unknown"
+        } catch (e: Exception) {
+            logger.warn("Failed to parse course name JSON: ${course.nameJson}", e)
+            "unknown"
+        }
+
+        // Generate slug from language code (ISO part only) and course name
+        // Example: "es-ES" + "Conversational Spanish" -> "es-conversational-spanish"
+        // Extract language part (before hyphen) to match filesystem structure
+        val languageOnly = course.languageCode.lowercase().substringBefore("-")
+        return "$languageOnly-${nameEnglish.lowercase().replace(" ", "-")}"
     }
 }
