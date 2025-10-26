@@ -912,6 +912,22 @@ ai-tutor:
           - Gain insight into Korean culture and humor found in manhwa
           - Build vocabulary for storytelling and fantasy settings
         displayOrder: 2
+      - languageCode: ja-JP
+        nameEnglish: Japanese for Manga Fans
+        shortDescriptionEnglish: Learn Japanese through popular manga and anime
+        descriptionEnglish: A beginner-friendly Japanese course that teaches vocabulary, expressions, and cultural context found in Japanese manga and anime. Perfect for fans who want to read manga in the original language and understand character dialogues naturally.
+        category: Conversational
+        targetAudienceEnglish: Manga and anime enthusiasts
+        startingLevel: None
+        targetLevel: A2
+        estimatedWeeks: 8
+        learningGoalsEnglish:
+          - Learn hiragana, katakana, and basic kanji for reading Japanese manga
+          - Understand common dialogue patterns used in comics and anime
+          - Pick up everyday and emotional expressions used by characters
+          - Gain insight into Japanese culture and humor found in manga
+          - Build vocabulary for storytelling and fantasy settings
+        displayOrder: 3
       - languageCode: ko-KR
         nameEnglish: Korean Grammar Fundamentals
         shortDescriptionEnglish: Build a strong foundation in Korean grammar
