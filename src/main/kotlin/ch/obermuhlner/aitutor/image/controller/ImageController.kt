@@ -1,6 +1,7 @@
 package ch.obermuhlner.aitutor.image.controller
 
 import ch.obermuhlner.aitutor.catalog.repository.TutorProfileRepository
+import ch.obermuhlner.aitutor.core.model.catalog.TutorGender
 import ch.obermuhlner.aitutor.image.service.ImageService
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -33,7 +34,7 @@ class ImageController(
         val tutor = tutorProfileRepository.findById(tutorId).orElse(null)
             ?: return ResponseEntity.notFound().build()
 
-        val gender = tutor.gender ?: return ResponseEntity.notFound().build()
+        val gender = tutor.gender ?: TutorGender.Neutral
 
         val countryCode = tutor.targetLanguageCode.substringAfterLast("-").uppercase()
 
@@ -49,6 +50,36 @@ class ImageController(
         return ResponseEntity.ok()
             .contentType(MediaType.parseMediaType(imageData.contentType))
             .header("Cache-Control", "public, max-age=31536000")
+            .body(imageData.data)
+    }
+
+    @GetMapping("/person/preview")
+    fun getPersonImagePreview(
+        @org.springframework.web.bind.annotation.RequestParam languageCode: String,
+        @org.springframework.web.bind.annotation.RequestParam gender: String,
+        @org.springframework.web.bind.annotation.RequestParam age: Int,
+        @org.springframework.web.bind.annotation.RequestParam(required = false, defaultValue = "") location: String,
+        @org.springframework.web.bind.annotation.RequestParam(required = false, defaultValue = "") persona: String
+    ): ResponseEntity<ByteArray> {
+        val genderEnum = try {
+            TutorGender.valueOf(gender)
+        } catch (e: IllegalArgumentException) {
+            TutorGender.Neutral
+        }
+
+        val countryCode = languageCode.substringAfterLast("-").uppercase()
+        val combinedText = "$location $persona"
+
+        val imageData = imageService.getImageByPerson(
+            countryCode = countryCode,
+            gender = genderEnum,
+            age = age,
+            text = combinedText
+        ) ?: return ResponseEntity.notFound().build()
+
+        return ResponseEntity.ok()
+            .contentType(MediaType.parseMediaType(imageData.contentType))
+            .header("Cache-Control", "public, max-age=300") // 5 minute cache for preview
             .body(imageData.data)
     }
 }

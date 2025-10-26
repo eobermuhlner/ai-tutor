@@ -1,5 +1,6 @@
 package ch.obermuhlner.aitutor.catalog.dto
 
+import ch.obermuhlner.aitutor.core.model.catalog.TutorGender
 import ch.obermuhlner.aitutor.core.model.catalog.TutorPersonality
 import ch.obermuhlner.aitutor.tutor.domain.TeachingStyle
 
@@ -11,6 +12,8 @@ data class CreateTutorRequest(
     val descriptionEnglish: String,
     val culturalBackground: String? = null,
     val location: String? = null,
+    val age: Int = 30,
+    val gender: TutorGender? = null,
     val personality: TutorPersonality,
     val teachingStyle: TeachingStyle = TeachingStyle.Reactive,
     val targetLanguageCode: String,

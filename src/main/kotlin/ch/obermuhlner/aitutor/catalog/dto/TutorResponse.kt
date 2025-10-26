@@ -1,5 +1,6 @@
 package ch.obermuhlner.aitutor.catalog.dto
 
+import ch.obermuhlner.aitutor.core.model.catalog.TutorGender
 import ch.obermuhlner.aitutor.core.model.catalog.TutorPersonality
 import ch.obermuhlner.aitutor.tutor.domain.TeachingStyle
 import java.util.UUID
@@ -17,6 +18,7 @@ data class TutorResponse(
     val culturalBackground: String?,  // Localized
     val location: String?,            // Tutor's specific location
     val age: Int,
+    val gender: TutorGender?,         // Tutor's gender for image selection
     val imageUrl: String?,            // URL to tutor image endpoint
     val displayOrder: Int
 )

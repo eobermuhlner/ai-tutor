@@ -125,6 +125,8 @@ class CatalogServiceImpl(
             descriptionJson = descriptionJson,
             culturalBackgroundJson = culturalBackgroundJson,
             location = request.location,
+            age = request.age,
+            gender = request.gender,
             personality = request.personality,
             teachingStyle = request.teachingStyle,
             targetLanguageCode = request.targetLanguageCode,
