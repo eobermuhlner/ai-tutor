@@ -37,9 +37,10 @@ Language learning assistant with conversational AI tutoring and vocabulary track
 - **CatalogController** - Catalog browsing REST endpoints (`/api/v1/catalog/*`)
   - GET `/languages?sourceLanguage={lang}` - List available languages
   - GET `/languages/{code}/courses?sourceLanguage={lang}&userLevel={level}` - List courses for language
-  - GET `/languages/{code}/tutors?sourceLanguage={lang}` - List tutors for language
+  - GET `/languages/{code}/tutors?sourceLanguage={lang}` - List tutors for language (global + user's custom tutors)
   - GET `/courses/{id}?sourceLanguage={lang}` - Get course details
-  - GET `/tutors/{id}?sourceLanguage={lang}` - Get tutor details
+  - GET `/tutors/{id}?sourceLanguage={lang}` - Get tutor details (if visible to user)
+  - POST `/tutors` - Create custom tutor (authenticated; admins can create global tutors with `isGlobal: true`)
 - **UserLanguageController** - User language management (`/api/v1/users/{userId}/languages/*`)
   - GET `/` - Get user's language proficiencies
   - POST `/` - Add language proficiency
@@ -68,7 +69,7 @@ Language learning assistant with conversational AI tutoring and vocabulary track
 - **TranslationService** - AI-powered translation (OpenAI)
 - **SeedDataService** - Database seed service with curriculum validation to ensure all configured courses have corresponding curriculum files at startup
 - **ChatSessionRepository** / **ChatMessageRepository** - JPA persistence
-- **TutorProfileRepository** / **CourseTemplateRepository** - Catalog persistence
+- **TutorProfileRepository** / **CourseTemplateRepository** - Catalog persistence with user-specific custom tutor support
 - **UserLanguageProficiencyRepository** - User language profiles
 - **AuthService** / **AuthorizationService** / **JwtTokenService** - Authentication/authorization
 - **UserService** / **UserRepository** - User management
@@ -114,6 +115,12 @@ Language learning assistant with conversational AI tutoring and vocabulary track
 - **UI Integration**: Corrections displayed as hover tooltips with severity indicators
 - **Session Persistence**: Chat sessions and messages stored in H2 database
 - **Authentication**: JWT-based with access/refresh tokens, Spring Security integration
+- **Custom Tutors**: User-specific and global tutor management
+  - Global tutors: Seed data tutors visible to all users
+  - User-specific tutors: Private custom tutors (only visible to creator)
+  - Admin privileges: Admins can create global tutors (set `isGlobal: true`)
+  - Visibility filtering: Users see global tutors + their own custom tutors
+  - Database fields: `created_by_user_id` (nullable), `is_global` (boolean)
 - **Progressive Summarization**: Hierarchical message summarization for long conversations
   - Level-1 summaries: Chunks of N messages (configurable, default 10)
   - Level-2+ summaries: Recursive summarization of lower-level summaries

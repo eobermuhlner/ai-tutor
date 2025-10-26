@@ -526,7 +526,7 @@ class ChatService(
         customName: String? = null
     ): SessionResponse? {
         val course = catalogService.getCourseById(courseTemplateId) ?: return null
-        val tutor = catalogService.getTutorById(tutorProfileId) ?: return null
+        val tutor = catalogService.getTutorById(tutorProfileId, userId) ?: return null
 
         // For course-based sessions, determine the initial CEFR level: use user's proficiency if available, 
         // otherwise fall back to the course starting level

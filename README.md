@@ -5,6 +5,7 @@ An intelligent language learning platform powered by AI that provides personaliz
 ## Features
 
 - **Conversational AI Tutoring**: Natural language conversations with adaptive AI tutors
+- **Custom Tutor Creation**: Users can create personalized tutors; admins can create global tutors
 - **Real-time Error Detection**: Automatic correction of grammar, typography, and word choice errors
 - **CEFR Level Tracking**: Monitors learner progress from A1 to C2 levels
 - **Vocabulary Management**: Tracks new vocabulary with context and exposure frequency

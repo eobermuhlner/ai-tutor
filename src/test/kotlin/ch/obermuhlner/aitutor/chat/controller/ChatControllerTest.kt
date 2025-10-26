@@ -593,7 +593,7 @@ class ChatControllerTest {
         )
 
         every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
-        every { catalogService.getTutorsForCourse(courseTemplateId) } returns listOf()
+        every { catalogService.getTutorsForCourse(courseTemplateId, any()) } returns listOf()
         every { chatService.createSessionFromCourse(TestDataFactory.TEST_USER_ID, courseTemplateId, tutorProfileId, "en", null) } returns sessionResponse
 
         mockMvc.perform(

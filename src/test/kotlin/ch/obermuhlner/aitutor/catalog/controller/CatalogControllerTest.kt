@@ -47,8 +47,12 @@ class CatalogControllerTest {
     @MockkBean(relaxed = true)
     private lateinit var customUserDetailsService: ch.obermuhlner.aitutor.user.service.CustomUserDetailsService
 
+    @MockkBean(relaxed = true)
+    private lateinit var authorizationService: ch.obermuhlner.aitutor.auth.service.AuthorizationService
+
     private val testCourseId = UUID.randomUUID()
     private val testTutorId = UUID.randomUUID()
+    private val testUserId = UUID.randomUUID()
 
     @Test
     @WithMockUser
@@ -139,7 +143,8 @@ class CatalogControllerTest {
             displayOrder = 1
         )
         every { catalogService.getCourseById(testCourseId) } returns course
-        every { catalogService.getTutorsForCourse(testCourseId) } returns listOf(tutor)
+        every { catalogService.getTutorsForCourse(testCourseId, any()) } returns listOf(tutor)
+        every { authorizationService.getCurrentUserId() } throws IllegalStateException("Not authenticated")
         every { localizationService.getLocalizedText(any(), "en", any(), any()) } returns "Beginner Spanish"
 
         mockMvc.perform(
@@ -150,7 +155,7 @@ class CatalogControllerTest {
             .andExpect(jsonPath("$.id").value(testCourseId.toString()))
 
         verify { catalogService.getCourseById(testCourseId) }
-        verify { catalogService.getTutorsForCourse(testCourseId) }
+        verify { catalogService.getTutorsForCourse(testCourseId, null) }
     }
 
     @Test
@@ -171,7 +176,8 @@ class CatalogControllerTest {
             targetLanguageCode = "es",
             displayOrder = 1
         )
-        every { catalogService.getTutorsForLanguage("es") } returns listOf(tutor)
+        every { catalogService.getTutorsForLanguage("es", any()) } returns listOf(tutor)
+        every { authorizationService.getCurrentUserId() } throws IllegalStateException("Not authenticated")
         every { localizationService.getLocalizedText(any(), "en", any(), any()) } returns "Patient teacher"
 
         mockMvc.perform(
@@ -182,7 +188,7 @@ class CatalogControllerTest {
             .andExpect(jsonPath("$[0].id").value(testTutorId.toString()))
             .andExpect(jsonPath("$[0].name").value("Maria"))
 
-        verify { catalogService.getTutorsForLanguage("es") }
+        verify { catalogService.getTutorsForLanguage("es", null) }
     }
 
     @Test
@@ -203,7 +209,8 @@ class CatalogControllerTest {
             targetLanguageCode = "es",
             displayOrder = 1
         )
-        every { catalogService.getTutorById(testTutorId) } returns tutor
+        every { catalogService.getTutorById(testTutorId, any()) } returns tutor
+        every { authorizationService.getCurrentUserId() } throws IllegalStateException("Not authenticated")
         every { localizationService.getLocalizedText(any(), "en", any(), any()) } returns "Patient teacher"
 
         mockMvc.perform(
@@ -214,7 +221,7 @@ class CatalogControllerTest {
             .andExpect(jsonPath("$.id").value(testTutorId.toString()))
             .andExpect(jsonPath("$.name").value("Maria"))
 
-        verify { catalogService.getTutorById(testTutorId) }
+        verify { catalogService.getTutorById(testTutorId, null) }
     }
 
     @Test
@@ -236,7 +243,8 @@ class CatalogControllerTest {
     @Test
     @WithMockUser
     fun `should return empty list when no tutors for language`() {
-        every { catalogService.getTutorsForLanguage("it") } returns emptyList()
+        every { catalogService.getTutorsForLanguage("it", any()) } returns emptyList()
+        every { authorizationService.getCurrentUserId() } throws IllegalStateException("Not authenticated")
 
         mockMvc.perform(
             get("/api/v1/catalog/languages/it/tutors?locale=en")
@@ -246,7 +254,7 @@ class CatalogControllerTest {
             .andExpect(jsonPath("$").isArray)
             .andExpect(jsonPath("$").isEmpty)
 
-        verify { catalogService.getTutorsForLanguage("it") }
+        verify { catalogService.getTutorsForLanguage("it", null) }
     }
 
     @Test
@@ -302,7 +310,9 @@ class CatalogControllerTest {
             displayOrder = 0
         )
 
-        every { catalogService.createTutor(any()) } returns createdTutor
+        every { authorizationService.getCurrentUserId() } returns testUserId
+        every { authorizationService.isAdmin() } returns false
+        every { catalogService.createTutor(any(), any(), any()) } returns createdTutor
         every { localizationService.getLocalizedText(any(), "en", any(), any()) } answers { thirdArg() }
 
         mockMvc.perform(
@@ -327,7 +337,7 @@ class CatalogControllerTest {
             .andExpect(jsonPath("$.name").value("NewTutor"))
             .andExpect(jsonPath("$.personality").value("Encouraging"))
 
-        verify { catalogService.createTutor(any()) }
+        verify { catalogService.createTutor(any(), testUserId, false) }
     }
 
     @Test
@@ -353,7 +363,9 @@ class CatalogControllerTest {
             displayOrder = 0
         )
 
-        every { catalogService.createTutor(any()) } returns createdTutor
+        every { authorizationService.getCurrentUserId() } returns testUserId
+        every { authorizationService.isAdmin() } returns false
+        every { catalogService.createTutor(any(), any(), any()) } returns createdTutor
         every { localizationService.getLocalizedText(any(), "en", any(), any()) } answers {
             if (secondArg<String>() == "en") "From Spain" else thirdArg()
         }
@@ -379,7 +391,7 @@ class CatalogControllerTest {
             .andExpect(status().isCreated)
             .andExpect(jsonPath("$.culturalBackground").value("From Spain"))
 
-        verify { catalogService.createTutor(any()) }
+        verify { catalogService.createTutor(any(), testUserId, false) }
     }
 
     @Test
@@ -448,7 +460,8 @@ class CatalogControllerTest {
             displayOrder = 0
         )
 
-        every { catalogService.getTutorById(testTutorId) } returns tutor
+        every { catalogService.getTutorById(testTutorId, any()) } returns tutor
+        every { authorizationService.getCurrentUserId() } throws IllegalStateException("Not authenticated")
         every { localizationService.getLocalizedText(any(), "es", any(), any()) } answers {
             when (firstArg<String>()) {
                 """{"en": "friendly teacher", "es": "profesora amable"}""" -> "profesora amable"
@@ -469,7 +482,7 @@ class CatalogControllerTest {
             .andExpect(jsonPath("$.description").value("Una gran profesora"))
             .andExpect(jsonPath("$.culturalBackground").value("De España"))
 
-        verify { catalogService.getTutorById(testTutorId) }
+        verify { catalogService.getTutorById(testTutorId, null) }
     }
 
     @Test

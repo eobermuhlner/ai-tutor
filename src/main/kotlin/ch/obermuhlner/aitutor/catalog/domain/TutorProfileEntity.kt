@@ -82,6 +82,12 @@ class TutorProfileEntity(
     @Column(name = "display_order", nullable = false)
     var displayOrder: Int = 0,
 
+    @Column(name = "is_global", nullable = false)
+    var isGlobal: Boolean = true,
+
+    @Column(name = "created_by_user_id")
+    var createdByUserId: UUID? = null,
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     val createdAt: Instant? = null,

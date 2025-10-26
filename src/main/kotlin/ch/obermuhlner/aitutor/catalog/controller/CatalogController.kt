@@ -25,7 +25,8 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api/v1/catalog")
 class CatalogController(
     private val catalogService: CatalogService,
-    private val localizationService: LocalizationService
+    private val localizationService: LocalizationService,
+    private val authorizationService: ch.obermuhlner.aitutor.auth.service.AuthorizationService
 ) {
     private val objectMapper = jacksonObjectMapper()
 
@@ -76,7 +77,9 @@ class CatalogController(
         @RequestParam(required = false, defaultValue = "en") locale: String
     ): CourseDetailResponse? {
         val course = catalogService.getCourseById(courseId) ?: return null
-        val suggestedTutors = catalogService.getTutorsForCourse(courseId).map { tutor ->
+        // Get current user for tutor visibility filtering (null if not authenticated)
+        val userId = try { authorizationService.getCurrentUserId() } catch (e: Exception) { null }
+        val suggestedTutors = catalogService.getTutorsForCourse(courseId, userId).map { tutor ->
             TutorResponse(
                 id = tutor.id,
                 name = tutor.name,
@@ -135,7 +138,9 @@ class CatalogController(
         @PathVariable languageCode: String,
         @RequestParam(required = false, defaultValue = "en") locale: String
     ): List<TutorResponse> {
-        return catalogService.getTutorsForLanguage(languageCode).map { tutor ->
+        // Get current user for tutor visibility filtering (null if not authenticated)
+        val userId = try { authorizationService.getCurrentUserId() } catch (e: Exception) { null }
+        return catalogService.getTutorsForLanguage(languageCode, userId).map { tutor ->
             TutorResponse(
                 id = tutor.id,
                 name = tutor.name,
@@ -163,7 +168,9 @@ class CatalogController(
         @PathVariable tutorId: UUID,
         @RequestParam(required = false, defaultValue = "en") locale: String
     ): TutorDetailResponse? {
-        val tutor = catalogService.getTutorById(tutorId) ?: return null
+        // Get current user for tutor visibility filtering (null if not authenticated)
+        val userId = try { authorizationService.getCurrentUserId() } catch (e: Exception) { null }
+        val tutor = catalogService.getTutorById(tutorId, userId) ?: return null
         return TutorDetailResponse(
             id = tutor.id,
             name = tutor.name,
@@ -192,7 +199,11 @@ class CatalogController(
         @RequestBody request: CreateTutorRequest,
         @RequestParam(required = false, defaultValue = "en") locale: String
     ): TutorDetailResponse {
-        val tutor = catalogService.createTutor(request)
+        // Get authenticated user (required for creating tutors)
+        val currentUserId = authorizationService.getCurrentUserId()
+        val isAdmin = authorizationService.isAdmin()
+
+        val tutor = catalogService.createTutor(request, currentUserId, isAdmin)
         return TutorDetailResponse(
             id = tutor.id,
             name = tutor.name,

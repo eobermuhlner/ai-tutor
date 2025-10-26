@@ -342,7 +342,8 @@ Accept: application/json
 GET {{host}}/api/v1/catalog/tutors/{{tutorId}}?sourceLanguage=en
 Accept: application/json
 
-### Create New Tutor
+### Create User-Specific Custom Tutor
+# Creates a private custom tutor visible only to the authenticated user
 # @name createTutor
 POST {{host}}/api/v1/catalog/tutors
 Authorization: Bearer {{accessToken}}
@@ -364,6 +365,32 @@ Content-Type: application/json
 
 > {%
     client.global.set("newTutorId", response.body.id);
+%}
+
+### Create Global Custom Tutor (Admin Only)
+# Creates a global tutor visible to all users (requires ADMIN role)
+# @name createGlobalTutor
+POST {{host}}/api/v1/catalog/tutors
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Elena",
+  "emoji": "👩‍🏫",
+  "personaEnglish": "patient and encouraging teacher",
+  "domainEnglish": "conversational Spanish, cultural topics",
+  "descriptionEnglish": "Elena specializes in conversational Spanish and helps learners understand Hispanic culture",
+  "culturalBackground": "From Barcelona, Spain with experience teaching international students",
+  "personality": "Encouraging",
+  "teachingStyle": "Reactive",
+  "targetLanguageCode": "es",
+  "isActive": true,
+  "displayOrder": 50,
+  "isGlobal": true
+}
+
+> {%
+    client.global.set("globalTutorId", response.body.id);
 %}
 
 ###

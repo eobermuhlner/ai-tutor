@@ -18,5 +18,6 @@ data class CreateTutorRequest(
     val teachingStyle: TeachingStyle = TeachingStyle.Reactive,
     val targetLanguageCode: String,
     val isActive: Boolean = true,
-    val displayOrder: Int = 0
+    val displayOrder: Int = 0,
+    val isGlobal: Boolean? = null  // Only admins can set this to true
 )

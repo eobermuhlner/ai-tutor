@@ -195,12 +195,13 @@ class CatalogServiceTest {
     fun `should get tutors for language`() {
         val tutor1 = createTutor("Maria")
         val tutor2 = createTutor("Carlos")
-        every { tutorProfileRepository.findByTargetLanguageCodeAndIsActiveTrueOrderByDisplayOrder("es") } returns listOf(tutor1, tutor2)
+        // When no userId is provided, should fetch only global tutors
+        every { tutorProfileRepository.findByTargetLanguageCodeAndIsActiveTrueAndIsGlobalTrueOrderByDisplayOrder("es") } returns listOf(tutor1, tutor2)
 
-        val tutors = catalogService.getTutorsForLanguage("es")
+        val tutors = catalogService.getTutorsForLanguage("es", userId = null)
 
         assertEquals(2, tutors.size)
-        verify { tutorProfileRepository.findByTargetLanguageCodeAndIsActiveTrueOrderByDisplayOrder("es") }
+        verify { tutorProfileRepository.findByTargetLanguageCodeAndIsActiveTrueAndIsGlobalTrueOrderByDisplayOrder("es") }
     }
 
     @Test
@@ -237,9 +238,9 @@ class CatalogServiceTest {
         )
 
         every { courseTemplateRepository.findById(testCourseId) } returns Optional.of(course)
-        every { tutorProfileRepository.findByTargetLanguageCodeAndIsActiveTrueOrderByDisplayOrder("es") } returns listOf(tutor1, tutor2, tutor3)
+        every { tutorProfileRepository.findByTargetLanguageCodeAndIsActiveTrueAndIsGlobalTrueOrderByDisplayOrder("es") } returns listOf(tutor1, tutor2, tutor3)
 
-        val tutors = catalogService.getTutorsForCourse(testCourseId)
+        val tutors = catalogService.getTutorsForCourse(testCourseId, userId = null)
 
         assertEquals(3, tutors.size)
         // Suggested tutors should be first, in the suggested order
@@ -255,9 +256,9 @@ class CatalogServiceTest {
         val course = createCourse(CEFRLevel.A1, suggestedTutorIds = null)
 
         every { courseTemplateRepository.findById(testCourseId) } returns Optional.of(course)
-        every { tutorProfileRepository.findByTargetLanguageCodeAndIsActiveTrueOrderByDisplayOrder("es") } returns listOf(tutor1, tutor2)
+        every { tutorProfileRepository.findByTargetLanguageCodeAndIsActiveTrueAndIsGlobalTrueOrderByDisplayOrder("es") } returns listOf(tutor1, tutor2)
 
-        val tutors = catalogService.getTutorsForCourse(testCourseId)
+        val tutors = catalogService.getTutorsForCourse(testCourseId, userId = null)
 
         assertEquals(2, tutors.size)
     }
@@ -266,7 +267,7 @@ class CatalogServiceTest {
     fun `should return empty list for non-existent course in getTutorsForCourse`() {
         every { courseTemplateRepository.findById(testCourseId) } returns Optional.empty()
 
-        val tutors = catalogService.getTutorsForCourse(testCourseId)
+        val tutors = catalogService.getTutorsForCourse(testCourseId, userId = null)
 
         assertEquals(0, tutors.size)
     }
@@ -277,9 +278,9 @@ class CatalogServiceTest {
         val tutor1 = createTutor("Maria")
 
         every { courseTemplateRepository.findById(testCourseId) } returns Optional.of(course)
-        every { tutorProfileRepository.findByTargetLanguageCodeAndIsActiveTrueOrderByDisplayOrder("es") } returns listOf(tutor1)
+        every { tutorProfileRepository.findByTargetLanguageCodeAndIsActiveTrueAndIsGlobalTrueOrderByDisplayOrder("es") } returns listOf(tutor1)
 
-        val tutors = catalogService.getTutorsForCourse(testCourseId)
+        val tutors = catalogService.getTutorsForCourse(testCourseId, userId = null)
 
         // Should fall back to returning all tutors
         assertEquals(1, tutors.size)
@@ -302,9 +303,10 @@ class CatalogServiceTest {
         )
 
         val savedTutor = createTutor("Maria")
+        val testUserId = UUID.randomUUID()
         every { tutorProfileRepository.save(any()) } returns savedTutor
 
-        val result = catalogService.createTutor(request)
+        val result = catalogService.createTutor(request, testUserId, isAdminRequest = false)
 
         assertNotNull(result)
         assertEquals("Maria", result.name)
@@ -328,9 +330,10 @@ class CatalogServiceTest {
         )
 
         val savedTutor = createTutor("Carlos")
+        val testUserId = UUID.randomUUID()
         every { tutorProfileRepository.save(any()) } returns savedTutor
 
-        val result = catalogService.createTutor(request)
+        val result = catalogService.createTutor(request, testUserId, isAdminRequest = false)
 
         assertNotNull(result)
         verify { tutorProfileRepository.save(any()) }

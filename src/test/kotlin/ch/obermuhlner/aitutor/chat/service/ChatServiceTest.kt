@@ -542,7 +542,8 @@ class ChatServiceTest {
         every { course.defaultPhase } returns ch.obermuhlner.aitutor.tutor.domain.ConversationPhase.Free
         every { course.startingLevel } returns ch.obermuhlner.aitutor.core.model.CEFRLevel.A1
 
-        val tutor = mockk<ch.obermuhlner.aitutor.catalog.domain.TutorProfileEntity>()
+        val tutor = mockk<ch.obermuhlner.aitutor.catalog.domain.TutorProfileEntity>(relaxed = true)
+        every { tutor.id } returns tutorId
         every { tutor.name } returns "Maria"
         every { tutor.personaEnglish } returns "friendly"
         every { tutor.domainEnglish } returns "general"
@@ -550,11 +551,14 @@ class ChatServiceTest {
         every { tutor.targetLanguageCode } returns "es"
         every { tutor.voiceId } returns ch.obermuhlner.aitutor.core.model.catalog.TutorVoice.Warm
         every { tutor.gender } returns ch.obermuhlner.aitutor.core.model.catalog.TutorGender.Female
+        every { tutor.age } returns 30
+        every { tutor.location } returns "Spain"
+        every { tutor.emoji } returns "👩‍🏫"
 
         val savedSession = TestDataFactory.createSessionEntity()
 
         every { catalogService.getCourseById(courseId) } returns course
-        every { catalogService.getTutorById(tutorId) } returns tutor
+        every { catalogService.getTutorById(tutorId, TestDataFactory.TEST_USER_ID) } returns tutor
         every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns savedSession
 
         val result = chatService.createSessionFromCourse(
@@ -567,7 +571,7 @@ class ChatServiceTest {
 
         assertNotNull(result)
         verify { catalogService.getCourseById(courseId) }
-        verify { catalogService.getTutorById(tutorId) }
+        verify { catalogService.getTutorById(tutorId, TestDataFactory.TEST_USER_ID) }
         verify { chatSessionRepository.save(any<ChatSessionEntity>()) }
     }
 
@@ -598,7 +602,7 @@ class ChatServiceTest {
         val course = mockk<ch.obermuhlner.aitutor.catalog.domain.CourseTemplateEntity>()
 
         every { catalogService.getCourseById(courseId) } returns course
-        every { catalogService.getTutorById(tutorId) } returns null
+        every { catalogService.getTutorById(tutorId, any()) } returns null
 
         val result = chatService.createSessionFromCourse(
             TestDataFactory.TEST_USER_ID,
@@ -608,7 +612,7 @@ class ChatServiceTest {
         )
 
         assertNull(result)
-        verify { catalogService.getTutorById(tutorId) }
+        verify { catalogService.getTutorById(tutorId, any()) }
         verify(exactly = 0) { chatSessionRepository.save(any()) }
     }
 

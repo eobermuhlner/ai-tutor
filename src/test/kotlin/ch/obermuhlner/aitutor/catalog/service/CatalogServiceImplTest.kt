@@ -219,9 +219,9 @@ class CatalogServiceImplTest {
             isActive = true,
             displayOrder = 0
         )
-        every { tutorRepository.findByTargetLanguageCodeAndIsActiveTrueOrderByDisplayOrder("es") } returns listOf(tutor)
+        every { tutorRepository.findByTargetLanguageCodeAndIsActiveTrueAndIsGlobalTrueOrderByDisplayOrder("es") } returns listOf(tutor)
 
-        val result = service.getTutorsForLanguage("es")
+        val result = service.getTutorsForLanguage("es", userId = null)
 
         assertEquals(1, result.size)
         assertEquals("Maria", result[0].name)
@@ -244,11 +244,12 @@ class CatalogServiceImplTest {
             personality = TutorPersonality.Encouraging,
             targetLanguageCode = "es",
             isActive = true,
-            displayOrder = 0
+            displayOrder = 0,
+            isGlobal = true
         )
         every { tutorRepository.findById(id) } returns Optional.of(tutor)
 
-        val result = service.getTutorById(id)
+        val result = service.getTutorById(id, userId = null)
 
         assertNotNull(result)
         assertEquals(id, result?.id)
@@ -288,9 +289,9 @@ class CatalogServiceImplTest {
             displayOrder = 0
         )
         every { courseRepository.findById(courseId) } returns Optional.of(course)
-        every { tutorRepository.findByTargetLanguageCodeAndIsActiveTrueOrderByDisplayOrder("es") } returns listOf(tutor)
+        every { tutorRepository.findByTargetLanguageCodeAndIsActiveTrueAndIsGlobalTrueOrderByDisplayOrder("es") } returns listOf(tutor)
 
-        val result = service.getTutorsForCourse(courseId)
+        val result = service.getTutorsForCourse(courseId, userId = null)
 
         assertEquals(1, result.size)
         assertEquals("Maria", result[0].name)

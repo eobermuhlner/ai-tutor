@@ -108,7 +108,9 @@ class SeedDataService(
                     age = variant.age,
                     targetLanguageCode = language.code,
                     isActive = true,
-                    displayOrder = variant.displayOrderOverride ?: archetype.displayOrder
+                    displayOrder = variant.displayOrderOverride ?: archetype.displayOrder,
+                    isGlobal = true,  // Seed tutors are global (visible to all users)
+                    createdByUserId = null  // No specific owner for seed tutors
                 )
             }
         }

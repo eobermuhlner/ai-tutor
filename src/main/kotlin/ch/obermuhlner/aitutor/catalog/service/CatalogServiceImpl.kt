@@ -68,19 +68,30 @@ class CatalogServiceImpl(
         }
     }
 
-    override fun getTutorsForLanguage(targetLanguageCode: String): List<TutorProfileEntity> {
-        return tutorProfileRepository.findByTargetLanguageCodeAndIsActiveTrueOrderByDisplayOrder(targetLanguageCode)
+    override fun getTutorsForLanguage(targetLanguageCode: String, userId: UUID?): List<TutorProfileEntity> {
+        return if (userId != null) {
+            // Filter by visibility: global tutors + user's own custom tutors
+            tutorProfileRepository.findVisibleTutorsForUser(targetLanguageCode, userId)
+        } else {
+            // No user context: return only global tutors
+            tutorProfileRepository.findByTargetLanguageCodeAndIsActiveTrueAndIsGlobalTrueOrderByDisplayOrder(targetLanguageCode)
+        }
     }
 
-    override fun getTutorById(tutorId: UUID): TutorProfileEntity? {
-        return tutorProfileRepository.findById(tutorId).orElse(null)
+    override fun getTutorById(tutorId: UUID, userId: UUID?): TutorProfileEntity? {
+        val tutor = tutorProfileRepository.findById(tutorId).orElse(null) ?: return null
+
+        // Check visibility: global tutors are visible to all, custom tutors only to owner
+        val isVisible = tutor.isGlobal || (userId != null && tutor.createdByUserId == userId)
+
+        return if (isVisible) tutor else null
     }
 
-    override fun getTutorsForCourse(courseTemplateId: UUID): List<TutorProfileEntity> {
+    override fun getTutorsForCourse(courseTemplateId: UUID, userId: UUID?): List<TutorProfileEntity> {
         val course = getCourseById(courseTemplateId) ?: return emptyList()
 
-        // Get all tutors for this language
-        val allTutors = getTutorsForLanguage(course.languageCode)
+        // Get all tutors for this language (filtered by visibility)
+        val allTutors = getTutorsForLanguage(course.languageCode, userId)
 
         // Parse suggested tutor IDs from JSON
         val suggestedIds = course.suggestedTutorIdsJson?.let {
@@ -103,8 +114,18 @@ class CatalogServiceImpl(
         return suggestedTutors + remainingTutors
     }
 
-    override fun createTutor(request: CreateTutorRequest): TutorProfileEntity {
+    override fun createTutor(request: CreateTutorRequest, creatorUserId: UUID, isAdminRequest: Boolean): TutorProfileEntity {
         logger.info("Creating new tutor: ${request.name} for language ${request.targetLanguageCode}")
+
+        // Determine if tutor should be global
+        // Admin can explicitly request global tutor, otherwise user-specific
+        val isGlobal = if (isAdminRequest && request.isGlobal == true) {
+            logger.info("Admin creating global tutor")
+            true
+        } else {
+            logger.info("Creating user-specific tutor for user $creatorUserId")
+            false
+        }
 
         // Create JSON with English as default locale
         val personaJson = objectMapper.writeValueAsString(mapOf("en" to request.personaEnglish))
@@ -131,11 +152,13 @@ class CatalogServiceImpl(
             teachingStyle = request.teachingStyle,
             targetLanguageCode = request.targetLanguageCode,
             isActive = request.isActive,
-            displayOrder = request.displayOrder
+            displayOrder = request.displayOrder,
+            isGlobal = isGlobal,
+            createdByUserId = creatorUserId
         )
 
         val saved = tutorProfileRepository.save(tutor)
-        logger.info("Created tutor with ID: ${saved.id}")
+        logger.info("Created tutor with ID: ${saved.id}, isGlobal: $isGlobal")
         return saved
     }
 }

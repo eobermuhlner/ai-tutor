@@ -20,10 +20,10 @@ interface CatalogService {
     fun searchCourses(query: String, languageCode: String? = null): List<CourseTemplateEntity>
 
     // Tutor browsing
-    fun getTutorsForLanguage(targetLanguageCode: String): List<TutorProfileEntity>
-    fun getTutorById(tutorId: UUID): TutorProfileEntity?
-    fun getTutorsForCourse(courseTemplateId: UUID): List<TutorProfileEntity>
+    fun getTutorsForLanguage(targetLanguageCode: String, userId: UUID? = null): List<TutorProfileEntity>
+    fun getTutorById(tutorId: UUID, userId: UUID? = null): TutorProfileEntity?
+    fun getTutorsForCourse(courseTemplateId: UUID, userId: UUID? = null): List<TutorProfileEntity>
 
     // Tutor management
-    fun createTutor(request: CreateTutorRequest): TutorProfileEntity
+    fun createTutor(request: CreateTutorRequest, creatorUserId: UUID, isAdminRequest: Boolean = false): TutorProfileEntity
 }
