@@ -1,0 +1,19 @@
+courseId: ja-japanese-hiragana-and-katakana
+progressionMode: TIME_BASED
+lessons:
+  - id: week-01-hiragana-vowels-consonants
+    file: week-01-hiragana-vowels-consonants.md
+    minimumDays: 7
+    requiredTurns: 10
+  - id: week-02-hiragana-complex-syllables
+    file: week-02-hiragana-complex-syllables.md
+    minimumDays: 7
+    requiredTurns: 10
+  - id: week-03-katakana-basics
+    file: week-03-katakana-basics.md
+    minimumDays: 7
+    requiredTurns: 10
+  - id: week-04-katakana-advanced
+    file: week-04-katakana-advanced.md
+    minimumDays: 7
+    requiredTurns: 10

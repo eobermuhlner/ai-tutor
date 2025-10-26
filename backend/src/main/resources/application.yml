@@ -820,6 +820,21 @@ ai-tutor:
           - Navigate Swiss social situations
         displayOrder: 1
       - languageCode: ja-JP
+        nameEnglish: Japanese Hiragana and Katakana
+        shortDescriptionEnglish: Master the two basic Japanese scripts from zero
+        descriptionEnglish: Learn hiragana and katakana from scratch with focused practice and minimal vocabulary
+        category: General
+        targetAudienceEnglish: Complete beginners to Japanese who want to start with the scripts
+        startingLevel: None
+        targetLevel: A1
+        estimatedWeeks: 4
+        learningGoalsEnglish:
+          - Master all hiragana characters
+          - Master all katakana characters
+          - Convert between romaji and kana
+          - Read basic words and practice pronunciation
+        displayOrder: 0
+      - languageCode: ja-JP
         nameEnglish: Japanese for Beginners
         shortDescriptionEnglish: Start your Japanese journey from zero
         descriptionEnglish: Learn hiragana, katakana, and basic Japanese conversation step by step
@@ -833,7 +848,7 @@ ai-tutor:
           - Learn basic kanji
           - Understand Japanese sentence structure
           - Practice polite conversation
-        displayOrder: 0
+        displayOrder: 1
       - languageCode: ja-JP
         nameEnglish: Japanese for Travelers
         shortDescriptionEnglish: Essential phrases for tourists visiting Japan
@@ -849,7 +864,7 @@ ai-tutor:
           - Order food at restaurants
           - Ask for directions and help
           - Handle basic situations
-        displayOrder: 1
+        displayOrder: 2
       - languageCode: ja-JP
         nameEnglish: Japanese Grammar Fundamentals
         shortDescriptionEnglish: Build a strong foundation in Japanese grammar
@@ -864,7 +879,7 @@ ai-tutor:
           - Learn verb conjugation patterns
           - Understand sentence structure (SOV)
           - Build essential vocabulary
-        displayOrder: 2
+        displayOrder: 3
       - languageCode: ko-KR
         nameEnglish: Conversational Korean
         shortDescriptionEnglish: Master everyday Korean conversations
