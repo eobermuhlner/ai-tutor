@@ -880,6 +880,21 @@ ai-tutor:
           - Understand sentence structure (SOV)
           - Build essential vocabulary
         displayOrder: 3
+      - languageCode: ja-JP
+        nameEnglish: Japanese Kanji N5
+        shortDescriptionEnglish: Master the 2,136 basic Japanese characters (Jōyō kanji) for beginners
+        descriptionEnglish: Learn all 2,136 Jōyō kanji characters at N5 level with vocabulary, stroke order, and practical usage
+        category: General
+        targetAudienceEnglish: Beginners wanting to master Japanese characters from zero
+        startingLevel: None
+        targetLevel: A1
+        estimatedWeeks: 10
+        learningGoalsEnglish:
+          - Master 2,136 basic kanji characters (N5 level)
+          - Learn correct stroke order and formation
+          - Use kanji in common vocabulary and phrases
+          - Build reading foundation for Japanese text
+        displayOrder: 4
       - languageCode: ko-KR
         nameEnglish: Conversational Korean
         shortDescriptionEnglish: Master everyday Korean conversations
