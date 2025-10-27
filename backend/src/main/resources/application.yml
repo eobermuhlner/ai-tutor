@@ -944,6 +944,21 @@ ai-tutor:
           - Build vocabulary for storytelling and fantasy settings
         displayOrder: 3
       - languageCode: ko-KR
+        nameEnglish: Korean Hangul and Pronunciation
+        shortDescriptionEnglish: Master the Korean writing system from zero
+        descriptionEnglish: Learn Hangul from scratch with focused practice and minimal vocabulary
+        category: General
+        targetAudienceEnglish: Complete beginners to Korean who want to start with the writing system
+        startingLevel: None
+        targetLevel: A1
+        estimatedWeeks: 4
+        learningGoalsEnglish:
+          - Master all Hangul characters
+          - Understand syllable block formation
+          - Convert between romanization and Hangul
+          - Read basic words and practice pronunciation
+        displayOrder: 0
+      - languageCode: ko-KR
         nameEnglish: Korean Grammar Fundamentals
         shortDescriptionEnglish: Build a strong foundation in Korean grammar
         descriptionEnglish: Comprehensive beginner to intermediate Korean course covering grammar, verb conjugations, honorifics, and sentence structure
@@ -958,7 +973,7 @@ ai-tutor:
           - Understand honorific speech levels
           - Build essential vocabulary
           - Form correct sentences
-        displayOrder: 3
+        displayOrder: 1
       - languageCode: zh-CN
         nameEnglish: Mandarin Pinyin Starter
         shortDescriptionEnglish: Build tones and pinyin fundamentals from zero
