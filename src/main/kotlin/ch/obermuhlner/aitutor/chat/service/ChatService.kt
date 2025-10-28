@@ -493,6 +493,188 @@ class ChatService(
     }
 
     /**
+     * Initiates a tutor message without requiring a user message first.
+     * Used for welcome messages when starting a course or re-engagement after inactivity.
+     *
+     * @param sessionId The chat session ID
+     * @param currentUserId The current user ID (for ownership validation)
+     * @param initiationContext Context for the initiation: "welcome" or "reengage"
+     * @param onReplyChunk Callback for streaming response chunks
+     * @return The generated assistant message response, or null if session not found or unauthorized
+     */
+    @Transactional
+    fun initiateTutorMessage(
+        sessionId: UUID,
+        currentUserId: UUID,
+        initiationContext: String = "welcome",
+        onReplyChunk: (String) -> Unit = {}
+    ): MessageResponse? {
+        val session = chatSessionRepository.findById(sessionId).orElse(null) ?: return null
+
+        // Validate ownership
+        if (session.userId != currentUserId) {
+            return null
+        }
+
+        logger.info("Tutor initiating message for session $sessionId (context: $initiationContext)")
+
+        // Calculate next sequence number (no user message to save)
+        val maxSequence = chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(sessionId)
+            .maxOfOrNull { it.sequenceNumber } ?: -1
+        val nextSequence = maxSequence + 1
+
+        // Build message history (may be empty for new sessions)
+        val messageHistory = buildMessageHistory(sessionId)
+
+        // Call tutor service with initiation context
+        val tutor = Tutor(
+            name = session.tutorName,
+            persona = session.tutorPersona,
+            domain = session.tutorDomain,
+            teachingStyle = session.tutorTeachingStyle,
+            sourceLanguageCode = session.sourceLanguageCode,
+            targetLanguageCode = session.targetLanguageCode,
+            gender = session.tutorGender,
+            age = session.tutorAge,
+            location = session.tutorLocation
+        )
+
+        // Initialize effectivePhase if null (migration case)
+        if (session.effectivePhase == null) {
+            session.effectivePhase = if (session.conversationPhase == ConversationPhase.Auto) {
+                ConversationPhase.Correction
+            } else {
+                session.conversationPhase
+            }
+        }
+
+        // Resolve effective phase and compute decision metadata
+        val allMessages = chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(sessionId)
+
+        val phaseDecision = if (session.conversationPhase == ConversationPhase.Auto) {
+            phaseDecisionService.decidePhase(session.conversationPhase, allMessages)
+        } else {
+            PhaseDecision(
+                phase = session.conversationPhase,
+                reason = "User-selected phase",
+                severityScore = 0.0
+            )
+        }
+
+        val topicMetadata = topicDecisionService.decideTopic(
+            currentTopic = session.currentTopic,
+            llmProposedTopic = session.currentTopic,
+            recentMessages = allMessages,
+            pastTopicsJson = session.pastTopicsJson
+        )
+
+        // Get due vocabulary count if review mode enabled
+        val dueCount = if (session.vocabularyReviewMode) {
+            val count = vocabularyReviewService.getDueCount(session.userId, session.targetLanguageCode)
+            if (count > 0) {
+                logger.info("Vocabulary review mode active: session=$sessionId, dueCount=$count")
+            }
+            count
+        } else {
+            null
+        }
+
+        // Build conversation state with initiation context
+        val conversationState = ConversationState(
+            phase = phaseDecision.phase,
+            estimatedCEFRLevel = session.estimatedCEFRLevel,
+            currentTopic = session.currentTopic,
+            phaseReason = phaseDecision.reason,
+            topicEligibilityStatus = topicMetadata.eligibilityStatus,
+            pastTopics = topicMetadata.pastTopics,
+            vocabularyReviewMode = session.vocabularyReviewMode,
+            dueVocabularyCount = dueCount,
+            initiationContext = initiationContext  // Special flag for tutor-initiated messages
+        )
+
+        val tutorResponse = try {
+            tutorService.respond(tutor, conversationState, session.userId, messageHistory, session.id, session, onReplyChunk)
+        } catch (e: Exception) {
+            logger.error("ChatModel call failed for tutor-initiated message: session=${session.id}, user=${session.userId}", e)
+            null
+        }
+
+        if (tutorResponse == null) {
+            val errorMessage = technicalErrorMessage
+            val errorAssistantMessage = ChatMessageEntity(
+                session = session,
+                role = MessageRole.ASSISTANT,
+                content = errorMessage,
+                sequenceNumber = nextSequence
+            )
+            val savedAssistantMessage = chatMessageRepository.save(errorAssistantMessage)
+            return toMessageResponse(savedAssistantMessage, errorMessage)
+        }
+
+        // Update effective phase
+        if (session.conversationPhase == ConversationPhase.Auto) {
+            session.effectivePhase = phaseDecision.phase
+            logger.debug("Auto mode: effectivePhase updated to ${phaseDecision.phase} (${phaseDecision.reason})")
+        } else {
+            session.effectivePhase = session.conversationPhase
+        }
+        session.estimatedCEFRLevel = tutorResponse.conversationResponse.conversationState.estimatedCEFRLevel
+
+        // Handle topic changes
+        val llmProposedTopic = tutorResponse.conversationResponse.conversationState.currentTopic
+        val topicDecision = topicDecisionService.decideTopic(
+            currentTopic = session.currentTopic,
+            llmProposedTopic = llmProposedTopic,
+            recentMessages = allMessages,
+            pastTopicsJson = session.pastTopicsJson
+        )
+
+        if (topicDecision.topic != session.currentTopic) {
+            if (session.currentTopic != null) {
+                if (topicDecisionService.shouldArchiveTopic(session.currentTopic, topicDecision.turnCount)) {
+                    archiveTopic(session, session.currentTopic!!)
+                }
+            }
+            session.currentTopic = topicDecision.topic
+        }
+
+        chatSessionRepository.save(session)
+
+        // Save assistant message
+        val assistantMessage = ChatMessageEntity(
+            session = session,
+            role = MessageRole.ASSISTANT,
+            content = tutorResponse.reply,
+            correctionsJson = if (tutorResponse.conversationResponse.corrections.isNotEmpty())
+                objectMapper.writeValueAsString(tutorResponse.conversationResponse.corrections) else null,
+            vocabularyJson = if (tutorResponse.conversationResponse.newVocabulary.isNotEmpty())
+                objectMapper.writeValueAsString(tutorResponse.conversationResponse.newVocabulary) else null,
+            wordCardsJson = if (tutorResponse.conversationResponse.wordCards.isNotEmpty())
+                objectMapper.writeValueAsString(tutorResponse.conversationResponse.wordCards) else null,
+            sequenceNumber = nextSequence
+        )
+        val savedAssistantMessage = chatMessageRepository.save(assistantMessage)
+
+        // Track vocabulary
+        if (tutorResponse.conversationResponse.newVocabulary.isNotEmpty()) {
+            vocabularyService.addNewVocabulary(
+                userId = session.userId,
+                lang = session.targetLanguageCode,
+                items = tutorResponse.conversationResponse.newVocabulary.map {
+                    NewVocabularyDTO(it.lemma, it.context, it.conceptName)
+                },
+                turnId = savedAssistantMessage.id
+            )
+        }
+
+        // Note: We don't record error analytics for tutor-initiated messages
+        // since there's no user input to correct
+
+        logger.info("Tutor message initiated successfully for session $sessionId (context: $initiationContext)")
+        return toMessageResponse(savedAssistantMessage)
+    }
+
+    /**
      * Determines the initial CEFR level for a new session.
      * First checks the user's language proficiencies in their profile for the target language.
      * If found and has a CEFR level, returns that level; otherwise returns the provided default.

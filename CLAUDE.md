@@ -33,6 +33,8 @@ Language learning assistant with conversational AI tutoring and vocabulary track
   - GET `/sessions/{id}/topics/history` - Get topic history
   - POST `/sessions/{id}/messages` - Send message
   - POST `/sessions/{id}/messages/stream` - Send message with SSE streaming
+  - POST `/sessions/{id}/messages/initiate` - Tutor initiates message without user input (welcome/re-engagement)
+  - POST `/sessions/{id}/messages/initiate/stream` - Tutor initiates message with SSE streaming
   - DELETE `/sessions/{id}` - Delete session
 - **CatalogController** - Catalog browsing REST endpoints (`/api/v1/catalog/*`)
   - GET `/languages?sourceLanguage={lang}` - List available languages
@@ -62,7 +64,7 @@ Language learning assistant with conversational AI tutoring and vocabulary track
 - **AssessmentController** - CEFR skill assessment REST endpoints (`/api/v1/assessment/*`)
   - GET `/sessions/{id}/skills` - Get skill-specific CEFR breakdown (grammar, vocabulary, fluency, comprehension)
   - POST `/sessions/{id}/reassess` - Trigger manual reassessment of all skill levels
-- **ChatService** - Session/message orchestration, integrates TutorService
+- **ChatService** - Session/message orchestration, integrates TutorService, supports tutor-initiated messages
 - **CatalogService** - Browse languages, courses, and tutors with localization
 - **UserLanguageService** - Manage user's language proficiency profiles
 - **LocalizationService** - Handle multilingual content with AI translation fallback
@@ -127,6 +129,14 @@ Language learning assistant with conversational AI tutoring and vocabulary track
   - Async execution: Summarization runs in background, doesn't block requests
   - Token optimization: Aggressive compaction with preserved context quality
   - Monitoring: REST endpoints for tracking summary statistics and compression ratios
+- **Tutor-Initiated Messages**: Tutor can send first message without user input
+  - Welcome messages: Tutor greets and introduces course when session starts
+  - Re-engagement (two-tier system):
+    - Light re-engagement (1-7 days): Brief, casual continuation message
+    - Full re-engagement (7+ days): Warm welcome-back with context and motivation
+  - Implementation: POST `/sessions/{id}/messages/initiate` with context ("welcome", "reengage-light", or "reengage")
+  - System prompt adapts based on initiation context to generate appropriate greeting
+  - No dummy user messages stored in database - clean semantic model
 
 ## Commands
 - `./gradlew runServer` - Run REST API server (requires AI provider configuration: OpenAI, Azure OpenAI, or Ollama)
@@ -164,9 +174,10 @@ ch.obermuhlner.aitutor
 │   ├── domain/             # ChatSessionEntity (extended with course fields), ChatMessageEntity, MessageRole,
 │   │                       # MessageSummaryEntity, SummarySourceType
 │   └── dto/                # CreateSessionRequest, SessionResponse, SendMessageRequest,
-│                           # MessageResponse, SessionWithMessagesResponse, UpdatePhaseRequest,
-│                           # UpdateTopicRequest, UpdateTeachingStyleRequest, TopicHistoryResponse,
-│                           # CreateSessionFromCourseRequest, SessionWithProgressResponse, SessionProgressResponse,
+│                           # InitiateTutorMessageRequest, MessageResponse, SessionWithMessagesResponse,
+│                           # UpdatePhaseRequest, UpdateTopicRequest, UpdateTeachingStyleRequest,
+│                           # TopicHistoryResponse, CreateSessionFromCourseRequest,
+│                           # SessionWithProgressResponse, SessionProgressResponse,
 │                           # SessionSummaryInfoResponse, SummaryLevelInfo, SummaryDetailResponse
 ├── catalog/                # Catalog-based tutor/course management
 │   ├── controller/         # CatalogController (/api/v1/catalog)

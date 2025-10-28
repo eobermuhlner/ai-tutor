@@ -58,6 +58,9 @@ class TutorService(
     @Value("\${ai-tutor.prompts.teaching-style.guided}") private val teachingStyleGuidedTemplate: String,
     @Value("\${ai-tutor.prompts.teaching-style.directive}") private val teachingStyleDirectiveTemplate: String,
     @Value("\${ai-tutor.prompts.lesson}") private val lessonPrompt: String,
+    @Value("\${ai-tutor.prompts.initiate-welcome}") private val initiateWelcomeTemplate: String,
+    @Value("\${ai-tutor.prompts.initiate-reengage}") private val initiateReengageTemplate: String,
+    @Value("\${ai-tutor.prompts.initiate-reengage-light}") private val initiateReengageLightTemplate: String,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -377,6 +380,54 @@ class TutorService(
             append("\nVocabulary Review Mode: ACTIVE\n")
             append("Due for Review: ${conversationState.dueVocabularyCount} words\n")
             append("Guidance: Naturally integrate 2-3 due vocabulary words into the conversation. Ask the learner to use them, or prompt recall (e.g., 'Do you remember the word for...'). Keep it conversational, not quiz-like.\n")
+        }
+
+        // Tutor-initiated message guidance
+        if (conversationState.initiationContext != null) {
+            append("\n=== Tutor-Initiated Message ===\n")
+            when (conversationState.initiationContext) {
+                "welcome" -> {
+                    val learningContext = if (currentLesson != null) {
+                        "the course"
+                    } else {
+                        "this conversation session"
+                    }
+                    val lessonContext = if (currentLesson != null) {
+                        "First Lesson: ${currentLesson.title}\nFocus Areas: ${currentLesson.focusAreas.joinToString(", ")}"
+                    } else {
+                        "Free conversation - no structured lesson"
+                    }
+                    append(PromptTemplate(initiateWelcomeTemplate).render(mapOf(
+                        "learningContext" to learningContext,
+                        "lessonContext" to lessonContext,
+                        "tutorName" to tutor.name,
+                        "tutorPersona" to tutor.persona,
+                        "targetLanguage" to targetLanguage,
+                        "sourceLanguage" to sourceLanguage
+                    )))
+                }
+                "reengage" -> {
+                    val topicContext = if (conversationState.currentTopic != null) {
+                        "Previous topic: ${conversationState.currentTopic}"
+                    } else {
+                        "No previous topic recorded"
+                    }
+                    append(PromptTemplate(initiateReengageTemplate).render(mapOf(
+                        "topicContext" to topicContext,
+                        "targetLanguage" to targetLanguage,
+                        "sourceLanguage" to sourceLanguage
+                    )))
+                }
+                "reengage-light" -> {
+                    append(PromptTemplate(initiateReengageLightTemplate).render(mapOf(
+                        "targetLanguage" to targetLanguage
+                    )))
+                }
+                else -> {
+                    append("Context: Tutor-initiated message (type: ${conversationState.initiationContext})\n")
+                    append("Task: Start the conversation naturally and engage the learner.\n")
+                }
+            }
         }
 
         append("\n")

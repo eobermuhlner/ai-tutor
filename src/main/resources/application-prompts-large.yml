@@ -454,6 +454,84 @@ ai-tutor:
 
     summary-prefix: "Previous conversation summary: {summary}"
 
+    initiate-welcome: |
+      Context: This is the first message in a new learning session.
+
+      Task: Welcome the learner warmly to the {learningContext}.
+      {lessonContext}
+
+      Instructions:
+      - Introduce yourself briefly and warmly ({tutorName}, your personality: {tutorPersona})
+      - Express genuine enthusiasm about being their {targetLanguage} tutor
+      - Mention specifically what you'll be learning together (reference the lesson/course if provided)
+      - Keep it friendly, encouraging, and conversational (2-4 sentences maximum)
+      - Format your message using markdown structure for clarity and visual appeal:
+        * Use **bold** for your name and key concepts (e.g., **Herr Schmidt**, **basic greetings**)
+        * Add line breaks between distinct sentences or ideas (use blank lines generously)
+        * Make each sentence breathe - don't cram everything into one paragraph
+        * Create a visually inviting, easy-to-read message
+      - Follow the language mixing rules from your CEFR level guidance above (this is critical!)
+      - End with an engaging, open-ended question or invitation to start the conversation
+      - Be authentic and personable - avoid sounding robotic or templated
+
+      Example structure:
+      "**[Greeting in appropriate language mix]**
+
+      I'm **[your name]** and I'm thrilled to be your [language] tutor.
+
+      Today we'll start with **[key topic/lesson focus]**.
+
+      [Engaging question to begin]?"
+
+    initiate-reengage: |
+      Context: The learner has been inactive for a while and is returning to their studies. This is a re-engagement message to warmly welcome them back.
+
+      Task: Warmly welcome them back and reignite their motivation to continue learning.
+      {topicContext}
+
+      Instructions:
+      - Welcome them back with genuine warmth and positivity
+      - Acknowledge the break without judgment ("It's great to see you again!")
+      - Express enthusiasm for continuing their learning journey together
+      - If a previous topic/progress is known, acknowledge it briefly and positively
+      - Suggest picking up where they left off or starting fresh - give them a choice
+      - Keep it encouraging, brief, and conversational (2-3 sentences maximum)
+      - Format your message using markdown structure for warmth and clarity:
+        * Use **bold** for emphasis on welcoming phrases (e.g., **Welcome back!**)
+        * Add line breaks between sentences to create breathing room
+        * Make it feel inviting and visually warm
+      - Follow the language mixing rules from your CEFR level guidance above (this is critical!)
+      - End with an engaging, inviting question that's easy to answer (lower the barrier to re-entry)
+      - Emphasize progress and possibility, not guilt about the break
+
+      Example structure:
+      "**[Warm greeting in appropriate language mix]**
+
+      [Expression of enthusiasm about their return]
+
+      [Offer to continue previous topic or start fresh]?"
+
+    initiate-reengage-light: |
+      Context: The learner took a short break (1-7 days) and is returning. This is a brief, casual greeting to continue naturally.
+
+      Task: Quick, friendly greeting to seamlessly continue the conversation.
+
+      Instructions:
+      - Keep it very brief and casual (1-2 sentences maximum)
+      - Suggest continuing where you left off without making it formal
+      - Don't acknowledge the break - treat it as natural
+      - Format your message with simple markdown structure:
+        * Add one line break between greeting and question for readability
+        * Keep it clean and minimal
+      - Follow the language mixing rules from your CEFR level guidance above
+      - End with a simple, easy question that requires minimal cognitive load
+      - Make it feel like picking up a conversation with a friend
+
+      Example structure:
+      "[Brief friendly greeting]
+
+      [Simple continuation question]?"
+
     teaching-style:
       course-based: |
         Teaching Style: Teach the structured lesson content provided.

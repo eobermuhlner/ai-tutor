@@ -280,6 +280,68 @@ class ChatController(
         return emitter
     }
 
+    @PostMapping("/sessions/{sessionId}/messages/initiate")
+    @Operation(summary = "Initiate tutor message", description = "Tutor sends first message without user input (for welcome or re-engagement)")
+    fun initiateTutorMessage(
+        @PathVariable sessionId: UUID,
+        @RequestBody request: ch.obermuhlner.aitutor.chat.dto.InitiateTutorMessageRequest
+    ): ResponseEntity<MessageResponse> {
+        val currentUserId = authorizationService.getCurrentUserId()
+        val message = chatService.initiateTutorMessage(sessionId, currentUserId, request.context)
+            ?: return ResponseEntity.notFound().build()
+        return ResponseEntity.ok(message)
+    }
+
+    @PostMapping("/sessions/{sessionId}/messages/initiate/stream", produces = [MediaType.TEXT_EVENT_STREAM_VALUE])
+    @Operation(summary = "Initiate tutor message with streaming", description = "Tutor sends first message with SSE streaming (for welcome or re-engagement)")
+    fun initiateTutorMessageStream(
+        @PathVariable sessionId: UUID,
+        @RequestBody request: ch.obermuhlner.aitutor.chat.dto.InitiateTutorMessageRequest
+    ): SseEmitter {
+        val currentUserId = authorizationService.getCurrentUserId()
+        val emitter = SseEmitter(30_000L)
+
+        // Capture SecurityContext for async processing
+        val context = org.springframework.security.core.context.SecurityContextHolder.getContext()
+
+        Thread {
+            try {
+                // Propagate SecurityContext to async thread
+                org.springframework.security.core.context.SecurityContextHolder.setContext(context)
+
+                val message = chatService.initiateTutorMessage(sessionId, currentUserId, request.context) { chunk ->
+                    try {
+                        emitter.send(
+                            SseEmitter.event()
+                                .name("chunk")
+                                .data(chunk)
+                        )
+                    } catch (e: Exception) {
+                        emitter.completeWithError(e)
+                    }
+                }
+
+                if (message != null) {
+                    emitter.send(
+                        SseEmitter.event()
+                            .name("complete")
+                            .data(message)
+                    )
+                    emitter.complete()
+                } else {
+                    emitter.completeWithError(RuntimeException("Failed to initiate tutor message"))
+                }
+            } catch (e: Exception) {
+                emitter.completeWithError(e)
+            } finally {
+                // Clear SecurityContext from thread
+                org.springframework.security.core.context.SecurityContextHolder.clearContext()
+            }
+        }.start()
+
+        return emitter
+    }
+
     // ========== Text-to-Speech Endpoints ==========
 
     @PostMapping("/synthesize", produces = ["audio/mpeg"])

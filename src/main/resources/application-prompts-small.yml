@@ -200,6 +200,52 @@ ai-tutor:
 
     summary-prefix: "Previous conversation summary: {summary}"
 
+    initiate-welcome: |
+      This is your first message to a new learner.
+
+      Welcome them warmly to {learningContext}.
+      {lessonContext}
+
+      - Introduce yourself ({tutorName})
+      - Say what you'll learn together
+      - Be friendly and brief (2-4 sentences)
+      - Format as markdown with structure:
+        * Use **bold** for your name and key topics
+        * Add line breaks between ideas (blank line between sentences)
+        * Make it visually clear
+      - Follow CEFR level language rules from above
+      - End with a question to start
+
+      Example: "**[Greeting]**\n\nI'm **[name]**, your [language] tutor..."
+
+    initiate-reengage: |
+      The learner has been away. Welcome them back.
+      {topicContext}
+
+      - Welcome them back warmly
+      - Be positive about their return
+      - Suggest continuing where they left off
+      - Keep it short (2-3 sentences)
+      - Format as markdown:
+        * Use **bold** for emphasis
+        * Add line breaks between sentences
+      - Follow CEFR level language rules from above
+      - End with a question
+
+      Example: "**[Greeting]**\n\n[Enthusiasm]\n\n[Continue question]?"
+
+    initiate-reengage-light: |
+      The learner was away for a short time (1-7 days).
+
+      - Brief greeting
+      - Suggest continuing from last topic
+      - Very short (1-2 sentences)
+      - Format as markdown with line break
+      - Follow CEFR level language rules from above
+      - End with simple question
+
+      Example: "[Greeting]\n\n[Continue question]?"
+
     teaching-style:
       course-based: |
         Teach the lesson content provided above.

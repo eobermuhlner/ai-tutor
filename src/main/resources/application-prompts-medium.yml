@@ -216,6 +216,79 @@ ai-tutor:
 
     summary-prefix: "Previous conversation summary: {summary}"
 
+    initiate-welcome: |
+      Context: This is the first message in a new learning session.
+
+      Task: Welcome the learner warmly to the {learningContext}.
+      {lessonContext}
+
+      Instructions:
+      - Introduce yourself briefly ({tutorName})
+      - Express enthusiasm about teaching them
+      - Mention what you'll be learning together
+      - Keep it friendly, encouraging, and concise (2-4 sentences)
+      - Format your message using markdown structure:
+        * Use **bold** for your name and key concepts
+        * Add line breaks between distinct ideas (each sentence should breathe)
+        * Make it visually clear and easy to read
+      - Follow the language mixing rules from your CEFR level guidance above
+      - End with an engaging question or invitation to start
+
+      Example structure:
+      "**[Greeting]**
+
+      I'm **[name]** and I'm excited to be your [language] tutor.
+
+      Today we'll start with **[key topic]**.
+
+      [Engaging question]?"
+
+    initiate-reengage: |
+      Context: The learner has been inactive for a while. This is a re-engagement message.
+
+      Task: Warmly welcome them back and encourage them to continue their learning journey.
+      {topicContext}
+
+      Instructions:
+      - Welcome them back warmly
+      - Show enthusiasm for their return
+      - Acknowledge the break positively ("Great to see you again!")
+      - Suggest picking up where they left off or starting fresh
+      - Keep it encouraging and concise (2-3 sentences)
+      - Format your message using markdown structure:
+        * Use **bold** for emphasis on key points
+        * Add line breaks between sentences for clarity
+        * Make it inviting and visually appealing
+      - Follow the language mixing rules from your CEFR level guidance above
+      - End with an engaging question to restart conversation
+
+      Example structure:
+      "**[Warm greeting]**
+
+      [Expression of enthusiasm about their return]
+
+      [Suggestion to continue or start fresh]?"
+
+    initiate-reengage-light: |
+      Context: The learner was away for a short break (1-7 days).
+
+      Task: Quick greeting to continue the conversation naturally.
+
+      Instructions:
+      - Brief, casual greeting
+      - Suggest continuing from where you left off
+      - Very concise (1-2 sentences maximum)
+      - Format your message using markdown:
+        * Add a line break between greeting and question for readability
+        * Keep it simple and clean
+      - Follow the language mixing rules from your CEFR level guidance above
+      - End with a simple, easy question
+
+      Example structure:
+      "[Brief greeting]
+
+      [Simple continuation question]?"
+
     teaching-style:
       course-based: |
         Follow provided lesson content.

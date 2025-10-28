@@ -38,5 +38,10 @@ data class ConversationState(
     // Lesson switching control
     @field:JsonProperty(required = true)
     @field:JsonPropertyDescription("Request to change lesson: 'next' (advance to next lesson), 'previous' (go back one lesson), null (remain on current lesson, default). Set when learner explicitly requests lesson change or when tutor determines learner is ready for advancement based on demonstrated mastery.")
-    val requestedLessonAction: String? = null
+    val requestedLessonAction: String? = null,
+
+    // Tutor-initiated conversation context
+    @field:JsonProperty(required = true)
+    @field:JsonPropertyDescription("Context for tutor-initiated messages: 'welcome' (first message in a new course), 'reengage' (restarting conversation after inactivity), or null (normal user-initiated message).")
+    val initiationContext: String? = null
 )
