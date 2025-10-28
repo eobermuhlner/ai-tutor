@@ -82,15 +82,15 @@ class CatalogPropertiesTest {
 
         // Verify French courses
         val frenchCourses = courses.filter { it.languageCode == "fr-FR" }
-        assertEquals(1, frenchCourses.size, "Should have 1 French course")
+        assertEquals(3, frenchCourses.size, "Should have 3 French courses")
 
         // Verify German courses
         val germanCourses = courses.filter { it.languageCode == "de-DE" }
-        assertEquals(1, germanCourses.size, "Should have 1 German course")
+        assertEquals(3, germanCourses.size, "Should have 3 German courses")
 
         // Verify Japanese courses
         val japaneseCourses = courses.filter { it.languageCode == "ja-JP" }
-        assertEquals(1, japaneseCourses.size, "Should have 1 Japanese course")
+        assertEquals(3, japaneseCourses.size, "Should have 3 Japanese courses")
     }
 
     @Test

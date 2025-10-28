@@ -1,4 +1,4 @@
-# OpenAI (default) - requires OPENAI_API_KEY environment variable
+# Dummy AI configuration for tests and development without API keys
 
 spring.ai.model.chat: dummy
 spring.ai.model.embedding: dummy
@@ -11,5 +11,5 @@ spring.ai.model.audio.transcription: none
 
 
 spring.ai.openai.chat.options.model: gpt-4o
-spring.ai.openai.api-key: ${OPENAI_API_KEY}  # Optional: override env var
+spring.ai.openai.api-key: ${OPENAI_API_KEY:dummy-key-for-testing}  # Optional: override env var, defaults to dummy key
 spring.ai.openai.base-url: https://api.openai.com  # Optional: custom endpoint

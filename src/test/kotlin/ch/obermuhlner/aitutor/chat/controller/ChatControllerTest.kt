@@ -15,8 +15,14 @@ import ch.obermuhlner.aitutor.fixtures.TestDataFactory
 import ch.obermuhlner.aitutor.tutor.domain.ConversationPhase
 import ch.obermuhlner.aitutor.tutor.service.TutorService
 import ch.obermuhlner.aitutor.vocabulary.service.VocabularyService
+import ch.obermuhlner.aitutor.chat.domain.ChatSessionEntity
+import ch.obermuhlner.aitutor.chat.domain.ChatMessageEntity
+import ch.obermuhlner.aitutor.chat.domain.MessageRole
+import ch.obermuhlner.aitutor.core.model.catalog.TutorGender
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
+import io.mockk.just
+import io.mockk.Runs
 import io.mockk.verify
 import java.time.Instant
 import java.util.UUID
@@ -33,6 +39,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delet
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.header
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
@@ -1035,5 +1043,413 @@ class ChatControllerTest {
                 .content("""{"teachingStyle": "Directive"}""")
         )
             .andExpect(status().isNotFound)
+    }
+
+    @Test
+    @WithMockUser
+    fun `updateSessionLesson should update lesson with NEXT direction`() {
+        val sessionResponse = SessionResponse(
+            id = TestDataFactory.TEST_SESSION_ID,
+            userId = TestDataFactory.TEST_USER_ID,
+            tutorName = "TestTutor",
+            tutorPersona = "patient coach",
+            tutorDomain = "general",
+            tutorTeachingStyle = ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Reactive,
+            sourceLanguageCode = "en",
+            targetLanguageCode = "es",
+            conversationPhase = ConversationPhase.Free,
+            effectivePhase = ConversationPhase.Free,
+            estimatedCEFRLevel = CEFRLevel.A1,
+            createdAt = Instant.now(),
+            updatedAt = Instant.now()
+        )
+
+        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
+        every { chatService.updateSessionLesson(TestDataFactory.TEST_SESSION_ID, ch.obermuhlner.aitutor.chat.dto.LessonNavigationDirection.NEXT, TestDataFactory.TEST_USER_ID) } returns sessionResponse
+
+        mockMvc.perform(
+            patch("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}/lesson")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""{"direction": "NEXT"}""")
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.id").value(TestDataFactory.TEST_SESSION_ID.toString()))
+
+        verify(exactly = 1) { chatService.updateSessionLesson(TestDataFactory.TEST_SESSION_ID, ch.obermuhlner.aitutor.chat.dto.LessonNavigationDirection.NEXT, TestDataFactory.TEST_USER_ID) }
+    }
+
+    @Test
+    @WithMockUser
+    fun `updateSessionLesson should update lesson with PREVIOUS direction`() {
+        val sessionResponse = SessionResponse(
+            id = TestDataFactory.TEST_SESSION_ID,
+            userId = TestDataFactory.TEST_USER_ID,
+            tutorName = "TestTutor",
+            tutorPersona = "patient coach",
+            tutorDomain = "general",
+            tutorTeachingStyle = ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Reactive,
+            sourceLanguageCode = "en",
+            targetLanguageCode = "es",
+            conversationPhase = ConversationPhase.Free,
+            effectivePhase = ConversationPhase.Free,
+            estimatedCEFRLevel = CEFRLevel.A1,
+            createdAt = Instant.now(),
+            updatedAt = Instant.now()
+        )
+
+        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
+        every { chatService.updateSessionLesson(TestDataFactory.TEST_SESSION_ID, ch.obermuhlner.aitutor.chat.dto.LessonNavigationDirection.PREVIOUS, TestDataFactory.TEST_USER_ID) } returns sessionResponse
+
+        mockMvc.perform(
+            patch("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}/lesson")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""{"direction": "PREVIOUS"}""")
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.id").value(TestDataFactory.TEST_SESSION_ID.toString()))
+
+        verify(exactly = 1) { chatService.updateSessionLesson(TestDataFactory.TEST_SESSION_ID, ch.obermuhlner.aitutor.chat.dto.LessonNavigationDirection.PREVIOUS, TestDataFactory.TEST_USER_ID) }
+    }
+
+    @Test
+    @WithMockUser
+    fun `updateSessionLesson should return 404 when session not found`() {
+        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
+        every { chatService.updateSessionLesson(any(), any(), any()) } returns null
+
+        mockMvc.perform(
+            patch("/api/v1/chat/sessions/${UUID.randomUUID()}/lesson")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""{"direction": "NEXT"}""")
+        )
+            .andExpect(status().isNotFound)
+    }
+
+    @Test
+    @WithMockUser
+    fun `synthesizeSpeech should return 503 when audio service unavailable`() {
+        every { audioService.isAvailable() } returns false
+
+        mockMvc.perform(
+            post("/api/v1/chat/synthesize")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""{"text": "Hello world", "voiceId": "Warm"}""")
+        )
+            .andExpect(status().isServiceUnavailable)
+    }
+
+    @Test
+    @WithMockUser
+    fun `synthesizeSpeech should return audio when successful`() {
+        val audioBytes = ByteArray(100) { it.toByte() }
+
+        every { audioService.isAvailable() } returns true
+        every { audioService.synthesizeSpeech(any(), any(), any(), any(), any()) } returns audioBytes
+
+        mockMvc.perform(
+            post("/api/v1/chat/synthesize")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""{"text": "Hello world", "voiceId": "Warm"}""")
+        )
+            .andExpect(status().isOk)
+            .andExpect(header().string("Content-Type", "audio/mpeg"))
+            .andExpect(content().bytes(audioBytes))
+
+        verify(exactly = 1) { audioService.synthesizeSpeech(any(), any(), any(), any(), any()) }
+    }
+
+    @Test
+    @WithMockUser
+    fun `synthesizeSpeech should return 400 for invalid voice ID`() {
+        every { audioService.isAvailable() } returns true
+
+        mockMvc.perform(
+            post("/api/v1/chat/synthesize")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""{"text": "Hello world", "voiceId": "InvalidVoice"}""")
+        )
+            .andExpect(status().isBadRequest)
+    }
+
+    @Test
+    @WithMockUser
+    fun `synthesizeSpeech should return 500 when synthesis fails`() {
+        every { audioService.isAvailable() } returns true
+        every { audioService.synthesizeSpeech(any(), any(), any(), any(), any()) } throws RuntimeException("TTS failed")
+
+        mockMvc.perform(
+            post("/api/v1/chat/synthesize")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""{"text": "Hello world", "voiceId": "Warm"}""")
+        )
+            .andExpect(status().isInternalServerError)
+    }
+
+    @Test
+    @WithMockUser
+    fun `getAvailableVoices should return 503 when audio service unavailable`() {
+        every { audioService.isAvailable() } returns false
+
+        mockMvc.perform(get("/api/v1/chat/audio/voices"))
+            .andExpect(status().isServiceUnavailable)
+    }
+
+    @Test
+    @WithMockUser
+    fun `getAvailableVoices should return voice mappings when available`() {
+        every { audioService.isAvailable() } returns true
+        every { audioService.getVoiceMappings() } returns mapOf(
+            "Warm" to "nova",
+            "Professional" to "onyx"
+        )
+        every { audioProperties.defaultVoice } returns "alloy"
+
+        mockMvc.perform(get("/api/v1/chat/audio/voices"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.abstractVoices").isArray)
+            .andExpect(jsonPath("$.voiceMappings.Warm").value("nova"))
+            .andExpect(jsonPath("$.voiceMappings.Professional").value("onyx"))
+            .andExpect(jsonPath("$.defaultVoice").value("alloy"))
+
+        verify(exactly = 1) { audioService.getVoiceMappings() }
+    }
+
+    @Test
+    @WithMockUser
+    fun `synthesizeMessageAudio should return 503 when audio service not available`() {
+        every { audioService.isAvailable() } returns false
+
+        mockMvc.perform(
+            post("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}/messages/${UUID.randomUUID()}/audio")
+                .with(csrf())
+        )
+            .andExpect(status().isServiceUnavailable)
+
+        verify(exactly = 0) { authorizationService.getCurrentUserId() }
+    }
+
+    @Test
+    @WithMockUser
+    fun `synthesizeMessageAudio should return 404 when session not found`() {
+        every { audioService.isAvailable() } returns true
+        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns java.util.Optional.empty()
+
+        mockMvc.perform(
+            post("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}/messages/${UUID.randomUUID()}/audio")
+                .with(csrf())
+        )
+            .andExpect(status().isNotFound)
+    }
+
+    @Test
+    @WithMockUser
+    fun `synthesizeMessageAudio should return 404 when user doesn't own session`() {
+        val otherUserId = UUID.randomUUID()
+        val sessionEntity = ChatSessionEntity(
+            id = TestDataFactory.TEST_SESSION_ID,
+            userId = otherUserId,
+            tutorName = "Maria",
+            tutorPersona = "friendly",
+            tutorDomain = "general",
+            sourceLanguageCode = "en",
+            targetLanguageCode = "es",
+            conversationPhase = ConversationPhase.Free,
+            effectivePhase = ConversationPhase.Free,
+            estimatedCEFRLevel = CEFRLevel.A1
+        )
+
+        every { audioService.isAvailable() } returns true
+        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns java.util.Optional.of(sessionEntity)
+
+        mockMvc.perform(
+            post("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}/messages/${UUID.randomUUID()}/audio")
+                .with(csrf())
+        )
+            .andExpect(status().isNotFound)
+    }
+
+    @Test
+    @WithMockUser
+    fun `synthesizeMessageAudio should return 404 when message not found`() {
+        val sessionEntity = ChatSessionEntity(
+            id = TestDataFactory.TEST_SESSION_ID,
+            userId = TestDataFactory.TEST_USER_ID,
+            tutorName = "Maria",
+            tutorPersona = "friendly",
+            tutorDomain = "general",
+            sourceLanguageCode = "en",
+            targetLanguageCode = "es",
+            conversationPhase = ConversationPhase.Free,
+            effectivePhase = ConversationPhase.Free,
+            estimatedCEFRLevel = CEFRLevel.A1
+        )
+
+        val messageId = UUID.randomUUID()
+
+        every { audioService.isAvailable() } returns true
+        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns java.util.Optional.of(sessionEntity)
+        every { chatService.getMessage(TestDataFactory.TEST_SESSION_ID, messageId) } returns null
+
+        mockMvc.perform(
+            post("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}/messages/${messageId}/audio")
+                .with(csrf())
+        )
+            .andExpect(status().isNotFound)
+    }
+
+    @Test
+    @WithMockUser
+    fun `synthesizeMessageAudio should return cached audio when available`() {
+        val messageId = UUID.randomUUID()
+        val cachedAudio = ByteArray(100) { it.toByte() }
+
+        val sessionEntity = ChatSessionEntity(
+            id = TestDataFactory.TEST_SESSION_ID,
+            userId = TestDataFactory.TEST_USER_ID,
+            tutorName = "Maria",
+            tutorPersona = "friendly",
+            tutorDomain = "general",
+            sourceLanguageCode = "en",
+            targetLanguageCode = "es",
+            conversationPhase = ConversationPhase.Free,
+            effectivePhase = ConversationPhase.Free,
+            estimatedCEFRLevel = CEFRLevel.A1,
+            tutorVoiceId = ch.obermuhlner.aitutor.core.model.catalog.TutorVoice.Warm,
+            tutorGender = TutorGender.Female
+        )
+
+        val messageEntity = ChatMessageEntity(
+            session = sessionEntity,
+            role = MessageRole.ASSISTANT,
+            content = "Hola!",
+            audioData = cachedAudio,
+            audioVoiceId = "Warm-Female",
+            audioSpeed = 1.0
+        )
+
+        every { audioService.isAvailable() } returns true
+        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns java.util.Optional.of(sessionEntity)
+        every { chatService.getMessage(TestDataFactory.TEST_SESSION_ID, messageId) } returns messageEntity
+
+        mockMvc.perform(
+            post("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}/messages/${messageId}/audio")
+                .with(csrf())
+                .param("speed", "1.0")
+        )
+            .andExpect(status().isOk)
+            .andExpect(content().contentType("audio/mpeg"))
+            .andExpect(content().bytes(cachedAudio))
+
+        verify(exactly = 0) { audioService.synthesizeSpeech(any(), any(), any(), any(), any()) }
+    }
+
+    @Test
+    @WithMockUser
+    fun `synthesizeMessageAudio should generate and cache audio when not cached`() {
+        val messageId = UUID.randomUUID()
+        val synthesizedAudio = ByteArray(200) { (it * 2).toByte() }
+
+        val sessionEntity = ChatSessionEntity(
+            id = TestDataFactory.TEST_SESSION_ID,
+            userId = TestDataFactory.TEST_USER_ID,
+            tutorName = "Maria",
+            tutorPersona = "friendly",
+            tutorDomain = "general",
+            sourceLanguageCode = "en",
+            targetLanguageCode = "es",
+            conversationPhase = ConversationPhase.Free,
+            effectivePhase = ConversationPhase.Free,
+            estimatedCEFRLevel = CEFRLevel.A1,
+            tutorVoiceId = ch.obermuhlner.aitutor.core.model.catalog.TutorVoice.Professional,
+            tutorGender = TutorGender.Male
+        )
+
+        val messageEntity = ChatMessageEntity(
+            session = sessionEntity,
+            role = MessageRole.ASSISTANT,
+            content = "Hola, ¿cómo estás?",
+            audioData = null,
+            audioVoiceId = null,
+            audioSpeed = null
+        )
+
+        every { audioService.isAvailable() } returns true
+        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns java.util.Optional.of(sessionEntity)
+        every { chatService.getMessage(TestDataFactory.TEST_SESSION_ID, messageId) } returns messageEntity
+        every {
+            audioService.synthesizeSpeech(
+                "Hola, ¿cómo estás?",
+                ch.obermuhlner.aitutor.core.model.catalog.TutorVoice.Professional,
+                TutorGender.Male,
+                "es",
+                1.5
+            )
+        } returns synthesizedAudio
+
+        mockMvc.perform(
+            post("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}/messages/${messageId}/audio")
+                .with(csrf())
+                .param("speed", "1.5")
+        )
+            .andExpect(status().isOk)
+            .andExpect(content().contentType("audio/mpeg"))
+            .andExpect(content().bytes(synthesizedAudio))
+
+        verify(exactly = 1) { audioService.synthesizeSpeech(any(), any(), any(), any(), any()) }
+        verify(exactly = 1) { chatService.updateMessageAudioCache(any(), any(), any(), any(), any()) }
+    }
+
+    @Test
+    @WithMockUser
+    fun `synthesizeMessageAudio should return 500 when synthesis fails`() {
+        val messageId = UUID.randomUUID()
+
+        val sessionEntity = ChatSessionEntity(
+            id = TestDataFactory.TEST_SESSION_ID,
+            userId = TestDataFactory.TEST_USER_ID,
+            tutorName = "Maria",
+            tutorPersona = "friendly",
+            tutorDomain = "general",
+            sourceLanguageCode = "en",
+            targetLanguageCode = "es",
+            conversationPhase = ConversationPhase.Free,
+            effectivePhase = ConversationPhase.Free,
+            estimatedCEFRLevel = CEFRLevel.A1,
+            tutorVoiceId = ch.obermuhlner.aitutor.core.model.catalog.TutorVoice.Warm,
+            tutorGender = TutorGender.Female
+        )
+
+        val messageEntity = ChatMessageEntity(
+            session = sessionEntity,
+            role = MessageRole.ASSISTANT,
+            content = "Test",
+            audioData = null,
+            audioVoiceId = null,
+            audioSpeed = null
+        )
+
+        every { audioService.isAvailable() } returns true
+        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns java.util.Optional.of(sessionEntity)
+        every { chatService.getMessage(TestDataFactory.TEST_SESSION_ID, messageId) } returns messageEntity
+        every { audioService.synthesizeSpeech(any(), any(), any(), any(), any()) } throws RuntimeException("TTS API error")
+
+        mockMvc.perform(
+            post("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}/messages/${messageId}/audio")
+                .with(csrf())
+        )
+            .andExpect(status().isInternalServerError)
     }
 }

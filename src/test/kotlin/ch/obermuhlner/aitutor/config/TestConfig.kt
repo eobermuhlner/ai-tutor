@@ -1,6 +1,8 @@
 package ch.obermuhlner.aitutor.config
 
+import ch.obermuhlner.aitutor.conversation.config.AudioProperties
 import ch.obermuhlner.aitutor.conversation.dto.AiChatResponse
+import ch.obermuhlner.aitutor.conversation.service.AiAudioService
 import ch.obermuhlner.aitutor.conversation.service.AiChatService
 import ch.obermuhlner.aitutor.core.model.CEFRLevel
 import ch.obermuhlner.aitutor.tutor.domain.ConversationPhase
@@ -58,6 +60,37 @@ class TestConfig {
         every { mock.call(any<Prompt>()) } returns ChatResponse(
             listOf(Generation(AssistantMessage("Test response")))
         )
+
+        return mock
+    }
+
+    /**
+     * Mock AudioProperties bean to prevent SpringAiAudioService initialization errors.
+     * This prevents the service from trying to resolve OPENAI_API_KEY environment variable.
+     */
+    @Bean
+    @Primary
+    fun mockAudioProperties(): AudioProperties {
+        return AudioProperties(
+            enabled = false,
+            defaultModel = "tts-1",
+            defaultVoice = "alloy",
+            defaultSpeed = 1.0,
+            voiceMappings = emptyMap()
+        )
+    }
+
+    /**
+     * Mock AiAudioService to prevent TTS-related initialization errors during tests.
+     */
+    @Bean
+    @Primary
+    fun mockAiAudioService(): AiAudioService {
+        val mock = mockk<AiAudioService>()
+
+        every { mock.isAvailable() } returns false
+        every { mock.getVoiceMappings() } returns emptyMap()
+        every { mock.synthesizeSpeech(any(), any(), any(), any(), any()) } throws UnsupportedOperationException("TTS not available in tests")
 
         return mock
     }

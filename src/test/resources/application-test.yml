@@ -19,6 +19,10 @@ spring:
       chat:
         options:
           model: gpt-4o
+      audio:
+        speech:
+          options:
+            model: tts-1
     azure:
       openai:
         api-key: test-key
@@ -31,6 +35,13 @@ spring:
       chat:
         options:
           model: llama2
+    model:
+      audio:
+        speech: none  # Disable TTS in tests
+
+ai-tutor:
+  audio:
+    enabled: false  # Disable audio in tests
 
 logging:
   level:
