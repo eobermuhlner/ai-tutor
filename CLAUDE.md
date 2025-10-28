@@ -137,6 +137,17 @@ Language learning assistant with conversational AI tutoring and vocabulary track
   - Implementation: POST `/sessions/{id}/messages/initiate` with context ("welcome", "reengage-light", or "reengage")
   - System prompt adapts based on initiation context to generate appropriate greeting
   - No dummy user messages stored in database - clean semantic model
+- **Learning Cards**: Two card types for different pedagogical purposes
+  - **Word Cards** (`wordCards`): Vocabulary words/phrases with visual concepts
+    - Fields: titleSourceLanguage, titleTargetLanguage, descriptionSourceLanguage, descriptionTargetLanguage, conceptName (for image lookup)
+    - Use for: nouns, verbs, adjectives, phrases representing concrete concepts
+    - Example: "りんご" (apple) with image, "красивый" (beautiful), "café" (coffee shop)
+  - **Character Cards** (`characterCards`): Individual characters/symbols in special writing systems
+    - Fields: character (1-3 chars in target language), pronunciation (romanization), description (learning guidance)
+    - Use for: hiragana, katakana, hangul, cyrillic alphabet, kanji, etc.
+    - Example: character="あ", pronunciation="a", description="Like 'a' in 'father'. First vowel in hiragana syllabary."
+    - CLI Display: Large-font flashcard format (FRONT/BACK)
+  - LLM chooses appropriate card type based on learning context
 
 ## Commands
 - `./gradlew runServer` - Run REST API server (requires AI provider configuration: OpenAI, Azure OpenAI, or Ollama)
@@ -178,7 +189,8 @@ ch.obermuhlner.aitutor
 │                           # UpdatePhaseRequest, UpdateTopicRequest, UpdateTeachingStyleRequest,
 │                           # TopicHistoryResponse, CreateSessionFromCourseRequest,
 │                           # SessionWithProgressResponse, SessionProgressResponse,
-│                           # SessionSummaryInfoResponse, SummaryLevelInfo, SummaryDetailResponse
+│                           # SessionSummaryInfoResponse, SummaryLevelInfo, SummaryDetailResponse,
+│                           # WordCardResponse, CharacterCardResponse, VocabularyWithImageResponse
 ├── catalog/                # Catalog-based tutor/course management
 │   ├── controller/         # CatalogController (/api/v1/catalog)
 │   ├── service/            # CatalogService, SeedDataService
@@ -237,7 +249,7 @@ ch.obermuhlner.aitutor
 │   └── report/             # ReportGenerator - Markdown report generation
 └── core/                   # Shared models and utilities
     ├── model/              # Shared domain models (CEFRLevel, ErrorType, ErrorSeverity,
-    │                       # Correction, NewVocabulary, WordCard)
+    │                       # Correction, NewVocabulary, WordCard, CharacterCard)
     │   └── catalog/        # Catalog domain models (LanguageMetadata, TutorPersonality,
     │                       # CourseCategory, Difficulty, LanguageProficiencyType)
     └── util/               # Utilities (LlmJson, Placeholder)

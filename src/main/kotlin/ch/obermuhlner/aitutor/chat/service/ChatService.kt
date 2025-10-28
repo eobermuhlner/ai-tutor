@@ -458,6 +458,8 @@ class ChatService(
                 objectMapper.writeValueAsString(tutorResponse.conversationResponse.newVocabulary) else null,
             wordCardsJson = if (tutorResponse.conversationResponse.wordCards.isNotEmpty())
                 objectMapper.writeValueAsString(tutorResponse.conversationResponse.wordCards) else null,
+            characterCardsJson = if (tutorResponse.conversationResponse.characterCards.isNotEmpty())
+                objectMapper.writeValueAsString(tutorResponse.conversationResponse.characterCards) else null,
             sequenceNumber = nextSequence + 1
         )
         val savedAssistantMessage = chatMessageRepository.save(assistantMessage)
@@ -883,6 +885,17 @@ class ChatService(
             )
         }
 
+        val characterCards: List<ch.obermuhlner.aitutor.core.model.CharacterCard>? = entity.characterCardsJson?.let {
+            objectMapper.readValue(it)
+        }
+        val characterCardResponses = characterCards?.map { card ->
+            ch.obermuhlner.aitutor.chat.dto.CharacterCardResponse(
+                character = card.character,
+                pronunciation = card.pronunciation,
+                description = card.description
+            )
+        }
+
         return MessageResponse(
             id = entity.id,
             role = entity.role.name,
@@ -890,6 +903,7 @@ class ChatService(
             corrections = corrections,
             newVocabulary = vocabularyWithImages,
             wordCards = wordCardsWithImages,
+            characterCards = characterCardResponses,
             errorMessage = errorMessage,
             createdAt = entity.createdAt ?: java.time.Instant.now()
         )

@@ -121,6 +121,11 @@ ai-tutor:
       - Set `estimatedCEFRLevel` (None-C2)
       - Include `conceptName` for vocabulary
 
+      Card Types:
+      - wordCards: vocabulary with images (include `conceptName`)
+      - characterCards: script symbols (hiragana/cyrillic/kanji/etc)
+        Fields: `character` (1-3 chars), `pronunciation`, `description`
+
       Error Severity:
       - Critical (3.0): comprehension blocked
       - High (2.0): global error

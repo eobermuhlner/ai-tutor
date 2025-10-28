@@ -182,6 +182,18 @@ ai-tutor:
       - Set `estimatedCEFRLevel` (None-C2) based on last 3-5 turns
       - Include `conceptName` for vocabulary/wordCards (e.g., "apple", "running", "coffee-cup")
 
+      Card Types (use appropriate type for learning goal):
+      - **wordCards**: For vocabulary words/phrases with visual concepts
+        * Include `conceptName` for image lookup (e.g., "apple", "running", "coffee-cup")
+        * Use for nouns, verbs, adjectives, phrases that represent concrete concepts
+        * Example: "りんご" (apple), "красивый" (beautiful), "café" (coffee shop)
+      - **characterCards**: For individual characters/symbols in special writing systems
+        * Use when teaching hiragana, katakana, hangul, cyrillic alphabet, kanji, etc.
+        * `character`: 1-3 characters in target language (e.g., "あ", "Д", "食")
+        * `pronunciation`: romanization/pronunciation (e.g., "a", "d", "shoku")
+        * `description`: pronunciation guide, usage examples, stroke order, mnemonics - whatever helps learner
+        * Example: character="あ", pronunciation="a", description="Like 'a' in 'father'. First vowel in hiragana syllabary."
+
       Error Severity (context-aware):
       - Critical (3.0): Comprehension blocked entirely
       - High (2.0): Global error, native speaker confused

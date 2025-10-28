@@ -1,5 +1,6 @@
 package ch.obermuhlner.aitutor.tutor.domain
 
+import ch.obermuhlner.aitutor.core.model.CharacterCard
 import ch.obermuhlner.aitutor.core.model.Correction
 import ch.obermuhlner.aitutor.core.model.NewVocabulary
 import ch.obermuhlner.aitutor.core.model.WordCard
@@ -18,4 +19,7 @@ data class ConversationResponse(
     @field:JsonProperty(required = true)
     @field:JsonPropertyDescription("Word cards to help learn new vocabulary or concepts.")
     val wordCards: List<WordCard> = emptyList(),
+    @field:JsonProperty(required = true)
+    @field:JsonPropertyDescription("Character cards to help learn individual characters/symbols (e.g., hiragana, cyrillic, kanji).")
+    val characterCards: List<CharacterCard> = emptyList(),
 )

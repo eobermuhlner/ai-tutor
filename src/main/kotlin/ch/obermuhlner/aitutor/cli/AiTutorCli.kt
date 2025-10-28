@@ -895,6 +895,20 @@ class AiTutorCli(private val config: CliConfig) {
                 }
             }
 
+            // Display character cards if any
+            if (!message.characterCards.isNullOrEmpty()) {
+                println("\n🔤 Character Cards:")
+                message.characterCards.forEach { card ->
+                    println("  ┌─────────────────────────────────────────")
+                    println("  │ FRONT: ${card.character}")
+                    println("  ├─────────────────────────────────────────")
+                    println("  │ BACK:")
+                    println("  │ Pronunciation: ${card.pronunciation}")
+                    println("  │ ${card.description}")
+                    println("  └─────────────────────────────────────────")
+                }
+            }
+
             println()
         } catch (e: Exception) {
             println("\n✗ Failed to send message: ${e.message}")

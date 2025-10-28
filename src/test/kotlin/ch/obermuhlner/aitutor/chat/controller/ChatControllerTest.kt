@@ -193,6 +193,7 @@ class ChatControllerTest {
                     corrections = null,
                     newVocabulary = null,
                     wordCards = null,
+                    characterCards = null,
                     errorMessage = null,
                     createdAt = Instant.now()
                 )
@@ -232,6 +233,7 @@ class ChatControllerTest {
             corrections = null,
             newVocabulary = null,
             wordCards = null,
+            characterCards = null,
             errorMessage = null,
             createdAt = Instant.now()
         )
@@ -796,6 +798,7 @@ class ChatControllerTest {
             corrections = null,
             newVocabulary = null,
             wordCards = null,
+            characterCards = null,
             errorMessage = null,
             createdAt = Instant.now()
         )

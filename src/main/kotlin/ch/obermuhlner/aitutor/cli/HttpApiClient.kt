@@ -67,6 +67,7 @@ class HttpApiClient(private val baseUrl: String) {
         val corrections: List<Correction>? = null,
         val newVocabulary: List<NewVocabulary>? = null,
         val wordCards: List<WordCard>? = null,
+        val characterCards: List<CharacterCard>? = null,
         val errorMessage: String? = null
     )
 
@@ -92,6 +93,13 @@ class HttpApiClient(private val baseUrl: String) {
         val titleTargetLanguage: String,
         val descriptionSourceLanguage: String,
         val descriptionTargetLanguage: String
+    )
+
+    @Serializable
+    data class CharacterCard(
+        val character: String,
+        val pronunciation: String,
+        val description: String
     )
 
     @Serializable

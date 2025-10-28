@@ -107,7 +107,10 @@ class TutorServiceTest {
             teachingStyleReactiveTemplate = "Reactive teaching style guidance",
             teachingStyleGuidedTemplate = "Guided teaching style guidance",
             teachingStyleDirectiveTemplate = "Directive teaching style guidance",
-            lessonPrompt = "Lesson template"
+            lessonPrompt = "Lesson template",
+            initiateWelcomeTemplate = "Welcome template",
+            initiateReengageTemplate = "Reengage template",
+            initiateReengageLightTemplate = "Reengage light template"
         )
     }
 
