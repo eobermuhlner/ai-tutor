@@ -597,6 +597,19 @@ ai-tutor:
             location: London, UK
             gender: Male
             age: 40
+      - code: mul-ipa
+        nameJson: '{"en": "International Phonetic Alphabet", "es": "Alfabeto Fonético Internacional", "de": "Internationales Phonetisches Alphabet", "fr": "Alphabet Phonétique International", "it": "Alfabeto Fonetico Internazionale", "ja": "国際音声記号", "zh": "国际音标"}'
+        flagEmoji: "🌍"
+        nativeName: "IPA"
+        difficulty: Medium
+        descriptionJson: '{"en": "Universal phonetic notation system for representing speech sounds across all human languages", "es": "Sistema universal de notación fonética para representar sonidos del habla en todos los idiomas humanos", "de": "Universelles phonetisches Notationssystem zur Darstellung von Sprachlauten in allen menschlichen Sprachen", "fr": "Système universel de notation phonétique pour représenter les sons de la parole dans toutes les langues humaines"}'
+        tutorVariants:
+          - archetypeId: strict-academic
+            name: Dr. Phonetics
+            culturalNotes: linguistics expert specializing in articulatory phonetics and IPA notation
+            location: International
+            gender: Neutral
+            age: 35
 
     courses:
       - languageCode: es-ES
@@ -1236,6 +1249,38 @@ ai-tutor:
           - Form correct sentences
           - Understand British culture
         displayOrder: 2
+      - languageCode: mul-ipa
+        nameEnglish: IPA Grammar Fundamentals
+        shortDescriptionEnglish: Master phonetic symbols and articulatory principles
+        descriptionEnglish: Systematic study of the International Phonetic Alphabet covering vowels, consonants, diacritics, and suprasegmentals with articulatory phonetics
+        category: Grammar
+        targetAudienceEnglish: Language learners, teachers, linguists, and anyone needing to read phonetic transcriptions
+        startingLevel: None
+        targetLevel: B2
+        estimatedWeeks: 6
+        learningGoalsEnglish:
+          - Recognize and produce all cardinal vowels using the IPA vowel chart
+          - Identify consonants by place and manner of articulation
+          - Read complete IPA transcriptions with diacritics
+          - Understand stress, tone, and length markings
+          - Apply IPA knowledge to dictionary pronunciations
+        displayOrder: 0
+      - languageCode: mul-ipa
+        nameEnglish: Conversational IPA
+        shortDescriptionEnglish: Learn to read IPA through practical pronunciation practice
+        descriptionEnglish: Practical approach to reading IPA transcriptions focusing on common sounds in European languages and real-world dictionary entries
+        category: Conversational
+        targetAudienceEnglish: Language learners who want to decode pronunciation guides in dictionaries and textbooks
+        startingLevel: None
+        targetLevel: B2
+        estimatedWeeks: 6
+        learningGoalsEnglish:
+          - Read simple IPA transcriptions of familiar words
+          - Decode European language pronunciation patterns
+          - Recognize vowel and consonant variations across languages
+          - Apply IPA knowledge to learn new language sounds
+          - Use dictionary pronunciation guides effectively
+        displayOrder: 1
 
   messages:
     technical-error: "Technical problems - please try again later."

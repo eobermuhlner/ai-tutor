@@ -1,0 +1,27 @@
+courseId: mul-ipa-grammar-fundamentals
+progressionMode: TIME_BASED
+lessons:
+  - id: week-01-ipa-foundations
+    file: week-01-ipa-foundations.md
+    minimumDays: 7
+    requiredTurns: 20
+  - id: week-02-vowels-advanced
+    file: week-02-vowels-advanced.md
+    minimumDays: 7
+    requiredTurns: 25
+  - id: week-03-plosives-nasals
+    file: week-03-plosives-nasals.md
+    minimumDays: 7
+    requiredTurns: 25
+  - id: week-04-fricatives-affricates
+    file: week-04-fricatives-affricates.md
+    minimumDays: 7
+    requiredTurns: 25
+  - id: week-05-approximants-liquids
+    file: week-05-approximants-liquids.md
+    minimumDays: 7
+    requiredTurns: 25
+  - id: week-06-diacritics-suprasegmentals
+    file: week-06-diacritics-suprasegmentals.md
+    minimumDays: 7
+    requiredTurns: 30

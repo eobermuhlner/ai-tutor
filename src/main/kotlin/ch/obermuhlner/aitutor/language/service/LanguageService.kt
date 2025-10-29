@@ -134,7 +134,10 @@ class LanguageService {
 
         // Ukrainian
         "uk" to "Ukrainian",
-        "uk-UA" to "Ukrainian (Ukraine)"
+        "uk-UA" to "Ukrainian (Ukraine)",
+
+        // IPA (International Phonetic Alphabet)
+        "mul-ipa" to "International Phonetic Alphabet"
     )
 
     /**
