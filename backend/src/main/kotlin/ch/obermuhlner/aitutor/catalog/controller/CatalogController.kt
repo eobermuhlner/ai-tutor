@@ -7,6 +7,7 @@ import ch.obermuhlner.aitutor.catalog.dto.LanguageResponse
 import ch.obermuhlner.aitutor.catalog.dto.TutorDetailResponse
 import ch.obermuhlner.aitutor.catalog.dto.TutorResponse
 import ch.obermuhlner.aitutor.catalog.service.CatalogService
+import ch.obermuhlner.aitutor.image.service.ImageService
 import ch.obermuhlner.aitutor.language.service.LocalizationService
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -25,10 +26,24 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api/v1/catalog")
 class CatalogController(
     private val catalogService: CatalogService,
+    private val imageService: ImageService,
     private val localizationService: LocalizationService,
     private val authorizationService: ch.obermuhlner.aitutor.auth.service.AuthorizationService
 ) {
     private val objectMapper = jacksonObjectMapper()
+
+    private fun generateTutorImageUrl(tutor: ch.obermuhlner.aitutor.catalog.domain.TutorProfileEntity): String? {
+        val gender = tutor.gender ?: ch.obermuhlner.aitutor.core.model.catalog.TutorGender.Neutral
+        val countryCode = tutor.targetLanguageCode.substringAfterLast("-").uppercase()
+        val combinedText = "${tutor.location} ${tutor.personaEnglish}"
+
+        return imageService.getImageUrlByPerson(
+            countryCode = countryCode,
+            gender = gender,
+            age = tutor.age,
+            text = combinedText
+        )
+    }
 
     @GetMapping("/languages")
     fun listLanguages(
@@ -96,7 +111,7 @@ class CatalogController(
                 location = tutor.location,
                 age = tutor.age,
                 gender = tutor.gender,
-                imageUrl = "/api/v1/images/tutor/${tutor.id}/data",
+                imageUrl = generateTutorImageUrl(tutor),
                 displayOrder = tutor.displayOrder
             )
         }
@@ -157,7 +172,7 @@ class CatalogController(
                 location = tutor.location,
                 age = tutor.age,
                 gender = tutor.gender,
-                imageUrl = "/api/v1/images/tutor/${tutor.id}/data",
+                imageUrl = generateTutorImageUrl(tutor),
                 displayOrder = tutor.displayOrder
             )
         }
@@ -187,7 +202,7 @@ class CatalogController(
             location = tutor.location,
             age = tutor.age,
             gender = tutor.gender,
-            imageUrl = "/api/v1/images/tutor/${tutor.id}/data",
+            imageUrl = generateTutorImageUrl(tutor),
             createdAt = tutor.createdAt ?: java.time.Instant.now(),
             updatedAt = tutor.updatedAt ?: java.time.Instant.now()
         )
@@ -220,7 +235,7 @@ class CatalogController(
             location = tutor.location,
             age = tutor.age,
             gender = tutor.gender,
-            imageUrl = "/api/v1/images/tutor/${tutor.id}/data",
+            imageUrl = generateTutorImageUrl(tutor),
             createdAt = tutor.createdAt ?: java.time.Instant.now(),
             updatedAt = tutor.updatedAt ?: java.time.Instant.now()
         )

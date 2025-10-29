@@ -38,6 +38,9 @@ class VocabularyControllerTest {
     private lateinit var vocabularyQueryService: VocabularyQueryService
 
     @MockkBean(relaxed = true)
+    private lateinit var imageService: ch.obermuhlner.aitutor.image.service.ImageService
+
+    @MockkBean(relaxed = true)
     private lateinit var authorizationService: AuthorizationService
 
     @MockkBean(relaxed = true)
@@ -165,6 +168,7 @@ class VocabularyControllerTest {
 
         every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
         every { vocabularyQueryService.getVocabularyItemWithContexts(itemId, TestDataFactory.TEST_USER_ID) } returns result
+        every { imageService.getImageUrlByConcept("hello") } returns "http://imagestore.example.com/api/images/123"
 
         mockMvc.perform(
             get("/api/v1/vocabulary/$itemId")
@@ -176,7 +180,7 @@ class VocabularyControllerTest {
             .andExpect(jsonPath("$.exposures").value(3))
             .andExpect(jsonPath("$.contexts").isArray)
             .andExpect(jsonPath("$.contexts[0].context").value("Hola, ¿cómo estás?"))
-            .andExpect(jsonPath("$.imageUrl").value("/api/v1/images/concept/hello/data"))
+            .andExpect(jsonPath("$.imageUrl").value("http://imagestore.example.com/api/images/123"))
     }
 
     @Test
@@ -206,6 +210,8 @@ class VocabularyControllerTest {
 
         every { authorizationService.resolveUserId(TestDataFactory.TEST_USER_ID) } returns TestDataFactory.TEST_USER_ID
         every { vocabularyQueryService.getUserVocabulary(TestDataFactory.TEST_USER_ID, "Spanish") } returns listOf(item1, item2)
+        every { imageService.getImageUrlByConcept("apple") } returns "http://imagestore.example.com/api/images/456"
+        every { imageService.getImageUrlByConcept("dog") } returns "http://imagestore.example.com/api/images/789"
 
         mockMvc.perform(
             get("/api/v1/vocabulary")
@@ -216,9 +222,9 @@ class VocabularyControllerTest {
             .andExpect(content().contentType("application/json"))
             .andExpect(jsonPath("$").isArray)
             .andExpect(jsonPath("$[0].lemma").value("manzana"))
-            .andExpect(jsonPath("$[0].imageUrl").value("/api/v1/images/concept/apple/data"))
+            .andExpect(jsonPath("$[0].imageUrl").value("http://imagestore.example.com/api/images/456"))
             .andExpect(jsonPath("$[1].lemma").value("perro"))
-            .andExpect(jsonPath("$[1].imageUrl").value("/api/v1/images/concept/dog/data"))
+            .andExpect(jsonPath("$[1].imageUrl").value("http://imagestore.example.com/api/images/789"))
     }
 
     @Test

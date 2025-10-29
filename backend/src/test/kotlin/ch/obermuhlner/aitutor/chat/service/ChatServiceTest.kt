@@ -45,6 +45,7 @@ class ChatServiceTest {
     private lateinit var errorAnalyticsService: ch.obermuhlner.aitutor.analytics.service.ErrorAnalyticsService
     private lateinit var userLanguageService: ch.obermuhlner.aitutor.user.service.UserLanguageService
     private lateinit var lessonProgressionService: ch.obermuhlner.aitutor.lesson.service.LessonProgressionService
+    private lateinit var imageService: ch.obermuhlner.aitutor.image.service.ImageService
     private lateinit var objectMapper: ObjectMapper
 
     @BeforeEach
@@ -60,6 +61,7 @@ class ChatServiceTest {
         errorAnalyticsService = mockk(relaxed = true)
         userLanguageService = mockk(relaxed = true)
         lessonProgressionService = mockk(relaxed = true)
+        imageService = mockk(relaxed = true)
         objectMapper = jacksonObjectMapper()
 
         chatService = ChatService(
@@ -74,6 +76,7 @@ class ChatServiceTest {
             errorAnalyticsService,
             userLanguageService,
             lessonProgressionService,
+            imageService,
             objectMapper,
             "An error occurred"
         )
@@ -558,7 +561,8 @@ class ChatServiceTest {
         val savedSession = TestDataFactory.createSessionEntity()
 
         every { catalogService.getCourseById(courseId) } returns course
-        every { catalogService.getTutorById(tutorId, TestDataFactory.TEST_USER_ID) } returns tutor
+        every { catalogService.getTutorById(tutorId) } returns tutor
+        every { imageService.getImageUrlByPerson(any(), any(), any(), any()) } returns "http://imagestore.example.com/api/images/999"
         every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns savedSession
 
         val result = chatService.createSessionFromCourse(
@@ -570,8 +574,9 @@ class ChatServiceTest {
         )
 
         assertNotNull(result)
+        assertEquals("http://imagestore.example.com/api/images/999", result?.tutorImage)
         verify { catalogService.getCourseById(courseId) }
-        verify { catalogService.getTutorById(tutorId, TestDataFactory.TEST_USER_ID) }
+        verify { catalogService.getTutorById(tutorId) }
         verify { chatSessionRepository.save(any<ChatSessionEntity>()) }
     }
 
@@ -602,7 +607,7 @@ class ChatServiceTest {
         val course = mockk<ch.obermuhlner.aitutor.catalog.domain.CourseTemplateEntity>()
 
         every { catalogService.getCourseById(courseId) } returns course
-        every { catalogService.getTutorById(tutorId, any()) } returns null
+        every { catalogService.getTutorById(tutorId) } returns null
 
         val result = chatService.createSessionFromCourse(
             TestDataFactory.TEST_USER_ID,
@@ -612,7 +617,7 @@ class ChatServiceTest {
         )
 
         assertNull(result)
-        verify { catalogService.getTutorById(tutorId, any()) }
+        verify { catalogService.getTutorById(tutorId) }
         verify(exactly = 0) { chatSessionRepository.save(any()) }
     }
 
@@ -940,6 +945,7 @@ class ChatServiceTest {
 
         every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
         every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(TestDataFactory.TEST_SESSION_ID) } returns listOf(message)
+        every { imageService.getImageUrlByConcept("house") } returns "http://imagestore.example.com/api/images/100"
 
         val result = chatService.getSessionWithMessages(TestDataFactory.TEST_SESSION_ID, TestDataFactory.TEST_USER_ID)
 
@@ -948,7 +954,7 @@ class ChatServiceTest {
         assertNotNull(result?.messages?.get(0)?.newVocabulary)
         assertEquals(1, result?.messages?.get(0)?.newVocabulary?.size)
         assertEquals("casa", result?.messages?.get(0)?.newVocabulary?.get(0)?.lemma)
-        assertEquals("/api/v1/images/concept/house/data", result?.messages?.get(0)?.newVocabulary?.get(0)?.imageUrl)
+        assertEquals("http://imagestore.example.com/api/images/100", result?.messages?.get(0)?.newVocabulary?.get(0)?.imageUrl)
     }
 
     @Test
@@ -966,6 +972,7 @@ class ChatServiceTest {
 
         every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
         every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(TestDataFactory.TEST_SESSION_ID) } returns listOf(message)
+        every { imageService.getImageUrlByConcept("house") } returns "http://imagestore.example.com/api/images/200"
 
         val result = chatService.getSessionWithMessages(TestDataFactory.TEST_SESSION_ID, TestDataFactory.TEST_USER_ID)
 
@@ -974,7 +981,7 @@ class ChatServiceTest {
         assertNotNull(result?.messages?.get(0)?.wordCards)
         assertEquals(1, result?.messages?.get(0)?.wordCards?.size)
         assertEquals("House", result?.messages?.get(0)?.wordCards?.get(0)?.titleSourceLanguage)
-        assertEquals("/api/v1/images/concept/house/data", result?.messages?.get(0)?.wordCards?.get(0)?.imageUrl)
+        assertEquals("http://imagestore.example.com/api/images/200", result?.messages?.get(0)?.wordCards?.get(0)?.imageUrl)
     }
 
     @Test

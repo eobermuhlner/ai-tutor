@@ -42,6 +42,9 @@ class CatalogControllerTest {
     private lateinit var localizationService: LocalizationService
 
     @MockkBean(relaxed = true)
+    private lateinit var imageService: ch.obermuhlner.aitutor.image.service.ImageService
+
+    @MockkBean(relaxed = true)
     private lateinit var jwtTokenService: ch.obermuhlner.aitutor.auth.service.JwtTokenService
 
     @MockkBean(relaxed = true)

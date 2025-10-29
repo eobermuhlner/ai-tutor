@@ -16,6 +16,7 @@ import ch.obermuhlner.aitutor.core.model.CEFRLevel
 import ch.obermuhlner.aitutor.core.model.Correction
 import ch.obermuhlner.aitutor.core.model.NewVocabulary
 import ch.obermuhlner.aitutor.core.model.WordCard
+import ch.obermuhlner.aitutor.image.service.ImageService
 import ch.obermuhlner.aitutor.tutor.domain.ConversationPhase
 import ch.obermuhlner.aitutor.tutor.domain.ConversationState
 import ch.obermuhlner.aitutor.tutor.domain.Tutor
@@ -48,6 +49,7 @@ class ChatService(
     private val errorAnalyticsService: ch.obermuhlner.aitutor.analytics.service.ErrorAnalyticsService,
     private val userLanguageService: ch.obermuhlner.aitutor.user.service.UserLanguageService,
     private val lessonProgressionService: ch.obermuhlner.aitutor.lesson.service.LessonProgressionService,
+    private val imageService: ImageService,
     private val objectMapper: ObjectMapper,
     @Value("\${ai-tutor.messages.technical-error}") private val technicalErrorMessage: String,
 ) {
@@ -719,6 +721,17 @@ class ChatService(
         // Determine source language from user's native language profile as per original design
         val resolvedSourceLanguageCode = userLanguageService.suggestSourceLanguage(userId, tutor.targetLanguageCode)
 
+        val gender = tutor.gender ?: ch.obermuhlner.aitutor.core.model.catalog.TutorGender.Neutral
+        val countryCode = tutor.targetLanguageCode.substringAfterLast("-").uppercase()
+        val combinedText = "${tutor.location} ${tutor.personaEnglish}"
+
+        val tutorImageUrl = imageService.getImageUrlByPerson(
+            countryCode = countryCode,
+            gender = gender,
+            age = tutor.age,
+            text = combinedText
+        )
+
         val session = ChatSessionEntity(
             userId = userId,
             tutorName = tutor.name,
@@ -727,7 +740,7 @@ class ChatService(
             tutorTeachingStyle = tutor.teachingStyle,
             tutorAge = tutor.age,
             tutorLocation = tutor.location,
-            tutorImage = "/api/v1/images/tutor/${tutor.id}/data",
+            tutorImage = tutorImageUrl,
             tutorEmoji = tutor.emoji,
             tutorVoiceId = tutor.voiceId,
             tutorGender = tutor.gender,
@@ -867,7 +880,7 @@ class ChatService(
                 lemma = vocab.lemma,
                 context = vocab.context,
                 conceptName = vocab.conceptName,
-                imageUrl = vocab.conceptName?.let { "/api/v1/images/concept/$it/data" }
+                imageUrl = vocab.conceptName?.let { imageService.getImageUrlByConcept(it) }
             )
         }
 
@@ -881,7 +894,7 @@ class ChatService(
                 descriptionSourceLanguage = card.descriptionSourceLanguage,
                 descriptionTargetLanguage = card.descriptionTargetLanguage,
                 conceptName = card.conceptName,
-                imageUrl = card.conceptName?.let { "/api/v1/images/concept/$it/data" }
+                imageUrl = card.conceptName?.let { imageService.getImageUrlByConcept(it) }
             )
         }
 

@@ -6,6 +6,7 @@ import ch.obermuhlner.aitutor.vocabulary.dto.VocabularyItemResponse
 import ch.obermuhlner.aitutor.vocabulary.dto.VocabularyItemWithContextsResponse
 import ch.obermuhlner.aitutor.vocabulary.dto.toResponse
 import ch.obermuhlner.aitutor.vocabulary.service.VocabularyQueryService
+import ch.obermuhlner.aitutor.image.service.ImageService
 import ch.obermuhlner.aitutor.vocabulary.service.VocabularyReviewService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -26,7 +27,8 @@ import org.springframework.web.bind.annotation.RestController
 class VocabularyController(
     private val vocabularyQueryService: VocabularyQueryService,
     private val vocabularyReviewService: VocabularyReviewService,
-    private val authorizationService: AuthorizationService
+    private val authorizationService: AuthorizationService,
+    private val imageService: ch.obermuhlner.aitutor.image.service.ImageService
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -68,7 +70,7 @@ class VocabularyController(
             lastSeenAt = result.item.lastSeenAt,
             createdAt = result.item.createdAt ?: result.item.lastSeenAt,
             contexts = contexts,
-            imageUrl = result.item.conceptName?.let { "/api/v1/images/concept/$it/data" }
+            imageUrl = result.item.conceptName?.let { imageService.getImageUrlByConcept(it) }
         )
 
         return ResponseEntity.ok(response)

@@ -34,6 +34,26 @@ class ImageService(
         return getImage(metadata)
     }
 
+    @Transactional(readOnly = true)
+    fun getImageUrlByConcept(concept: String): String? {
+        val searchResults = try {
+            imageStoreClient.searchImagesByTags(listOf(concept))
+        } catch (e: Exception) {
+            logger.error("Failed to search images", e)
+            emptyList()
+        }
+
+        if (searchResults.isEmpty()) {
+            logger.debug("No image found for concept: $concept")
+            return null
+        }
+
+        // Take first match
+        val metadata = searchResults.first()
+
+        return getImageUrl(metadata)
+    }
+
     private val separatorRegex = Regex("[\\p{Punct}\\s]+")
     private val markRegex = Regex("\\p{M}+")
 
@@ -71,6 +91,40 @@ class ImageService(
         return getImage(metadata)
     }
 
+    @Transactional(readOnly = true)
+    fun getImageUrlByPerson(countryCode: String, gender: TutorGender, age: Int, text: String): String? {
+        val requiredTags = listOf("person", countryCode, gender.toString(), "age_$age")
+        val optionalTags = text.split(separatorRegex)
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+            .flatMap { word ->
+                val normalized = normalizeToAscii(word)
+                if (normalized.equals(word, ignoreCase = true)) listOf(word)
+                else listOf(word, normalized)
+            }
+            .distinct()
+
+        val searchResults = try {
+            imageStoreClient.searchImagesByTags(
+                requiredTags,
+                optionalTags,
+            )
+        } catch (e: Exception) {
+            logger.error("Failed to search images", e)
+            emptyList()
+        }
+
+        if (searchResults.isEmpty()) {
+            logger.debug("No image found for person: $requiredTags")
+            return null
+        }
+
+        // Take first match
+        val metadata = searchResults.first()
+
+        return getImageUrl(metadata)
+    }
+
     private fun normalizeToAscii(input: String): String {
         val normalized = Normalizer.normalize(input, Normalizer.Form.NFD)
         return normalized.replace(markRegex, "")
@@ -83,6 +137,15 @@ class ImageService(
             ImageData(data, format, metadata.contentType)
         } catch (e: Exception) {
             logger.error("Failed to fetch image from imagestore: id=${metadata.id}", e)
+            null
+        }
+    }
+
+    private fun getImageUrl(metadata: ImageMetadataResponse): String? {
+        return try {
+            imageStoreClient.getImageUrl(metadata.id)
+        } catch (e: Exception) {
+            logger.error("Failed to get image URL from imagestore: id=${metadata.id}", e)
             null
         }
     }
