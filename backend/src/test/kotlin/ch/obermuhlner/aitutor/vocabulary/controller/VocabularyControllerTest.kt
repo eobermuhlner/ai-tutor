@@ -210,8 +210,6 @@ class VocabularyControllerTest {
 
         every { authorizationService.resolveUserId(TestDataFactory.TEST_USER_ID) } returns TestDataFactory.TEST_USER_ID
         every { vocabularyQueryService.getUserVocabulary(TestDataFactory.TEST_USER_ID, "Spanish") } returns listOf(item1, item2)
-        every { imageService.getImageUrlByConcept("apple") } returns "http://imagestore.example.com/api/images/456"
-        every { imageService.getImageUrlByConcept("dog") } returns "http://imagestore.example.com/api/images/789"
 
         mockMvc.perform(
             get("/api/v1/vocabulary")
@@ -222,9 +220,9 @@ class VocabularyControllerTest {
             .andExpect(content().contentType("application/json"))
             .andExpect(jsonPath("$").isArray)
             .andExpect(jsonPath("$[0].lemma").value("manzana"))
-            .andExpect(jsonPath("$[0].imageUrl").value("http://imagestore.example.com/api/images/456"))
+            .andExpect(jsonPath("$[0].imageUrl").value("/api/v1/images/concept/apple/data"))
             .andExpect(jsonPath("$[1].lemma").value("perro"))
-            .andExpect(jsonPath("$[1].imageUrl").value("http://imagestore.example.com/api/images/789"))
+            .andExpect(jsonPath("$[1].imageUrl").value("/api/v1/images/concept/dog/data"))
     }
 
     @Test

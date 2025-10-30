@@ -551,19 +551,19 @@ class ChatServiceTest {
         every { tutor.personaEnglish } returns "friendly"
         every { tutor.domainEnglish } returns "general"
         every { tutor.teachingStyle } returns ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Reactive
-        every { tutor.targetLanguageCode } returns "es"
+        every { tutor.targetLanguageCode } returns "es-ES"
         every { tutor.voiceId } returns ch.obermuhlner.aitutor.core.model.catalog.TutorVoice.Warm
         every { tutor.gender } returns ch.obermuhlner.aitutor.core.model.catalog.TutorGender.Female
         every { tutor.age } returns 30
         every { tutor.location } returns "Spain"
         every { tutor.emoji } returns "👩‍🏫"
 
-        val savedSession = TestDataFactory.createSessionEntity()
-
         every { catalogService.getCourseById(courseId) } returns course
-        every { catalogService.getTutorById(tutorId) } returns tutor
+        every { catalogService.getTutorById(tutorId, TestDataFactory.TEST_USER_ID) } returns tutor
+        every { userLanguageService.getLearningLanguages(TestDataFactory.TEST_USER_ID) } returns listOf()
+        every { userLanguageService.suggestSourceLanguage(TestDataFactory.TEST_USER_ID, "es-ES") } returns "en"
         every { imageService.getImageUrlByPerson(any(), any(), any(), any()) } returns "http://imagestore.example.com/api/images/999"
-        every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns savedSession
+        every { chatSessionRepository.save(any<ChatSessionEntity>()) } answers { firstArg() }
 
         val result = chatService.createSessionFromCourse(
             TestDataFactory.TEST_USER_ID,
@@ -576,7 +576,7 @@ class ChatServiceTest {
         assertNotNull(result)
         assertEquals("http://imagestore.example.com/api/images/999", result?.tutorImage)
         verify { catalogService.getCourseById(courseId) }
-        verify { catalogService.getTutorById(tutorId) }
+        verify { catalogService.getTutorById(tutorId, TestDataFactory.TEST_USER_ID) }
         verify { chatSessionRepository.save(any<ChatSessionEntity>()) }
     }
 
@@ -607,7 +607,9 @@ class ChatServiceTest {
         val course = mockk<ch.obermuhlner.aitutor.catalog.domain.CourseTemplateEntity>()
 
         every { catalogService.getCourseById(courseId) } returns course
-        every { catalogService.getTutorById(tutorId) } returns null
+        every { catalogService.getTutorById(tutorId, TestDataFactory.TEST_USER_ID) } returns null
+        every { userLanguageService.getLearningLanguages(TestDataFactory.TEST_USER_ID) } returns listOf()
+        every { userLanguageService.suggestSourceLanguage(TestDataFactory.TEST_USER_ID, any()) } returns "en"
 
         val result = chatService.createSessionFromCourse(
             TestDataFactory.TEST_USER_ID,
@@ -617,7 +619,7 @@ class ChatServiceTest {
         )
 
         assertNull(result)
-        verify { catalogService.getTutorById(tutorId) }
+        verify { catalogService.getTutorById(tutorId, TestDataFactory.TEST_USER_ID) }
         verify(exactly = 0) { chatSessionRepository.save(any()) }
     }
 

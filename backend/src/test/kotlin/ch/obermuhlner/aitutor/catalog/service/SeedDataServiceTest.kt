@@ -107,7 +107,7 @@ class SeedDataServiceTest {
         assertTrue(germanCourses.any { it.nameJson.contains("Conversational German") })
 
         val japaneseCourses = courseTemplateRepository.findByLanguageCodeAndIsActiveTrueOrderByDisplayOrder("ja-JP")
-        assertEquals(3, japaneseCourses.size, "Should have 3 Japanese courses")
+        assertEquals(6, japaneseCourses.size, "Should have 6 Japanese courses")
         assertTrue(japaneseCourses.any { it.nameJson.contains("Japanese for Beginners") })
     }
 

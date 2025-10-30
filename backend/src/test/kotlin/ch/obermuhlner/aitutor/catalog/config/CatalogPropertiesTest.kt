@@ -90,7 +90,7 @@ class CatalogPropertiesTest {
 
         // Verify Japanese courses
         val japaneseCourses = courses.filter { it.languageCode == "ja-JP" }
-        assertEquals(3, japaneseCourses.size, "Should have 3 Japanese courses")
+        assertEquals(6, japaneseCourses.size, "Should have 6 Japanese courses")
     }
 
     @Test
