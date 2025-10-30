@@ -12,9 +12,24 @@ data class TestScenario(
     val description: String,
     val learnerPersona: LearnerPersona,
     val tutorConfig: TutorConfig,
-    val conversationScript: List<LearnerMessage>,
+    val conversationScript: List<LearnerMessage> = emptyList(),
+    val llmConversationConfig: LlmConversationConfig? = null,
     val expectedOutcomes: ExpectedOutcomes,
     val evaluationFocus: List<EvaluationFocus>
+)
+
+/**
+ * Configuration for LLM-based conversation message generation.
+ */
+data class LlmConversationConfig(
+    val messageCount: Int,
+    val topic: String? = null,
+    val errorTypes: List<String> = emptyList(),
+    val targetPassiveness: Double = 0.0, // 0.0 = completely active, 1.0 = completely passive
+    val targetErrorFrequency: Double = 0.0, // 0.0 = no errors, 1.0 = many errors
+    val course: String? = null,             // Course ID to use (e.g. "es-conversational-spanish")
+    val lesson: String? = null,             // Lesson ID to use (e.g. "week-01-greetings")
+    val notes: String? = null
 )
 
 /**

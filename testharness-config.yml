@@ -1,14 +1,14 @@
 # AI Tutor Pedagogical Test Harness Configuration
 
 # API Configuration
-apiBaseUrl: http://localhost:8080
+apiBaseUrl: http://localhost:8081
 apiUsername: demo
 apiPassword: demo
 
 # Judge Configuration (LLM-as-judge)
 # Supports multiple AI providers: openai, azure-openai, ollama
-judgeProvider: ollama          # AI provider (openai | azure-openai | ollama)
-judgeModel: granite3.2:8b      # Model name
+judgeProvider: openai          # AI provider (openai | azure-openai | ollama)
+judgeModel: gpt-4o-mini        # Model name
 judgeTemperature: 0.2          # Temperature (0.0-2.0)
 
 # Optional: Override API configuration (defaults to environment variables)

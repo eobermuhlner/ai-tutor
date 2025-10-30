@@ -1,0 +1,49 @@
+id: llm-generated-conversation-lesson
+name: LLM Generated Conversation Lesson - Spanish Greetings
+description: |
+  A test scenario that uses LLM to generate conversation messages based on 
+  the week-01-greetings lesson content, allowing the learner to passively 
+  practice greetings and basic expressions from the Spanish course lesson.
+
+learnerPersona:
+  name: Alex
+  cefrLevel: A1
+  sourceLanguage: en
+  targetLanguage: es
+  commonErrors:
+    - Subject-verb agreement
+    - Gender agreement
+    - H pronunciation
+  learningGoals:
+    - Learn basic Spanish greetings
+    - Practice formal vs informal address
+    - Master polite expressions
+
+tutorConfig:
+  tutorName: SpanishTutor
+  initialPhase: Correction
+  teachingStyle: Guided
+
+# Use LLM to generate conversation messages instead of hardcoded script
+llmConversationConfig:
+  messageCount: 20
+  course: "es-conversational-spanish"  # Course directory name
+  lesson: "week-01-greetings"          # Lesson file name (without .md extension)
+  errorTypes:
+    - "Pronunciation"
+    - "Formal vs informal address"
+    - "Gender agreement"
+  targetPassiveness: 0.6  # More passive to focus on learning lesson content
+  targetErrorFrequency: 0.3  # Lower error frequency for A1 level
+  notes: "Generate messages appropriate for A1 Spanish learner focusing on greetings and basic expressions from the week-01-greetings lesson content. Include practice with hola, buenos días, buenas tardes, buenas noches, cómo estás, cómo está usted, gracias, de nada, and polite expressions. Focus on passive learning of lesson content rather than active error production."
+
+expectedOutcomes:
+  minimumCorrectionsDetected: 2
+  topicChanges: 0
+
+evaluationFocus:
+  - ERROR_DETECTION
+  - PHASE_APPROPRIATENESS
+  - CORRECTION_QUALITY
+  - COMPREHENSIBILITY
+  - VOCABULARY_TEACHING

@@ -84,6 +84,27 @@ class ApiClient(
     }
 
     /**
+     * Create a new chat session from a course template.
+     */
+    fun createSessionFromCourse(
+        userId: UUID,
+        courseTemplateId: UUID,
+        tutorProfileId: UUID,
+        sourceLanguageCode: String
+    ): SessionResponse {
+        val request = mapOf(
+            "userId" to userId.toString(),
+            "courseTemplateId" to courseTemplateId.toString(),
+            "tutorProfileId" to tutorProfileId.toString(),
+            "sourceLanguageCode" to sourceLanguageCode
+        )
+
+        val response = post<SessionResponse>("/api/v1/chat/sessions/from-course", request)
+        logger.debug("Created course-based session: ${response.id}")
+        return response
+    }
+
+    /**
      * Send a message in a chat session (with retry logic for rate limiting).
      */
     fun sendMessage(sessionId: UUID, content: String): MessageResponse {
@@ -137,6 +158,98 @@ class ApiClient(
     fun getCurrentUserId(): UUID {
         val response = get<Map<String, Any>>("/api/v1/auth/me")
         return UUID.fromString(response["id"] as String)
+    }
+
+    /**
+     * Get courses for a language.
+     */
+    fun getCoursesForLanguage(languageCode: String, sourceLanguage: String = "en"): List<Map<String, Any>> {
+        val response = get<List<Map<String, Any>>>("/api/v1/catalog/languages/$languageCode/courses?sourceLanguage=$sourceLanguage")
+        logger.debug("Retrieved ${response.size} courses for language: $languageCode")
+        return response
+    }
+
+    /**
+     * Get tutors for a language.
+     */
+    fun getTutorsForLanguage(languageCode: String, sourceLanguage: String = "en"): List<Map<String, Any>> {
+        val response = get<List<Map<String, Any>>>("/api/v1/catalog/languages/$languageCode/tutors?sourceLanguage=$sourceLanguage")
+        logger.debug("Retrieved ${response.size} tutors for language: $languageCode")
+        return response
+    }
+
+    /**
+     * Get all available languages.
+     */
+    fun getLanguages(sourceLanguage: String = "en"): List<Map<String, Any>> {
+        val response = get<List<Map<String, Any>>>("/api/v1/catalog/languages?sourceLanguage=$sourceLanguage")
+        logger.debug("Retrieved ${response.size} languages")
+        return response
+    }
+
+    /**
+     * Search for a specific course by its slug (e.g., "es-conversational-spanish").
+     * This searches all available languages to find the matching course.
+     */
+    fun findCourseBySlug(courseSlug: String, sourceLanguage: String = "en"): Map<String, Any>? {
+        logger.info("Searching for course with slug: $courseSlug")
+        
+        val languages = getLanguages(sourceLanguage)
+        logger.info("Found ${languages.size} total languages: ${languages.map { it["code"] }.joinToString(", ")}")
+        
+        languages.forEach { language ->
+            val languageCode = language["code"] as? String
+            if (languageCode != null) {
+                try {
+                    val courses = getCoursesForLanguage(languageCode, sourceLanguage)
+                    logger.info("Found ${courses.size} courses for language: $languageCode")
+                    
+                    courses.forEach { course ->
+                        logger.debug("Raw course data keys: ${course.keys}")
+                        
+                        // For course name, use the simple 'name' field directly
+                        val courseNameEnglish = course["name"] as? String
+                        
+                        val courseLanguageCode = course["languageCode"] as? String
+                        if (courseLanguageCode != null && courseNameEnglish != null) {
+                            val languageOnly = courseLanguageCode.lowercase().substringBefore("-")
+                            val generatedSlug = "$languageOnly-${courseNameEnglish.lowercase().replace(" ", "-")}"
+                            
+                            logger.info("Checking course: $courseLanguageCode, name: $courseNameEnglish, generated slug: $generatedSlug against: $courseSlug")
+                            
+                            if (generatedSlug.equals(courseSlug, ignoreCase = true)) {
+                                logger.info("Found matching course: $generatedSlug with ID: ${course["id"]}")
+                                return course
+                            }
+                        }
+                        if (courseNameEnglish != null) {
+                            logger.info("  Available course in ${languageCode}: ${courseNameEnglish}")
+                        } else {
+                            logger.warn("Course name is null for course: ${course["id"]}, available keys: ${course.keys}")
+                        }
+                    }
+                } catch (e: Exception) {
+                    logger.info("Could not get courses for language: $languageCode (error: ${e.message})")
+                }
+            }
+        }
+        
+        logger.warn("Course not found with slug: $courseSlug after searching all available languages")
+        return null
+    }
+
+    /**
+     * Get a specific course by ID.
+     */
+    fun getCourseById(courseId: UUID, sourceLanguage: String = "en"): Map<String, Any>? {
+        return try {
+            val response = get<Map<String, Any>>("/api/v1/catalog/courses/$courseId?sourceLanguage=$sourceLanguage")
+            logger.debug("Retrieved course: $courseId")
+            response
+        } catch (e: ApiException) {
+            logger.warn("Course not found: $courseId")
+            null
+        }
     }
 
     // Retry logic with exponential backoff

@@ -196,6 +196,22 @@ class JudgeService(private val config: TestHarnessConfig) {
                - Context-rich introductions
                - Reinforcement and recycling
                - Visual aids (word cards) when helpful
+               ${if (scenario.llmConversationConfig?.course != null && scenario.llmConversationConfig.lesson != null) {
+                   "- Lesson-specific vocabulary from ${scenario.llmConversationConfig.course} - ${scenario.llmConversationConfig.lesson}"
+               } else ""}
+
+            ${if (scenario.llmConversationConfig?.course != null && scenario.llmConversationConfig.lesson != null) {
+                """
+                Additionally, evaluate how well the tutor covered the specified lesson content:
+                - Course: ${scenario.llmConversationConfig.course}
+                - Lesson: ${scenario.llmConversationConfig.lesson}
+                
+                Did the tutor effectively incorporate lesson-specific vocabulary, grammar points, and themes into the conversation?
+                Was the lesson structure and sequence followed appropriately?
+                Did the tutor focus on the lesson's learning objectives appropriately?
+                Were the lesson's practice patterns and common mistakes addressed?
+                """
+            } else ""}
 
             Provide your evaluation as a JSON object with the following structure.
 
