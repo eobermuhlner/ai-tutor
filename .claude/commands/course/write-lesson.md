@@ -92,7 +92,7 @@ Before finalizing any lesson:
 4. **Before finalizing**:
    - Run through complete validation checklist
    - Verify curriculum.yml entry
-   - Confirm file location: `src/main/resources/course-content/{course-id}/week-{NN}-{topic}.md`
+   - Confirm file location: `backend/src/main/resources/course-content/{course-id}/week-{NN}-{topic}.md`
 
 ## Reference
 

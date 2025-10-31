@@ -1,11 +1,11 @@
 # Course Lesson Writing Guidelines
 
 ## Overview
-Course lessons are markdown files with YAML frontmatter located in `src/main/resources/course-content/{course-id}/`. Each lesson follows a standardized structure to ensure pedagogical consistency and quality across all language courses.
+Course lessons are markdown files with YAML frontmatter located in `backend/src/main/resources/course-content/{course-id}/`. Each lesson follows a standardized structure to ensure pedagogical consistency and quality across all language courses.
 
 ## Directory Structure
 ```
-src/main/resources/course-content/
+backend/src/main/resources/course-content/
 ├── de-conversational-german/
 │   ├── curriculum.yml              # Course structure and lesson sequence
 │   ├── week-01-greetings.md        # Individual lesson files
@@ -522,9 +522,9 @@ lessons:
 ## Reference Examples
 
 **High-quality reference lessons:**
-- Spanish: `src/main/resources/course-content/es-conversational-spanish/week-01-greetings.md` (117 lines)
-- German: `src/main/resources/course-content/de-conversational-german/week-01-greetings.md` (165 lines)
-- French: `src/main/resources/course-content/fr-conversational-french/week-02-introductions.md` (157 lines)
+- Spanish: `backend/src/main/resources/course-content/es-conversational-spanish/week-01-greetings.md` (117 lines)
+- German: `backend/src/main/resources/course-content/de-conversational-german/week-01-greetings.md` (165 lines)
+- French: `backend/src/main/resources/course-content/fr-conversational-french/week-02-introductions.md` (157 lines)
 
 Study these files for examples of:
 - Clear grammar explanations with multiple examples

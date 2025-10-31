@@ -48,7 +48,7 @@ export AZURE_OPENAI_API_KEY=your-azure-key
 export AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com
 ```
 
-Edit `src/main/resources/application.yml` to uncomment Azure configuration:
+Edit `backend/src/main/resources/application.yml` to uncomment Azure configuration:
 ```yaml
 spring.ai.azure.openai.api-key: ${AZURE_OPENAI_API_KEY}
 spring.ai.azure.openai.endpoint: ${AZURE_OPENAI_ENDPOINT}
@@ -61,7 +61,7 @@ spring.ai.azure.openai.chat.options.deployment-name: gpt-4o
 ollama run llama3
 ```
 
-Edit `src/main/resources/application.yml` to uncomment Ollama configuration:
+Edit `backend/src/main/resources/application.yml` to uncomment Ollama configuration:
 ```yaml
 spring.ai.ollama.base-url: http://localhost:11434
 spring.ai.ollama.chat.options.model: llama3
@@ -210,7 +210,7 @@ curl http://localhost:8080/api/v1/chat/sessions/{sessionId} \
 
 ## Testing with IntelliJ HTTP Client
 
-The project includes HTTP request examples in `src/test/http/http-client-requests.http`.
+The project includes HTTP request examples in `backend/src/test/http/http-client-requests.http`.
 
 1. Open the file in IntelliJ IDEA
 2. Select environment: `local 8080`
@@ -295,7 +295,7 @@ ch.obermuhlner.aitutor
 
 ### Configuration
 
-Application configuration is in `src/main/resources/application.yml`:
+Application configuration is in `backend/src/main/resources/application.yml`:
 
 ```yaml
 spring:
@@ -315,7 +315,7 @@ ai-tutor:
                                       # Ollama: Uses format parameter with schema map
 ```
 
-Database configuration in `src/main/resources/application-h2.yml`:
+Database configuration in `backend/src/main/resources/application-h2.yml`:
 
 ```yaml
 spring.datasource.url: jdbc:h2:mem:testdb
@@ -333,38 +333,41 @@ Access the H2 database console at: `http://localhost:8080/h2-console`
 ### Building
 
 ```bash
+# Build all modules
+./gradlew build
+
 # Build without tests
 ./gradlew build -x test
 
-# Run tests
-./gradlew test
+# Run backend tests
+./gradlew :backend:test
 
 # Run tests with coverage
-./gradlew test jacocoTestReport
+./gradlew :backend:test :backend:jacocoTestReport
 
 # Create bootable JAR
-./gradlew bootJar
+./gradlew :backend:bootJar
 ```
 
 ### Running
 
 ```bash
 # Run Spring Boot REST API server
-./gradlew runServer
-# (or use the standard task: ./gradlew bootRun)
+./gradlew :backend:bootRun
 
-# Run standalone CLI client
-./gradlew runCli
-# (or use the standard task: ./gradlew run)
+# Run standalone CLI client (future)
+# ./gradlew :cli:run
 
 # Run JAR
-java -jar build/libs/ai-tutor-0.0.1-SNAPSHOT.jar
+java -jar backend/build/libs/ai-tutor-0.0.1-SNAPSHOT.jar
+
+# Run test harness
+./gradlew :backend:runTestHarness
 ```
 
-**Note:** This project has three independent entry points:
-- **REST API Server** (`runServer`/`bootRun`): Launches the Spring Boot backend at `http://localhost:8080`
-- **CLI Client** (`runCli`/`run`): Interactive command-line interface that connects to the API server
-- **Test Harness** (`runTestHarness`): Standalone pedagogical evaluation tool using LLM-as-judge
+**Note:** This project has multiple entry points:
+- **REST API Server** (`:backend:bootRun`): Launches the Spring Boot backend at `http://localhost:8080`
+- **Test Harness** (`:backend:runTestHarness`): Standalone pedagogical evaluation tool using LLM-as-judge
 
 ## Testing
 
@@ -373,7 +376,7 @@ The project includes comprehensive test coverage with unit, controller, and inte
 ### Test Structure
 
 ```
-src/test/kotlin/
+backend/src/test/kotlin/
 ├── chat/
 │   ├── controller/    # REST API tests (@WebMvcTest)
 │   └── service/       # Business logic tests (MockK)
@@ -386,14 +389,14 @@ src/test/kotlin/
 ### Running Tests
 
 ```bash
-# Run all tests
-./gradlew test
+# Run all backend tests
+./gradlew :backend:test
 
 # Run specific test class
-./gradlew test --tests ChatControllerTest
+./gradlew :backend:test --tests ChatControllerTest
 
 # Run with coverage report
-./gradlew test jacocoTestReport
+./gradlew :backend:test :backend:jacocoTestReport
 ```
 
 ### Test Categories
@@ -547,7 +550,7 @@ The test harness:
 ### Running the Test Harness
 
 **Prerequisites:**
-- Running AI Tutor server (`./gradlew bootRun`)
+- Running AI Tutor server (`./gradlew :backend:bootRun`)
 - AI provider configured (see Configuration section below for OpenAI, Azure OpenAI, or Ollama setup)
 - Demo user registered (username: `demo`, password: `demo`)
 
@@ -555,20 +558,20 @@ The test harness:
 
 ```bash
 # List available scenarios
-./gradlew runTestHarness --args="--list"
+./gradlew :backend:runTestHarness --args="--list"
 
 # Run all scenarios
-./gradlew runTestHarness
+./gradlew :backend:runTestHarness
 
 # Run specific scenario(s)
-./gradlew runTestHarness --args="--scenario beginner-errors"
-./gradlew runTestHarness --args="--scenario phase"  # All scenarios with "phase" in name
+./gradlew :backend:runTestHarness --args="--scenario beginner-errors"
+./gradlew :backend:runTestHarness --args="--scenario phase"  # All scenarios with "phase" in name
 
 # Use custom configuration
-./gradlew runTestHarness --args="--config custom-config.yml"
+./gradlew :backend:runTestHarness --args="--config custom-config.yml"
 
 # Get help
-./gradlew runTestHarness --args="--help"
+./gradlew :backend:runTestHarness --args="--help"
 ```
 
 **Example --list output:**

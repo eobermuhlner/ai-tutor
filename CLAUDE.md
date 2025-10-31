@@ -150,16 +150,16 @@ Language learning assistant with conversational AI tutoring and vocabulary track
   - LLM chooses appropriate card type based on learning context
 
 ## Commands
-- `./gradlew runServer` - Run REST API server (requires AI provider configuration: OpenAI, Azure OpenAI, or Ollama)
-- `./gradlew runCli` - Run CLI client (connects to running server)
-- `./gradlew runTestHarness` - Run pedagogical test harness with LLM-as-judge evaluation (supports OpenAI, Azure OpenAI, or Ollama)
+- `./gradlew :backend:bootRun` - Run REST API server (requires AI provider configuration: OpenAI, Azure OpenAI, or Ollama)
+- `./gradlew :backend:runTestHarness` - Run pedagogical test harness with LLM-as-judge evaluation (supports OpenAI, Azure OpenAI, or Ollama)
   - `--args="--list"` - List all available test scenarios
   - `--args="--scenario NAME"` - Run specific scenario(s)
   - `--args="--help"` - Show test harness help
-- `./gradlew bootRun` - Run REST API server (alternative to runServer)
-- `./gradlew build` - Build project
+- `./gradlew build` - Build all modules
+- `./gradlew :backend:build` - Build backend module
+- `./gradlew :backend:test` - Run backend tests
 - H2 Console: http://localhost:8080/h2-console
-- HTTP Tests: `src/test/http/http-client-requests.http`
+- HTTP Tests: `backend/src/test/http/http-client-requests.http`
 
 **Note:** Three independent entry points - REST API server, CLI client, and test harness
 
@@ -273,13 +273,13 @@ This separate document contains:
 ### When Adding New REST Endpoints
 When adding new REST endpoints or modifying existing ones, **always update**:
 1. **README.md** - Update API endpoint table and examples
-2. **src/test/http/http-client-requests.http** - Add HTTP client test examples
+2. **backend/src/test/http/http-client-requests.http** - Add HTTP client test examples
 3. **CLAUDE.md** - Update REST API Layer section and package structure
 4. **http-client.env.json** - Add any new variables if needed
 
 ### When Making Code Changes
 **Before committing any changes:**
-1. **Run all tests**: `./gradlew test`
+1. **Run all tests**: `./gradlew :backend:test`
 2. **Fix all failing tests** - Never commit with failing tests
 3. **Add tests for new functionality** - Maintain test coverage
 4. **Verify build succeeds**: `./gradlew build`
