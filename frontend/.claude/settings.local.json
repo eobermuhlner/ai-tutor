@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run build:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm run lint:*)"
+    ],
+    "deny": [],
+    "ask": [],
+    "additionalDirectories": [
+      "\\Users\\eober\\IdeaProjects\\ai-tutor"
+    ]
+  }
+}
