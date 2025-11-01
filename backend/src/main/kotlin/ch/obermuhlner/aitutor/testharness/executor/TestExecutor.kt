@@ -5,7 +5,6 @@ import ch.obermuhlner.aitutor.testharness.config.TestHarnessConfig
 import ch.obermuhlner.aitutor.testharness.conversation.LlmConversationGenerator
 import ch.obermuhlner.aitutor.testharness.domain.*
 import ch.obermuhlner.aitutor.testharness.judge.JudgeService
-import ch.obermuhlner.aitutor.tutor.domain.ConversationPhase
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import org.slf4j.LoggerFactory
