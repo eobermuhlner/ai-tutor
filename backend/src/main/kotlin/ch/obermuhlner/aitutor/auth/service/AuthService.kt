@@ -264,7 +264,8 @@ class AuthService(
             enabled = user.enabled,
             emailVerified = user.emailVerified,
             createdAt = user.createdAt,
-            lastLoginAt = user.lastLoginAt
+            lastLoginAt = user.lastLoginAt,
+            subscriptionPlan = user.subscriptionPlan
         )
     }
 }

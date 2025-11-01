@@ -8,7 +8,6 @@ import ch.obermuhlner.aitutor.user.dto.UserLanguageProficiencyResponse
 import ch.obermuhlner.aitutor.user.service.UserLanguageService
 import java.util.UUID
 import org.springframework.http.HttpStatus
-import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
@@ -30,8 +29,7 @@ class UserLanguageController(
     @GetMapping("/{userId}/languages")
     fun getUserLanguages(
         @PathVariable userId: UUID,
-        @RequestParam(required = false) type: LanguageProficiencyType?,
-        authentication: Authentication
+        @RequestParam(required = false) type: LanguageProficiencyType?
     ): List<UserLanguageProficiencyResponse> {
         authorizationService.requireAccessToUser(userId)
         val languages = if (type == LanguageProficiencyType.Native) {
@@ -48,8 +46,7 @@ class UserLanguageController(
     @ResponseStatus(HttpStatus.CREATED)
     fun addLanguage(
         @PathVariable userId: UUID,
-        @RequestBody request: AddLanguageRequest,
-        authentication: Authentication
+        @RequestBody request: AddLanguageRequest
     ): UserLanguageProficiencyResponse {
         authorizationService.requireAccessToUser(userId)
         return userLanguageService.addLanguage(
@@ -65,8 +62,7 @@ class UserLanguageController(
     fun updateLanguageLevel(
         @PathVariable userId: UUID,
         @PathVariable languageCode: String,
-        @RequestBody request: UpdateLanguageRequest,
-        authentication: Authentication
+        @RequestBody request: UpdateLanguageRequest
     ): UserLanguageProficiencyResponse {
         authorizationService.requireAccessToUser(userId)
         return userLanguageService.updateLanguage(userId, languageCode, request.cefrLevel).toResponse()
@@ -75,8 +71,7 @@ class UserLanguageController(
     @PostMapping("/{userId}/languages/{languageCode}/primary")
     fun setPrimaryTargetLanguage(
         @PathVariable userId: UUID,
-        @PathVariable languageCode: String,
-        authentication: Authentication
+        @PathVariable languageCode: String
     ): UserLanguageProficiencyResponse {
         authorizationService.requireAccessToUser(userId)
         userLanguageService.setPrimaryLanguage(userId, languageCode)
@@ -90,8 +85,7 @@ class UserLanguageController(
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun removeLanguage(
         @PathVariable userId: UUID,
-        @PathVariable languageCode: String,
-        authentication: Authentication
+        @PathVariable languageCode: String
     ) {
         authorizationService.requireAccessToUser(userId)
         userLanguageService.removeLanguage(userId, languageCode)

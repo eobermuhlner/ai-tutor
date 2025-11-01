@@ -7,6 +7,7 @@ import Spinner from '../components/ui/Spinner';
 import LanguageProficiencyList from '../components/profile/LanguageProficiencyList';
 import AddLanguageModal from '../components/profile/AddLanguageModal';
 import ApiKeySettingsSection from '../components/profile/ApiKeySettingsSection';
+import RateLimitIndicator from '../components/profile/RateLimitIndicator';
 import { useAuthStore } from '../store/authStore';
 import {
   getLanguageProficiencies,
@@ -336,6 +337,9 @@ export default function ProfilePage() {
 
         {/* API Key Settings */}
         <ApiKeySettingsSection />
+
+        {/* Rate Limit Status */}
+        <RateLimitIndicator />
       </div>
 
       {/* Add/Edit Language Modal */}

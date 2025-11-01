@@ -7,12 +7,27 @@ import ch.obermuhlner.aitutor.chat.dto.CreateSessionRequest
 import ch.obermuhlner.aitutor.chat.dto.SendMessageRequest
 import ch.obermuhlner.aitutor.core.model.CEFRLevel
 import ch.obermuhlner.aitutor.tutor.domain.ConversationPhase
+import ch.obermuhlner.aitutor.user.domain.SubscriptionPlan
+import ch.obermuhlner.aitutor.user.domain.UserEntity
 import java.util.UUID
 
 object TestDataFactory {
 
     val TEST_USER_ID: UUID = UUID.fromString("00000000-0000-0000-0000-000000000001")
     val TEST_SESSION_ID: UUID = UUID.fromString("11111111-1111-1111-1111-111111111111")
+
+    fun createUserEntity(
+        id: UUID = TEST_USER_ID,
+        username: String = "testuser",
+        email: String = "test@example.com",
+        subscriptionPlan: SubscriptionPlan = SubscriptionPlan.FREE
+    ) = UserEntity(
+        id = id,
+        username = username,
+        email = email,
+        passwordHash = "hashedpassword",
+        subscriptionPlan = subscriptionPlan
+    )
 
     fun createSessionRequest(
         userId: UUID = TEST_USER_ID,

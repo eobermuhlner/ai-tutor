@@ -92,6 +92,7 @@ export interface User {
   emailVerified: boolean;
   createdAt: string | null;
   lastLoginAt: string | null;
+  subscriptionPlan: 'FREE' | 'FREE_BYOK' | 'SUBSCRIPTION_10';
 }
 
 export interface Message {

@@ -45,7 +45,9 @@ class ChatController(
     private val catalogService: ch.obermuhlner.aitutor.catalog.service.CatalogService,
     private val chatSessionRepository: ch.obermuhlner.aitutor.chat.repository.ChatSessionRepository,
     private val audioService: AiAudioService,
-    private val audioProperties: AudioProperties
+    private val audioProperties: AudioProperties,
+    private val rateLimitingService: ch.obermuhlner.aitutor.user.service.RateLimitingService,
+    private val userRepository: ch.obermuhlner.aitutor.user.repository.UserRepository
 ) {
 
     @PostMapping("/sessions")
@@ -228,7 +230,8 @@ class ChatController(
         val currentUserId = authorizationService.getCurrentUserId()
         val message = chatService.sendMessage(sessionId, request.content, currentUserId)
             ?: return ResponseEntity.notFound().build()
-        return ResponseEntity.ok(message)
+        return addRateLimitHeaders(ResponseEntity.ok(), currentUserId)
+            .body(message)
     }
 
     @PostMapping("/sessions/{sessionId}/messages/stream", produces = [MediaType.TEXT_EVENT_STREAM_VALUE])
@@ -464,5 +467,20 @@ class ChatController(
         )
 
         return ResponseEntity.ok(response)
+    }
+
+    /**
+     * Helper method to add rate limit headers to response.
+     * Adds X-RateLimit-* headers with current rate limit status.
+     */
+    private fun addRateLimitHeaders(builder: ResponseEntity.BodyBuilder, userId: UUID): ResponseEntity.BodyBuilder {
+        val user = userRepository.findById(userId).orElse(null)
+        if (user != null) {
+            val status = rateLimitingService.getRateLimitStatus(userId, user.subscriptionPlan)
+            builder.header("X-RateLimit-Limit", status.dailyLimit.toString())
+            builder.header("X-RateLimit-Remaining", status.availableTokens.toString())
+            builder.header("X-RateLimit-Reset", "86400") // 24 hours in seconds (daily reset)
+        }
+        return builder
     }
 }

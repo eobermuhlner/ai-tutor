@@ -59,7 +59,7 @@ class SummaryControllerTest {
             compressionRatio = 2.67
         )
 
-        justRun { authorizationService.requireSessionAccessOrAdmin(sessionId, any()) }
+        justRun { authorizationService.requireSessionAccessOrAdmin(sessionId) }
         every { summaryQueryService.getSessionSummaryInfo(sessionId) } returns info
 
         mockMvc.perform(get("/api/v1/summaries/sessions/$sessionId/info"))
@@ -71,7 +71,7 @@ class SummaryControllerTest {
             .andExpect(jsonPath("$.estimatedTokenSavings").value(750))
             .andExpect(jsonPath("$.compressionRatio").value(2.67))
 
-        verify { authorizationService.requireSessionAccessOrAdmin(sessionId, any()) }
+        verify { authorizationService.requireSessionAccessOrAdmin(sessionId) }
         verify { summaryQueryService.getSessionSummaryInfo(sessionId) }
     }
 
@@ -109,7 +109,7 @@ class SummaryControllerTest {
             )
         )
 
-        justRun { authorizationService.requireSessionAccessOrAdmin(sessionId, any()) }
+        justRun { authorizationService.requireSessionAccessOrAdmin(sessionId) }
         every { summaryQueryService.getSessionSummaryDetails(sessionId) } returns details
 
         mockMvc.perform(get("/api/v1/summaries/sessions/$sessionId/details"))
@@ -122,7 +122,7 @@ class SummaryControllerTest {
             .andExpect(jsonPath("$[0].tokenCount").value(12))
             .andExpect(jsonPath("$[1].startSequence").value(11))
 
-        verify { authorizationService.requireSessionAccessOrAdmin(sessionId, any()) }
+        verify { authorizationService.requireSessionAccessOrAdmin(sessionId) }
         verify { summaryQueryService.getSessionSummaryDetails(sessionId) }
     }
 
@@ -131,7 +131,7 @@ class SummaryControllerTest {
     fun `triggerSummarization should trigger manual summarization for admin`() {
         val sessionId = UUID.randomUUID()
 
-        justRun { authorizationService.requireAdmin(any()) }
+        justRun { authorizationService.requireAdmin() }
         justRun { summaryQueryService.triggerManualSummarization(sessionId) }
 
         mockMvc.perform(post("/api/v1/summaries/sessions/$sessionId/trigger"))
@@ -139,7 +139,7 @@ class SummaryControllerTest {
             .andExpect(jsonPath("$.status").value("accepted"))
             .andExpect(jsonPath("$.message").value("Summarization triggered asynchronously for session $sessionId"))
 
-        verify { authorizationService.requireAdmin(any()) }
+        verify { authorizationService.requireAdmin() }
         verify { summaryQueryService.triggerManualSummarization(sessionId) }
     }
 
@@ -154,7 +154,7 @@ class SummaryControllerTest {
             "estimatedOriginalTokens" to 42000
         )
 
-        justRun { authorizationService.requireAdmin(any()) }
+        justRun { authorizationService.requireAdmin() }
         every { summaryQueryService.getGlobalStats() } returns stats
 
         mockMvc.perform(get("/api/v1/summaries/stats"))
@@ -165,7 +165,7 @@ class SummaryControllerTest {
             .andExpect(jsonPath("$.totalCompressedTokens").value(15000))
             .andExpect(jsonPath("$.estimatedOriginalTokens").value(42000))
 
-        verify { authorizationService.requireAdmin(any()) }
+        verify { authorizationService.requireAdmin() }
         verify { summaryQueryService.getGlobalStats() }
     }
 
@@ -182,13 +182,13 @@ class SummaryControllerTest {
             compressionRatio = 1.0
         )
 
-        justRun { authorizationService.requireSessionAccessOrAdmin(sessionId, any()) }
+        justRun { authorizationService.requireSessionAccessOrAdmin(sessionId) }
         every { summaryQueryService.getSessionSummaryInfo(sessionId) } returns info
 
         mockMvc.perform(get("/api/v1/summaries/sessions/$sessionId/info"))
             .andExpect(status().isOk)
 
-        verify { authorizationService.requireSessionAccessOrAdmin(sessionId, any()) }
+        verify { authorizationService.requireSessionAccessOrAdmin(sessionId) }
     }
 
     @Test
@@ -196,13 +196,13 @@ class SummaryControllerTest {
     fun `getSessionSummaryDetails should call authorization check`() {
         val sessionId = UUID.randomUUID()
 
-        justRun { authorizationService.requireSessionAccessOrAdmin(sessionId, any()) }
+        justRun { authorizationService.requireSessionAccessOrAdmin(sessionId) }
         every { summaryQueryService.getSessionSummaryDetails(sessionId) } returns emptyList()
 
         mockMvc.perform(get("/api/v1/summaries/sessions/$sessionId/details"))
             .andExpect(status().isOk)
 
-        verify { authorizationService.requireSessionAccessOrAdmin(sessionId, any()) }
+        verify { authorizationService.requireSessionAccessOrAdmin(sessionId) }
     }
 
     @Test
@@ -210,13 +210,13 @@ class SummaryControllerTest {
     fun `triggerSummarization should call admin authorization check`() {
         val sessionId = UUID.randomUUID()
 
-        justRun { authorizationService.requireAdmin(any()) }
+        justRun { authorizationService.requireAdmin() }
         justRun { summaryQueryService.triggerManualSummarization(sessionId) }
 
         mockMvc.perform(post("/api/v1/summaries/sessions/$sessionId/trigger"))
             .andExpect(status().isAccepted)
 
-        verify { authorizationService.requireAdmin(any()) }
+        verify { authorizationService.requireAdmin() }
     }
 
     @Test
@@ -224,13 +224,13 @@ class SummaryControllerTest {
     fun `getGlobalStats should call admin authorization check`() {
         val stats = mapOf("totalSummaries" to 0)
 
-        justRun { authorizationService.requireAdmin(any()) }
+        justRun { authorizationService.requireAdmin() }
         every { summaryQueryService.getGlobalStats() } returns stats
 
         mockMvc.perform(get("/api/v1/summaries/stats"))
             .andExpect(status().isOk)
 
-        verify { authorizationService.requireAdmin(any()) }
+        verify { authorizationService.requireAdmin() }
     }
 
     @Test
@@ -246,7 +246,7 @@ class SummaryControllerTest {
             compressionRatio = 0.0
         )
 
-        justRun { authorizationService.requireSessionAccessOrAdmin(sessionId, any()) }
+        justRun { authorizationService.requireSessionAccessOrAdmin(sessionId) }
         every { summaryQueryService.getSessionSummaryInfo(sessionId) } returns info
 
         mockMvc.perform(get("/api/v1/summaries/sessions/$sessionId/info"))
@@ -261,7 +261,7 @@ class SummaryControllerTest {
     fun `getSessionSummaryDetails should handle empty summaries`() {
         val sessionId = UUID.randomUUID()
 
-        justRun { authorizationService.requireSessionAccessOrAdmin(sessionId, any()) }
+        justRun { authorizationService.requireSessionAccessOrAdmin(sessionId) }
         every { summaryQueryService.getSessionSummaryDetails(sessionId) } returns emptyList()
 
         mockMvc.perform(get("/api/v1/summaries/sessions/$sessionId/details"))

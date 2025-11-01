@@ -1,5 +1,6 @@
 package ch.obermuhlner.aitutor.auth.dto
 
+import ch.obermuhlner.aitutor.user.domain.SubscriptionPlan
 import ch.obermuhlner.aitutor.user.domain.UserRole
 import java.time.Instant
 import java.util.UUID
@@ -14,5 +15,6 @@ data class UserResponse(
     val enabled: Boolean,
     val emailVerified: Boolean,
     val createdAt: Instant?,
-    val lastLoginAt: Instant?
+    val lastLoginAt: Instant?,
+    val subscriptionPlan: SubscriptionPlan
 )

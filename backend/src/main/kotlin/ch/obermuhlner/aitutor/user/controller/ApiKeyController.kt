@@ -1,5 +1,6 @@
 package ch.obermuhlner.aitutor.user.controller
 
+import ch.obermuhlner.aitutor.auth.service.AuthorizationService
 import ch.obermuhlner.aitutor.core.util.ApiKeyEncryptionService
 import ch.obermuhlner.aitutor.user.domain.LlmProvider
 import ch.obermuhlner.aitutor.user.dto.ApiKeyConfigurationResponse
@@ -14,9 +15,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
-import java.util.UUID
 
 /**
  * REST controller for managing user API keys (Bring Your Own Key feature).
@@ -33,6 +32,7 @@ import java.util.UUID
 @RequestMapping("/api/v1/users/me/api-keys")
 @Tag(name = "API Keys", description = "User API key management (BYOK)")
 class ApiKeyController(
+    private val authorizationService: AuthorizationService,
     private val userRepository: UserRepository,
     private val encryptionService: ApiKeyEncryptionService,
     private val validationService: ApiKeyValidationService
@@ -40,8 +40,8 @@ class ApiKeyController(
 
     @GetMapping
     @Operation(summary = "Get API key configuration", description = "Returns which providers are configured (does not expose actual keys)")
-    fun getApiKeyConfiguration(authentication: Authentication): ResponseEntity<ApiKeyConfigurationResponse> {
-        val userId = UUID.fromString(authentication.name)
+    fun getApiKeyConfiguration(): ResponseEntity<ApiKeyConfigurationResponse> {
+        val userId = authorizationService.getCurrentUserId()
         val user = userRepository.findById(userId)
             .orElseThrow { IllegalArgumentException("User not found") }
 
@@ -60,10 +60,9 @@ class ApiKeyController(
     @PutMapping("/openai")
     @Operation(summary = "Set OpenAI API key", description = "Validates and stores encrypted OpenAI API key")
     fun setOpenAiKey(
-        @Valid @RequestBody request: UpdateOpenAiKeyRequest,
-        authentication: Authentication
+        @Valid @RequestBody request: UpdateOpenAiKeyRequest
     ): ResponseEntity<Map<String, String>> {
-        val userId = UUID.fromString(authentication.name)
+        val userId = authorizationService.getCurrentUserId()
         val user = userRepository.findById(userId)
             .orElseThrow { IllegalArgumentException("User not found") }
 
@@ -84,10 +83,9 @@ class ApiKeyController(
     @PutMapping("/azure-openai")
     @Operation(summary = "Set Azure OpenAI API key", description = "Validates and stores encrypted Azure OpenAI API key and endpoint")
     fun setAzureOpenAiKey(
-        @Valid @RequestBody request: UpdateAzureOpenAiKeyRequest,
-        authentication: Authentication
+        @Valid @RequestBody request: UpdateAzureOpenAiKeyRequest
     ): ResponseEntity<Map<String, String>> {
-        val userId = UUID.fromString(authentication.name)
+        val userId = authorizationService.getCurrentUserId()
         val user = userRepository.findById(userId)
             .orElseThrow { IllegalArgumentException("User not found") }
 
@@ -109,10 +107,9 @@ class ApiKeyController(
     @PutMapping("/anthropic")
     @Operation(summary = "Set Anthropic API key", description = "Validates and stores encrypted Anthropic API key")
     fun setAnthropicKey(
-        @Valid @RequestBody request: UpdateAnthropicKeyRequest,
-        authentication: Authentication
+        @Valid @RequestBody request: UpdateAnthropicKeyRequest
     ): ResponseEntity<Map<String, String>> {
-        val userId = UUID.fromString(authentication.name)
+        val userId = authorizationService.getCurrentUserId()
         val user = userRepository.findById(userId)
             .orElseThrow { IllegalArgumentException("User not found") }
 
@@ -133,10 +130,9 @@ class ApiKeyController(
     @DeleteMapping("/{provider}")
     @Operation(summary = "Remove API key", description = "Removes the API key for the specified provider")
     fun removeApiKey(
-        @PathVariable provider: String,
-        authentication: Authentication
+        @PathVariable provider: String
     ): ResponseEntity<Map<String, String>> {
-        val userId = UUID.fromString(authentication.name)
+        val userId = authorizationService.getCurrentUserId()
         val user = userRepository.findById(userId)
             .orElseThrow { IllegalArgumentException("User not found") }
 
@@ -181,10 +177,9 @@ class ApiKeyController(
     @PutMapping("/preferred-provider")
     @Operation(summary = "Set preferred provider", description = "Sets the user's preferred LLM provider")
     fun setPreferredProvider(
-        @Valid @RequestBody request: UpdatePreferredProviderRequest,
-        authentication: Authentication
+        @Valid @RequestBody request: UpdatePreferredProviderRequest
     ): ResponseEntity<Map<String, String>> {
-        val userId = UUID.fromString(authentication.name)
+        val userId = authorizationService.getCurrentUserId()
         val user = userRepository.findById(userId)
             .orElseThrow { IllegalArgumentException("User not found") }
 

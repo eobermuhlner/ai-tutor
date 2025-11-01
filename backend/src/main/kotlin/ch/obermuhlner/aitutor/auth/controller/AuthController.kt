@@ -7,13 +7,11 @@ import ch.obermuhlner.aitutor.auth.dto.RefreshTokenRequest
 import ch.obermuhlner.aitutor.auth.dto.RegisterRequest
 import ch.obermuhlner.aitutor.auth.dto.UserResponse
 import ch.obermuhlner.aitutor.auth.service.AuthService
-import ch.obermuhlner.aitutor.user.service.UserService
+import ch.obermuhlner.aitutor.auth.service.AuthorizationService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.security.core.annotation.AuthenticationPrincipal
-import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -25,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController
 @Tag(name = "Authentication", description = "Endpoints for user authentication, registration, and management")
 class AuthController(
     private val authService: AuthService,
-    private val userService: UserService
+    private val authorizationService: AuthorizationService
 ) {
 
     @PostMapping("/register")
@@ -51,19 +49,16 @@ class AuthController(
 
     @PostMapping("/logout")
     @Operation(summary = "Logout user", description = "Invalidates the user's refresh token")
-    fun logout(@AuthenticationPrincipal userDetails: UserDetails): ResponseEntity<Void> {
-        val user = userService.findByUsername(userDetails.username)
-            ?: return ResponseEntity.notFound().build()
-
-        authService.logout(user.id)
+    fun logout(): ResponseEntity<Void> {
+        val userId = authorizationService.getCurrentUserId()
+        authService.logout(userId)
         return ResponseEntity.noContent().build()
     }
 
     @GetMapping("/me")
     @Operation(summary = "Get current user", description = "Retrieves information about the currently authenticated user")
-    fun getCurrentUser(@AuthenticationPrincipal userDetails: UserDetails): ResponseEntity<UserResponse> {
-        val user = userService.findByUsername(userDetails.username)
-            ?: return ResponseEntity.notFound().build()
+    fun getCurrentUser(): ResponseEntity<UserResponse> {
+        val user = authorizationService.getCurrentUser()
 
         val response = UserResponse(
             id = user.id,
@@ -75,7 +70,8 @@ class AuthController(
             enabled = user.enabled,
             emailVerified = user.emailVerified,
             createdAt = user.createdAt,
-            lastLoginAt = user.lastLoginAt
+            lastLoginAt = user.lastLoginAt,
+            subscriptionPlan = user.subscriptionPlan
         )
 
         return ResponseEntity.ok(response)
@@ -84,13 +80,10 @@ class AuthController(
     @PostMapping("/password")
     @Operation(summary = "Change user password", description = "Allows authenticated user to change their password")
     fun changePassword(
-        @AuthenticationPrincipal userDetails: UserDetails,
         @RequestBody request: ChangePasswordRequest
     ): ResponseEntity<Void> {
-        val user = userService.findByUsername(userDetails.username)
-            ?: return ResponseEntity.notFound().build()
-
-        authService.changePassword(user.id, request)
+        val userId = authorizationService.getCurrentUserId()
+        authService.changePassword(userId, request)
         return ResponseEntity.noContent().build()
     }
 }

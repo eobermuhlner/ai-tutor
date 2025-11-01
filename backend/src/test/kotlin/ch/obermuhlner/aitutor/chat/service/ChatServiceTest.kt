@@ -45,6 +45,8 @@ class ChatServiceTest {
     private lateinit var errorAnalyticsService: ch.obermuhlner.aitutor.analytics.service.ErrorAnalyticsService
     private lateinit var userLanguageService: ch.obermuhlner.aitutor.user.service.UserLanguageService
     private lateinit var lessonProgressionService: ch.obermuhlner.aitutor.lesson.service.LessonProgressionService
+    private lateinit var rateLimitingService: ch.obermuhlner.aitutor.user.service.RateLimitingService
+    private lateinit var userRepository: ch.obermuhlner.aitutor.user.repository.UserRepository
     private lateinit var imageService: ch.obermuhlner.aitutor.image.service.ImageService
     private lateinit var objectMapper: ObjectMapper
 
@@ -61,10 +63,17 @@ class ChatServiceTest {
         errorAnalyticsService = mockk(relaxed = true)
         userLanguageService = mockk(relaxed = true)
         lessonProgressionService = mockk(relaxed = true)
+        rateLimitingService = mockk(relaxed = true)
+        userRepository = mockk(relaxed = true)
         imageService = mockk(relaxed = true)
         val userChatModelFactory = mockk<ch.obermuhlner.aitutor.conversation.service.UserChatModelFactory>(relaxed = true)
         val mockChatModel = mockk<org.springframework.ai.chat.model.ChatModel>(relaxed = true)
         every { userChatModelFactory.getChatModelForUser(any()) } returns mockChatModel
+
+        // Mock user for rate limiting
+        val testUser = TestDataFactory.createUserEntity()
+        every { userRepository.findById(any()) } returns java.util.Optional.of(testUser)
+
         objectMapper = jacksonObjectMapper()
 
         chatService = ChatService(
@@ -80,6 +89,8 @@ class ChatServiceTest {
             userLanguageService,
             lessonProgressionService,
             userChatModelFactory,
+            rateLimitingService,
+            userRepository,
             imageService,
             objectMapper,
             "An error occurred"

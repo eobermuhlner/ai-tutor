@@ -5,7 +5,6 @@ import ch.obermuhlner.aitutor.chat.dto.SessionSummaryInfoResponse
 import ch.obermuhlner.aitutor.chat.dto.SummaryDetailResponse
 import ch.obermuhlner.aitutor.chat.service.SummaryQueryService
 import org.springframework.http.ResponseEntity
-import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
 import java.util.UUID
 
@@ -27,10 +26,9 @@ class SummaryController(
      */
     @GetMapping("/sessions/{sessionId}/info")
     fun getSessionSummaryInfo(
-        @PathVariable sessionId: UUID,
-        authentication: Authentication
+        @PathVariable sessionId: UUID
     ): ResponseEntity<SessionSummaryInfoResponse> {
-        authorizationService.requireSessionAccessOrAdmin(sessionId, authentication)
+        authorizationService.requireSessionAccessOrAdmin(sessionId)
         val info = summaryQueryService.getSessionSummaryInfo(sessionId)
         return ResponseEntity.ok(info)
     }
@@ -43,10 +41,9 @@ class SummaryController(
      */
     @GetMapping("/sessions/{sessionId}/details")
     fun getSessionSummaryDetails(
-        @PathVariable sessionId: UUID,
-        authentication: Authentication
+        @PathVariable sessionId: UUID
     ): ResponseEntity<List<SummaryDetailResponse>> {
-        authorizationService.requireSessionAccessOrAdmin(sessionId, authentication)
+        authorizationService.requireSessionAccessOrAdmin(sessionId)
         val details = summaryQueryService.getSessionSummaryDetails(sessionId)
         return ResponseEntity.ok(details)
     }
@@ -59,10 +56,9 @@ class SummaryController(
      */
     @PostMapping("/sessions/{sessionId}/trigger")
     fun triggerSummarization(
-        @PathVariable sessionId: UUID,
-        authentication: Authentication
+        @PathVariable sessionId: UUID
     ): ResponseEntity<Map<String, String>> {
-        authorizationService.requireAdmin(authentication)
+        authorizationService.requireAdmin()
         summaryQueryService.triggerManualSummarization(sessionId)
         return ResponseEntity.accepted().body(mapOf(
             "status" to "accepted",
@@ -77,10 +73,8 @@ class SummaryController(
      * Accessible by: admin only
      */
     @GetMapping("/stats")
-    fun getGlobalStats(
-        authentication: Authentication
-    ): ResponseEntity<Map<String, Any>> {
-        authorizationService.requireAdmin(authentication)
+    fun getGlobalStats(): ResponseEntity<Map<String, Any>> {
+        authorizationService.requireAdmin()
         val stats = summaryQueryService.getGlobalStats()
         return ResponseEntity.ok(stats)
     }

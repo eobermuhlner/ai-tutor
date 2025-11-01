@@ -111,18 +111,13 @@ class AuthorizationService(
      * Check if user can access session (is owner OR is admin).
      * @throws AccessDeniedException if user cannot access session
      */
-    fun requireSessionAccessOrAdmin(sessionId: UUID, authentication: Authentication) {
+    fun requireSessionAccessOrAdmin(sessionId: UUID) {
         val session = sessionRepository.findById(sessionId)
             .orElseThrow { IllegalArgumentException("Session not found") }
 
-        val userDetails = authentication.principal as? UserDetails
-            ?: throw IllegalStateException("Authentication principal is not UserDetails")
-
-        val user = userService.findByUsername(userDetails.username)
-            ?: throw IllegalStateException("Authenticated user not found: ${userDetails.username}")
-
+        val user = getCurrentUser()
         val isOwner = session.userId == user.id
-        val isAdmin = authentication.authorities.any { it.authority == "ROLE_ADMIN" }
+        val isAdmin = user.roles.contains(UserRole.ADMIN)
 
         if (!isOwner && !isAdmin) {
             throw AccessDeniedException("Not authorized to access this session")
@@ -133,9 +128,9 @@ class AuthorizationService(
      * Require admin role.
      * @throws AccessDeniedException if user is not admin
      */
-    fun requireAdmin(authentication: Authentication) {
-        val isAdmin = authentication.authorities.any { it.authority == "ROLE_ADMIN" }
-        if (!isAdmin) {
+    fun requireAdmin() {
+        val user = getCurrentUser()
+        if (!user.roles.contains(UserRole.ADMIN)) {
             throw AccessDeniedException("Admin role required")
         }
     }

@@ -70,7 +70,8 @@ class AuthControllerTest {
             enabled = true,
             emailVerified = false,
             createdAt = Instant.now(),
-            lastLoginAt = null
+            lastLoginAt = null,
+            subscriptionPlan = ch.obermuhlner.aitutor.user.domain.SubscriptionPlan.FREE
         )
 
         every { authService.register(request) } returns response
@@ -107,7 +108,8 @@ class AuthControllerTest {
                 enabled = true,
                 emailVerified = false,
                 createdAt = Instant.now(),
-                lastLoginAt = Instant.now()
+                lastLoginAt = Instant.now(),
+                subscriptionPlan = ch.obermuhlner.aitutor.user.domain.SubscriptionPlan.FREE
             )
         )
 
@@ -147,7 +149,8 @@ class AuthControllerTest {
                 enabled = true,
                 emailVerified = false,
                 createdAt = Instant.now(),
-                lastLoginAt = null
+                lastLoginAt = null,
+                subscriptionPlan = ch.obermuhlner.aitutor.user.domain.SubscriptionPlan.FREE
             )
         )
 

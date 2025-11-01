@@ -50,6 +50,8 @@ class ChatService(
     private val userLanguageService: ch.obermuhlner.aitutor.user.service.UserLanguageService,
     private val lessonProgressionService: ch.obermuhlner.aitutor.lesson.service.LessonProgressionService,
     private val userChatModelFactory: ch.obermuhlner.aitutor.conversation.service.UserChatModelFactory,
+    private val rateLimitingService: ch.obermuhlner.aitutor.user.service.RateLimitingService,
+    private val userRepository: ch.obermuhlner.aitutor.user.repository.UserRepository,
     private val imageService: ImageService,
     private val objectMapper: ObjectMapper,
     @Value("\${ai-tutor.messages.technical-error}") private val technicalErrorMessage: String,
@@ -371,6 +373,12 @@ class ChatService(
             dueVocabularyCount = dueCount
         )
 
+        // Check rate limit before making AI call
+        val user = userRepository.findById(session.userId).orElse(null)
+        if (user != null) {
+            rateLimitingService.checkRateLimit(session.userId, user.subscriptionPlan)
+        }
+
         // Get user-specific ChatModel (or null to use system default)
         val userChatModel = try {
             userChatModelFactory.getChatModelForUser(session.userId)
@@ -604,6 +612,12 @@ class ChatService(
             dueVocabularyCount = dueCount,
             initiationContext = initiationContext  // Special flag for tutor-initiated messages
         )
+
+        // Check rate limit before making AI call
+        val user = userRepository.findById(session.userId).orElse(null)
+        if (user != null) {
+            rateLimitingService.checkRateLimit(session.userId, user.subscriptionPlan)
+        }
 
         // Get user-specific ChatModel (or null to use system default)
         val userChatModel = try {

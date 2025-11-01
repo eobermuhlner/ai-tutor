@@ -106,5 +106,9 @@ class UserEntity(
 
     @Enumerated(EnumType.STRING)
     @Column(name = "preferred_provider", nullable = true, length = 32)
-    var preferredProvider: LlmProvider? = null
+    var preferredProvider: LlmProvider? = null,
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "subscription_plan", nullable = false, length = 32)
+    var subscriptionPlan: SubscriptionPlan = SubscriptionPlan.FREE
 )
