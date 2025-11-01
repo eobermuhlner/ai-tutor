@@ -19,7 +19,12 @@
       "Bash(grep:*)",
       "Bash(xargs:*)",
       "Bash(git mv:*)",
-      "Bash(awk:*)"
+      "Bash(awk:*)",
+      "Bash(../gradlew build:*)",
+      "Bash(../gradlew test:*)",
+      "Bash(../gradlew compileTestKotlin:*)",
+      "Bash(../gradlew compileKotlin:*)",
+      "Bash(../gradlew dependencies:*)"
     ],
     "deny": [],
     "ask": []
