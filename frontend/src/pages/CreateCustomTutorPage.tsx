@@ -145,16 +145,9 @@ export default function CreateCustomTutorPage() {
       targetLanguageCode: formData.targetLanguageCode,
       age: formData.age,
       gender: formData.gender,
+      culturalBackground: formData.culturalBackground ? formData.culturalBackground.trim() : undefined,
+      location: formData.location ? formData.location.trim() : undefined,
     };
-
-    // Only add optional fields if they have values
-    if (formData.culturalBackground && formData.culturalBackground.trim()) {
-      request.culturalBackground = formData.culturalBackground.trim();
-    }
-
-    if (formData.location && formData.location.trim()) {
-      request.location = formData.location.trim();
-    }
 
 
 

@@ -118,10 +118,10 @@ export default function ChatPage() {
         setTeachingStyle(session.tutorTeachingStyle || TeachingStyle.Reactive);
         setVocabularyReviewMode(session.vocabularyReviewMode || false);
         setSkillLevels({
-          grammar: session.cefrGrammar,
-          vocabulary: session.cefrVocabulary,
-          fluency: session.cefrFluency,
-          comprehension: session.cefrComprehension,
+          grammar: session.cefrGrammar || null,
+          vocabulary: session.cefrVocabulary || null,
+          fluency: session.cefrFluency || null,
+          comprehension: session.cefrComprehension || null,
         });
         setLanguages(languagesData);
 
@@ -342,10 +342,10 @@ export default function ChatPage() {
 
       // Update the skill levels state using the data from reassessment
       setSkillLevels({
-        grammar: skillBreakdown.grammar as CEFRLevel,
-        vocabulary: skillBreakdown.vocabulary as CEFRLevel,
-        fluency: skillBreakdown.fluency as CEFRLevel,
-        comprehension: skillBreakdown.comprehension as CEFRLevel,
+        grammar: skillBreakdown.grammar as any,
+        vocabulary: skillBreakdown.vocabulary as any,
+        fluency: skillBreakdown.fluency as any,
+        comprehension: skillBreakdown.comprehension as any,
       });
 
       // Show success message

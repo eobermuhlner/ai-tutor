@@ -37,7 +37,7 @@ export default function ReengagementPrompt({
       onReengage(message);
     } catch (err: unknown) {
       console.error('Re-engagement failed:', err);
-      setError(err.message || 'Failed to restart conversation. Please try again.');
+      setError((err as Error).message || 'Failed to restart conversation. Please try again.');
     } finally {
       setIsLoading(false);
     }

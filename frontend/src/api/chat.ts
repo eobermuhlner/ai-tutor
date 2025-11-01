@@ -1,5 +1,6 @@
 import apiClient from './client';
-import { TeachingStyle, ConversationPhase } from '../types';
+import { TeachingStyle, ConversationPhase, ErrorType, ErrorSeverity, MessageRole } from '../types';
+import type { Correction } from '../types';
 import type { Session, Message, SessionProgress, InitiateMessageContext } from '../types';
 import * as storage from '../utils/storage';
 import { API_BASE_URL } from '../utils/constants';
@@ -22,8 +23,8 @@ interface BackendMessageResponse {
   content: string;
   corrections: BackendCorrection[] | null;
   newVocabulary: NewVocabulary[] | null;
-  wordCards: WordCard[] | null;
-  characterCards: CharacterCard[] | null;
+  wordCards: BackendWordCard[] | null;
+  characterCards: BackendCharacterCard[] | null;
   createdAt: string; // ISO timestamp from backend
   errorMessage?: string;
 }
@@ -37,7 +38,7 @@ interface NewVocabulary {
   difficulty: string;
 }
 
-interface WordCard {
+interface BackendWordCard {
   word: string;
   translation: string;
   example: string;
@@ -45,7 +46,7 @@ interface WordCard {
   pronunciation?: string;
 }
 
-interface CharacterCard {
+interface BackendCharacterCard {
   character: string;
   pronunciation: string;
   meaning: string;
@@ -53,15 +54,7 @@ interface CharacterCard {
   strokeOrder?: number;
 }
 
-interface Correction {
-  startIndex: number;
-  endIndex: number;
-  originalText: string;
-  correctedText: string;
-  errorType: string;
-  severity: string;
-  explanation: string;
-}
+
 
 // Transform backend correction to frontend format
 function transformCorrection(backendCorrection: BackendCorrection, userText: string): Correction | null {
@@ -99,8 +92,8 @@ function transformCorrection(backendCorrection: BackendCorrection, userText: str
     endIndex,
     originalText: span,
     correctedText: backendCorrection.correctedTargetLanguage,
-    errorType: errorTypeMap[backendCorrection.errorType] || 'OTHER',
-    severity: severityMap[backendCorrection.severity] || 'MEDIUM',
+    errorType: errorTypeMap[backendCorrection.errorType] as ErrorType || 'OTHER' as ErrorType,
+    severity: severityMap[backendCorrection.severity] as ErrorSeverity || 'MEDIUM' as ErrorSeverity,
     explanation: backendCorrection.whySourceLanguage,
   };
 }
@@ -158,7 +151,7 @@ export async function getActiveSessions(userId: string): Promise<Session[]> {
     courseId: item.session.courseTemplateId || '',
     courseName: item.session.tutorName,
     targetLanguageCode: item.session.targetLanguageCode,
-    userLevel: item.session.estimatedCEFRLevel as 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2' | '',
+    userLevel: item.session.estimatedCEFRLevel as 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2' | '' as any,
     phase: normalizePhase(item.session.conversationPhase),
     effectivePhase: normalizePhase(item.session.effectivePhase),
     currentTopic: item.session.currentTopic,
@@ -230,7 +223,7 @@ export async function getSession(sessionId: string): Promise<Session & { message
     const frontendMsg: Message = {
       id: msg.id,
       sessionId,
-      role: msg.role as 'USER' | 'ASSISTANT',
+      role: msg.role as MessageRole,
       content: msg.content,
       timestamp: msg.createdAt,
       errorMessage: msg.errorMessage,
@@ -270,9 +263,13 @@ export async function getSession(sessionId: string): Promise<Session & { message
     // Add word cards if present
     if (msg.wordCards && msg.wordCards.length > 0) {
       // Transform imageUrl to include full base URL (backend returns path starting with /api/v1)
-      const transformedWordCards = msg.wordCards.map((card: WordCard) => ({
-        ...card,
+      const transformedWordCards = msg.wordCards.map((card: BackendWordCard) => ({
+        titleSourceLanguage: card.translation,
+        titleTargetLanguage: card.word,
+        descriptionSourceLanguage: card.translation,
+        descriptionTargetLanguage: card.example,
         imageUrl: card.imageUrl ? `${BASE_URL}${card.imageUrl}` : null,
+        conceptName: card.word,
       }));
       frontendMsg.metadata = {
         ...frontendMsg.metadata,
@@ -284,11 +281,18 @@ export async function getSession(sessionId: string): Promise<Session & { message
 
     // Add character cards if present
     if (msg.characterCards && msg.characterCards.length > 0) {
+      // Transform backend character cards to frontend format
+      const transformedCharacterCards = msg.characterCards.map((card: BackendCharacterCard) => ({
+        character: card.character,
+        pronunciation: card.pronunciation,
+        description: card.meaning || card.example || card.character, // Use meaning, example, or character as description
+      }));
+      
       frontendMsg.metadata = {
         ...frontendMsg.metadata,
         corrections: frontendMsg.metadata?.corrections || [],
         phase: frontendMsg.metadata?.phase || 'FREE' as ConversationPhase,
-        characterCards: msg.characterCards,
+        characterCards: transformedCharacterCards,
       };
     }
 
@@ -297,13 +301,13 @@ export async function getSession(sessionId: string): Promise<Session & { message
 
   const session = backend.session;
 
-  const result = {
+  const result: Session & { messages: Message[] } = {
     id: session.id,
     userId: session.userId,
     courseId: session.courseTemplateId,
     courseName: session.customName || 'Conversation', // Use custom name or fallback
     targetLanguageCode: session.targetLanguageCode,
-    userLevel: session.estimatedCEFRLevel as 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2' | '',
+    userLevel: session.estimatedCEFRLevel as any,
     phase: normalizePhase(session.conversationPhase),
     effectivePhase: normalizePhase(session.effectivePhase),
     tutorTeachingStyle: session.tutorTeachingStyle as TeachingStyle,
@@ -316,10 +320,10 @@ export async function getSession(sessionId: string): Promise<Session & { message
     currentTopic: session.currentTopic,
     vocabularyReviewMode: session.vocabularyReviewMode,
     // Skill-specific CEFR levels
-    cefrGrammar: session.cefrGrammar as 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2' | null,
-    cefrVocabulary: session.cefrVocabulary as 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2' | null,
-    cefrFluency: session.cefrFluency as 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2' | null,
-    cefrComprehension: session.cefrComprehension as 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2' | null,
+    cefrGrammar: session.cefrGrammar as any,
+    cefrVocabulary: session.cefrVocabulary as any,
+    cefrFluency: session.cefrFluency as any,
+    cefrComprehension: session.cefrComprehension as any,
     lastAssessmentAt: session.lastAssessmentAt,
     createdAt: session.createdAt,
     updatedAt: session.updatedAt,
@@ -379,7 +383,7 @@ export async function updatePhase(
     courseId: response.data.courseTemplateId,
     courseName: '', // Not returned by this endpoint
     targetLanguageCode: response.data.targetLanguageCode,
-    userLevel: response.data.estimatedCEFRLevel as 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2' | '',
+    userLevel: response.data.estimatedCEFRLevel as any,
     phase: normalizePhase(response.data.conversationPhase),
     effectivePhase: normalizePhase(response.data.effectivePhase),
     currentTopic: response.data.currentTopic,
@@ -482,7 +486,7 @@ export async function sendChatMessage(
   const frontendMsg: Message = {
     id: backendMsg.id,
     sessionId,
-    role: backendMsg.role as 'USER' | 'ASSISTANT',
+    role: backendMsg.role as MessageRole,
     content: backendMsg.content,
     timestamp: backendMsg.createdAt,
     errorMessage: backendMsg.errorMessage,
@@ -494,9 +498,13 @@ export async function sendChatMessage(
   // Add word cards if present
   if (backendMsg.wordCards && backendMsg.wordCards.length > 0) {
     // Transform imageUrl to include full base URL (backend returns path starting with /api/v1)
-    const transformedWordCards = backendMsg.wordCards.map((card: WordCard) => ({
-      ...card,
+    const transformedWordCards = backendMsg.wordCards.map((card: BackendWordCard) => ({
+      titleSourceLanguage: card.translation,
+      titleTargetLanguage: card.word,
+      descriptionSourceLanguage: card.translation,
+      descriptionTargetLanguage: card.example,
       imageUrl: card.imageUrl ? `${BASE_URL}${card.imageUrl}` : null,
+      conceptName: card.word,
     }));
     frontendMsg.metadata = {
       ...frontendMsg.metadata,
@@ -508,11 +516,18 @@ export async function sendChatMessage(
 
   // Add character cards if present
   if (backendMsg.characterCards && backendMsg.characterCards.length > 0) {
+    // Transform backend character cards to frontend format
+    const transformedCharacterCards = backendMsg.characterCards.map((card: BackendCharacterCard) => ({
+      character: card.character,
+      pronunciation: card.pronunciation,
+      description: card.meaning || card.example || card.character, // Use meaning, example, or character as description
+    }));
+    
     frontendMsg.metadata = {
       ...frontendMsg.metadata,
       corrections: frontendMsg.metadata?.corrections || [],
       phase: frontendMsg.metadata?.phase || 'FREE' as ConversationPhase,
-      characterCards: backendMsg.characterCards,
+      characterCards: transformedCharacterCards,
     };
   }
 
@@ -539,7 +554,7 @@ export async function initiateTutorMessage(
   const frontendMsg: Message = {
     id: backendMsg.id,
     sessionId,
-    role: backendMsg.role as 'USER' | 'ASSISTANT',
+    role: backendMsg.role as MessageRole,
     content: backendMsg.content,
     timestamp: backendMsg.createdAt,
     errorMessage: backendMsg.errorMessage,
@@ -548,9 +563,13 @@ export async function initiateTutorMessage(
 
   // Add word cards if present
   if (backendMsg.wordCards && backendMsg.wordCards.length > 0) {
-    const transformedWordCards = backendMsg.wordCards.map((card: WordCard) => ({
-      ...card,
+    const transformedWordCards = backendMsg.wordCards.map((card: BackendWordCard) => ({
+      titleSourceLanguage: card.translation,
+      titleTargetLanguage: card.word,
+      descriptionSourceLanguage: card.translation,
+      descriptionTargetLanguage: card.example,
       imageUrl: card.imageUrl ? `${BASE_URL}${card.imageUrl}` : null,
+      conceptName: card.word,
     }));
     frontendMsg.metadata = {
       corrections: [],
@@ -561,11 +580,18 @@ export async function initiateTutorMessage(
 
   // Add character cards if present
   if (backendMsg.characterCards && backendMsg.characterCards.length > 0) {
+    // Transform backend character cards to frontend format
+    const transformedCharacterCards = backendMsg.characterCards.map((card: BackendCharacterCard) => ({
+      character: card.character,
+      pronunciation: card.pronunciation,
+      description: card.meaning || card.example || card.character, // Use meaning, example, or character as description
+    }));
+    
     frontendMsg.metadata = {
       ...frontendMsg.metadata,
       corrections: frontendMsg.metadata?.corrections || [],
       phase: frontendMsg.metadata?.phase || 'FREE' as ConversationPhase,
-      characterCards: backendMsg.characterCards,
+      characterCards: transformedCharacterCards,
     };
   }
 
@@ -593,12 +619,12 @@ export function initiateTutorMessageStream(
       console.log('📡 Fetching SSE from:', url, 'with token:', token?.substring(0, 20) + '...');
 
       // Create a timeout promise
-      const timeoutPromise = new Promise((_, reject) => {
+      const timeoutPromise = new Promise<Response>((_, reject) => {
         setTimeout(() => reject(new Error('SSE fetch timeout after 10 seconds')), 10000);
       });
 
       // Race between fetch and timeout
-      const response = await Promise.race([
+      const response = await (Promise.race([
         fetch(url, {
           method: 'POST',
           headers: {
@@ -610,10 +636,10 @@ export function initiateTutorMessageStream(
           signal: controller.signal,
         }),
         timeoutPromise
-      ]).catch(err => {
+      ])).catch(err => {
         console.error('❌ Fetch error:', err);
         throw err;
-      });
+      }) as Response;
 
       console.log('📡 SSE Response received:', {
         status: response.status,
@@ -676,7 +702,7 @@ export function initiateTutorMessageStream(
                 const frontendMsg: Message = {
                   id: backendMsg.id,
                   sessionId,
-                  role: backendMsg.role as 'USER' | 'ASSISTANT',
+                  role: backendMsg.role as MessageRole,
                   content: backendMsg.content,
                   timestamp: backendMsg.createdAt,
                   errorMessage: backendMsg.errorMessage,
@@ -685,9 +711,13 @@ export function initiateTutorMessageStream(
 
                 // Add word cards if present
                 if (backendMsg.wordCards && backendMsg.wordCards.length > 0) {
-                  const transformedWordCards = backendMsg.wordCards.map((card: WordCard) => ({
-                    ...card,
+                  const transformedWordCards = backendMsg.wordCards.map((card: BackendWordCard) => ({
+                    titleSourceLanguage: card.translation,
+                    titleTargetLanguage: card.word,
+                    descriptionSourceLanguage: card.translation,
+                    descriptionTargetLanguage: card.example,
                     imageUrl: card.imageUrl ? `${BASE_URL}${card.imageUrl}` : null,
+                    conceptName: card.word,
                   }));
                   frontendMsg.metadata = {
                     corrections: [],
@@ -698,11 +728,18 @@ export function initiateTutorMessageStream(
 
                 // Add character cards if present
                 if (backendMsg.characterCards && backendMsg.characterCards.length > 0) {
+                  // Transform backend character cards to frontend format
+                  const transformedCharacterCards = backendMsg.characterCards.map((card: BackendCharacterCard) => ({
+                    character: card.character,
+                    pronunciation: card.pronunciation,
+                    description: card.meaning || card.example || card.character, // Use meaning, example, or character as description
+                  }));
+                  
                   frontendMsg.metadata = {
                     ...frontendMsg.metadata,
                     corrections: frontendMsg.metadata?.corrections || [],
                     phase: frontendMsg.metadata?.phase || 'FREE' as ConversationPhase,
-                    characterCards: backendMsg.characterCards,
+                    characterCards: transformedCharacterCards,
                   };
                 }
 
@@ -726,13 +763,13 @@ export function initiateTutorMessageStream(
         }
       }
     } catch (error: unknown) {
-      if (error.name === 'AbortError') {
+      if (error && typeof error === 'object' && (error as Error).name === 'AbortError') {
         // Stream was cancelled - let the caller decide if this is expected
         console.log('🛑 Stream aborted');
-        onError(error);
+        onError(error as Error);
         return;
       }
-      onError(error);
+      onError(error as Error);
     }
   };
 

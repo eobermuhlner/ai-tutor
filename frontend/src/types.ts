@@ -110,7 +110,7 @@ export interface Session {
   courseId: string;
   courseName: string;
   targetLanguageCode: string;
-  userLevel: CEFRLevel;
+  userLevel: CEFRLevel | '';
   phase: ConversationPhase;
   effectivePhase: ConversationPhase;
   tutorTeachingStyle?: TeachingStyle;
@@ -123,10 +123,10 @@ export interface Session {
   currentTopic: string | null;
   vocabularyReviewMode: boolean;
   // Skill-specific CEFR levels
-  cefrGrammar?: CEFRLevel | null;
-  cefrVocabulary?: CEFRLevel | null;
-  cefrFluency?: CEFRLevel | null;
-  cefrComprehension?: CEFRLevel | null;
+  cefrGrammar?: CEFRLevel | '' | null;
+  cefrVocabulary?: CEFRLevel | '' | null;
+  cefrFluency?: CEFRLevel | '' | null;
+  cefrComprehension?: CEFRLevel | '' | null;
   lastAssessmentAt?: string | null;
   createdAt: string;
   updatedAt: string;
