@@ -1,0 +1,61 @@
+# Build artifacts
+build/
+target/
+*.jar
+*.war
+*.ear
+*.class
+
+# Gradle
+.gradle/
+!gradle/wrapper/gradle-wrapper.jar
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.settings/
+.classpath
+.project
+bin/
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+logs/
+
+# Test reports
+test-results/
+test-reports/
+
+# H2 Database files (use in-memory for Docker)
+*.db
+*.mv.db
+*.trace.db
+
+# Environment files
+.env
+.env.local
+.env.*.local
+*.properties.local
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentation
+README.md
+CLAUDE.md
+*.md
+
+# CI/CD
+.github/

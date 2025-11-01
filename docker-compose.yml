@@ -1,0 +1,106 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: ai-tutor-backend
+    ports:
+      - "8080:8080"
+    environment:
+      # Spring Profile
+      - SPRING_PROFILES_ACTIVE=dev-openai
+
+      # OpenAI Configuration (default provider)
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+
+      # Alternative: Azure OpenAI (uncomment to use)
+      # - SPRING_PROFILES_ACTIVE=dev-azure-openai
+      # - AZURE_OPENAI_API_KEY=${AZURE_OPENAI_API_KEY}
+      # - AZURE_OPENAI_ENDPOINT=${AZURE_OPENAI_ENDPOINT}
+
+      # Alternative: Ollama (uncomment to use)
+      # - SPRING_PROFILES_ACTIVE=dev-ollama
+      # - OLLAMA_BASE_URL=http://host.docker.internal:11434
+
+      # JWT Configuration
+      - JWT_SECRET=${JWT_SECRET:-default-secret-key-change-in-production}
+
+      # Admin User
+      - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin}
+
+      # Demo User
+      - DEMO_USERNAME=${DEMO_USERNAME:-demo}
+      - DEMO_PASSWORD=${DEMO_PASSWORD:-demo}
+
+      # Database
+      - SPRING_DATASOURCE_URL=jdbc:h2:mem:testdb
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    volumes:
+      # Mount course content for easy updates without rebuild
+      - ./backend/src/main/resources/course-content:/app/course-content
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 3s
+      start_period: 60s
+      retries: 3
+    networks:
+      - ai-tutor-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=http://localhost:8080
+    container_name: ai-tutor-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 3s
+      start_period: 5s
+      retries: 3
+    networks:
+      - ai-tutor-network
+
+networks:
+  ai-tutor-network:
+    driver: bridge
+
+# Usage:
+#
+# 1. Create a .env file in the project root with your configuration:
+#    OPENAI_API_KEY=your-api-key
+#    JWT_SECRET=your-secret-key
+#
+# 2. Start all services:
+#    docker-compose up
+#
+# 3. Start in detached mode:
+#    docker-compose up -d
+#
+# 4. View logs:
+#    docker-compose logs -f
+#
+# 5. Stop all services:
+#    docker-compose down
+#
+# 6. Rebuild after code changes:
+#    docker-compose up --build
+#
+# 7. Stop and remove volumes:
+#    docker-compose down -v
+#
+# Access:
+# - Frontend: http://localhost:5173
+# - Backend API: http://localhost:8080
+# - H2 Console: http://localhost:8080/h2-console
+# - API Docs: http://localhost:8080/swagger-ui.html
