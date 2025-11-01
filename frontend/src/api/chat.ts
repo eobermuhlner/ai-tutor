@@ -1,5 +1,5 @@
 import apiClient from './client';
-import { TeachingStyle, ConversationPhase, ErrorType, ErrorSeverity, MessageRole } from '../types';
+import { CEFRLevel, TeachingStyle, ConversationPhase, ErrorType, ErrorSeverity, MessageRole } from '../types';
 import type { Correction } from '../types';
 import type { Session, Message, SessionProgress, InitiateMessageContext } from '../types';
 import * as storage from '../utils/storage';
@@ -151,7 +151,7 @@ export async function getActiveSessions(userId: string): Promise<Session[]> {
     courseId: item.session.courseTemplateId || '',
     courseName: item.session.tutorName,
     targetLanguageCode: item.session.targetLanguageCode,
-    userLevel: item.session.estimatedCEFRLevel as 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2' | '',
+    userLevel: item.session.estimatedCEFRLevel as CEFRLevel | '',
     phase: normalizePhase(item.session.conversationPhase),
     effectivePhase: normalizePhase(item.session.effectivePhase),
     currentTopic: item.session.currentTopic,
@@ -307,7 +307,7 @@ export async function getSession(sessionId: string): Promise<Session & { message
     courseId: session.courseTemplateId,
     courseName: session.customName || 'Conversation', // Use custom name or fallback
     targetLanguageCode: session.targetLanguageCode,
-    userLevel: session.estimatedCEFRLevel as 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2' | '',
+    userLevel: session.estimatedCEFRLevel as CEFRLevel | '',
     phase: normalizePhase(session.conversationPhase),
     effectivePhase: normalizePhase(session.effectivePhase),
     tutorTeachingStyle: session.tutorTeachingStyle as TeachingStyle,
@@ -320,10 +320,10 @@ export async function getSession(sessionId: string): Promise<Session & { message
     currentTopic: session.currentTopic,
     vocabularyReviewMode: session.vocabularyReviewMode,
     // Skill-specific CEFR levels
-    cefrGrammar: session.cefrGrammar as 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2' | null,
-    cefrVocabulary: session.cefrVocabulary as 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2' | null,
-    cefrFluency: session.cefrFluency as 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2' | null,
-    cefrComprehension: session.cefrComprehension as 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2' | null,
+    cefrGrammar: session.cefrGrammar as CEFRLevel | null,
+    cefrVocabulary: session.cefrVocabulary as CEFRLevel | null,
+    cefrFluency: session.cefrFluency as CEFRLevel | null,
+    cefrComprehension: session.cefrComprehension as CEFRLevel | null,
     lastAssessmentAt: session.lastAssessmentAt,
     createdAt: session.createdAt,
     updatedAt: session.updatedAt,
@@ -383,7 +383,7 @@ export async function updatePhase(
     courseId: response.data.courseTemplateId,
     courseName: '', // Not returned by this endpoint
     targetLanguageCode: response.data.targetLanguageCode,
-    userLevel: response.data.estimatedCEFRLevel as 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2' | '',
+    userLevel: response.data.estimatedCEFRLevel as CEFRLevel | '',
     phase: normalizePhase(response.data.conversationPhase),
     effectivePhase: normalizePhase(response.data.effectivePhase),
     currentTopic: response.data.currentTopic,
