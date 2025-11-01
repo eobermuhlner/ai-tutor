@@ -28,6 +28,7 @@ export function getRoleDescription(tutor: Tutor, locale?: string): string {
   return t(`tutor.role.description.${role}`, locale || getCurrentLocale());
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function getRoleColorClass(_tutor: Tutor): string {
   return 'bg-slate-100 text-slate-700';
 }

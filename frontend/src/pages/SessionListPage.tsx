@@ -71,7 +71,7 @@ export default function SessionListPage() {
       await deleteSession(sessionId);
       setSessions((prev) => prev.filter((s) => s.id !== sessionId));
       toast.success('Session deleted');
-    } catch (error) {
+    } catch {
       toast.error('Failed to delete session');
     }
   };

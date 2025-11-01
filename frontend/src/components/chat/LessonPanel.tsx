@@ -66,7 +66,7 @@ export default function LessonPanel({ sessionId, courseId }: LessonPanelProps) {
       // After successful navigation, reload the lesson content
       const lessonData = await getCurrentLesson(sessionId);
       setLesson(lessonData);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(`Failed to navigate ${direction.toLowerCase()} lesson:`, err);
       
       // Check if it's a 404 error (boundary case)
@@ -166,35 +166,35 @@ export default function LessonPanel({ sessionId, courseId }: LessonPanelProps) {
           remarkPlugins={[remarkGfm]}
           components={{
             // Customize heading styles
-            h1: ({ node, ...props }) => <h1 className="text-xl font-bold text-slate-900 mt-6 mb-3" {...props} />,
-            h2: ({ node, ...props }) => <h2 className="text-lg font-semibold text-slate-900 mt-5 mb-2" {...props} />,
-            h3: ({ node, ...props }) => <h3 className="text-base font-semibold text-slate-800 mt-4 mb-2" {...props} />,
+            h1: ({ ...props }) => <h1 className="text-xl font-bold text-slate-900 mt-6 mb-3" {...props} />,
+            h2: ({ ...props }) => <h2 className="text-lg font-semibold text-slate-900 mt-5 mb-2" {...props} />,
+            h3: ({ ...props }) => <h3 className="text-base font-semibold text-slate-800 mt-4 mb-2" {...props} />,
             // Customize list styles
-            ul: ({ node, ...props }) => <ul className="list-disc list-inside space-y-1 text-slate-700" {...props} />,
-            ol: ({ node, ...props }) => <ol className="list-decimal list-inside space-y-1 text-slate-700" {...props} />,
+            ul: ({ ...props }) => <ul className="list-disc list-inside space-y-1 text-slate-700" {...props} />,
+            ol: ({ ...props }) => <ol className="list-decimal list-inside space-y-1 text-slate-700" {...props} />,
             // Customize paragraph styles
-            p: ({ node, ...props }) => <p className="text-slate-700 leading-relaxed mb-3" {...props} />,
-            code: (({ inline, ...props }: { inline?: boolean } & Record<string, any>) => {
+            p: ({ ...props }) => <p className="text-slate-700 leading-relaxed mb-3" {...props} />,
+            code: (({ inline, ...props }: { inline?: boolean } & React.HTMLAttributes<HTMLElement>) => {
               return inline ? (
-                <code className="px-1.5 py-0.5 bg-slate-100 text-slate-800 rounded text-sm font-mono" {...props as any} />
+                <code className="px-1.5 py-0.5 bg-slate-100 text-slate-800 rounded text-sm font-mono" {...props} />
               ) : (
-                <code className="block p-3 bg-slate-100 text-slate-800 rounded text-sm font-mono overflow-x-auto" {...props as any} />
+                <code className="block p-3 bg-slate-100 text-slate-800 rounded text-sm font-mono overflow-x-auto" {...props} />
               );
-            }) as any,
+            }),
             // Customize blockquotes
-            blockquote: ({ node, ...props }) =>
+            blockquote: ({ ...props }) =>
               <blockquote className="border-l-4 border-brand-500 pl-4 italic text-slate-600" {...props} />,
             // Customize links
-            a: ({ node, ...props }) =>
+            a: ({ ...props }) =>
               <a className="text-brand-600 hover:text-brand-700 underline" {...props} />,
             // Customize tables
-            table: ({ node, ...props }) =>
+            table: ({ ...props }) =>
               <div className="overflow-x-auto">
                 <table className="min-w-full border-collapse border border-slate-300" {...props} />
               </div>,
-            th: ({ node, ...props }) =>
+            th: ({ ...props }) =>
               <th className="border border-slate-300 px-3 py-2 bg-slate-100 font-semibold text-left" {...props} />,
-            td: ({ node, ...props }) =>
+            td: ({ ...props }) =>
               <td className="border border-slate-300 px-3 py-2" {...props} />,
           }}
         >

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
 import CourseCard from '../components/catalog/CourseCard';
@@ -19,13 +19,7 @@ export default function CourseCatalogPage() {
   const [selectedCategory, setSelectedCategory] = useState<CourseCategory>();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (code) {
-      loadData();
-    }
-  }, [code, selectedLevel, selectedCategory]);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     if (!code) return;
 
     setIsLoading(true);
@@ -42,7 +36,13 @@ export default function CourseCatalogPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [code, selectedLevel, selectedCategory]);
+
+  useEffect(() => {
+    if (code) {
+      loadData();
+    }
+  }, [code, loadData]);
 
   const currentLanguage = languages.find((lang) => lang.code === code);
 

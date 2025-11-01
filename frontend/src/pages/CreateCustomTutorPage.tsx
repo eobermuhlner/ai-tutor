@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
@@ -47,9 +47,38 @@ export default function CreateCustomTutorPage() {
     gender: TutorGender.Neutral,
   });
 
+  const loadLanguages = useCallback(async () => {
+    try {
+      const languagesData = await getLanguages();
+      setLanguages(languagesData);
+      
+      // Check for language parameter from URL after languages are loaded
+      const languageParam = searchParams.get('language');
+      let targetLanguageCode = '';
+      
+      if (languageParam) {
+        // Check if the language from URL exists in available languages
+        const matchingLanguage = languagesData.find(lang => lang.code === languageParam);
+        if (matchingLanguage) {
+          targetLanguageCode = languageParam;
+        }
+      }
+      
+      // If no language was set from URL parameter, use the first available language as fallback
+      if (!targetLanguageCode && languagesData.length > 0) {
+        targetLanguageCode = languagesData[0].code;
+      }
+      
+      setFormData(prev => ({ ...prev, targetLanguageCode }));
+    } catch (error) {
+      toast.error('Failed to load languages');
+      console.error('Error loading languages:', error);
+    }
+  }, [searchParams]);
+
   useEffect(() => {
     loadLanguages();
-  }, [searchParams]);
+  }, [loadLanguages]);
 
   // Helper function to navigate back
   const navigateBack = () => {
@@ -92,35 +121,6 @@ export default function CreateCustomTutorPage() {
     loadPreviewImage();
   }, [formData.targetLanguageCode, formData.gender, formData.age, formData.location, formData.personaEnglish]);
 
-  const loadLanguages = async () => {
-    try {
-      const languagesData = await getLanguages();
-      setLanguages(languagesData);
-      
-      // Check for language parameter from URL after languages are loaded
-      const languageParam = searchParams.get('language');
-      let targetLanguageCode = '';
-      
-      if (languageParam) {
-        // Check if the language from URL exists in available languages
-        const matchingLanguage = languagesData.find(lang => lang.code === languageParam);
-        if (matchingLanguage) {
-          targetLanguageCode = languageParam;
-        }
-      }
-      
-      // If no language was set from URL parameter, use the first available language as fallback
-      if (!targetLanguageCode && languagesData.length > 0) {
-        targetLanguageCode = languagesData[0].code;
-      }
-      
-      setFormData(prev => ({ ...prev, targetLanguageCode }));
-    } catch (error) {
-      toast.error('Failed to load languages');
-      console.error('Error loading languages:', error);
-    }
-  };
-
 
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -134,7 +134,7 @@ export default function CreateCustomTutorPage() {
 
     setIsLoading(true);
 
-    const request: any = {
+    const request = {
       name: formData.name,
       emoji: formData.emoji,
       personaEnglish: formData.personaEnglish,
@@ -169,14 +169,14 @@ export default function CreateCustomTutorPage() {
       await createCustomTutor(request);
       toast.success('Custom tutor created successfully!');
       navigateBack();
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.message || error.message || 'Failed to create custom tutor';
+    } catch (error: unknown) {
+      const errorMessage = (error as { response?: { data?: { message?: string } } }).response?.data?.message || (error as Error).message || 'Failed to create custom tutor';
       toast.error(errorMessage);
       console.error('Error creating tutor:', error);
       console.error('Request payload:', request);
-      if (error.response) {
-        console.error('Response status:', error.response.status);
-        console.error('Response data:', error.response.data);
+      if ((error as { response?: { status?: number; data?: unknown } }).response) {
+        console.error('Response status:', (error as { response: { status?: number } }).response.status);
+        console.error('Response data:', (error as { response: { data?: unknown } }).response.data);
       }
     } finally {
       setIsLoading(false);

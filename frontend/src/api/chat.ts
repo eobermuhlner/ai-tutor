@@ -21,15 +21,50 @@ interface BackendMessageResponse {
   role: string;
   content: string;
   corrections: BackendCorrection[] | null;
-  newVocabulary: any[] | null;
-  wordCards: any[] | null;
-  characterCards: any[] | null;
+  newVocabulary: NewVocabulary[] | null;
+  wordCards: WordCard[] | null;
+  characterCards: CharacterCard[] | null;
   createdAt: string; // ISO timestamp from backend
   errorMessage?: string;
 }
 
+interface NewVocabulary {
+  word: string;
+  translation: string;
+  exampleTarget: string;
+  exampleTranslation: string;
+  frequency: number;
+  difficulty: string;
+}
+
+interface WordCard {
+  word: string;
+  translation: string;
+  example: string;
+  imageUrl?: string;
+  pronunciation?: string;
+}
+
+interface CharacterCard {
+  character: string;
+  pronunciation: string;
+  meaning: string;
+  example: string;
+  strokeOrder?: number;
+}
+
+interface Correction {
+  startIndex: number;
+  endIndex: number;
+  originalText: string;
+  correctedText: string;
+  errorType: string;
+  severity: string;
+  explanation: string;
+}
+
 // Transform backend correction to frontend format
-function transformCorrection(backendCorrection: BackendCorrection, userText: string): any {
+function transformCorrection(backendCorrection: BackendCorrection, userText: string): Correction | null {
   const span = backendCorrection.span;
   const startIndex = userText.indexOf(span);
 
@@ -123,7 +158,7 @@ export async function getActiveSessions(userId: string): Promise<Session[]> {
     courseId: item.session.courseTemplateId || '',
     courseName: item.session.tutorName,
     targetLanguageCode: item.session.targetLanguageCode,
-    userLevel: item.session.estimatedCEFRLevel as any,
+    userLevel: item.session.estimatedCEFRLevel as 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2' | '',
     phase: normalizePhase(item.session.conversationPhase),
     effectivePhase: normalizePhase(item.session.effectivePhase),
     currentTopic: item.session.currentTopic,
@@ -161,6 +196,10 @@ interface BackendSessionResponse {
     lastAssessmentAt: string | null;
     createdAt: string;
     updatedAt: string;
+    // Additional fields that may be present
+    tutorAge?: number;
+    tutorImage?: string;
+    tutorEmoji?: string;
   };
   messages: BackendMessageResponse[];
 }
@@ -191,7 +230,7 @@ export async function getSession(sessionId: string): Promise<Session & { message
     const frontendMsg: Message = {
       id: msg.id,
       sessionId,
-      role: msg.role as any,
+      role: msg.role as 'USER' | 'ASSISTANT',
       content: msg.content,
       timestamp: msg.createdAt,
       errorMessage: msg.errorMessage,
@@ -210,7 +249,7 @@ export async function getSession(sessionId: string): Promise<Session & { message
         if (transformedCorrections.length > 0) {
           lastMsg.metadata = {
             corrections: transformedCorrections,
-            phase: 'CORRECTION' as any,
+            phase: 'CORRECTION' as ConversationPhase,
           };
         }
       }
@@ -223,7 +262,7 @@ export async function getSession(sessionId: string): Promise<Session & { message
       if (transformedCorrections.length > 0) {
         frontendMsg.metadata = {
           corrections: transformedCorrections,
-          phase: 'CORRECTION' as any,
+          phase: 'CORRECTION' as ConversationPhase,
         };
       }
     }
@@ -231,14 +270,14 @@ export async function getSession(sessionId: string): Promise<Session & { message
     // Add word cards if present
     if (msg.wordCards && msg.wordCards.length > 0) {
       // Transform imageUrl to include full base URL (backend returns path starting with /api/v1)
-      const transformedWordCards = msg.wordCards.map((card: any) => ({
+      const transformedWordCards = msg.wordCards.map((card: WordCard) => ({
         ...card,
         imageUrl: card.imageUrl ? `${BASE_URL}${card.imageUrl}` : null,
       }));
       frontendMsg.metadata = {
         ...frontendMsg.metadata,
         corrections: frontendMsg.metadata?.corrections || [],
-        phase: frontendMsg.metadata?.phase || 'FREE' as any,
+        phase: frontendMsg.metadata?.phase || 'FREE' as ConversationPhase,
         wordCards: transformedWordCards,
       };
     }
@@ -248,7 +287,7 @@ export async function getSession(sessionId: string): Promise<Session & { message
       frontendMsg.metadata = {
         ...frontendMsg.metadata,
         corrections: frontendMsg.metadata?.corrections || [],
-        phase: frontendMsg.metadata?.phase || 'FREE' as any,
+        phase: frontendMsg.metadata?.phase || 'FREE' as ConversationPhase,
         characterCards: msg.characterCards,
       };
     }
@@ -264,28 +303,28 @@ export async function getSession(sessionId: string): Promise<Session & { message
     courseId: session.courseTemplateId,
     courseName: session.customName || 'Conversation', // Use custom name or fallback
     targetLanguageCode: session.targetLanguageCode,
-    userLevel: session.estimatedCEFRLevel as any,
+    userLevel: session.estimatedCEFRLevel as 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2' | '',
     phase: normalizePhase(session.conversationPhase),
     effectivePhase: normalizePhase(session.effectivePhase),
     tutorTeachingStyle: session.tutorTeachingStyle as TeachingStyle,
-    tutorAge: (session as any).tutorAge,
-    tutorImage: (session as any).tutorImage,
-    tutorEmoji: (session as any).tutorEmoji,
+    tutorAge: session.tutorAge,
+    tutorImage: session.tutorImage,
+    tutorEmoji: session.tutorEmoji,
     tutorProfileId: session.tutorProfileId,
     tutorName: session.tutorName,
     tutorPersona: session.tutorPersona,
     currentTopic: session.currentTopic,
     vocabularyReviewMode: session.vocabularyReviewMode,
     // Skill-specific CEFR levels
-    cefrGrammar: session.cefrGrammar as any,
-    cefrVocabulary: session.cefrVocabulary as any,
-    cefrFluency: session.cefrFluency as any,
-    cefrComprehension: session.cefrComprehension as any,
+    cefrGrammar: session.cefrGrammar as 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2' | null,
+    cefrVocabulary: session.cefrVocabulary as 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2' | null,
+    cefrFluency: session.cefrFluency as 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2' | null,
+    cefrComprehension: session.cefrComprehension as 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2' | null,
     lastAssessmentAt: session.lastAssessmentAt,
     createdAt: session.createdAt,
     updatedAt: session.updatedAt,
     messages,
-  } as any; // Cast to any to allow additional properties
+  };
 
   console.log('📡 getSession API: Backend response', {
     tutorAge: result.tutorAge,
@@ -340,7 +379,7 @@ export async function updatePhase(
     courseId: response.data.courseTemplateId,
     courseName: '', // Not returned by this endpoint
     targetLanguageCode: response.data.targetLanguageCode,
-    userLevel: response.data.estimatedCEFRLevel as any,
+    userLevel: response.data.estimatedCEFRLevel as 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2' | '',
     phase: normalizePhase(response.data.conversationPhase),
     effectivePhase: normalizePhase(response.data.effectivePhase),
     currentTopic: response.data.currentTopic,
@@ -443,26 +482,26 @@ export async function sendChatMessage(
   const frontendMsg: Message = {
     id: backendMsg.id,
     sessionId,
-    role: backendMsg.role as any,
+    role: backendMsg.role as 'USER' | 'ASSISTANT',
     content: backendMsg.content,
     timestamp: backendMsg.createdAt,
     errorMessage: backendMsg.errorMessage,
     metadata: transformedCorrections && transformedCorrections.length > 0
-      ? { corrections: transformedCorrections, phase: 'CORRECTION' as any }
+      ? { corrections: transformedCorrections, phase: 'CORRECTION' as ConversationPhase }
       : undefined,
   };
 
   // Add word cards if present
   if (backendMsg.wordCards && backendMsg.wordCards.length > 0) {
     // Transform imageUrl to include full base URL (backend returns path starting with /api/v1)
-    const transformedWordCards = backendMsg.wordCards.map((card: any) => ({
+    const transformedWordCards = backendMsg.wordCards.map((card: WordCard) => ({
       ...card,
       imageUrl: card.imageUrl ? `${BASE_URL}${card.imageUrl}` : null,
     }));
     frontendMsg.metadata = {
       ...frontendMsg.metadata,
       corrections: frontendMsg.metadata?.corrections || [],
-      phase: frontendMsg.metadata?.phase || 'FREE' as any,
+      phase: frontendMsg.metadata?.phase || 'FREE' as ConversationPhase,
       wordCards: transformedWordCards,
     };
   }
@@ -472,7 +511,7 @@ export async function sendChatMessage(
     frontendMsg.metadata = {
       ...frontendMsg.metadata,
       corrections: frontendMsg.metadata?.corrections || [],
-      phase: frontendMsg.metadata?.phase || 'FREE' as any,
+      phase: frontendMsg.metadata?.phase || 'FREE' as ConversationPhase,
       characterCards: backendMsg.characterCards,
     };
   }
@@ -500,7 +539,7 @@ export async function initiateTutorMessage(
   const frontendMsg: Message = {
     id: backendMsg.id,
     sessionId,
-    role: backendMsg.role as any,
+    role: backendMsg.role as 'USER' | 'ASSISTANT',
     content: backendMsg.content,
     timestamp: backendMsg.createdAt,
     errorMessage: backendMsg.errorMessage,
@@ -509,13 +548,13 @@ export async function initiateTutorMessage(
 
   // Add word cards if present
   if (backendMsg.wordCards && backendMsg.wordCards.length > 0) {
-    const transformedWordCards = backendMsg.wordCards.map((card: any) => ({
+    const transformedWordCards = backendMsg.wordCards.map((card: WordCard) => ({
       ...card,
       imageUrl: card.imageUrl ? `${BASE_URL}${card.imageUrl}` : null,
     }));
     frontendMsg.metadata = {
       corrections: [],
-      phase: 'FREE' as any,
+      phase: 'FREE' as ConversationPhase,
       wordCards: transformedWordCards,
     };
   }
@@ -525,7 +564,7 @@ export async function initiateTutorMessage(
     frontendMsg.metadata = {
       ...frontendMsg.metadata,
       corrections: frontendMsg.metadata?.corrections || [],
-      phase: frontendMsg.metadata?.phase || 'FREE' as any,
+      phase: frontendMsg.metadata?.phase || 'FREE' as ConversationPhase,
       characterCards: backendMsg.characterCards,
     };
   }
@@ -637,7 +676,7 @@ export function initiateTutorMessageStream(
                 const frontendMsg: Message = {
                   id: backendMsg.id,
                   sessionId,
-                  role: backendMsg.role as any,
+                  role: backendMsg.role as 'USER' | 'ASSISTANT',
                   content: backendMsg.content,
                   timestamp: backendMsg.createdAt,
                   errorMessage: backendMsg.errorMessage,
@@ -646,13 +685,13 @@ export function initiateTutorMessageStream(
 
                 // Add word cards if present
                 if (backendMsg.wordCards && backendMsg.wordCards.length > 0) {
-                  const transformedWordCards = backendMsg.wordCards.map((card: any) => ({
+                  const transformedWordCards = backendMsg.wordCards.map((card: WordCard) => ({
                     ...card,
                     imageUrl: card.imageUrl ? `${BASE_URL}${card.imageUrl}` : null,
                   }));
                   frontendMsg.metadata = {
                     corrections: [],
-                    phase: 'FREE' as any,
+                    phase: 'FREE' as ConversationPhase,
                     wordCards: transformedWordCards,
                   };
                 }
@@ -662,7 +701,7 @@ export function initiateTutorMessageStream(
                   frontendMsg.metadata = {
                     ...frontendMsg.metadata,
                     corrections: frontendMsg.metadata?.corrections || [],
-                    phase: frontendMsg.metadata?.phase || 'FREE' as any,
+                    phase: frontendMsg.metadata?.phase || 'FREE' as ConversationPhase,
                     characterCards: backendMsg.characterCards,
                   };
                 }
@@ -686,7 +725,7 @@ export function initiateTutorMessageStream(
           }
         }
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (error.name === 'AbortError') {
         // Stream was cancelled - let the caller decide if this is expected
         console.log('🛑 Stream aborted');

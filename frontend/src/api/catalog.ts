@@ -132,7 +132,7 @@ export async function getTutorImagePreview(
       };
       reader.readAsDataURL(response.data);
     });
-  } catch (error) {
+  } catch {
     console.log('🖼️ getTutorImagePreview: No image found (expected for preview)', {
       languageCode, gender, age, location, persona
     });

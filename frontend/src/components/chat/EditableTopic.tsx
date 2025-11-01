@@ -30,7 +30,7 @@ export default function EditableTopic({ topic, onSave, disabled }: EditableTopic
       setIsSaving(true);
       try {
         await onSave(newTopic);
-      } catch (error) {
+      } catch {
         // Reset on error
         setEditValue(topic || '');
       } finally {

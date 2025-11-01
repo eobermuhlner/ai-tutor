@@ -11,7 +11,7 @@ interface OpenAIErrorResponse {
 /**
  * Checks if an error is an OpenAI quota exceeded error
  */
-export function isQuotaExceededError(error: any): boolean {
+export function isQuotaExceededError(error: unknown): boolean {
   if (!error) return false;
 
   const axiosError = error as AxiosError<OpenAIErrorResponse>;
@@ -33,9 +33,15 @@ export function isQuotaExceededError(error: any): boolean {
   }
 
   // Check error message for quota-related keywords
-  const errorMessage = axiosError.response?.data?.error?.message ||
-                       axiosError.message ||
-                       String(error);
+  let errorMessage = '';
+  if (responseData && typeof responseData === 'object' && 'error' in responseData && 
+      responseData.error && typeof responseData.error === 'object' && 'message' in responseData.error) {
+    errorMessage = (responseData.error as { message?: string }).message || '';
+  }
+  
+  errorMessage = errorMessage || 
+                 axiosError.message || 
+                 String(error);
 
   if (errorMessage.toLowerCase().includes('quota') ||
       errorMessage.toLowerCase().includes('rate limit')) {
@@ -48,7 +54,7 @@ export function isQuotaExceededError(error: any): boolean {
 /**
  * Extracts a user-friendly error message from an API error
  */
-export function getErrorMessage(error: any, defaultMessage: string = 'An error occurred'): string {
+export function getErrorMessage(error: unknown, defaultMessage: string = 'An error occurred'): string {
   if (!error) return defaultMessage;
 
   // Check for quota errors first
@@ -56,22 +62,25 @@ export function getErrorMessage(error: any, defaultMessage: string = 'An error o
     return 'API quota exceeded. The service has reached its usage limit. Please try again later or contact support.';
   }
 
-  const axiosError = error as AxiosError<any>;
+  const axiosError = error as AxiosError<Record<string, unknown> | OpenAIErrorResponse>;
 
   // Try to extract message from response
   const responseData = axiosError.response?.data;
-  if (responseData) {
+  if (responseData && typeof responseData === 'object') {
     // Check for standard message field
-    if (responseData.message) {
+    if ('message' in responseData && typeof responseData.message === 'string') {
       return responseData.message;
     }
 
     // Check for OpenAI error structure
-    if (responseData.error?.message) {
-      return responseData.error.message;
+    if ('error' in responseData && typeof responseData.error === 'object' && responseData.error !== null) {
+      const errorObj = responseData.error as { message?: string };
+      if ('message' in errorObj && typeof errorObj.message === 'string') {
+        return errorObj.message;
+      }
     }
   }
 
   // Fall back to error message or default
-  return error.message || defaultMessage;
+  return (error as { message?: string }).message || defaultMessage;
 }

@@ -110,7 +110,7 @@ export default function ChatPage() {
         setCurrentTopic(session.currentTopic);
         setTargetLanguageCode(session.targetLanguageCode);
         setUserLevel(session.userLevel || CEFRLevel.None);
-        setTutorName((session as any).tutorName || '');
+        setTutorName(session.tutorName || '');
         setTutorProfileId(session.tutorProfileId || '');
         setTutorImage(session.tutorImage || null);
         setTutorAge(session.tutorAge || null);
@@ -130,14 +130,14 @@ export default function ChatPage() {
           try {
             const dueCountData = await getDueCount(session.targetLanguageCode);
             setDueCount(dueCountData.count);
-          } catch (error) {
-            console.error('Failed to load due count:', error);
+          } catch {
+            console.error('Failed to load due count');
           }
         }
 
         // Mark session as loaded after all state is set
         setSessionLoaded(true);
-      } catch (error) {
+      } catch {
         toast.error('Failed to load session');
         navigate('/sessions');
       } finally {
@@ -220,8 +220,8 @@ export default function ChatPage() {
         const updatedSession = await getSession(sessionId);
         // Only update the overall user level, not the detailed skill levels
         setUserLevel(updatedSession.userLevel || CEFRLevel.None);
-      } catch (error) {
-        console.error('Failed to refresh overall CEFR level:', error);
+      } catch {
+        console.error('Failed to refresh overall CEFR level');
       }
 
       // Refresh vocabulary due count if review mode is enabled
@@ -259,7 +259,7 @@ export default function ChatPage() {
         DRILL: 'Practice mode',
       };
       toast.success(`Switched to ${phaseNames[phase]}`);
-    } catch (error) {
+    } catch {
       toast.error('Failed to change phase');
     }
   };
@@ -290,7 +290,7 @@ export default function ChatPage() {
         [TeachingStyle.Directive]: 'Directive style',
       };
       toast.success(`Switched to ${styleNames[style]}`);
-    } catch (error) {
+    } catch {
       toast.error('Failed to change teaching style');
     }
   };
@@ -315,7 +315,7 @@ export default function ChatPage() {
       }
 
       toast.success(enabled ? 'Vocabulary review mode enabled' : 'Vocabulary review mode disabled');
-    } catch (error) {
+    } catch {
       toast.error('Failed to change vocabulary review mode');
     }
   };
@@ -332,7 +332,8 @@ export default function ChatPage() {
     }
   };
 
-  // @ts-ignore - Function may be used in future updates
+  // @ts-expect-error - Function may be used in future updates
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleManualReassessment = async () => {
     if (!sessionId) return;
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Plus, Lock, User } from 'lucide-react';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
@@ -34,24 +34,24 @@ export default function ProfilePage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isSubmittingPassword, setIsSubmittingPassword] = useState(false);
 
-  useEffect(() => {
-    if (user) {
-      loadProficiencies();
-    }
-  }, [user]);
-
-  const loadProficiencies = async () => {
+  const loadProficiencies = useCallback(async () => {
     if (!user) return;
 
     try {
       const data = await getLanguageProficiencies(user.id);
       setProficiencies(data);
-    } catch (error) {
+    } catch {
       toast.error('Failed to load language proficiencies');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      loadProficiencies();
+    }
+  }, [user, loadProficiencies]);
 
   const handleAddLanguage = async (
     languageCode: string,
@@ -69,9 +69,9 @@ export default function ProfilePage() {
       );
       setProficiencies([...proficiencies, newProficiency]);
       toast.success('Language added successfully');
-    } catch (error) {
+    } catch (err) {
       toast.error('Failed to add language');
-      throw error;
+      throw err;
     }
   };
 
@@ -90,9 +90,9 @@ export default function ProfilePage() {
         )
       );
       toast.success('Language level updated');
-    } catch (error) {
+    } catch (err) {
       toast.error('Failed to update language level');
-      throw error;
+      throw err;
     }
   };
 
@@ -104,7 +104,7 @@ export default function ProfilePage() {
       // Reload proficiencies to ensure consistency with server state
       await loadProficiencies();
       toast.success('Primary language updated');
-    } catch (error) {
+    } catch {
       toast.error('Failed to set primary language');
     }
   };
@@ -126,7 +126,7 @@ export default function ProfilePage() {
       await removeLanguageProficiency(user.id, languageCode);
       setProficiencies(proficiencies.filter((p) => p.languageCode !== languageCode));
       toast.success('Language removed');
-    } catch (error) {
+    } catch {
       toast.error('Failed to remove language');
     }
   };
@@ -164,7 +164,7 @@ export default function ProfilePage() {
       setNewPassword('');
       setConfirmPassword('');
       setIsChangingPassword(false);
-    } catch (error) {
+    } catch {
       toast.error('Failed to change password. Please check your current password.');
     } finally {
       setIsSubmittingPassword(false);

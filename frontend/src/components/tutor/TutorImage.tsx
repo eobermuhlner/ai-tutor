@@ -77,7 +77,7 @@ export default function TutorImage({
     };
 
     loadImage();
-  }, [tutorId, previewImageUrl]);
+  }, [tutorId, previewImageUrl, size]);
 
   const sizeClass = sizeClasses[size];
   const roundedClass = roundedClasses[rounded];

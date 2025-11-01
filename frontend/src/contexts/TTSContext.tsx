@@ -124,7 +124,7 @@ export function TTSProvider({ children }: { children: ReactNode }) {
 
     // Check Wi-Fi only preference
     if (preferences.wifiOnly && 'connection' in navigator) {
-      const connection = (navigator as any).connection;
+      const connection = (navigator as Navigator & { connection?: { type: string } }).connection;
       if (connection && connection.type !== 'wifi') {
         return; // Don't play audio when not on Wi-Fi if wifiOnly is enabled
       }
@@ -172,13 +172,13 @@ export function TTSProvider({ children }: { children: ReactNode }) {
       };
 
       await audioRef.current.play();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to play message audio:', error);
       setIsPlaying(false);
       setCurrentMessageId(null);
 
       // Don't throw on 404 (TTS not available for this provider)
-      if (error.response?.status !== 404) {
+      if ((error as { response?: { status?: number } }).response?.status !== 404) {
         throw error;
       }
     }
@@ -195,7 +195,7 @@ export function TTSProvider({ children }: { children: ReactNode }) {
 
     // Check Wi-Fi only preference
     if (preferences.wifiOnly && 'connection' in navigator) {
-      const connection = (navigator as any).connection;
+      const connection = (navigator as Navigator & { connection?: { type: string } }).connection;
       if (connection && connection.type !== 'wifi') {
         return; // Don't play audio when not on Wi-Fi if wifiOnly is enabled
       }
@@ -235,12 +235,12 @@ export function TTSProvider({ children }: { children: ReactNode }) {
       };
 
       await audioRef.current.play();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to play text audio:', error);
       setIsPlaying(false);
 
       // Don't throw on 404 (TTS not available for this provider)
-      if (error.response?.status !== 404) {
+      if ((error as { response?: { status?: number } }).response?.status !== 404) {
         throw error;
       }
     }
@@ -266,6 +266,10 @@ export function TTSProvider({ children }: { children: ReactNode }) {
   );
 }
 
+// This file contains both the provider component and the hook, along with helper functions.
+// The architecture is intentional for this context pattern.
+// React Fast Refresh rule is disabled because context files intentionally mix components and utilities
+// eslint-disable-next-line react-refresh/only-export-components
 export function useTTS() {
   const context = useContext(TTSContext);
   if (context === undefined) {

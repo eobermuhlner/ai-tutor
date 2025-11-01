@@ -43,9 +43,9 @@ export function useWelcomeMessage({
       const message = await initiateTutorMessage(sessionId, context);
       setIsStreaming(false);
       onComplete(message);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setIsStreaming(false);
-      setError(err.message || 'Failed to load welcome message');
+      setError((err as Error).message || 'Failed to load welcome message');
     }
   }
 

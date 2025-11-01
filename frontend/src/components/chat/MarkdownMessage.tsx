@@ -27,21 +27,21 @@ export default function MarkdownMessage({ content }: MarkdownMessageProps) {
                             {children}
                         </blockquote>
                     ),
-                    code: (({ inline, ...props }: { inline?: boolean } & Record<string, any>) => {
+                    code: (({ inline, ...props }: { inline?: boolean } & React.HTMLAttributes<HTMLElement>) => {
                       if (inline) {
                         return (
-                          <code className="bg-slate-100 text-slate-800 px-1 py-0.5 rounded text-sm font-mono border border-slate-200" {...props as any}>
+                          <code className="bg-slate-100 text-slate-800 px-1 py-0.5 rounded text-sm font-mono border border-slate-200" {...props}>
                               {props.children}
                           </code>
                         );
                       } else {
                         return (
                           <pre className="bg-slate-900 text-slate-100 p-2.5 rounded-lg overflow-x-auto my-2 text-sm border border-slate-300">
-                            <code {...props as any}>{props.children}</code>
+                            <code {...props}>{props.children}</code>
                           </pre>
                         );
                       }
-                    }) as any,
+                    }),
                     a: ({ children, href }) => (
                         <a href={href} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
                             {children}

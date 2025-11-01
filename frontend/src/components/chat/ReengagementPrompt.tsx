@@ -35,7 +35,7 @@ export default function ReengagementPrompt({
     try {
       const message = await initiateTutorMessage(sessionId, 'reengage');
       onReengage(message);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Re-engagement failed:', err);
       setError(err.message || 'Failed to restart conversation. Please try again.');
     } finally {

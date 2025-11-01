@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
@@ -19,13 +19,7 @@ export default function CourseDetailPage() {
   const [isCreatingSession, setIsCreatingSession] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (id) {
-      loadCourse();
-    }
-  }, [id]);
-
-  const loadCourse = async () => {
+  const loadCourse = useCallback(async () => {
     if (!id) return;
 
     setIsLoading(true);
@@ -47,7 +41,13 @@ export default function CourseDetailPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [id, navigate]);
+
+  useEffect(() => {
+    if (id) {
+      loadCourse();
+    }
+  }, [id, loadCourse]);
 
   const handleStartLearning = async () => {
     if (!id) return;

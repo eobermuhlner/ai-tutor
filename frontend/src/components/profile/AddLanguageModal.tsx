@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { X } from 'lucide-react';
 import { CEFRLevel, LanguageProficiencyType } from '../../types';
 import type { Language } from '../../types';
@@ -35,22 +35,7 @@ export default function AddLanguageModal({
 
   const isEditMode = !!editLanguageCode;
 
-  useEffect(() => {
-    if (isOpen) {
-      loadLanguages();
-      if (isEditMode && editLanguageCode && editCurrentLevel) {
-        setSelectedLanguageCode(editLanguageCode);
-        setSelectedLevel(editCurrentLevel);
-      } else {
-        setSelectedLanguageCode('');
-        setSelectedType(LanguageProficiencyType.Learning);
-        setSelectedLevel(CEFRLevel.None);
-      }
-      setError(null);
-    }
-  }, [isOpen, isEditMode, editLanguageCode, editCurrentLevel]);
-
-  const loadLanguages = async () => {
+  const loadLanguages = useCallback(async () => {
     setIsLoadingLanguages(true);
     try {
       const data = await getLanguages();
@@ -64,12 +49,27 @@ export default function AddLanguageModal({
           setSelectedLanguageCode(availableLanguage.code);
         }
       }
-    } catch (err) {
+    } catch {
       setError('Failed to load languages');
     } finally {
       setIsLoadingLanguages(false);
     }
-  };
+  }, [isEditMode, existingLanguageCodes]);
+
+  useEffect(() => {
+    if (isOpen) {
+      loadLanguages();
+      if (isEditMode && editLanguageCode && editCurrentLevel) {
+        setSelectedLanguageCode(editLanguageCode);
+        setSelectedLevel(editCurrentLevel);
+      } else {
+        setSelectedLanguageCode('');
+        setSelectedType(LanguageProficiencyType.Learning);
+        setSelectedLevel(CEFRLevel.None);
+      }
+      setError(null);
+    }
+  }, [isOpen, isEditMode, editLanguageCode, editCurrentLevel, loadLanguages]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -96,7 +96,7 @@ export default function AddLanguageModal({
         );
       }
       onClose();
-    } catch (err) {
+    } catch {
       setError(
         isEditMode
           ? 'Failed to update language proficiency'

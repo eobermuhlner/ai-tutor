@@ -8,7 +8,7 @@ export async function getAvailableVoices(): Promise<VoicesResponse | null> {
   try {
     const response = await apiClient.get<VoicesResponse>('/chat/audio/voices');
     return response.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
     // TTS not available (404) or other error
     if (error.response?.status === 404) {
       return null;
