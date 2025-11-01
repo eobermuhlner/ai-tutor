@@ -262,13 +262,15 @@ export async function getSession(sessionId: string): Promise<Session & { message
 
     // Add word cards if present
     if (msg.wordCards && msg.wordCards.length > 0) {
-      // Transform imageUrl to include full base URL (backend returns path starting with /api/v1)
+      // Transform imageUrl to ensure it's a complete URL (check if already a full URL before adding base)
       const transformedWordCards = msg.wordCards.map((card: BackendWordCard) => ({
         titleSourceLanguage: card.translation,
         titleTargetLanguage: card.word,
         descriptionSourceLanguage: card.translation,
         descriptionTargetLanguage: card.example,
-        imageUrl: card.imageUrl ? `${BASE_URL}${card.imageUrl}` : null,
+        imageUrl: card.imageUrl ?
+          card.imageUrl.startsWith('http') ? card.imageUrl : `${BASE_URL}${card.imageUrl}`
+          : null,
         conceptName: card.word,
       }));
       frontendMsg.metadata = {
@@ -497,13 +499,15 @@ export async function sendChatMessage(
 
   // Add word cards if present
   if (backendMsg.wordCards && backendMsg.wordCards.length > 0) {
-    // Transform imageUrl to include full base URL (backend returns path starting with /api/v1)
+    // Transform imageUrl to ensure it's a complete URL (check if already a full URL before adding base)
     const transformedWordCards = backendMsg.wordCards.map((card: BackendWordCard) => ({
       titleSourceLanguage: card.translation,
       titleTargetLanguage: card.word,
       descriptionSourceLanguage: card.translation,
       descriptionTargetLanguage: card.example,
-      imageUrl: card.imageUrl ? `${BASE_URL}${card.imageUrl}` : null,
+      imageUrl: card.imageUrl ?
+        card.imageUrl.startsWith('http') ? card.imageUrl : `${BASE_URL}${card.imageUrl}`
+        : null,
       conceptName: card.word,
     }));
     frontendMsg.metadata = {
@@ -568,7 +572,9 @@ export async function initiateTutorMessage(
       titleTargetLanguage: card.word,
       descriptionSourceLanguage: card.translation,
       descriptionTargetLanguage: card.example,
-      imageUrl: card.imageUrl ? `${BASE_URL}${card.imageUrl}` : null,
+      imageUrl: card.imageUrl ?
+        card.imageUrl.startsWith('http') ? card.imageUrl : `${BASE_URL}${card.imageUrl}`
+        : null,
       conceptName: card.word,
     }));
     frontendMsg.metadata = {
@@ -716,7 +722,9 @@ export function initiateTutorMessageStream(
                     titleTargetLanguage: card.word,
                     descriptionSourceLanguage: card.translation,
                     descriptionTargetLanguage: card.example,
-                    imageUrl: card.imageUrl ? `${BASE_URL}${card.imageUrl}` : null,
+                    imageUrl: card.imageUrl ?
+                      card.imageUrl.startsWith('http') ? card.imageUrl : `${BASE_URL}${card.imageUrl}`
+                      : null,
                     conceptName: card.word,
                   }));
                   frontendMsg.metadata = {

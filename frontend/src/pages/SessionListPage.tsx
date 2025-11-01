@@ -146,6 +146,7 @@ export default function SessionListPage() {
                   <div className="flex-shrink-0">
                     <TutorImage
                       tutorId={session.tutorProfileId}
+                      tutorImageUrl={session.tutorImage}
                       tutorEmoji={session.tutorEmoji || ''}
                       tutorName={session.tutorName || 'Tutor'}
                       size="medium"

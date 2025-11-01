@@ -150,6 +150,7 @@ export default function MessageList({
               {tutorProfileId ? (
                 <TutorImage
                   tutorId={tutorProfileId}
+                  tutorImageUrl={tutorImage}
                   tutorEmoji={tutorEmoji || ''}
                   tutorName={tutorName || 'Tutor'}
                   size="small"
@@ -297,6 +298,7 @@ export default function MessageList({
             <div className="flex-shrink-0">
               <TutorImage
                 tutorId={tutorProfileId}
+                tutorImageUrl={tutorImage}
                 tutorEmoji={tutorEmoji || ''}
                 tutorName={tutorName || 'Tutor'}
                 size="small"

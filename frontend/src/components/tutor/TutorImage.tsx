@@ -3,6 +3,7 @@ import { getTutorImage } from '../../api/catalog';
 
 interface TutorImageProps {
   tutorId?: string; // Optional when using previewImageUrl
+  tutorImageUrl?: string | null; // Direct image URL (when available from backend)
   tutorEmoji: string;
   tutorName: string;
   size: 'small' | 'medium' | 'large'; // small: 8x8, medium: 10x10, large: 16x16
@@ -25,6 +26,7 @@ const roundedClasses = {
 
 export default function TutorImage({
   tutorId,
+  tutorImageUrl,
   tutorEmoji,
   tutorName,
   size,
@@ -54,6 +56,15 @@ export default function TutorImage({
       return;
     }
 
+    // If tutorImageUrl is provided, use it directly (from backend response)
+    if (tutorImageUrl) {
+      setIsLoading(false);
+      setImageDataUrl(tutorImageUrl);
+      setShowEmoji(false);
+      console.log('🎨 TutorImage: Using direct image URL');
+      return;
+    }
+
     // Otherwise, fetch image by tutorId (normal mode)
     if (!tutorId) {
       setIsLoading(false);
@@ -77,7 +88,7 @@ export default function TutorImage({
     };
 
     loadImage();
-  }, [tutorId, previewImageUrl, size]);
+  }, [tutorId, tutorImageUrl, previewImageUrl, size]);
 
   const sizeClass = sizeClasses[size];
   const roundedClass = roundedClasses[rounded];

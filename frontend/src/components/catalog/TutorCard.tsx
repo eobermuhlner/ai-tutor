@@ -47,6 +47,7 @@ export default function TutorCard({ tutor, isSelected, onClick }: TutorCardProps
         <div className="flex-shrink-0">
           <TutorImage
             tutorId={tutor.id}
+            tutorImageUrl={tutor.imageUrl}
             tutorEmoji={tutor.emoji}
             tutorName={tutor.name}
             size="large"

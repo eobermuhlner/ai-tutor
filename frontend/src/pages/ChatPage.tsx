@@ -388,6 +388,7 @@ export default function ChatPage() {
                   <div className="flex-shrink-0">
                     <TutorImage
                       tutorId={tutorProfileId}
+                      tutorImageUrl={tutorImage}
                       tutorEmoji={tutorEmoji}
                       tutorName={tutorName}
                       size="medium"
