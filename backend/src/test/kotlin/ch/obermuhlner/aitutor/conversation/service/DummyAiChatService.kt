@@ -8,6 +8,7 @@ import ch.obermuhlner.aitutor.core.model.ErrorType
 import ch.obermuhlner.aitutor.core.model.NewVocabulary
 import ch.obermuhlner.aitutor.tutor.domain.ConversationResponse
 import ch.obermuhlner.aitutor.tutor.domain.ConversationState
+import org.springframework.ai.chat.model.ChatModel
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Service
 
@@ -18,7 +19,7 @@ class DummyAiChatService : AiChatService {
     var responseToReturn: AiChatResponse? = null
     var lastRequest: AiChatRequest? = null
 
-    override fun call(request: AiChatRequest, onReplyText: (String) -> Unit): AiChatResponse? {
+    override fun call(request: AiChatRequest, onReplyText: (String) -> Unit, chatModel: ChatModel?): AiChatResponse? {
         lastRequest = request
 
         // Simulate streaming response

@@ -69,7 +69,8 @@ npm run build
 **Key Features:**
 - RESTful API (`/api/v1/*`)
 - JWT-based authentication
-- Multi-provider AI integration (OpenAI, Azure OpenAI, Ollama)
+- Multi-provider AI integration (OpenAI, Azure OpenAI, Anthropic, Ollama)
+- **Bring Your Own Key (BYOK)**: Users can configure their own LLM API keys
 - Adaptive tutoring with conversation phases (Free/Correction/Drill/Auto)
 - Course-based learning with curriculum validation
 - Vocabulary tracking and CEFR assessment
@@ -221,6 +222,13 @@ export AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com
 
 Edit `backend/src/main/resources/application.yml` to uncomment Azure configuration.
 
+**Anthropic (Claude):**
+```bash
+export ANTHROPIC_API_KEY=your-api-key
+```
+
+Edit `backend/src/main/resources/application.yml` to use the `dev-anthropic` profile.
+
 **Ollama (local):**
 ```bash
 # Start Ollama with a model
@@ -229,12 +237,85 @@ ollama run llama3
 
 Edit `backend/src/main/resources/application.yml` to uncomment Ollama configuration.
 
+**Encryption Key (required for BYOK):**
+```bash
+# Generate a secure 256-bit encryption key
+export ENCRYPTION_KEY=$(openssl rand -base64 32)
+```
+
+Required for encrypting user API keys when using the Bring Your Own Key (BYOK) feature.
+
 ### Frontend Environment Variables
 
 Copy `frontend/.env.example` to `frontend/.env` and configure:
 ```
 VITE_API_BASE_URL=http://localhost:8080
 ```
+
+## Bring Your Own Key (BYOK)
+
+⚠️ **CURRENT STATUS**: The BYOK feature is **partially implemented**. Users can configure and store API keys securely, but the system currently uses the default ChatModel for all users. Full runtime ChatModel instantiation requires deeper Spring AI 1.0.1 integration (see implementation notes below).
+
+The AI Tutor is designed to support user-provided API keys for LLM providers, allowing users to use their own accounts instead of shared system keys.
+
+### Supported Providers
+
+- **OpenAI** - Standard OpenAI API (GPT models)
+- **Azure OpenAI** - Microsoft's Azure-hosted OpenAI service
+- **Anthropic** - Anthropic's Claude API
+
+### How It Works (Current Implementation)
+
+1. **UI & Storage**: Users can configure API keys through the Profile page
+2. **Validation**: Basic format validation for API keys (prefix checking, length validation)
+3. **Encryption**: All user API keys are encrypted using AES-256-GCM before storage in database
+4. **⚠️ Limitation**: Currently all users use the system default ChatModel (configured via environment variables)
+5. **Future**: Runtime per-user ChatModel instantiation pending Spring AI API improvements
+
+### What Works
+
+✅ Secure API key storage (AES-256-GCM encrypted)
+✅ User profile UI for managing keys
+✅ Database schema with encrypted fields
+✅ REST API endpoints for key management
+✅ Support for OpenAI, Azure OpenAI, and Anthropic
+
+### What Doesn't Work Yet
+
+❌ Runtime ChatModel instantiation with user's API key
+❌ Actual API key testing/validation (only format checks)
+❌ Per-user provider selection (everyone uses system default)
+
+### Technical Limitation
+
+Spring AI 1.0.1's ChatModel constructors require many injected dependencies (RestClientBuilder, WebClientBuilder, etc.) that are typically provided by Spring Boot autoconfiguration. Manual runtime instantiation is complex and not well-documented. Future implementation will require either:
+- Waiting for Spring AI to provide better builder APIs
+- Deep dive into Spring AI autoconfiguration internals
+- Upgrade to newer Spring AI version with improved APIs
+
+### Configuration
+
+**Server-side (required):**
+```bash
+# Generate and set encryption key for API key storage
+export ENCRYPTION_KEY=$(openssl rand -base64 32)
+```
+
+**User-side:**
+1. Navigate to Profile & Settings page
+2. Scroll to "AI Provider Settings (BYOK)" section
+3. Enter API key for desired provider
+4. Click "Save & Validate" to test the key
+5. Optionally set a preferred provider
+
+### REST API Endpoints
+
+- `GET /api/v1/users/me/api-keys` - Get API key configuration status
+- `PUT /api/v1/users/me/api-keys/openai` - Set OpenAI API key
+- `PUT /api/v1/users/me/api-keys/azure-openai` - Set Azure OpenAI key and endpoint
+- `PUT /api/v1/users/me/api-keys/anthropic` - Set Anthropic API key
+- `DELETE /api/v1/users/me/api-keys/{provider}` - Remove API key
+- `PUT /api/v1/users/me/api-keys/preferred-provider` - Set preferred provider
 
 ## IntelliJ IDEA
 

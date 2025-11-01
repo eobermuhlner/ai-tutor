@@ -26,8 +26,12 @@ class SingleJsonEntityAiChatService(
 
     override fun call(
         request: AiChatRequest,
-        onReplyText: (String) -> Unit
+        onReplyText: (String) -> Unit,
+        chatModel: ChatModel?
     ): AiChatResponse? {
+        // Use provided ChatModel or fall back to system default
+        val effectiveChatModel = chatModel ?: this.chatModel
+
         logger.debug("Request: ${request.messages.size} messages")
         if (logger.isTraceEnabled) {
             request.messages.forEach { message ->
@@ -36,9 +40,9 @@ class SingleJsonEntityAiChatService(
         }
 
         val result = if (strictSchemaEnforcement) {
-            callWithStrictEnforcement(request)
+            callWithStrictEnforcement(request, effectiveChatModel)
         } else {
-            callWithSoftEnforcement(request)
+            callWithSoftEnforcement(request, effectiveChatModel)
         }
 
         onReplyText(result?.reply ?: "")
@@ -47,13 +51,13 @@ class SingleJsonEntityAiChatService(
         return result
     }
 
-    private fun callWithStrictEnforcement(request: AiChatRequest): AiChatResponse? {
+    private fun callWithStrictEnforcement(request: AiChatRequest, effectiveChatModel: ChatModel): AiChatResponse? {
         val outputConverter = BeanOutputConverter(AiChatResponse::class.java)
         val jsonSchema = outputConverter.jsonSchema
 
         // Detect provider and use appropriate strict enforcement
         val chatOptions = when {
-            isOpenAiProvider() -> {
+            isOpenAiProvider(effectiveChatModel) -> {
                 logger.debug("Using OpenAI strict JSON schema enforcement")
                 OpenAiChatOptions.builder()
                     .responseFormat(
@@ -70,7 +74,7 @@ class SingleJsonEntityAiChatService(
                     )
                     .build()
             }
-            isOllamaProvider() -> {
+            isOllamaProvider(effectiveChatModel) -> {
                 logger.debug("Using Ollama format-based JSON schema enforcement")
                 OllamaOptions.builder()
                     .format(outputConverter.jsonSchemaMap)
@@ -79,29 +83,29 @@ class SingleJsonEntityAiChatService(
             }
             else -> {
                 logger.warn("Unknown provider, falling back to soft enforcement")
-                return callWithSoftEnforcement(request)
+                return callWithSoftEnforcement(request, effectiveChatModel)
             }
         }
 
         val prompt = Prompt(request.messages, chatOptions)
-        val response = chatModel.call(prompt)
+        val response = effectiveChatModel.call(prompt)
         val content = response.result.output.text ?: ""
 
         return outputConverter.convert(content)
     }
 
-    private fun callWithSoftEnforcement(request: AiChatRequest): AiChatResponse? {
-        return ChatClient.create(chatModel)
+    private fun callWithSoftEnforcement(request: AiChatRequest, effectiveChatModel: ChatModel): AiChatResponse? {
+        return ChatClient.create(effectiveChatModel)
             .prompt(Prompt(request.messages))
             .call()
             .entity(AiChatResponse::class.java)
     }
 
-    private fun isOpenAiProvider(): Boolean {
-        return chatModel.javaClass.name.contains("OpenAi", ignoreCase = true)
+    private fun isOpenAiProvider(model: ChatModel): Boolean {
+        return model.javaClass.name.contains("OpenAi", ignoreCase = true)
     }
 
-    private fun isOllamaProvider(): Boolean {
-        return chatModel.javaClass.name.contains("Ollama", ignoreCase = true)
+    private fun isOllamaProvider(model: ChatModel): Boolean {
+        return model.javaClass.name.contains("Ollama", ignoreCase = true)
     }
 }

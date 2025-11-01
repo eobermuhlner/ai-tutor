@@ -86,7 +86,8 @@ class TutorService(
         messages: List<Message>,
         sessionId: UUID? = null,
         session: ChatSessionEntity? = null,
-        onReplyChunk: (String) -> Unit = { print(it) }
+        onReplyChunk: (String) -> Unit = { print(it) },
+        chatModel: org.springframework.ai.chat.model.ChatModel? = null // Optional per-user ChatModel
     ): TutorResponse? {
         logger.debug("Tutor respond: user=$userId, session=$sessionId, phase=${conversationState.phase}, topic=${conversationState.currentTopic}")
 
@@ -159,7 +160,7 @@ class TutorService(
 
         val compactedMessages = messageCompactionService.compactMessages(systemMessages, messages, sessionId)
 
-        val response = aiChatService.call(AiChatRequest(compactedMessages), onReplyChunk)
+        val response = aiChatService.call(AiChatRequest(compactedMessages), onReplyChunk, chatModel)
 
         return response?.let {
             TutorResponse(

@@ -357,7 +357,7 @@ class TutorServiceTest {
         every { languageService.getLanguageName("en") } returns "English"
         every { languageService.getLanguageName("es") } returns "Spanish"
         every { vocabularyContextService.getVocabularyContext(userId, "es") } returns vocabContext
-        every { aiChatService.call(any(), any()) } answers {
+        every { aiChatService.call(any(), any(), any()) } answers {
             val callback = secondArg<(String) -> Unit>()
             callback("chunk1")
             callback("chunk2")
@@ -365,7 +365,13 @@ class TutorServiceTest {
         }
 
         val chunks = mutableListOf<String>()
-        tutorService.respond(tutor, conversationState, userId, messages) { chunks.add(it) }
+        tutorService.respond(
+            tutor = tutor,
+            conversationState = conversationState,
+            userId = userId,
+            messages = messages,
+            onReplyChunk = { chunks.add(it) }
+        )
 
         assertEquals(listOf("chunk1", "chunk2"), chunks)
     }

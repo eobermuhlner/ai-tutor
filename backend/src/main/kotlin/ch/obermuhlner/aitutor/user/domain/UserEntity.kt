@@ -89,5 +89,22 @@ class UserEntity(
     var lastLoginAt: Instant? = null,
 
     @Column(name = "deleted_at", nullable = true)
-    var deletedAt: Instant? = null
+    var deletedAt: Instant? = null,
+
+    // API Key fields for BYOK (Bring Your Own Key)
+    @Column(name = "openai_api_key_encrypted", nullable = true, length = 512)
+    var openaiApiKeyEncrypted: String? = null,
+
+    @Column(name = "azure_openai_api_key_encrypted", nullable = true, length = 512)
+    var azureOpenaiApiKeyEncrypted: String? = null,
+
+    @Column(name = "azure_openai_endpoint", nullable = true, length = 255)
+    var azureOpenaiEndpoint: String? = null,
+
+    @Column(name = "anthropic_api_key_encrypted", nullable = true, length = 512)
+    var anthropicApiKeyEncrypted: String? = null,
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "preferred_provider", nullable = true, length = 32)
+    var preferredProvider: LlmProvider? = null
 )

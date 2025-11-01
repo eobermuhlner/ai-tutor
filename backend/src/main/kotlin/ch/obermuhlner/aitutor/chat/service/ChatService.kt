@@ -49,6 +49,7 @@ class ChatService(
     private val errorAnalyticsService: ch.obermuhlner.aitutor.analytics.service.ErrorAnalyticsService,
     private val userLanguageService: ch.obermuhlner.aitutor.user.service.UserLanguageService,
     private val lessonProgressionService: ch.obermuhlner.aitutor.lesson.service.LessonProgressionService,
+    private val userChatModelFactory: ch.obermuhlner.aitutor.conversation.service.UserChatModelFactory,
     private val imageService: ImageService,
     private val objectMapper: ObjectMapper,
     @Value("\${ai-tutor.messages.technical-error}") private val technicalErrorMessage: String,
@@ -370,8 +371,16 @@ class ChatService(
             dueVocabularyCount = dueCount
         )
 
+        // Get user-specific ChatModel (or null to use system default)
+        val userChatModel = try {
+            userChatModelFactory.getChatModelForUser(session.userId)
+        } catch (e: Exception) {
+            logger.warn("Failed to get user ChatModel for user ${session.userId}, using system default", e)
+            null
+        }
+
         val tutorResponse = try {
-            tutorService.respond(tutor, conversationState, session.userId, messageHistory, session.id, session, onReplyChunk)
+            tutorService.respond(tutor, conversationState, session.userId, messageHistory, session.id, session, onReplyChunk, userChatModel)
         } catch (e: Exception) {
             logger.error("ChatModel call failed for session ${session.id}, user ${session.userId}", e)
             null
@@ -596,8 +605,16 @@ class ChatService(
             initiationContext = initiationContext  // Special flag for tutor-initiated messages
         )
 
+        // Get user-specific ChatModel (or null to use system default)
+        val userChatModel = try {
+            userChatModelFactory.getChatModelForUser(session.userId)
+        } catch (e: Exception) {
+            logger.warn("Failed to get user ChatModel for user ${session.userId}, using system default", e)
+            null
+        }
+
         val tutorResponse = try {
-            tutorService.respond(tutor, conversationState, session.userId, messageHistory, session.id, session, onReplyChunk)
+            tutorService.respond(tutor, conversationState, session.userId, messageHistory, session.id, session, onReplyChunk, userChatModel)
         } catch (e: Exception) {
             logger.error("ChatModel call failed for tutor-initiated message: session=${session.id}, user=${session.userId}", e)
             null

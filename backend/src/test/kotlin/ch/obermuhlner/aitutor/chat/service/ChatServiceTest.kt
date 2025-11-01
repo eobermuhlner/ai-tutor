@@ -62,6 +62,9 @@ class ChatServiceTest {
         userLanguageService = mockk(relaxed = true)
         lessonProgressionService = mockk(relaxed = true)
         imageService = mockk(relaxed = true)
+        val userChatModelFactory = mockk<ch.obermuhlner.aitutor.conversation.service.UserChatModelFactory>(relaxed = true)
+        val mockChatModel = mockk<org.springframework.ai.chat.model.ChatModel>(relaxed = true)
+        every { userChatModelFactory.getChatModelForUser(any()) } returns mockChatModel
         objectMapper = jacksonObjectMapper()
 
         chatService = ChatService(
@@ -76,6 +79,7 @@ class ChatServiceTest {
             errorAnalyticsService,
             userLanguageService,
             lessonProgressionService,
+            userChatModelFactory,
             imageService,
             objectMapper,
             "An error occurred"
@@ -158,7 +162,7 @@ class ChatServiceTest {
         every { chatMessageRepository.save(any<ChatMessageEntity>()) } returns userMessage andThen assistantMessage
         every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(any()) } returns emptyList()
         every { topicDecisionService.decideTopic(any(), any(), any(), any()) } returns TopicDecision(null, 0, "Free conversation", emptyList())
-        every { tutorService.respond(any(), any(), any(), any(), any(), any(), any()) } returns tutorResponse
+        every { tutorService.respond(any(), any(), any(), any(), any(), any(), any(), any()) } returns tutorResponse
         every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns session
 
         val result = chatService.sendMessage(TestDataFactory.TEST_SESSION_ID, "Test message", TestDataFactory.TEST_USER_ID)
@@ -228,7 +232,7 @@ class ChatServiceTest {
         every { topicDecisionService.decideTopic(any(), any(), any(), any()) } returns TopicDecision("new-topic", 10, "Topic changed", emptyList())
         every { topicDecisionService.countTurnsInRecentMessages(any()) } returns 10
         every { topicDecisionService.shouldArchiveTopic(any(), any()) } returns true
-        every { tutorService.respond(any(), any(), any(), any(), any(), any(), any()) } returns tutorResponse
+        every { tutorService.respond(any(), any(), any(), any(), any(), any(), any(), any()) } returns tutorResponse
         every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns session
 
         val result = chatService.sendMessage(TestDataFactory.TEST_SESSION_ID, "Test", TestDataFactory.TEST_USER_ID)
@@ -263,7 +267,7 @@ class ChatServiceTest {
         )
         every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(any()) } returns emptyList()
         every { topicDecisionService.decideTopic(any(), any(), any(), any()) } returns TopicDecision(null, 0, "Free conversation", emptyList())
-        every { tutorService.respond(any(), any(), any(), any(), any(), any(), any()) } returns tutorResponse
+        every { tutorService.respond(any(), any(), any(), any(), any(), any(), any(), any()) } returns tutorResponse
         every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns session
 
         chatService.sendMessage(TestDataFactory.TEST_SESSION_ID, "Test", TestDataFactory.TEST_USER_ID)
@@ -474,7 +478,7 @@ class ChatServiceTest {
         every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(any()) } returns emptyList()
         every { topicDecisionService.decideTopic(any(), any(), any(), any()) } returns ch.obermuhlner.aitutor.tutor.service.TopicDecision(null, 0, "Free conversation", emptyList())
         every { vocabularyReviewService.getDueCount(any(), any()) } returns 15L
-        every { tutorService.respond(any(), any(), any(), any(), any(), any(), any()) } returns tutorResponse
+        every { tutorService.respond(any(), any(), any(), any(), any(), any(), any(), any()) } returns tutorResponse
         every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns session
 
         chatService.sendMessage(TestDataFactory.TEST_SESSION_ID, "Test", TestDataFactory.TEST_USER_ID)
@@ -484,6 +488,7 @@ class ChatServiceTest {
             tutorService.respond(
                 any(),
                 match { it.vocabularyReviewMode == true && it.dueVocabularyCount == 15L },
+                any(),
                 any(),
                 any(),
                 any(),
@@ -517,7 +522,7 @@ class ChatServiceTest {
         every { chatMessageRepository.save(any<ChatMessageEntity>()) } returns userMessage andThen assistantMessage
         every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(any()) } returns emptyList()
         every { topicDecisionService.decideTopic(any(), any(), any(), any()) } returns ch.obermuhlner.aitutor.tutor.service.TopicDecision(null, 0, "Free conversation", emptyList())
-        every { tutorService.respond(any(), any(), any(), any(), any(), any(), any()) } returns tutorResponse
+        every { tutorService.respond(any(), any(), any(), any(), any(), any(), any(), any()) } returns tutorResponse
         every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns session
 
         chatService.sendMessage(TestDataFactory.TEST_SESSION_ID, "Test", TestDataFactory.TEST_USER_ID)
@@ -527,6 +532,7 @@ class ChatServiceTest {
             tutorService.respond(
                 any(),
                 match { it.vocabularyReviewMode == false && it.dueVocabularyCount == null },
+                any(),
                 any(),
                 any(),
                 any(),
@@ -1084,7 +1090,7 @@ class ChatServiceTest {
         every { chatMessageRepository.save(any<ChatMessageEntity>()) } returns userMessage andThen assistantMessage
         every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(any()) } returns emptyList()
         every { topicDecisionService.decideTopic(any(), any(), any(), any()) } returns TopicDecision(null, 0, "Free conversation", emptyList())
-        every { tutorService.respond(any(), any(), any(), any(), any(), any(), any()) } returns tutorResponse
+        every { tutorService.respond(any(), any(), any(), any(), any(), any(), any(), any()) } returns tutorResponse
         every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns session
         every { lessonProgressionService.navigateToNextLesson(TestDataFactory.TEST_SESSION_ID) } returns mockk()  // Mock successful lesson switch
 
@@ -1119,7 +1125,7 @@ class ChatServiceTest {
         every { chatMessageRepository.save(any<ChatMessageEntity>()) } returns userMessage andThen assistantMessage
         every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(any()) } returns emptyList()
         every { topicDecisionService.decideTopic(any(), any(), any(), any()) } returns TopicDecision(null, 0, "Free conversation", emptyList())
-        every { tutorService.respond(any(), any(), any(), any(), any(), any(), any()) } returns tutorResponse
+        every { tutorService.respond(any(), any(), any(), any(), any(), any(), any(), any()) } returns tutorResponse
         every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns session
         every { lessonProgressionService.navigateToPreviousLesson(TestDataFactory.TEST_SESSION_ID) } returns mockk()  // Mock successful lesson switch
 
@@ -1154,7 +1160,7 @@ class ChatServiceTest {
         every { chatMessageRepository.save(any<ChatMessageEntity>()) } returns userMessage andThen assistantMessage
         every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(any()) } returns emptyList()
         every { topicDecisionService.decideTopic(any(), any(), any(), any()) } returns TopicDecision(null, 0, "Free conversation", emptyList())
-        every { tutorService.respond(any(), any(), any(), any(), any(), any(), any()) } returns tutorResponse
+        every { tutorService.respond(any(), any(), any(), any(), any(), any(), any(), any()) } returns tutorResponse
         every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns session
 
         val result = chatService.sendMessage(TestDataFactory.TEST_SESSION_ID, "Next lesson please", TestDataFactory.TEST_USER_ID)
@@ -1189,7 +1195,7 @@ class ChatServiceTest {
         every { chatMessageRepository.save(any<ChatMessageEntity>()) } returns userMessage andThen assistantMessage
         every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(any()) } returns emptyList()
         every { topicDecisionService.decideTopic(any(), any(), any(), any()) } returns TopicDecision(null, 0, "Free conversation", emptyList())
-        every { tutorService.respond(any(), any(), any(), any(), any(), any(), any()) } returns tutorResponse
+        every { tutorService.respond(any(), any(), any(), any(), any(), any(), any(), any()) } returns tutorResponse
         every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns session
 
         val result = chatService.sendMessage(TestDataFactory.TEST_SESSION_ID, "Normal conversation", TestDataFactory.TEST_USER_ID)
@@ -1224,7 +1230,7 @@ class ChatServiceTest {
         every { chatMessageRepository.save(any<ChatMessageEntity>()) } returns userMessage andThen assistantMessage
         every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(any()) } returns emptyList()
         every { topicDecisionService.decideTopic(any(), any(), any(), any()) } returns TopicDecision(null, 0, "Free conversation", emptyList())
-        every { tutorService.respond(any(), any(), any(), any(), any(), any(), any()) } returns tutorResponse
+        every { tutorService.respond(any(), any(), any(), any(), any(), any(), any(), any()) } returns tutorResponse
         every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns session
 
         val result = chatService.sendMessage(TestDataFactory.TEST_SESSION_ID, "Continue", TestDataFactory.TEST_USER_ID)
@@ -1454,7 +1460,7 @@ class ChatServiceTest {
         every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(TestDataFactory.TEST_SESSION_ID) } returns emptyList()
         every { phaseDecisionService.decidePhase(any(), any()) } returns PhaseDecision(ConversationPhase.Free, "Initial", 0.0)
         every { topicDecisionService.decideTopic(any(), any(), any(), any()) } returns TopicDecision(null, 0, "Free", emptyList())
-        every { tutorService.respond(any(), any(), any(), any(), any(), any(), any()) } returns tutorResponse
+        every { tutorService.respond(any(), any(), any(), any(), any(), any(), any(), any()) } returns tutorResponse
         every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns session
         every { chatMessageRepository.save(any<ChatMessageEntity>()) } returns assistantMessage
 
@@ -1462,7 +1468,7 @@ class ChatServiceTest {
 
         assertNotNull(result)
         assertEquals("Welcome!", result?.content)
-        verify { tutorService.respond(any(), match { it.initiationContext == "welcome" }, any(), any(), any(), any(), any()) }
+        verify { tutorService.respond(any(), match { it.initiationContext == "welcome" }, any(), any(), any(), any(), any(), any()) }
         verify { chatMessageRepository.save(any<ChatMessageEntity>()) }
     }
 
@@ -1509,14 +1515,14 @@ class ChatServiceTest {
         every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(TestDataFactory.TEST_SESSION_ID) } returns emptyList()
         every { phaseDecisionService.decidePhase(any(), any()) } returns PhaseDecision(ConversationPhase.Correction, "Resume", 0.5)
         every { topicDecisionService.decideTopic(any(), any(), any(), any()) } returns TopicDecision(null, 0, "Resume", emptyList())
-        every { tutorService.respond(any(), any(), any(), any(), any(), any(), any()) } returns tutorResponse
+        every { tutorService.respond(any(), any(), any(), any(), any(), any(), any(), any()) } returns tutorResponse
         every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns session
         every { chatMessageRepository.save(any<ChatMessageEntity>()) } returns assistantMessage
 
         val result = chatService.initiateTutorMessage(TestDataFactory.TEST_SESSION_ID, TestDataFactory.TEST_USER_ID, "reengage")
 
         assertNotNull(result)
-        verify { tutorService.respond(any(), match { it.initiationContext == "reengage" }, any(), any(), any(), any(), any()) }
+        verify { tutorService.respond(any(), match { it.initiationContext == "reengage" }, any(), any(), any(), any(), any(), any()) }
     }
 
     @Test
@@ -1561,7 +1567,7 @@ class ChatServiceTest {
         every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(TestDataFactory.TEST_SESSION_ID) } returns emptyList()
         every { phaseDecisionService.decidePhase(ConversationPhase.Auto, emptyList()) } returns PhaseDecision(ConversationPhase.Drill, "High errors", 2.0)
         every { topicDecisionService.decideTopic(any(), any(), any(), any()) } returns TopicDecision(null, 0, "Free", emptyList())
-        every { tutorService.respond(any(), any(), any(), any(), any(), any(), any()) } returns tutorResponse
+        every { tutorService.respond(any(), any(), any(), any(), any(), any(), any(), any()) } returns tutorResponse
         every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns session
         every { chatMessageRepository.save(any<ChatMessageEntity>()) } returns assistantMessage
 
@@ -1595,7 +1601,7 @@ class ChatServiceTest {
         every { phaseDecisionService.decidePhase(any(), any()) } returns PhaseDecision(ConversationPhase.Free, "Initial", 0.0)
         every { topicDecisionService.decideTopic(any(), any(), any(), any()) } returns TopicDecision(null, 0, "Free", emptyList())
         every { vocabularyReviewService.getDueCount(TestDataFactory.TEST_USER_ID, session.targetLanguageCode) } returns 10L
-        every { tutorService.respond(any(), any(), any(), any(), any(), any(), any()) } returns tutorResponse
+        every { tutorService.respond(any(), any(), any(), any(), any(), any(), any(), any()) } returns tutorResponse
         every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns session
         every { chatMessageRepository.save(any<ChatMessageEntity>()) } returns assistantMessage
 
@@ -1603,6 +1609,6 @@ class ChatServiceTest {
 
         assertNotNull(result)
         verify { vocabularyReviewService.getDueCount(TestDataFactory.TEST_USER_ID, session.targetLanguageCode) }
-        verify { tutorService.respond(any(), match { it.vocabularyReviewMode && it.dueVocabularyCount == 10L }, any(), any(), any(), any(), any()) }
+        verify { tutorService.respond(any(), match { it.vocabularyReviewMode && it.dueVocabularyCount == 10L }, any(), any(), any(), any(), any(), any()) }
     }
 }

@@ -8,6 +8,7 @@ spring:
       prod: prod,h2-file,ai-openai,prompts-large
       dev-openai: dev,h2-file,ai-openai,prompts-large
       dev-azure-openai: dev,h2-file,ai-azure-openai,prompts-large
+      dev-anthropic: dev,h2-file,ai-anthropic,prompts-large
       dev-ollama: dev,h2-file,ai-ollama,prompts-small
       dev-dummy: dev,h2-mem,ai-dummy,prompts-small
       test: test,h2-mem,ai-dummy,prompts-small
@@ -34,6 +35,9 @@ jwt:
   secret: ${JWT_SECRET:changeme-generate-secure-random-key-min-256-bits-for-production}
   expiration-ms: ${JWT_EXPIRATION_MS:3600000}  # 1 hour
   refresh-expiration-ms: ${JWT_REFRESH_EXPIRATION_MS:2592000000}  # 30 days
+
+encryption:
+  key: ${ENCRYPTION_KEY:}  # Base64-encoded 32-byte (256-bit) key for API key encryption (generate with: openssl rand -base64 32)
 
 app:
   admin:

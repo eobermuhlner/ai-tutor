@@ -6,6 +6,7 @@ import Input from '../components/ui/Input';
 import Spinner from '../components/ui/Spinner';
 import LanguageProficiencyList from '../components/profile/LanguageProficiencyList';
 import AddLanguageModal from '../components/profile/AddLanguageModal';
+import ApiKeySettingsSection from '../components/profile/ApiKeySettingsSection';
 import { useAuthStore } from '../store/authStore';
 import {
   getLanguageProficiencies,
@@ -262,7 +263,7 @@ export default function ProfilePage() {
         </section>
 
         {/* Change Password */}
-        <section className="bg-white rounded-2xl shadow-soft border border-slate-200 p-6">
+        <section className="bg-white rounded-2xl shadow-soft border border-slate-200 p-6 mb-6">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand-500 to-brand-600 flex items-center justify-center">
               <Lock className="w-6 h-6 text-white" />
@@ -332,6 +333,9 @@ export default function ProfilePage() {
             </form>
           )}
         </section>
+
+        {/* API Key Settings */}
+        <ApiKeySettingsSection />
       </div>
 
       {/* Add/Edit Language Modal */}
