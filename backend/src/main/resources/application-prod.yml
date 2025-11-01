@@ -1,0 +1,8 @@
+cors:
+  # Prefer exact origins; if you truly need subdomains, use allowed-origin-patterns
+  allowed-origins:
+    - https://app.example.com
+    - https://admin.example.com
+  allow-credentials: true     # only if you use cookie/session auth
+  exposed-headers:
+    - X-Total-Count            # example; keep this list tight or empty

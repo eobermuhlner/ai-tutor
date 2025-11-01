@@ -5,6 +5,7 @@ spring:
   profiles:
     active: dev-ollama
     group:
+      prod: prod,h2-file,ai-openai,prompts-large
       dev-openai: dev,h2-file,ai-openai,prompts-large
       dev-azure-openai: dev,h2-file,ai-azure-openai,prompts-large
       dev-ollama: dev,h2-file,ai-ollama,prompts-small
@@ -44,6 +45,15 @@ app:
     username: ${DEMO_USERNAME:demo}
     password: ${DEMO_PASSWORD:demo}
     email: ${DEMO_EMAIL:demo@localhost}
+
+cors:
+  allowed-origins: []         # leave empty here; set per env/profile
+  allowed-origin-patterns: [] # use this for subdomains, e.g. https://*.example.com
+  allowed-methods: [GET, POST, PUT, PATCH, DELETE, OPTIONS]
+  allowed-headers: [Authorization, Content-Type]
+  exposed-headers: []         # add only if your frontend needs to read them
+  allow-credentials: false    # turn on only if you use cookies
+  max-age: 3600
 
 ai-tutor:
   chat:

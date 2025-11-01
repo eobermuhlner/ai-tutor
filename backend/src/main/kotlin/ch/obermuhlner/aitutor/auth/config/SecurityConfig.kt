@@ -3,6 +3,8 @@ package ch.obermuhlner.aitutor.auth.config
 import ch.obermuhlner.aitutor.auth.filter.JwtAuthenticationFilter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.core.env.Environment
+import org.springframework.core.env.Profiles
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
@@ -20,51 +22,93 @@ import org.springframework.web.cors.CorsConfigurationSource
 @EnableMethodSecurity
 class SecurityConfig(
     private val jwtAuthenticationFilter: JwtAuthenticationFilter,
-    private val corsConfigurationSource: CorsConfigurationSource
+    private val corsConfigurationSource: CorsConfigurationSource,
+    private val env: Environment
 ) {
 
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http
+            // JWT = stateless, no CSRF tokens
             .csrf { it.disable() }
+
+            // Use the explicit CORS bean (origins/methods/headers driven by properties)
             .cors { it.configurationSource(corsConfigurationSource) }
-            .authorizeHttpRequests { authorize ->
-                authorize
-                    // Public endpoints
-                    .requestMatchers("/api/v1/auth/register", "/api/v1/auth/login", "/api/v1/auth/refresh").permitAll()
-                    .requestMatchers("/api/v1/images/concept/*/data").permitAll()
-                    .requestMatchers("/h2-console/**").permitAll()
-                    .requestMatchers("/error").permitAll()
-                    // OpenAPI/Swagger endpoints
-                    .requestMatchers("/v3/api-docs", "/v3/api-docs/**").permitAll()
-                    .requestMatchers("/swagger-ui.html").permitAll()
-                    .requestMatchers("/swagger-ui/**").permitAll()
-                    .requestMatchers("/webjars/**").permitAll()
-                    // All other API endpoints require authentication
-                    .requestMatchers("/api/v1/**").authenticated()
-                    // Deny all others
+
+            // Strict session policy for token-based auth
+            .sessionManagement { sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
+
+            // Route authorization
+            .authorizeHttpRequests { auth ->
+                auth
+                    // Public auth endpoints
+                    .requestMatchers(
+                        "/api/v1/auth/register",
+                        "/api/v1/auth/login",
+                        "/api/v1/auth/refresh"
+                    ).permitAll()
+
+                    // Public file/image endpoint you listed
+                    .requestMatchers(
+                        "/api/v1/images/concept/*/data"
+                    ).permitAll()
+
+                    // OpenAPI / Swagger (consider gating these to dev only in production)
+                    .requestMatchers(
+                        "/v3/api-docs",
+                        "/v3/api-docs/**",
+                        "/swagger-ui.html",
+                        "/swagger-ui/**",
+                        "/webjars/**"
+                    ).permitAll()
+
+                    // Health endpoint (handy for load balancers/monitors)
+                    .requestMatchers(
+                        "/actuator/health"
+                    ).permitAll()
+
+                    // All API requires auth
+                    .requestMatchers(
+                        "/api/v1/**"
+                    ).authenticated()
+
+                    // Everything else denied by default
                     .anyRequest().denyAll()
             }
-            .sessionManagement { session ->
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            }
+
+            // Add JWT filter ahead of UsernamePasswordAuthenticationFilter
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
 
-        // Allow H2 console frames (dev only)
+        // Security headers
         http.headers { headers ->
-            headers.frameOptions { it.sameOrigin() }
+            // Content-Type sniffing protection
+            headers.contentTypeOptions { }
+
+            // HSTS only when not running in dev (assumes TLS in prod)
+            if (!env.acceptsProfiles(Profiles.of("dev"))) {
+                headers.httpStrictTransportSecurity { hsts ->
+                    hsts.includeSubDomains(true).preload(true).maxAgeInSeconds(31536000)
+                }
+                // In prod, deny framing entirely
+                headers.frameOptions { it.deny() }
+            } else {
+                // Dev: allow H2 console frames
+                headers.frameOptions { it.sameOrigin() }
+            }
+
+            // Optional minimal CSP for APIs (safe default; adjust if you serve HTML here)
+            headers.contentSecurityPolicy { csp ->
+                csp.policyDirectives("default-src 'none'; frame-ancestors 'none'; base-uri 'none';")
+            }
         }
 
         return http.build()
     }
 
     @Bean
-    fun passwordEncoder(): PasswordEncoder {
-        return BCryptPasswordEncoder(12)
-    }
+    fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder(12)
 
     @Bean
-    fun authenticationManager(authenticationConfiguration: AuthenticationConfiguration): AuthenticationManager {
-        return authenticationConfiguration.authenticationManager
-    }
+    fun authenticationManager(cfg: AuthenticationConfiguration): AuthenticationManager =
+        cfg.authenticationManager
 }
