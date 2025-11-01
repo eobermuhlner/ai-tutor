@@ -342,10 +342,10 @@ export default function ChatPage() {
 
       // Update the skill levels state using the data from reassessment
       setSkillLevels({
-        grammar: skillBreakdown.grammar as any,
-        vocabulary: skillBreakdown.vocabulary as any,
-        fluency: skillBreakdown.fluency as any,
-        comprehension: skillBreakdown.comprehension as any,
+        grammar: skillBreakdown.grammar as CEFRLevel | null,
+        vocabulary: skillBreakdown.vocabulary as CEFRLevel | null,
+        fluency: skillBreakdown.fluency as CEFRLevel | null,
+        comprehension: skillBreakdown.comprehension as CEFRLevel | null,
       });
 
       // Show success message

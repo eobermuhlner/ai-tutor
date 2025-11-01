@@ -70,7 +70,7 @@ export default function LessonPanel({ sessionId, courseId }: LessonPanelProps) {
       console.error(`Failed to navigate ${direction.toLowerCase()} lesson:`, err);
       
       // Check if it's a 404 error (boundary case)
-      const axiosError = err as any;
+      const axiosError = err as { response?: { status: number } };
       if (axiosError.response?.status === 404) {
         setError(`No ${direction.toLowerCase()} lesson available. You've reached the ${direction === 'NEXT' ? 'end' : 'beginning'} of the course.`);
       } else {

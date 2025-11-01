@@ -10,7 +10,7 @@ export async function getAvailableVoices(): Promise<VoicesResponse | null> {
     return response.data;
   } catch (error: unknown) {
     // TTS not available (404) or other error
-    const axiosError = error as any;
+    const axiosError = error as { response?: { status: number } };
     if (axiosError.response?.status === 404) {
       return null;
     }
