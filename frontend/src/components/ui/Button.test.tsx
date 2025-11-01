@@ -70,7 +70,7 @@ describe('Button', () => {
   it('shows loading state with spinner', () => {
     render(<Button isLoading>Submit</Button>);
     expect(screen.getByText('Loading...')).toBeInTheDocument();
-    expect(screen.getByRole('button')).toHaveClass('animate-spin');
+    expect(screen.getByRole('button').querySelector('svg')).toHaveClass('animate-spin');
   });
 
   it('disables button when isLoading is true', () => {
