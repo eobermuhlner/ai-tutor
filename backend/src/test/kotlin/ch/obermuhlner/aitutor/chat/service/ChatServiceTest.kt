@@ -1224,4 +1224,376 @@ class ChatServiceTest {
         verify(exactly = 0) { lessonProgressionService.navigateToNextLesson(any()) }
         verify(exactly = 0) { lessonProgressionService.navigateToPreviousLesson(any()) }
     }
+
+    @Test
+    fun `getMessage should return message when it belongs to session`() {
+        val session = TestDataFactory.createSessionEntity()
+        val messageId = UUID.randomUUID()
+        val message = TestDataFactory.createMessageEntity(session)
+
+        every { chatMessageRepository.findById(messageId) } returns Optional.of(message)
+
+        val result = chatService.getMessage(TestDataFactory.TEST_SESSION_ID, messageId)
+
+        assertNotNull(result)
+        assertEquals(message.id, result?.id)
+        verify { chatMessageRepository.findById(messageId) }
+    }
+
+    @Test
+    fun `getMessage should return null when message not found`() {
+        val messageId = UUID.randomUUID()
+
+        every { chatMessageRepository.findById(messageId) } returns Optional.empty()
+
+        val result = chatService.getMessage(TestDataFactory.TEST_SESSION_ID, messageId)
+
+        assertNull(result)
+    }
+
+    @Test
+    fun `getMessage should return null when message belongs to different session`() {
+        val session = TestDataFactory.createSessionEntity()
+        val differentSessionId = UUID.randomUUID()
+        val messageId = UUID.randomUUID()
+        val message = TestDataFactory.createMessageEntity(session)
+
+        every { chatMessageRepository.findById(messageId) } returns Optional.of(message)
+
+        val result = chatService.getMessage(differentSessionId, messageId)
+
+        assertNull(result)
+    }
+
+    @Test
+    fun `updateMessageAudioCache should update audio data successfully`() {
+        val session = TestDataFactory.createSessionEntity()
+        val messageId = UUID.randomUUID()
+        val message = TestDataFactory.createMessageEntity(session)
+        val audioData = ByteArray(100) { it.toByte() }
+        val voiceId = "en-US-1"
+        val speed = 1.2
+
+        every { chatMessageRepository.findById(messageId) } returns Optional.of(message)
+        every { chatMessageRepository.save(any<ChatMessageEntity>()) } returns message
+
+        val result = chatService.updateMessageAudioCache(TestDataFactory.TEST_SESSION_ID, messageId, audioData, voiceId, speed)
+
+        assertNotNull(result)
+        verify { chatMessageRepository.save(match {
+            it.audioData.contentEquals(audioData) &&
+            it.audioVoiceId == voiceId &&
+            it.audioSpeed == speed
+        }) }
+    }
+
+    @Test
+    fun `updateMessageAudioCache should return null when message not found`() {
+        val messageId = UUID.randomUUID()
+        val audioData = ByteArray(100)
+
+        every { chatMessageRepository.findById(messageId) } returns Optional.empty()
+
+        val result = chatService.updateMessageAudioCache(TestDataFactory.TEST_SESSION_ID, messageId, audioData, null, null)
+
+        assertNull(result)
+        verify(exactly = 0) { chatMessageRepository.save(any()) }
+    }
+
+    @Test
+    fun `updateMessageAudioCache should update audio with null voice and speed`() {
+        val session = TestDataFactory.createSessionEntity()
+        val messageId = UUID.randomUUID()
+        val message = TestDataFactory.createMessageEntity(session)
+        val audioData = ByteArray(50)
+
+        every { chatMessageRepository.findById(messageId) } returns Optional.of(message)
+        every { chatMessageRepository.save(any<ChatMessageEntity>()) } returns message
+
+        val result = chatService.updateMessageAudioCache(TestDataFactory.TEST_SESSION_ID, messageId, audioData, null, null)
+
+        assertNotNull(result)
+        verify { chatMessageRepository.save(match {
+            it.audioData.contentEquals(audioData) &&
+            it.audioVoiceId == null &&
+            it.audioSpeed == null
+        }) }
+    }
+
+    @Test
+    fun `updateSessionLesson should navigate to next lesson for course-based session`() {
+        val session = TestDataFactory.createSessionEntity()
+        session.courseTemplateId = UUID.randomUUID()
+
+        val lessonContent = mockk<ch.obermuhlner.aitutor.lesson.domain.LessonContent>()
+
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+        every { lessonProgressionService.navigateToNextLesson(TestDataFactory.TEST_SESSION_ID) } returns lessonContent
+
+        val result = chatService.updateSessionLesson(
+            TestDataFactory.TEST_SESSION_ID,
+            ch.obermuhlner.aitutor.chat.dto.LessonNavigationDirection.NEXT,
+            TestDataFactory.TEST_USER_ID
+        )
+
+        assertNotNull(result)
+        verify { lessonProgressionService.navigateToNextLesson(TestDataFactory.TEST_SESSION_ID) }
+    }
+
+    @Test
+    fun `updateSessionLesson should navigate to previous lesson for course-based session`() {
+        val session = TestDataFactory.createSessionEntity()
+        session.courseTemplateId = UUID.randomUUID()
+
+        val lessonContent = mockk<ch.obermuhlner.aitutor.lesson.domain.LessonContent>()
+
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+        every { lessonProgressionService.navigateToPreviousLesson(TestDataFactory.TEST_SESSION_ID) } returns lessonContent
+
+        val result = chatService.updateSessionLesson(
+            TestDataFactory.TEST_SESSION_ID,
+            ch.obermuhlner.aitutor.chat.dto.LessonNavigationDirection.PREVIOUS,
+            TestDataFactory.TEST_USER_ID
+        )
+
+        assertNotNull(result)
+        verify { lessonProgressionService.navigateToPreviousLesson(TestDataFactory.TEST_SESSION_ID) }
+    }
+
+    @Test
+    fun `updateSessionLesson should return null for non-course session`() {
+        val session = TestDataFactory.createSessionEntity()
+        session.courseTemplateId = null  // Not a course-based session
+
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+
+        val result = chatService.updateSessionLesson(
+            TestDataFactory.TEST_SESSION_ID,
+            ch.obermuhlner.aitutor.chat.dto.LessonNavigationDirection.NEXT,
+            TestDataFactory.TEST_USER_ID
+        )
+
+        assertNull(result)
+        verify(exactly = 0) { lessonProgressionService.navigateToNextLesson(any()) }
+    }
+
+    @Test
+    fun `updateSessionLesson should return null for wrong user`() {
+        val session = TestDataFactory.createSessionEntity()
+        session.courseTemplateId = UUID.randomUUID()
+
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+
+        val result = chatService.updateSessionLesson(
+            TestDataFactory.TEST_SESSION_ID,
+            ch.obermuhlner.aitutor.chat.dto.LessonNavigationDirection.NEXT,
+            UUID.randomUUID()
+        )
+
+        assertNull(result)
+        verify(exactly = 0) { lessonProgressionService.navigateToNextLesson(any()) }
+    }
+
+    @Test
+    fun `updateSessionLesson should return null when session not found`() {
+        every { chatSessionRepository.findById(any()) } returns Optional.empty()
+
+        val result = chatService.updateSessionLesson(
+            UUID.randomUUID(),
+            ch.obermuhlner.aitutor.chat.dto.LessonNavigationDirection.NEXT,
+            TestDataFactory.TEST_USER_ID
+        )
+
+        assertNull(result)
+    }
+
+    @Test
+    fun `updateSessionLesson should return null when lesson navigation fails`() {
+        val session = TestDataFactory.createSessionEntity()
+        session.courseTemplateId = UUID.randomUUID()
+
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+        every { lessonProgressionService.navigateToNextLesson(TestDataFactory.TEST_SESSION_ID) } returns null
+
+        val result = chatService.updateSessionLesson(
+            TestDataFactory.TEST_SESSION_ID,
+            ch.obermuhlner.aitutor.chat.dto.LessonNavigationDirection.NEXT,
+            TestDataFactory.TEST_USER_ID
+        )
+
+        assertNull(result)
+    }
+
+    @Test
+    fun `initiateTutorMessage should create welcome message successfully`() {
+        val session = TestDataFactory.createSessionEntity()
+        val assistantMessage = TestDataFactory.createMessageEntity(session, MessageRole.ASSISTANT, "Welcome!")
+
+        val tutorResponse = TutorService.TutorResponse(
+            reply = "Welcome!",
+            conversationResponse = ConversationResponse(
+                conversationState = ConversationState(
+                    phase = ConversationPhase.Free,
+                    estimatedCEFRLevel = CEFRLevel.A1
+                ),
+                corrections = emptyList(),
+                newVocabulary = emptyList()
+            )
+        )
+
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+        every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(TestDataFactory.TEST_SESSION_ID) } returns emptyList()
+        every { phaseDecisionService.decidePhase(any(), any()) } returns PhaseDecision(ConversationPhase.Free, "Initial", 0.0)
+        every { topicDecisionService.decideTopic(any(), any(), any(), any()) } returns TopicDecision(null, 0, "Free", emptyList())
+        every { tutorService.respond(any(), any(), any(), any(), any(), any(), any()) } returns tutorResponse
+        every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns session
+        every { chatMessageRepository.save(any<ChatMessageEntity>()) } returns assistantMessage
+
+        val result = chatService.initiateTutorMessage(TestDataFactory.TEST_SESSION_ID, TestDataFactory.TEST_USER_ID, "welcome")
+
+        assertNotNull(result)
+        assertEquals("Welcome!", result?.content)
+        verify { tutorService.respond(any(), match { it.initiationContext == "welcome" }, any(), any(), any(), any(), any()) }
+        verify { chatMessageRepository.save(any<ChatMessageEntity>()) }
+    }
+
+    @Test
+    fun `initiateTutorMessage should return null when session not found`() {
+        every { chatSessionRepository.findById(any()) } returns Optional.empty()
+
+        val result = chatService.initiateTutorMessage(UUID.randomUUID(), TestDataFactory.TEST_USER_ID, "welcome")
+
+        assertNull(result)
+        verify(exactly = 0) { tutorService.respond(any(), any(), any(), any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun `initiateTutorMessage should return null when user is not owner`() {
+        val session = TestDataFactory.createSessionEntity()
+
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+
+        val result = chatService.initiateTutorMessage(TestDataFactory.TEST_SESSION_ID, UUID.randomUUID(), "welcome")
+
+        assertNull(result)
+        verify(exactly = 0) { tutorService.respond(any(), any(), any(), any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun `initiateTutorMessage should handle re-engagement context`() {
+        val session = TestDataFactory.createSessionEntity()
+        val assistantMessage = TestDataFactory.createMessageEntity(session, MessageRole.ASSISTANT, "Welcome back!")
+
+        val tutorResponse = TutorService.TutorResponse(
+            reply = "Welcome back!",
+            conversationResponse = ConversationResponse(
+                conversationState = ConversationState(
+                    phase = ConversationPhase.Correction,
+                    estimatedCEFRLevel = CEFRLevel.A2
+                ),
+                corrections = emptyList(),
+                newVocabulary = emptyList()
+            )
+        )
+
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+        every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(TestDataFactory.TEST_SESSION_ID) } returns emptyList()
+        every { phaseDecisionService.decidePhase(any(), any()) } returns PhaseDecision(ConversationPhase.Correction, "Resume", 0.5)
+        every { topicDecisionService.decideTopic(any(), any(), any(), any()) } returns TopicDecision(null, 0, "Resume", emptyList())
+        every { tutorService.respond(any(), any(), any(), any(), any(), any(), any()) } returns tutorResponse
+        every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns session
+        every { chatMessageRepository.save(any<ChatMessageEntity>()) } returns assistantMessage
+
+        val result = chatService.initiateTutorMessage(TestDataFactory.TEST_SESSION_ID, TestDataFactory.TEST_USER_ID, "reengage")
+
+        assertNotNull(result)
+        verify { tutorService.respond(any(), match { it.initiationContext == "reengage" }, any(), any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun `initiateTutorMessage should return error message when tutor service fails`() {
+        val session = TestDataFactory.createSessionEntity()
+        val errorMessage = TestDataFactory.createMessageEntity(session, MessageRole.ASSISTANT, "An error occurred")
+
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+        every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(TestDataFactory.TEST_SESSION_ID) } returns emptyList()
+        every { phaseDecisionService.decidePhase(any(), any()) } returns PhaseDecision(ConversationPhase.Free, "Initial", 0.0)
+        every { topicDecisionService.decideTopic(any(), any(), any(), any()) } returns TopicDecision(null, 0, "Free", emptyList())
+        every { tutorService.respond(any(), any(), any(), any(), any(), any(), any()) } throws RuntimeException("API Error")
+        every { chatMessageRepository.save(any<ChatMessageEntity>()) } returns errorMessage
+
+        val result = chatService.initiateTutorMessage(TestDataFactory.TEST_SESSION_ID, TestDataFactory.TEST_USER_ID, "welcome")
+
+        assertNotNull(result)
+        verify { chatMessageRepository.save(match { it.role == MessageRole.ASSISTANT }) }
+    }
+
+    @Test
+    fun `initiateTutorMessage should update effective phase in Auto mode`() {
+        val session = TestDataFactory.createSessionEntity()
+        session.conversationPhase = ConversationPhase.Auto
+        session.effectivePhase = ConversationPhase.Correction
+
+        val assistantMessage = TestDataFactory.createMessageEntity(session, MessageRole.ASSISTANT, "Let's practice!")
+
+        val tutorResponse = TutorService.TutorResponse(
+            reply = "Let's practice!",
+            conversationResponse = ConversationResponse(
+                conversationState = ConversationState(
+                    phase = ConversationPhase.Drill,  // LLM suggests Drill
+                    estimatedCEFRLevel = CEFRLevel.A2
+                ),
+                corrections = emptyList(),
+                newVocabulary = emptyList()
+            )
+        )
+
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+        every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(TestDataFactory.TEST_SESSION_ID) } returns emptyList()
+        every { phaseDecisionService.decidePhase(ConversationPhase.Auto, emptyList()) } returns PhaseDecision(ConversationPhase.Drill, "High errors", 2.0)
+        every { topicDecisionService.decideTopic(any(), any(), any(), any()) } returns TopicDecision(null, 0, "Free", emptyList())
+        every { tutorService.respond(any(), any(), any(), any(), any(), any(), any()) } returns tutorResponse
+        every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns session
+        every { chatMessageRepository.save(any<ChatMessageEntity>()) } returns assistantMessage
+
+        val result = chatService.initiateTutorMessage(TestDataFactory.TEST_SESSION_ID, TestDataFactory.TEST_USER_ID, "welcome")
+
+        assertNotNull(result)
+        verify { chatSessionRepository.save(match { it.effectivePhase == ConversationPhase.Drill }) }
+    }
+
+    @Test
+    fun `initiateTutorMessage should pass due vocabulary count when review mode enabled`() {
+        val session = TestDataFactory.createSessionEntity()
+        session.vocabularyReviewMode = true
+
+        val assistantMessage = TestDataFactory.createMessageEntity(session, MessageRole.ASSISTANT, "Let's review!")
+
+        val tutorResponse = TutorService.TutorResponse(
+            reply = "Let's review!",
+            conversationResponse = ConversationResponse(
+                conversationState = ConversationState(
+                    phase = ConversationPhase.Free,
+                    estimatedCEFRLevel = CEFRLevel.A1
+                ),
+                corrections = emptyList(),
+                newVocabulary = emptyList()
+            )
+        )
+
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+        every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(TestDataFactory.TEST_SESSION_ID) } returns emptyList()
+        every { phaseDecisionService.decidePhase(any(), any()) } returns PhaseDecision(ConversationPhase.Free, "Initial", 0.0)
+        every { topicDecisionService.decideTopic(any(), any(), any(), any()) } returns TopicDecision(null, 0, "Free", emptyList())
+        every { vocabularyReviewService.getDueCount(TestDataFactory.TEST_USER_ID, session.targetLanguageCode) } returns 10L
+        every { tutorService.respond(any(), any(), any(), any(), any(), any(), any()) } returns tutorResponse
+        every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns session
+        every { chatMessageRepository.save(any<ChatMessageEntity>()) } returns assistantMessage
+
+        val result = chatService.initiateTutorMessage(TestDataFactory.TEST_SESSION_ID, TestDataFactory.TEST_USER_ID, "welcome")
+
+        assertNotNull(result)
+        verify { vocabularyReviewService.getDueCount(TestDataFactory.TEST_USER_ID, session.targetLanguageCode) }
+        verify { tutorService.respond(any(), match { it.vocabularyReviewMode && it.dueVocabularyCount == 10L }, any(), any(), any(), any(), any()) }
+    }
 }

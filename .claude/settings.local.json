@@ -18,7 +18,8 @@
       "Bash(echo:*)",
       "Bash(grep:*)",
       "Bash(xargs:*)",
-      "Bash(git mv:*)"
+      "Bash(git mv:*)",
+      "Bash(awk:*)"
     ],
     "deny": [],
     "ask": []
