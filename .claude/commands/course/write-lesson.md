@@ -4,7 +4,7 @@ description: Create or validate a language course lesson following pedagogical s
 
 # Course Lesson Writing Assistant
 
-Help the user write or validate a language course lesson following the comprehensive guidelines in **CLAUDE_COURSE.md**.
+Help the user write or validate a language course lesson following the comprehensive guidelines in **backend/CLAUDE_COURSE.md**.
 
 ## Quick Reference
 
@@ -81,7 +81,7 @@ Before finalizing any lesson:
    - Generate YAML frontmatter
    - Create all 8 sections following course type guidelines
    - Ensure line count matches course type requirements
-   - Reference CLAUDE_COURSE.md for detailed requirements
+   - Reference backend/CLAUDE_COURSE.md for detailed requirements
 
 3. **If validating existing lesson**:
    - Read the lesson file
@@ -96,7 +96,7 @@ Before finalizing any lesson:
 
 ## Reference
 
-Full guidelines: **CLAUDE_COURSE.md**
+Full guidelines: **backend/CLAUDE_COURSE.md**
 - Course directory structure
 - Pedagogical research foundations
 - Detailed examples for each course type
