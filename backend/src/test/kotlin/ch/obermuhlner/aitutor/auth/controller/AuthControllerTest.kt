@@ -7,6 +7,7 @@ import ch.obermuhlner.aitutor.auth.dto.RefreshTokenRequest
 import ch.obermuhlner.aitutor.auth.dto.RegisterRequest
 import ch.obermuhlner.aitutor.auth.dto.UserResponse
 import ch.obermuhlner.aitutor.auth.service.AuthService
+import ch.obermuhlner.aitutor.auth.service.AuthorizationService
 import ch.obermuhlner.aitutor.user.domain.UserRole
 import ch.obermuhlner.aitutor.user.service.UserService
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -20,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
+import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
 import org.springframework.test.web.servlet.MockMvc
@@ -29,7 +31,11 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPat
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @WebMvcTest(AuthController::class)
-@Import(ch.obermuhlner.aitutor.auth.config.SecurityConfig::class)
+@Import(
+    ch.obermuhlner.aitutor.auth.config.SecurityConfig::class,
+    ch.obermuhlner.aitutor.auth.service.JwtTokenService::class,
+    ch.obermuhlner.aitutor.user.service.CustomUserDetailsService::class
+)
 class AuthControllerTest {
 
     @Autowired
@@ -44,11 +50,17 @@ class AuthControllerTest {
     @MockkBean
     private lateinit var userService: UserService
 
+    @MockkBean
+    private lateinit var authorizationService: AuthorizationService
+
     @MockkBean(relaxed = true)
     private lateinit var jwtTokenService: ch.obermuhlner.aitutor.auth.service.JwtTokenService
 
     @MockkBean(relaxed = true)
     private lateinit var customUserDetailsService: ch.obermuhlner.aitutor.user.service.CustomUserDetailsService
+
+    @MockkBean(relaxed = true)
+    private lateinit var authenticationManager: AuthenticationManager
 
     @Test
     fun `POST register should create new user and return 201`() {
@@ -176,21 +188,27 @@ class AuthControllerTest {
             id = UUID.randomUUID(),
             username = "testuser",
             email = "test@example.com",
+            firstName = "Test",
+            lastName = "User",
             roles = mutableSetOf(UserRole.USER),
+            enabled = true,
+            emailVerified = false,
+            createdAt = Instant.now(),
+            lastLoginAt = null,
+            subscriptionPlan = ch.obermuhlner.aitutor.user.domain.SubscriptionPlan.FREE,
             provider = ch.obermuhlner.aitutor.user.domain.AuthProvider.CREDENTIALS
         )
 
-        every { userService.findByUsername("testuser") } returns user
+        every { authorizationService.getCurrentUser() } returns user
 
         mockMvc.perform(
             get("/api/v1/auth/me")
-                .with(csrf())
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.username").value("testuser"))
             .andExpect(jsonPath("$.email").value("test@example.com"))
 
-        verify { userService.findByUsername("testuser") }
+        verify { authorizationService.getCurrentUser() }
     }
 
     @Test
@@ -203,15 +221,8 @@ class AuthControllerTest {
     @WithMockUser(username = "testuser")
     fun `POST logout should revoke tokens and return 204`() {
         val userId = UUID.randomUUID()
-        val user = ch.obermuhlner.aitutor.user.domain.UserEntity(
-            id = userId,
-            username = "testuser",
-            email = "test@example.com",
-            roles = mutableSetOf(UserRole.USER),
-            provider = ch.obermuhlner.aitutor.user.domain.AuthProvider.CREDENTIALS
-        )
 
-        every { userService.findByUsername("testuser") } returns user
+        every { authorizationService.getCurrentUserId() } returns userId
         every { authService.logout(userId) } returns Unit
 
         mockMvc.perform(
@@ -220,6 +231,7 @@ class AuthControllerTest {
         )
             .andExpect(status().isNoContent)
 
+        verify { authorizationService.getCurrentUserId() }
         verify { authService.logout(userId) }
     }
 
@@ -227,19 +239,12 @@ class AuthControllerTest {
     @WithMockUser(username = "testuser")
     fun `POST password should change password and return 204`() {
         val userId = UUID.randomUUID()
-        val user = ch.obermuhlner.aitutor.user.domain.UserEntity(
-            id = userId,
-            username = "testuser",
-            email = "test@example.com",
-            roles = mutableSetOf(UserRole.USER),
-            provider = ch.obermuhlner.aitutor.user.domain.AuthProvider.CREDENTIALS
-        )
         val request = ChangePasswordRequest(
             currentPassword = "OldPassword123",
             newPassword = "NewPassword123"
         )
 
-        every { userService.findByUsername("testuser") } returns user
+        every { authorizationService.getCurrentUserId() } returns userId
         every { authService.changePassword(userId, request) } returns Unit
 
         mockMvc.perform(
@@ -250,6 +255,7 @@ class AuthControllerTest {
         )
             .andExpect(status().isNoContent)
 
+        verify { authorizationService.getCurrentUserId() }
         verify { authService.changePassword(userId, request) }
     }
 }

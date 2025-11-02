@@ -90,24 +90,22 @@ class ChatControllerTest {
             tutorProfileId = tutorId,
             customName = "Test Session"
         )
-        val tutor = mockk<ch.obermuhlner.aitutor.catalog.domain.TutorProfileEntity>()
         val sessionResponse = mockk<ch.obermuhlner.aitutor.chat.dto.SessionResponse>()
         
         every { authorizationService.getCurrentUserId() } returns currentUserId
-        every { catalogService.getTutorsForCourse(courseTemplateId) } returns listOf(tutor)
-        every { tutor.id } returns tutorId
-        every { chatService.createSessionFromCourse(
-            userId = currentUserId,
-            courseTemplateId = courseTemplateId,
-            tutorProfileId = tutorId,
-            sourceLanguageCode = "en",
-            customName = "Test Session"
-        ) } returns sessionResponse
+        every { 
+            chatService.createSessionFromCourse(
+                userId = currentUserId,
+                courseTemplateId = courseTemplateId,
+                tutorProfileId = tutorId,
+                sourceLanguageCode = "en",
+                customName = "Test Session"
+            ) 
+        } returns sessionResponse
 
         val result = controller.createSessionFromCourse(request)
 
         verify { authorizationService.getCurrentUserId() }
-        verify { catalogService.getTutorsForCourse(courseTemplateId) }
         verify { 
             chatService.createSessionFromCourse(
                 userId = currentUserId,
@@ -273,18 +271,32 @@ class ChatControllerTest {
     @Test
     fun `sendMessage should send message and return response`() {
         val sessionId = UUID.randomUUID()
-        val content = "Hello"
-        val request = SendMessageRequest(content)
+        val userContent = "Hello"
+        val request = SendMessageRequest(userContent)
         val currentUserId = UUID.randomUUID()
         val messageResponse = mockk<ch.obermuhlner.aitutor.chat.dto.MessageResponse>()
+        val userEntity = mockk<ch.obermuhlner.aitutor.user.domain.UserEntity>()
+        val rateLimitStatus = mockk<ch.obermuhlner.aitutor.user.service.RateLimitingService.RateLimitStatus>()
         
         every { authorizationService.getCurrentUserId() } returns currentUserId
-        every { chatService.sendMessage(sessionId, content, currentUserId) } returns messageResponse
+        every { userRepository.findById(currentUserId) } returns java.util.Optional.of(userEntity)
+        every { userEntity.subscriptionPlan } returns ch.obermuhlner.aitutor.user.domain.SubscriptionPlan.FREE
+        every { rateLimitingService.getRateLimitStatus(currentUserId, ch.obermuhlner.aitutor.user.domain.SubscriptionPlan.FREE) } returns rateLimitStatus
+        every { rateLimitStatus.dailyLimit } returns 100
+        every { rateLimitStatus.availableTokens } returns 99
+        every { rateLimitStatus.hourlyLimit } returns 20
+        every { rateLimitStatus.hourlyRemaining } returns 19
+        every { rateLimitStatus.dailyRemaining } returns 98
+        every { rateLimitStatus.hourlyResetSeconds } returns 3600
+        every { rateLimitStatus.dailyResetSeconds } returns 86400
+        every { chatService.sendMessage(sessionId, userContent, currentUserId) } returns messageResponse
 
         val result = controller.sendMessage(sessionId, request)
 
         verify { authorizationService.getCurrentUserId() }
-        verify { chatService.sendMessage(sessionId, content, currentUserId) }
+        verify { userRepository.findById(currentUserId) }
+        verify { rateLimitingService.getRateLimitStatus(currentUserId, ch.obermuhlner.aitutor.user.domain.SubscriptionPlan.FREE) }
+        verify { chatService.sendMessage(sessionId = sessionId, userContent = userContent, currentUserId = currentUserId) }
         assert(result.statusCode == HttpStatus.OK)
         assert(result.body == messageResponse)
     }
