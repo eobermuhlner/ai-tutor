@@ -130,7 +130,7 @@ FRONTEND_URL=https://your-production-domain.com
 
 ### Verify Configuration
 
-The backend reads these values from `application.yml`:
+The backend reads these values from `application-stripe.yml`:
 
 ```yaml
 stripe:

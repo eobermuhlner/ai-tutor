@@ -13,7 +13,7 @@ data class DemoUserProperties(
     var enabled: Boolean = true,
     var username: String = "demo",
     var password: String = "demo",
-    var email: String = "demo@localhost"
+    var email: String = "demo@example.com"
 )
 
 @Component
