@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Plus, Lock, User } from 'lucide-react';
+import { Plus, Lock, User, DollarSign } from 'lucide-react';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
@@ -7,7 +7,7 @@ import Spinner from '../components/ui/Spinner';
 import LanguageProficiencyList from '../components/profile/LanguageProficiencyList';
 import AddLanguageModal from '../components/profile/AddLanguageModal';
 import ApiKeySettingsSection from '../components/profile/ApiKeySettingsSection';
-import RateLimitIndicator from '../components/profile/RateLimitIndicator';
+import SubscriptionPlanSection from '../components/profile/SubscriptionPlanSection';
 import { useAuthStore } from '../store/authStore';
 import {
   getLanguageProficiencies,
@@ -335,11 +335,11 @@ export default function ProfilePage() {
           )}
         </section>
 
+        {/* Subscription Plan */}
+        <SubscriptionPlanSection />
+
         {/* API Key Settings */}
         <ApiKeySettingsSection />
-
-        {/* Rate Limit Status */}
-        <RateLimitIndicator />
       </div>
 
       {/* Add/Edit Language Modal */}

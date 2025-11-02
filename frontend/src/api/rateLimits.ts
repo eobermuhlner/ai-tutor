@@ -17,3 +17,17 @@ export async function getRateLimitStatus(): Promise<RateLimitStatus> {
   const response = await apiClient.get<RateLimitStatus>('/rate-limits/status');
   return response.data;
 }
+
+export interface UpdateUserSubscriptionPlanRequest {
+  subscriptionPlan: 'FREE_BYOK' | 'SUBSCRIPTION_10';
+}
+
+export async function updateUserSubscriptionPlan(
+  subscriptionPlan: 'FREE_BYOK' | 'SUBSCRIPTION_10'
+): Promise<RateLimitStatus> {
+  const response = await apiClient.patch<RateLimitStatus>(
+    '/rate-limits/subscription-plan',
+    { subscriptionPlan }
+  );
+  return response.data;
+}
