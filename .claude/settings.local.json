@@ -25,7 +25,8 @@
       "Bash(../gradlew compileTestKotlin:*)",
       "Bash(../gradlew compileKotlin:*)",
       "Bash(../gradlew dependencies:*)",
-      "Bash(../gradlew :backend:test:*)"
+      "Bash(../gradlew :backend:test:*)",
+      "Bash(npm run build:*)"
     ],
     "deny": [],
     "ask": []

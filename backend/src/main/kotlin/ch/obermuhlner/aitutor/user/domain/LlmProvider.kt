@@ -20,6 +20,11 @@ enum class LlmProvider {
     ANTHROPIC,
 
     /**
+     * Ollama (self-hosted, no API key required)
+     */
+    OLLAMA,
+
+    /**
      * Use system default provider (configured via environment variables)
      */
     SYSTEM_DEFAULT

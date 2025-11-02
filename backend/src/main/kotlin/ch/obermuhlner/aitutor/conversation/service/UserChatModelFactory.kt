@@ -11,6 +11,10 @@ import org.springframework.ai.anthropic.api.AnthropicApi
 import org.springframework.ai.azure.openai.AzureOpenAiChatModel
 import org.springframework.ai.azure.openai.AzureOpenAiChatOptions
 import org.springframework.ai.chat.model.ChatModel
+import org.springframework.ai.ollama.OllamaChatModel
+import org.springframework.ai.ollama.api.OllamaApi
+import org.springframework.ai.ollama.api.OllamaOptions
+import org.springframework.ai.model.tool.ToolCallingManager
 import org.springframework.ai.openai.OpenAiChatModel
 import org.springframework.ai.openai.OpenAiChatOptions
 import org.springframework.ai.openai.api.OpenAiApi
@@ -22,28 +26,34 @@ import java.util.UUID
 /**
  * Factory service for creating per-user ChatModel instances.
  *
- * Uses Spring AI builder APIs to create ChatModel instances at runtime with user-provided API keys.
- * Falls back to system default ChatModel when user has not configured their own keys.
+ * Simplified BYOK implementation:
+ * - System-wide provider is determined from application.yml
+ * - Users provide API keys for the active system provider only
+ * - Falls back to system default ChatModel when user has not configured their own keys
  */
 @Service
 class UserChatModelFactory(
     private val systemChatModel: ChatModel,
     private val userRepository: UserRepository,
     private val encryptionService: ApiKeyEncryptionService,
+    private val activeProviderDetectionService: ActiveProviderDetectionService,
     @Value("\${spring.ai.openai.chat.options.model:gpt-4o}")
     private val defaultOpenAiModel: String,
     @Value("\${spring.ai.azure.openai.chat.options.deployment-name:gpt-4o}")
     private val defaultAzureDeploymentName: String,
     @Value("\${spring.ai.anthropic.chat.options.model:claude-3-5-sonnet-20241022}")
     private val defaultAnthropicModel: String,
+    @Value("\${spring.ai.ollama.chat.options.model:granite3.2:8b}")
+    private val defaultOllamaModel: String,
     private val retryTemplate: RetryTemplate,
-    private val observationRegistry: ObservationRegistry
+    private val observationRegistry: ObservationRegistry,
+    private val toolCallingManager: ToolCallingManager
 ) {
 
     /**
      * Get a ChatModel for the specified user.
      *
-     * Creates a ChatModel using the user's configured API key and preferred provider.
+     * Creates a ChatModel using the user's configured API key for the system's active provider.
      * Falls back to system default if no user configuration exists.
      *
      * @param userId User ID
@@ -55,13 +65,21 @@ class UserChatModelFactory(
         val user = userRepository.findById(userId)
             .orElseThrow { IllegalArgumentException("User not found: $userId") }
 
-        // Determine effective provider
-        val effectiveProvider = user.preferredProvider ?: LlmProvider.SYSTEM_DEFAULT
+        // Determine active provider from system configuration
+        val activeProvider = activeProviderDetectionService.getActiveProvider()
 
-        return when (effectiveProvider) {
-            LlmProvider.OPENAI -> createOpenAiModelOrFallback(user)
-            LlmProvider.AZURE_OPENAI -> createAzureOpenAiModelOrFallback(user)
-            LlmProvider.ANTHROPIC -> createAnthropicModelOrFallback(user)
+        // For Ollama, users can configure endpoint without API key
+        // For other providers, if no API key is configured, use system default
+        if (activeProvider != LlmProvider.OLLAMA && user.apiKeyEncrypted.isNullOrBlank()) {
+            return systemChatModel
+        }
+
+        // Create ChatModel with user's configuration for the active provider
+        return when (activeProvider) {
+            LlmProvider.OPENAI -> createOpenAiModel(user)
+            LlmProvider.AZURE_OPENAI -> createAzureOpenAiModel(user)
+            LlmProvider.ANTHROPIC -> createAnthropicModel(user)
+            LlmProvider.OLLAMA -> createOllamaModel(user)
             LlmProvider.SYSTEM_DEFAULT -> systemChatModel
         }
     }
@@ -69,15 +87,9 @@ class UserChatModelFactory(
     /**
      * Create OpenAI ChatModel with user's API key using builder API.
      */
-    private fun createOpenAiModelOrFallback(user: UserEntity): ChatModel {
-        val encryptedKey = user.openaiApiKeyEncrypted
-
-        if (encryptedKey.isNullOrBlank()) {
-            return systemChatModel
-        }
-
+    private fun createOpenAiModel(user: UserEntity): ChatModel {
         return try {
-            val apiKey = encryptionService.decrypt(encryptedKey)
+            val apiKey = encryptionService.decrypt(user.apiKeyEncrypted!!)
 
             val openAiApi = OpenAiApi.builder()
                 .apiKey(apiKey)
@@ -96,16 +108,12 @@ class UserChatModelFactory(
     /**
      * Create Azure OpenAI ChatModel with user's API key and endpoint using builder API.
      */
-    private fun createAzureOpenAiModelOrFallback(user: UserEntity): ChatModel {
-        val encryptedKey = user.azureOpenaiApiKeyEncrypted
-        val endpoint = user.azureOpenaiEndpoint
-
-        if (encryptedKey.isNullOrBlank() || endpoint.isNullOrBlank()) {
-            return systemChatModel
-        }
+    private fun createAzureOpenAiModel(user: UserEntity): ChatModel {
+        val endpoint = user.endpoint
+            ?: throw IllegalStateException("Azure OpenAI endpoint not configured for user ${user.id}")
 
         return try {
-            val apiKey = encryptionService.decrypt(encryptedKey)
+            val apiKey = encryptionService.decrypt(user.apiKeyEncrypted!!)
 
             // Azure OpenAI uses OpenAIClientBuilder from Azure SDK
             val openAIClientBuilder = com.azure.ai.openai.OpenAIClientBuilder()
@@ -125,15 +133,9 @@ class UserChatModelFactory(
     /**
      * Create Anthropic ChatModel with user's API key using builder API.
      */
-    private fun createAnthropicModelOrFallback(user: UserEntity): ChatModel {
-        val encryptedKey = user.anthropicApiKeyEncrypted
-
-        if (encryptedKey.isNullOrBlank()) {
-            return systemChatModel
-        }
-
+    private fun createAnthropicModel(user: UserEntity): ChatModel {
         return try {
-            val apiKey = encryptionService.decrypt(encryptedKey)
+            val apiKey = encryptionService.decrypt(user.apiKeyEncrypted!!)
 
             val anthropicApi = AnthropicApi.builder()
                 .apiKey(apiKey)
@@ -150,21 +152,50 @@ class UserChatModelFactory(
     }
 
     /**
-     * Check if user has a specific provider configured with valid credentials.
+     * Create Ollama ChatModel with user's endpoint using builder API.
+     * Ollama doesn't require an API key (self-hosted).
+     */
+    private fun createOllamaModel(user: UserEntity): ChatModel {
+        val endpoint = user.endpoint
+            ?: throw IllegalStateException("Ollama endpoint not configured for user ${user.id}")
+
+        return try {
+            val ollamaApi = OllamaApi.builder()
+                .baseUrl(endpoint)
+                .build()
+
+            val ollamaOptions = OllamaOptions.builder()
+                .model(defaultOllamaModel)
+                .build()
+
+            OllamaChatModel(
+                ollamaApi,
+                ollamaOptions,
+                toolCallingManager,
+                observationRegistry,
+                null   // modelManagementOptions
+            )
+        } catch (e: Exception) {
+            throw IllegalStateException("Failed to create Ollama ChatModel for user ${user.id}", e)
+        }
+    }
+
+    /**
+     * Check if user has configured their own API key or endpoint.
      *
      * @param userId User ID
-     * @param provider Provider to check
-     * @return true if user has that provider configured with valid API key
+     * @return true if user has configuration (API key or endpoint for Ollama)
      */
-    fun isProviderConfiguredForUser(userId: UUID, provider: LlmProvider): Boolean {
+    fun isProviderConfiguredForUser(userId: UUID): Boolean {
         val user = userRepository.findById(userId).orElse(null) ?: return false
+        val activeProvider = activeProviderDetectionService.getActiveProvider()
 
-        return when (provider) {
-            LlmProvider.OPENAI -> !user.openaiApiKeyEncrypted.isNullOrBlank()
-            LlmProvider.AZURE_OPENAI ->
-                !user.azureOpenaiApiKeyEncrypted.isNullOrBlank() && !user.azureOpenaiEndpoint.isNullOrBlank()
-            LlmProvider.ANTHROPIC -> !user.anthropicApiKeyEncrypted.isNullOrBlank()
-            LlmProvider.SYSTEM_DEFAULT -> true // System default is always available
+        return if (activeProvider == LlmProvider.OLLAMA) {
+            // For Ollama, only endpoint is required
+            !user.endpoint.isNullOrBlank()
+        } else {
+            // For other providers, API key is required
+            !user.apiKeyEncrypted.isNullOrBlank()
         }
     }
 }

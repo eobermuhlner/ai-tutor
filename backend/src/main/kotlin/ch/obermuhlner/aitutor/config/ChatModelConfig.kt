@@ -11,6 +11,8 @@ import org.springframework.retry.support.RetryTemplate
  *
  * Provides default beans for RetryTemplate and ObservationRegistry
  * if they're not already configured by Spring AI autoconfiguration.
+ *
+ * Note: ToolCallingManager is provided by Spring AI autoconfiguration.
  */
 @Configuration
 class ChatModelConfig {

@@ -1,13 +1,11 @@
 package ch.obermuhlner.aitutor.user.controller
 
 import ch.obermuhlner.aitutor.auth.service.AuthorizationService
+import ch.obermuhlner.aitutor.conversation.service.ActiveProviderDetectionService
 import ch.obermuhlner.aitutor.core.util.ApiKeyEncryptionService
 import ch.obermuhlner.aitutor.user.domain.LlmProvider
 import ch.obermuhlner.aitutor.user.dto.ApiKeyConfigurationResponse
-import ch.obermuhlner.aitutor.user.dto.UpdateAnthropicKeyRequest
-import ch.obermuhlner.aitutor.user.dto.UpdateAzureOpenAiKeyRequest
-import ch.obermuhlner.aitutor.user.dto.UpdateOpenAiKeyRequest
-import ch.obermuhlner.aitutor.user.dto.UpdatePreferredProviderRequest
+import ch.obermuhlner.aitutor.user.dto.UpdateApiKeyRequest
 import ch.obermuhlner.aitutor.user.repository.UserRepository
 import ch.obermuhlner.aitutor.user.service.ApiKeyValidationService
 import io.swagger.v3.oas.annotations.Operation
@@ -20,189 +18,123 @@ import org.springframework.web.bind.annotation.*
 /**
  * REST controller for managing user API keys (Bring Your Own Key feature).
  *
+ * Simplified BYOK implementation:
+ * - System-wide provider configuration (determined by application.yml)
+ * - Users provide API keys for the active system provider
+ * - Single generic endpoint for setting API key
+ *
  * Endpoints:
- * - GET /api/v1/users/me/api-keys - Get API key configuration status
- * - PUT /api/v1/users/me/api-keys/openai - Set OpenAI API key
- * - PUT /api/v1/users/me/api-keys/azure-openai - Set Azure OpenAI API key and endpoint
- * - PUT /api/v1/users/me/api-keys/anthropic - Set Anthropic API key
- * - DELETE /api/v1/users/me/api-keys/{provider} - Remove API key for a provider
- * - PUT /api/v1/users/me/preferred-provider - Set preferred LLM provider
+ * - GET /api/v1/users/me/api-key - Get API key configuration status
+ * - PUT /api/v1/users/me/api-key - Set API key for active provider
+ * - DELETE /api/v1/users/me/api-key - Remove API key
  */
 @RestController
-@RequestMapping("/api/v1/users/me/api-keys")
+@RequestMapping("/api/v1/users/me")
 @Tag(name = "API Keys", description = "User API key management (BYOK)")
 class ApiKeyController(
     private val authorizationService: AuthorizationService,
     private val userRepository: UserRepository,
     private val encryptionService: ApiKeyEncryptionService,
-    private val validationService: ApiKeyValidationService
+    private val validationService: ApiKeyValidationService,
+    private val activeProviderDetectionService: ActiveProviderDetectionService
 ) {
 
-    @GetMapping
-    @Operation(summary = "Get API key configuration", description = "Returns which providers are configured (does not expose actual keys)")
+    @GetMapping("/api-key")
+    @Operation(
+        summary = "Get API key configuration",
+        description = "Returns API key configuration status for the active system provider (does not expose actual keys)"
+    )
     fun getApiKeyConfiguration(): ResponseEntity<ApiKeyConfigurationResponse> {
         val userId = authorizationService.getCurrentUserId()
         val user = userRepository.findById(userId)
             .orElseThrow { IllegalArgumentException("User not found") }
 
+        val activeProvider = activeProviderDetectionService.getActiveProvider()
+        val requiresEndpoint = activeProviderDetectionService.requiresEndpoint()
+
         val response = ApiKeyConfigurationResponse(
-            openaiConfigured = !user.openaiApiKeyEncrypted.isNullOrBlank(),
-            azureOpenaiConfigured = !user.azureOpenaiApiKeyEncrypted.isNullOrBlank() &&
-                    !user.azureOpenaiEndpoint.isNullOrBlank(),
-            anthropicConfigured = !user.anthropicApiKeyEncrypted.isNullOrBlank(),
-            preferredProvider = user.preferredProvider,
-            azureOpenaiEndpoint = user.azureOpenaiEndpoint
+            hasApiKey = !user.apiKeyEncrypted.isNullOrBlank(),
+            requiresEndpoint = requiresEndpoint,
+            endpoint = user.endpoint,
+            activeProvider = activeProvider
         )
 
         return ResponseEntity.ok(response)
     }
 
-    @PutMapping("/openai")
-    @Operation(summary = "Set OpenAI API key", description = "Validates and stores encrypted OpenAI API key")
-    fun setOpenAiKey(
-        @Valid @RequestBody request: UpdateOpenAiKeyRequest
+    @PutMapping("/api-key")
+    @Operation(
+        summary = "Set API key",
+        description = "Validates and stores encrypted API key for the active system provider. For Ollama, only endpoint is required (no API key)."
+    )
+    fun setApiKey(
+        @Valid @RequestBody request: UpdateApiKeyRequest
     ): ResponseEntity<Map<String, String>> {
         val userId = authorizationService.getCurrentUserId()
         val user = userRepository.findById(userId)
             .orElseThrow { IllegalArgumentException("User not found") }
 
-        // Validate API key
-        val validationResult = validationService.validateOpenAiKey(request.apiKey)
-        if (!validationResult.isValid) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(mapOf("error" to (validationResult.errorMessage ?: "Invalid API key")))
-        }
+        val activeProvider = activeProviderDetectionService.getActiveProvider()
+        val requiresEndpoint = activeProviderDetectionService.requiresEndpoint()
 
-        // Encrypt and save
-        user.openaiApiKeyEncrypted = encryptionService.encrypt(request.apiKey)
-        userRepository.save(user)
-
-        return ResponseEntity.ok(mapOf("message" to "OpenAI API key saved successfully"))
-    }
-
-    @PutMapping("/azure-openai")
-    @Operation(summary = "Set Azure OpenAI API key", description = "Validates and stores encrypted Azure OpenAI API key and endpoint")
-    fun setAzureOpenAiKey(
-        @Valid @RequestBody request: UpdateAzureOpenAiKeyRequest
-    ): ResponseEntity<Map<String, String>> {
-        val userId = authorizationService.getCurrentUserId()
-        val user = userRepository.findById(userId)
-            .orElseThrow { IllegalArgumentException("User not found") }
-
-        // Validate API key and endpoint
-        val validationResult = validationService.validateAzureOpenAiKey(request.apiKey, request.endpoint)
-        if (!validationResult.isValid) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(mapOf("error" to (validationResult.errorMessage ?: "Invalid API key or endpoint")))
-        }
-
-        // Encrypt and save
-        user.azureOpenaiApiKeyEncrypted = encryptionService.encrypt(request.apiKey)
-        user.azureOpenaiEndpoint = request.endpoint
-        userRepository.save(user)
-
-        return ResponseEntity.ok(mapOf("message" to "Azure OpenAI API key and endpoint saved successfully"))
-    }
-
-    @PutMapping("/anthropic")
-    @Operation(summary = "Set Anthropic API key", description = "Validates and stores encrypted Anthropic API key")
-    fun setAnthropicKey(
-        @Valid @RequestBody request: UpdateAnthropicKeyRequest
-    ): ResponseEntity<Map<String, String>> {
-        val userId = authorizationService.getCurrentUserId()
-        val user = userRepository.findById(userId)
-            .orElseThrow { IllegalArgumentException("User not found") }
-
-        // Validate API key
-        val validationResult = validationService.validateAnthropicKey(request.apiKey)
-        if (!validationResult.isValid) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(mapOf("error" to (validationResult.errorMessage ?: "Invalid API key")))
-        }
-
-        // Encrypt and save
-        user.anthropicApiKeyEncrypted = encryptionService.encrypt(request.apiKey)
-        userRepository.save(user)
-
-        return ResponseEntity.ok(mapOf("message" to "Anthropic API key saved successfully"))
-    }
-
-    @DeleteMapping("/{provider}")
-    @Operation(summary = "Remove API key", description = "Removes the API key for the specified provider")
-    fun removeApiKey(
-        @PathVariable provider: String
-    ): ResponseEntity<Map<String, String>> {
-        val userId = authorizationService.getCurrentUserId()
-        val user = userRepository.findById(userId)
-            .orElseThrow { IllegalArgumentException("User not found") }
-
-        val llmProvider = try {
-            LlmProvider.valueOf(provider.uppercase().replace("-", "_"))
-        } catch (e: IllegalArgumentException) {
+        // Validate endpoint requirement
+        if (requiresEndpoint && request.endpoint.isNullOrBlank()) {
             return ResponseEntity.badRequest()
-                .body(mapOf("error" to "Invalid provider: $provider"))
+                .body(mapOf("error" to "Endpoint is required for ${activeProvider}"))
         }
 
-        when (llmProvider) {
-            LlmProvider.OPENAI -> {
-                user.openaiApiKeyEncrypted = null
-                if (user.preferredProvider == LlmProvider.OPENAI) {
-                    user.preferredProvider = null
-                }
-            }
-            LlmProvider.AZURE_OPENAI -> {
-                user.azureOpenaiApiKeyEncrypted = null
-                user.azureOpenaiEndpoint = null
-                if (user.preferredProvider == LlmProvider.AZURE_OPENAI) {
-                    user.preferredProvider = null
-                }
-            }
-            LlmProvider.ANTHROPIC -> {
-                user.anthropicApiKeyEncrypted = null
-                if (user.preferredProvider == LlmProvider.ANTHROPIC) {
-                    user.preferredProvider = null
-                }
-            }
-            LlmProvider.SYSTEM_DEFAULT -> {
-                return ResponseEntity.badRequest()
-                    .body(mapOf("error" to "Cannot remove system default provider"))
-            }
+        // For Ollama, API key is optional (self-hosted, no authentication)
+        // For other providers, API key is required
+        if (activeProvider != LlmProvider.OLLAMA && request.apiKey.isBlank()) {
+            return ResponseEntity.badRequest()
+                .body(mapOf("error" to "API key is required for ${activeProvider}"))
         }
 
+        // Validate configuration based on provider
+        val validationResult = if (activeProvider == LlmProvider.OLLAMA) {
+            // For Ollama, only validate endpoint (API key is optional)
+            validationService.validateApiKey(
+                activeProvider,
+                "",  // Empty API key for Ollama
+                request.endpoint
+            )
+        } else {
+            // For other providers, validate API key (and endpoint if applicable)
+            validationService.validateApiKey(
+                activeProvider,
+                request.apiKey,
+                request.endpoint
+            )
+        }
+
+        if (!validationResult.isValid) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(mapOf("error" to (validationResult.errorMessage ?: "Invalid configuration")))
+        }
+
+        // Encrypt and save (only encrypt if API key is provided)
+        user.apiKeyEncrypted = if (request.apiKey.isNotBlank()) {
+            encryptionService.encrypt(request.apiKey)
+        } else {
+            null
+        }
+        user.endpoint = request.endpoint
         userRepository.save(user)
 
-        return ResponseEntity.ok(mapOf("message" to "$provider API key removed successfully"))
+        return ResponseEntity.ok(mapOf("message" to "Configuration saved successfully for provider: $activeProvider"))
     }
 
-    @PutMapping("/preferred-provider")
-    @Operation(summary = "Set preferred provider", description = "Sets the user's preferred LLM provider")
-    fun setPreferredProvider(
-        @Valid @RequestBody request: UpdatePreferredProviderRequest
-    ): ResponseEntity<Map<String, String>> {
+    @DeleteMapping("/api-key")
+    @Operation(summary = "Remove API key", description = "Removes the user's API key")
+    fun removeApiKey(): ResponseEntity<Map<String, String>> {
         val userId = authorizationService.getCurrentUserId()
         val user = userRepository.findById(userId)
             .orElseThrow { IllegalArgumentException("User not found") }
 
-        // Verify the user has configured the provider (except SYSTEM_DEFAULT)
-        if (request.provider != LlmProvider.SYSTEM_DEFAULT) {
-            val isConfigured = when (request.provider) {
-                LlmProvider.OPENAI -> !user.openaiApiKeyEncrypted.isNullOrBlank()
-                LlmProvider.AZURE_OPENAI ->
-                    !user.azureOpenaiApiKeyEncrypted.isNullOrBlank() &&
-                            !user.azureOpenaiEndpoint.isNullOrBlank()
-                LlmProvider.ANTHROPIC -> !user.anthropicApiKeyEncrypted.isNullOrBlank()
-                else -> false
-            }
-
-            if (!isConfigured) {
-                return ResponseEntity.badRequest()
-                    .body(mapOf("error" to "Provider ${request.provider} is not configured. Please add an API key first."))
-            }
-        }
-
-        user.preferredProvider = request.provider
+        user.apiKeyEncrypted = null
+        user.endpoint = null
         userRepository.save(user)
 
-        return ResponseEntity.ok(mapOf("message" to "Preferred provider set to ${request.provider}"))
+        return ResponseEntity.ok(mapOf("message" to "API key removed successfully"))
     }
 }

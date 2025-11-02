@@ -4,47 +4,23 @@ import ch.obermuhlner.aitutor.user.domain.LlmProvider
 import jakarta.validation.constraints.NotBlank
 
 /**
- * Response showing which API keys/providers are configured for a user.
+ * Response showing API key configuration status for the system's active provider.
  * Never exposes actual API keys, only configuration status.
  */
 data class ApiKeyConfigurationResponse(
-    val openaiConfigured: Boolean,
-    val azureOpenaiConfigured: Boolean,
-    val anthropicConfigured: Boolean,
-    val preferredProvider: LlmProvider?,
-    val azureOpenaiEndpoint: String? // Show endpoint (not sensitive) for user reference
+    val hasApiKey: Boolean,
+    val requiresEndpoint: Boolean,
+    val endpoint: String?, // Show endpoint (not sensitive) for user reference
+    val activeProvider: LlmProvider
 )
 
 /**
- * Request to set or update OpenAI API key.
+ * Request to set or update API key (generic for any provider).
+ * Endpoint is optional and only required for Azure OpenAI and Ollama.
+ * API key is optional for Ollama (self-hosted, no authentication).
  */
-data class UpdateOpenAiKeyRequest(
-    @field:NotBlank(message = "API key is required")
-    val apiKey: String
-)
+data class UpdateApiKeyRequest(
+    val apiKey: String = "",
 
-/**
- * Request to set or update Azure OpenAI API key and endpoint.
- */
-data class UpdateAzureOpenAiKeyRequest(
-    @field:NotBlank(message = "API key is required")
-    val apiKey: String,
-
-    @field:NotBlank(message = "Endpoint is required")
-    val endpoint: String
-)
-
-/**
- * Request to set or update Anthropic API key.
- */
-data class UpdateAnthropicKeyRequest(
-    @field:NotBlank(message = "API key is required")
-    val apiKey: String
-)
-
-/**
- * Request to update preferred LLM provider.
- */
-data class UpdatePreferredProviderRequest(
-    val provider: LlmProvider
+    val endpoint: String? = null
 )
