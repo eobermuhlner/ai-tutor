@@ -9,7 +9,8 @@ import {
   removeApiKey,
   LlmProvider,
 } from '../../api/apiKeys';
-import type { ApiKeyConfiguration } from '../../api/apiKeys';
+import { useAuthStore } from '../../store/authStore';
+import type { ApiKeyConfiguration, User } from '../../api/apiKeys';
 
 export default function ApiKeySettingsSection() {
   const [config, setConfig] = useState<ApiKeyConfiguration | null>(null);
@@ -65,10 +66,13 @@ export default function ApiKeySettingsSection() {
 
     setIsSaving(true);
     try {
-      await setApiKey(apiKey, config?.requiresEndpoint ? endpoint : undefined);
+      const response = await setApiKey(apiKey, config?.requiresEndpoint ? endpoint : undefined);
       toast.success(`Configuration for ${getProviderDisplayName(provider)} saved and validated successfully`);
       setApiKeyInput('');
       await loadConfiguration();
+      
+      // Refresh user data to reflect the new subscription plan status
+      useAuthStore.getState().refreshUser();
     } catch (error: any) {
       const message = error.response?.data?.error || 'Failed to save configuration';
       toast.error(message);
@@ -86,6 +90,9 @@ export default function ApiKeySettingsSection() {
       await removeApiKey();
       toast.success('API key removed successfully');
       await loadConfiguration();
+      
+      // Refresh user data to reflect the new subscription plan status
+      useAuthStore.getState().refreshUser();
     } catch (error) {
       toast.error('Failed to remove API key');
     }
@@ -136,7 +143,7 @@ export default function ApiKeySettingsSection() {
   }
 
   return (
-    <section className="bg-white rounded-2xl shadow-soft border border-slate-200 p-6 mb-6">
+    <section id="api-key-settings-section" className="bg-white rounded-2xl shadow-soft border border-slate-200 p-6 mb-6">
       <div className="flex items-center gap-3 mb-6">
         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand-500 to-brand-600 flex items-center justify-center">
           <Key className="w-6 h-6 text-white" />
