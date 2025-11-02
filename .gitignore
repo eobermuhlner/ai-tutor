@@ -41,6 +41,9 @@ backend/out/
 
 ### Kotlin ###
 .kotlin
+
+### Project specific directories ###
 /seed-images/
 /data/
 /test-reports/
+/screenshots/
