@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { DollarSign, Check, Loader2 } from 'lucide-react';
 import Button from '../ui/Button';
-import { getRateLimitStatus, updateUserSubscriptionPlan, type UpdateUserSubscriptionPlanRequest, type RateLimitStatus } from '../../api/rateLimits';
+import { getRateLimitStatus, updateUserSubscriptionPlan, type RateLimitStatus } from '../../api/rateLimits';
 import { useAuthStore } from '../../store/authStore';
 import toast from 'react-hot-toast';
 
@@ -125,13 +125,13 @@ export default function SubscriptionPlanSection() {
     setUpdatingPlan(planId);
     try {
       const result = await updateUserSubscriptionPlan(planId as 'SUBSCRIPTION_10'); // Only allow premium plans
-      
-      // Update user in store
-      useAuthStore.getState().updateUser({ ...user, subscriptionPlan: planId });
-      
+
+      // Refresh user data from server
+      await useAuthStore.getState().refreshUser();
+
       // Update status with the new data
       setStatus(result);
-      
+
       toast.success(`Subscription plan updated to ${planOptions.find(p => p.id === planId)?.name}`);
     } catch (err: any) {
       console.error('Failed to update subscription plan:', err);
@@ -222,8 +222,8 @@ export default function SubscriptionPlanSection() {
                   <p className="text-sm text-yellow-800">
                     <span className="font-medium">Increase your limits!</span> Configure your own API key to get the <strong>Free + BYOK</strong> plan with higher limits (300/day instead of 50/day).
                   </p>
-                  <Button 
-                    variant="link" 
+                  <Button
+                    variant="ghost"
                     className="mt-1 px-0 text-yellow-700 hover:text-yellow-900 text-sm font-medium"
                     onClick={() => document.getElementById('api-key-settings-section')?.scrollIntoView({ behavior: 'smooth' })}
                   >
@@ -245,8 +245,8 @@ export default function SubscriptionPlanSection() {
                   <p className="text-sm text-green-800">
                     <span className="font-medium">BYOK Active!</span> You're using the Free + BYOK plan with higher limits (300/day) because you have an API key configured.
                   </p>
-                  <Button 
-                    variant="link" 
+                  <Button
+                    variant="ghost"
                     className="mt-1 px-0 text-green-700 hover:text-green-900 text-sm font-medium"
                     onClick={() => document.getElementById('api-key-settings-section')?.scrollIntoView({ behavior: 'smooth' })}
                   >
@@ -383,8 +383,8 @@ export default function SubscriptionPlanSection() {
                             ? 'API key is configured. Higher limits active.' 
                             : 'Configure your own API key to increase limits to 300/day.'}
                         </p>
-                        <Button 
-                          variant="link" 
+                        <Button
+                          variant="ghost"
                           className="px-0 text-blue-700 hover:text-blue-900 text-xs font-medium mt-1"
                           onClick={() => document.getElementById('api-key-settings-section')?.scrollIntoView({ behavior: 'smooth' })}
                         >

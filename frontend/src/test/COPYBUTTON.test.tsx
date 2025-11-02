@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import CopyButton from '../../src/components/chat/CopyButton';
 
@@ -70,8 +70,11 @@ describe('CopyButton', () => {
     mockWriteText.mockResolvedValue(undefined);
     
     const { container } = render(<CopyButton text="test content" />);
-    
-    fireEvent.click(container.querySelector('button'));
+
+    const button = container.querySelector('button');
+    if (button) {
+      fireEvent.click(button);
+    }
     
     // Initially should show check icon (after click)
     vi.advanceTimersByTime(0); // Process the click state update

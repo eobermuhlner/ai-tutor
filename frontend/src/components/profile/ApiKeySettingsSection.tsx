@@ -10,7 +10,7 @@ import {
   LlmProvider,
 } from '../../api/apiKeys';
 import { useAuthStore } from '../../store/authStore';
-import type { ApiKeyConfiguration, User } from '../../api/apiKeys';
+import type { ApiKeyConfiguration } from '../../api/apiKeys';
 
 export default function ApiKeySettingsSection() {
   const [config, setConfig] = useState<ApiKeyConfiguration | null>(null);
@@ -66,11 +66,11 @@ export default function ApiKeySettingsSection() {
 
     setIsSaving(true);
     try {
-      const response = await setApiKey(apiKey, config?.requiresEndpoint ? endpoint : undefined);
+      await setApiKey(apiKey, config?.requiresEndpoint ? endpoint : undefined);
       toast.success(`Configuration for ${getProviderDisplayName(provider)} saved and validated successfully`);
       setApiKeyInput('');
       await loadConfiguration();
-      
+
       // Refresh user data to reflect the new subscription plan status
       useAuthStore.getState().refreshUser();
     } catch (error: any) {
