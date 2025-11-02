@@ -1,5 +1,6 @@
 package ch.obermuhlner.aitutor.auth.controller
 
+import ch.obermuhlner.aitutor.auth.dto.ChangeEmailRequest
 import ch.obermuhlner.aitutor.auth.dto.ChangePasswordRequest
 import ch.obermuhlner.aitutor.auth.dto.LoginRequest
 import ch.obermuhlner.aitutor.auth.dto.LoginResponse
@@ -85,5 +86,31 @@ class AuthController(
         val userId = authorizationService.getCurrentUserId()
         authService.changePassword(userId, request)
         return ResponseEntity.noContent().build()
+    }
+
+    @PostMapping("/email")
+    @Operation(summary = "Change user email", description = "Allows authenticated user to change their email address")
+    fun changeEmail(
+        @RequestBody request: ChangeEmailRequest
+    ): ResponseEntity<UserResponse> {
+        val userId = authorizationService.getCurrentUserId()
+        authService.changeEmail(userId, request)
+
+        // Return updated user info
+        val user = authorizationService.getCurrentUser()
+        val response = UserResponse(
+            id = user.id,
+            username = user.username,
+            email = user.email,
+            firstName = user.firstName,
+            lastName = user.lastName,
+            roles = user.roles,
+            enabled = user.enabled,
+            emailVerified = user.emailVerified,
+            createdAt = user.createdAt,
+            lastLoginAt = user.lastLoginAt,
+            subscriptionPlan = user.subscriptionPlan
+        )
+        return ResponseEntity.ok(response)
     }
 }

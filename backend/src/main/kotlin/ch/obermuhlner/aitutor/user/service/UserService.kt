@@ -54,6 +54,15 @@ class UserService(
         userRepository.save(user)
     }
 
+    fun updateEmail(userId: UUID, newEmail: String) {
+        val user = userRepository.findById(userId)
+            .orElseThrow { NoSuchElementException("User not found: $userId") }
+
+        user.email = newEmail
+        user.emailVerified = false  // Reset email verification when email changes
+        userRepository.save(user)
+    }
+
     fun deleteUser(userId: UUID) {
         userRepository.deleteById(userId)
     }

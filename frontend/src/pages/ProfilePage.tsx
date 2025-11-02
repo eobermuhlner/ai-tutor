@@ -16,7 +16,7 @@ import {
   setPrimaryLanguage,
   removeLanguageProficiency,
 } from '../api/userLanguages';
-import { changePassword } from '../api/auth';
+import { changePassword, changeEmail } from '../api/auth';
 import { CEFRLevel, LanguageProficiencyType } from '../types';
 import type { LanguageProficiency } from '../types';
 import toast from 'react-hot-toast';
@@ -29,12 +29,17 @@ export default function ProfilePage() {
   const [editLanguageCode, setEditLanguageCode] = useState<string | undefined>();
   const [editCurrentLevel, setEditCurrentLevel] = useState<CEFRLevel | undefined>();
   const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [isChangingEmail, setIsChangingEmail] = useState(false);
 
   // Password change form state
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isSubmittingPassword, setIsSubmittingPassword] = useState(false);
+
+  // Email change form state
+  const [newEmail, setNewEmail] = useState('');
+  const [isSubmittingEmail, setIsSubmittingEmail] = useState(false);
 
   const loadProficiencies = useCallback(async () => {
     if (!user) return;
@@ -191,6 +196,37 @@ export default function ProfilePage() {
     }
   };
 
+  const handleChangeEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!newEmail.trim()) {
+      toast.error('Email cannot be empty');
+      return;
+    }
+
+    // Basic email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(newEmail)) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+
+    setIsSubmittingEmail(true);
+    try {
+      await changeEmail(newEmail);
+      // Refresh user data to get updated email
+      await useAuthStore.getState().refreshUser();
+      toast.success('Email updated successfully');
+      setNewEmail('');
+      setIsChangingEmail(false);
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || 'Failed to update email';
+      toast.error(errorMessage);
+    } finally {
+      setIsSubmittingEmail(false);
+    }
+  };
+
   if (!user) {
     return (
       <Layout>
@@ -240,7 +276,55 @@ export default function ProfilePage() {
             </div>
             <div>
               <label className="text-sm font-semibold text-slate-500">Email</label>
-              <p className="text-slate-900 mt-1">{user.email}</p>
+              {!isChangingEmail ? (
+                <div className="flex items-center gap-3 mt-1">
+                  <p className="text-slate-900">{user.email}</p>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => {
+                      setNewEmail(user.email);
+                      setIsChangingEmail(true);
+                    }}
+                  >
+                    Edit
+                  </Button>
+                </div>
+              ) : (
+                <form onSubmit={handleChangeEmail} className="space-y-3 mt-2">
+                  <Input
+                    type="email"
+                    label="New Email"
+                    value={newEmail}
+                    onChange={(e) => setNewEmail(e.target.value)}
+                    required
+                    disabled={isSubmittingEmail}
+                    placeholder="your.email@example.com"
+                  />
+                  <div className="flex gap-3">
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => {
+                        setIsChangingEmail(false);
+                        setNewEmail('');
+                      }}
+                      disabled={isSubmittingEmail}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      variant="primary"
+                      size="sm"
+                      isLoading={isSubmittingEmail}
+                    >
+                      Save Email
+                    </Button>
+                  </div>
+                </form>
+              )}
             </div>
             {(user.firstName || user.lastName) && (
               <div>

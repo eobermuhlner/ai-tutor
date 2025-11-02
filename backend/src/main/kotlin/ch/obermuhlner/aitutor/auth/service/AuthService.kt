@@ -1,6 +1,7 @@
 package ch.obermuhlner.aitutor.auth.service
 
 import ch.obermuhlner.aitutor.auth.config.JwtProperties
+import ch.obermuhlner.aitutor.auth.dto.ChangeEmailRequest
 import ch.obermuhlner.aitutor.auth.dto.ChangePasswordRequest
 import ch.obermuhlner.aitutor.auth.dto.LoginRequest
 import ch.obermuhlner.aitutor.auth.dto.LoginResponse
@@ -224,6 +225,28 @@ class AuthService(
         logger.info("Password changed successfully for user: ${user.username}")
     }
 
+    fun changeEmail(userId: UUID, request: ChangeEmailRequest) {
+        logger.info("Email change request for user: $userId")
+
+        val user = userService.findById(userId)
+            ?: throw UserNotFoundException("User not found: $userId")
+
+        // Validate email format
+        validateEmail(request.newEmail)
+
+        // Check if email is already in use by another user
+        val existingUser = userService.findByEmail(request.newEmail)
+        if (existingUser != null && existingUser.id != userId) {
+            logger.warn("Email change failed: email '${request.newEmail}' already in use")
+            throw DuplicateEmailException("Email '${request.newEmail}' is already registered")
+        }
+
+        // Update email
+        userService.updateEmail(userId, request.newEmail)
+
+        logger.info("Email changed successfully for user: ${user.username}")
+    }
+
     private fun validateUsername(username: String) {
         if (username.length < 3 || username.length > 32) {
             throw IllegalArgumentException("Username must be between 3 and 32 characters")
@@ -250,6 +273,17 @@ class AuthService(
         }
         if (!password.any { it.isDigit() }) {
             throw WeakPasswordException("Password must contain at least one digit")
+        }
+    }
+
+    private fun validateEmail(email: String) {
+        // Basic email format validation
+        val emailRegex = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
+        if (!email.matches(emailRegex)) {
+            throw IllegalArgumentException("Invalid email format")
+        }
+        if (email.length > 255) {
+            throw IllegalArgumentException("Email address is too long")
         }
     }
 

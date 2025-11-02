@@ -71,3 +71,10 @@ export async function changePassword(
     newPassword,
   });
 }
+
+export async function changeEmail(newEmail: string): Promise<User> {
+  const response = await apiClient.post<User>('/auth/email', {
+    newEmail,
+  });
+  return response.data;
+}
