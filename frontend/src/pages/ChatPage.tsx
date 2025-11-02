@@ -12,6 +12,7 @@ import VocabularyReviewPanel from '../components/vocabulary/VocabularyReviewPane
 import SkillBreakdownBadge from '../components/assessment/SkillBreakdownBadge';
 import LessonPanel from '../components/chat/LessonPanel';
 import TTSSettings from '../components/chat/TTSSettings';
+import RateLimitIndicator from '../components/profile/RateLimitIndicator';
 import TutorImage from '../components/tutor/TutorImage';
 import Spinner from '../components/ui/Spinner';
 import Button from '../components/ui/Button';
@@ -629,6 +630,10 @@ export default function ChatPage() {
 
                     <div className="border-t border-slate-200 pt-6">
                       <TTSSettings />
+                    </div>
+
+                    <div className="border-t border-slate-200 pt-6">
+                      <RateLimitIndicator />
                     </div>
                   </div>
                 )}
