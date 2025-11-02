@@ -1,0 +1,11 @@
+# Stripe Payment Integration Configuration
+# This profile is automatically included in 'prod' and 'dev-stripe' profile groups
+# To enable Stripe in development: ./gradlew :backend:bootRun --args='--spring.profiles.active=dev-stripe'
+
+stripe:
+  enabled: true
+  api-key: ${STRIPE_SECRET_KEY:}
+  webhook-secret: ${STRIPE_WEBHOOK_SECRET:}
+  price-id-subscription-10: ${STRIPE_PRICE_ID_SUBSCRIPTION_10:}
+  success-url: ${FRONTEND_URL:http://localhost:5173}/profile?payment=success
+  cancel-url: ${FRONTEND_URL:http://localhost:5173}/profile?payment=cancel

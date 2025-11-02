@@ -5,12 +5,13 @@ spring:
   profiles:
     active: dev-ollama
     group:
-      prod: prod,h2-file,ai-openai,prompts-large
+      prod: prod,h2-file,ai-openai,prompts-large,stripe
       dev-openai: dev,h2-file,ai-openai,prompts-large
       dev-azure-openai: dev,h2-file,ai-azure-openai,prompts-large
       dev-anthropic: dev,h2-file,ai-anthropic,prompts-large
       dev-ollama: dev,h2-file,ai-ollama,prompts-small
       dev-dummy: dev,h2-mem,ai-dummy,prompts-small
+      dev-stripe: dev,h2-file,ai-openai,prompts-large,stripe
       test: test,h2-mem,ai-dummy,prompts-small
 
 springdoc:

@@ -55,6 +55,24 @@ export default function ProfilePage() {
     }
   }, [user, loadProficiencies]);
 
+  // Handle payment result from Stripe
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const paymentResult = params.get('payment');
+
+    if (paymentResult === 'success') {
+      toast.success('Subscription activated! Welcome to Premium.');
+      // Refresh user data to get updated subscription plan
+      useAuthStore.getState().refreshUser();
+      // Clean up URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    } else if (paymentResult === 'cancel') {
+      toast('Checkout canceled. You can upgrade anytime.');
+      // Clean up URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
+
   const handleAddLanguage = async (
     languageCode: string,
     type: LanguageProficiencyType,

@@ -98,6 +98,9 @@ class UserEntity(
     @Column(name = "endpoint", nullable = true, length = 255)
     var endpoint: String? = null,
 
+    @Column(name = "stripe_customer_id", nullable = true, length = 255)
+    var stripeCustomerId: String? = null,
+
     @Enumerated(EnumType.STRING)
     @Column(name = "subscription_plan", nullable = false, length = 32)
     var subscriptionPlan: SubscriptionPlan = SubscriptionPlan.FREE

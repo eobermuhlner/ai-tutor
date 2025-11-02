@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { DollarSign, Check, Loader2 } from 'lucide-react';
 import Button from '../ui/Button';
 import { getRateLimitStatus, updateUserSubscriptionPlan, type RateLimitStatus } from '../../api/rateLimits';
+import { createCheckoutSession, createBillingPortalSession, getSubscriptionStatus, type SubscriptionStatusResponse } from '../../api/payment';
 import { useAuthStore } from '../../store/authStore';
 import toast from 'react-hot-toast';
 
@@ -73,6 +74,7 @@ const planOptions: PlanOption[] = [
 export default function SubscriptionPlanSection() {
   const user = useAuthStore((state) => state.user);
   const [status, setStatus] = useState<RateLimitStatus | null>(null);
+  const [subscriptionStatus, setSubscriptionStatus] = useState<SubscriptionStatusResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [updatingPlan, setUpdatingPlan] = useState<SubscriptionPlan | null>(null);
@@ -80,8 +82,12 @@ export default function SubscriptionPlanSection() {
   const loadRateLimitStatus = async () => {
     try {
       setLoading(true);
-      const data = await getRateLimitStatus();
-      setStatus(data);
+      const [rateLimitData, subscriptionData] = await Promise.all([
+        getRateLimitStatus(),
+        getSubscriptionStatus()
+      ]);
+      setStatus(rateLimitData);
+      setSubscriptionStatus(subscriptionData);
       setError(null);
     } catch (err) {
       console.error('Failed to load rate limit status:', err);
@@ -118,13 +124,29 @@ export default function SubscriptionPlanSection() {
       return;
     }
 
+    // For SUBSCRIPTION_10, redirect to Stripe Checkout
+    if (planId === 'SUBSCRIPTION_10') {
+      setUpdatingPlan(planId);
+      try {
+        const { url } = await createCheckoutSession();
+        window.location.href = url; // Redirect to Stripe Checkout
+      } catch (err: any) {
+        console.error('Failed to create checkout session:', err);
+        const errorMessage = err.response?.data?.message || 'Failed to start checkout. Please try again.';
+        toast.error(errorMessage);
+        setUpdatingPlan(null);
+      }
+      return;
+    }
+
+    // For other plans, use the existing flow
     if (!confirm(`Are you sure you want to change your subscription plan to ${planOptions.find(p => p.id === planId)?.name}?`)) {
       return;
     }
 
     setUpdatingPlan(planId);
     try {
-      const result = await updateUserSubscriptionPlan(planId as 'SUBSCRIPTION_10'); // Only allow premium plans
+      const result = await updateUserSubscriptionPlan(planId as 'SUBSCRIPTION_10');
 
       // Refresh user data from server
       await useAuthStore.getState().refreshUser();
@@ -139,6 +161,17 @@ export default function SubscriptionPlanSection() {
       toast.error(errorMessage);
     } finally {
       setUpdatingPlan(null);
+    }
+  };
+
+  const handleManageSubscription = async () => {
+    try {
+      const { url } = await createBillingPortalSession();
+      window.location.href = url; // Redirect to Stripe Billing Portal
+    } catch (err: any) {
+      console.error('Failed to create billing portal session:', err);
+      const errorMessage = err.response?.data?.message || 'Failed to open billing portal. Please try again.';
+      toast.error(errorMessage);
     }
   };
 
@@ -393,23 +426,48 @@ export default function SubscriptionPlanSection() {
                       </div>
                     )}
                     
-                    <Button
-                      variant={isCurrent ? "secondary" : "primary"}
-                      className="w-full"
-                      onClick={() => handlePlanChange(plan.id)}
-                      disabled={isCurrent || isUpdating}
-                    >
-                      {isUpdating ? (
-                        <>
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          Processing...
-                        </>
-                      ) : isCurrent ? (
-                        "Current Plan"
-                      ) : (
-                        "Select Plan"
-                      )}
-                    </Button>
+                    {/* Manage Subscription button for active SUBSCRIPTION_10 users */}
+                    {isCurrent && plan.id === 'SUBSCRIPTION_10' && subscriptionStatus?.hasActiveSubscription ? (
+                      <>
+                        <Button
+                          variant="secondary"
+                          className="w-full mb-2"
+                          onClick={handleManageSubscription}
+                        >
+                          Manage Subscription
+                        </Button>
+                        {subscriptionStatus.cancelAtPeriodEnd && subscriptionStatus.currentPeriodEnd && (
+                          <p className="text-xs text-red-600 text-center mt-2">
+                            Cancels on {new Date(subscriptionStatus.currentPeriodEnd).toLocaleDateString()}
+                          </p>
+                        )}
+                        {!subscriptionStatus.cancelAtPeriodEnd && subscriptionStatus.currentPeriodEnd && (
+                          <p className="text-xs text-green-600 text-center mt-2">
+                            Renews on {new Date(subscriptionStatus.currentPeriodEnd).toLocaleDateString()}
+                          </p>
+                        )}
+                      </>
+                    ) : (
+                      <Button
+                        variant={isCurrent ? "secondary" : "primary"}
+                        className="w-full"
+                        onClick={() => handlePlanChange(plan.id)}
+                        disabled={isCurrent || isUpdating}
+                      >
+                        {isUpdating ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Processing...
+                          </>
+                        ) : isCurrent ? (
+                          "Current Plan"
+                        ) : plan.id === 'SUBSCRIPTION_10' ? (
+                          "Upgrade to Premium"
+                        ) : (
+                          "Select Plan"
+                        )}
+                      </Button>
+                    )}
                   </div>
                 );
               })}

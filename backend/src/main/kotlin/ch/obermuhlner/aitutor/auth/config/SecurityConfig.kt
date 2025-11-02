@@ -48,6 +48,11 @@ class SecurityConfig(
                         "/api/v1/auth/refresh"
                     ).permitAll()
 
+                    // Stripe webhook endpoint (validated via signature)
+                    .requestMatchers(
+                        "/api/v1/webhooks/stripe"
+                    ).permitAll()
+
                     // Public file/image endpoint you listed
                     .requestMatchers(
                         "/api/v1/images/concept/*/data"
