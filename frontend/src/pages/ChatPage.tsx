@@ -38,6 +38,7 @@ function calculateDaysSince(timestamp: string): number {
 export default function ChatPage() {
   const { sessionId } = useParams<{ sessionId: string }>();
   const navigate = useNavigate();
+  const [rateLimitRefreshTrigger, setRateLimitRefreshTrigger] = useState(0);
   const [messages, setMessages] = useState<Message[]>([]);
   const [languages, setLanguages] = useState<Language[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -234,6 +235,9 @@ export default function ChatPage() {
           console.error('Failed to refresh due count:', error);
         }
       }
+      
+      // Trigger rate limit refresh to reflect the message that was just sent
+      setRateLimitRefreshTrigger(prev => prev + 1);
     } catch (error) {
       const errorMessage = getErrorMessage(error, 'Failed to send message');
       toast.error(errorMessage);
@@ -633,7 +637,7 @@ export default function ChatPage() {
                     </div>
 
                     <div className="border-t border-slate-200 pt-6">
-                      <RateLimitIndicator />
+                      <RateLimitIndicator forceRefresh={rateLimitRefreshTrigger} />
                     </div>
                   </div>
                 )}

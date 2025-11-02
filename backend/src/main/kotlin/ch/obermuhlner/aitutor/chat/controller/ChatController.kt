@@ -480,6 +480,15 @@ class ChatController(
             builder.header("X-RateLimit-Limit", status.dailyLimit.toString())
             builder.header("X-RateLimit-Remaining", status.availableTokens.toString())
             builder.header("X-RateLimit-Reset", "86400") // 24 hours in seconds (daily reset)
+            
+            // Add detailed hourly and daily rate limit information
+            builder.header("X-RateLimit-Limit-Hour", status.hourlyLimit.toString())
+            builder.header("X-RateLimit-Remaining-Hour", status.hourlyRemaining.toString())
+            builder.header("X-RateLimit-Reset-Hour", status.hourlyResetSeconds.toString())
+            
+            builder.header("X-RateLimit-Limit-Day", status.dailyLimit.toString())
+            builder.header("X-RateLimit-Remaining-Day", status.dailyRemaining.toString())
+            builder.header("X-RateLimit-Reset-Day", status.dailyResetSeconds.toString())
         }
         return builder
     }

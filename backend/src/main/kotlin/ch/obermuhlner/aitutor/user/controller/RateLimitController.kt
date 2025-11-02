@@ -39,6 +39,10 @@ class RateLimitController(
             availableTokens = status.availableTokens,
             hourlyLimit = status.hourlyLimit,
             dailyLimit = status.dailyLimit,
+            hourlyRemaining = status.hourlyRemaining,
+            dailyRemaining = status.dailyRemaining,
+            hourlyResetSeconds = status.hourlyResetSeconds,
+            dailyResetSeconds = status.dailyResetSeconds,
             percentageUsed = status.percentageUsed,
             planName = status.planName,
             subscriptionPlan = user.subscriptionPlan.name

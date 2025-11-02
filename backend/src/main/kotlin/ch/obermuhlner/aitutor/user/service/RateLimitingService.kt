@@ -2,13 +2,16 @@ package ch.obermuhlner.aitutor.user.service
 
 import ch.obermuhlner.aitutor.core.exception.RateLimitExceededException
 import ch.obermuhlner.aitutor.user.domain.SubscriptionPlan
+import io.github.bucket4j.Bandwidth
 import io.github.bucket4j.Bucket
 import io.github.bucket4j.ConsumptionProbe
+import io.github.bucket4j.Refill
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.Duration
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.math.min
 
 /**
  * Service for rate limiting AI LLM calls using bucket4j token bucket algorithm.
@@ -18,8 +21,9 @@ import java.util.concurrent.ConcurrentHashMap
 class RateLimitingService {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    // Cache of buckets per user ID
-    private val buckets = ConcurrentHashMap<UUID, Bucket>()
+    // Cache of buckets per user ID - separate for hourly and daily limits
+    private val hourlyBuckets = ConcurrentHashMap<UUID, Bucket>()
+    private val dailyBuckets = ConcurrentHashMap<UUID, Bucket>()
 
     /**
      * Checks if the user can make an AI LLM call and consumes a token if available.
@@ -30,32 +34,50 @@ class RateLimitingService {
      * @throws RateLimitExceededException if rate limit is exceeded
      */
     fun checkRateLimit(userId: UUID, subscriptionPlan: SubscriptionPlan) {
-        val bucket = getBucketForUser(userId, subscriptionPlan)
-        val probe: ConsumptionProbe = bucket.tryConsumeAndReturnRemaining(1)
-
-        if (!probe.isConsumed) {
-            val waitTime = Duration.ofNanos(probe.nanosToWaitForRefill)
+        val hourlyBucket = getHourlyBucketForUser(userId, subscriptionPlan)
+        val dailyBucket = getDailyBucketForUser(userId, subscriptionPlan)
+        
+        // Check hourly limit first
+        val hourlyProbe: ConsumptionProbe = hourlyBucket.tryConsumeAndReturnRemaining(1)
+        if (!hourlyProbe.isConsumed) {
+            val waitTime = Duration.ofNanos(hourlyProbe.nanosToWaitForRefill)
             logger.warn(
-                "Rate limit exceeded for user {} with plan {}. Retry after {} seconds",
+                "Hourly rate limit exceeded for user {} with plan {}. Retry after {} seconds",
                 userId,
                 subscriptionPlan.name,
                 waitTime.seconds
             )
 
-            // Determine which limit was hit based on wait time
-            val limitType = if (waitTime.toHours() < 1) "hourly" else "daily"
+            throw RateLimitExceededException(
+                userId = userId.toString(),
+                retryAfter = waitTime,
+                limitType = "hourly"
+            )
+        }
+        
+        // Check daily limit
+        val dailyProbe: ConsumptionProbe = dailyBucket.tryConsumeAndReturnRemaining(1)
+        if (!dailyProbe.isConsumed) {
+            val waitTime = Duration.ofNanos(dailyProbe.nanosToWaitForRefill)
+            logger.warn(
+                "Daily rate limit exceeded for user {} with plan {}. Retry after {} seconds",
+                userId,
+                subscriptionPlan.name,
+                waitTime.seconds
+            )
 
             throw RateLimitExceededException(
                 userId = userId.toString(),
                 retryAfter = waitTime,
-                limitType = limitType
+                limitType = "daily"
             )
         }
 
         logger.debug(
-            "Rate limit check passed for user {}. Tokens remaining: {}",
+            "Rate limit check passed for user {}. Hourly remaining: {}, Daily remaining: {}",
             userId,
-            probe.remainingTokens
+            hourlyProbe.remainingTokens,
+            dailyProbe.remainingTokens
         )
     }
 
@@ -67,15 +89,47 @@ class RateLimitingService {
      * @return RateLimitStatus containing available tokens and limits
      */
     fun getRateLimitStatus(userId: UUID, subscriptionPlan: SubscriptionPlan): RateLimitStatus {
-        val bucket = getBucketForUser(userId, subscriptionPlan)
-        val availableTokens = bucket.availableTokens
+        val hourlyBucket = getHourlyBucketForUser(userId, subscriptionPlan)
+        val dailyBucket = getDailyBucketForUser(userId, subscriptionPlan)
+        
+        // Get available tokens for each bucket
+        val hourlyAvailable = hourlyBucket.availableTokens
+        val dailyAvailable = dailyBucket.availableTokens
+        
+        // For reset times, we need to determine when the next refill would occur
+        // Using a conservative approach: estimate based on refill rate
+        val hourlyResetSeconds = estimateResetTime(hourlyAvailable, subscriptionPlan.messagesPerHour, 3600L)
+        val dailyResetSeconds = estimateResetTime(dailyAvailable, subscriptionPlan.messagesPerDay, 86400L)
+        
+        // For available tokens, we return the minimum since that's what limits the user
+        val availableTokens = minOf(hourlyAvailable, dailyAvailable)
 
         return RateLimitStatus(
             availableTokens = availableTokens,
             hourlyLimit = subscriptionPlan.messagesPerHour,
             dailyLimit = subscriptionPlan.messagesPerDay,
+            hourlyRemaining = hourlyAvailable,
+            dailyRemaining = dailyAvailable,
+            hourlyResetSeconds = hourlyResetSeconds,
+            dailyResetSeconds = dailyResetSeconds,
             planName = subscriptionPlan.displayName
         )
+    }
+    
+    private fun estimateResetTime(currentTokens: Long, maxTokens: Long, periodSeconds: Long): Long {
+        if (currentTokens >= maxTokens) {
+            // Bucket is full, next refill will be after the full period
+            return periodSeconds
+        }
+        
+        // Estimate based on refill rate: time until bucket is full
+        // Refill rate is maxTokens per periodSeconds
+        val tokensToRefill = maxTokens - currentTokens
+        val timePerToken = periodSeconds.toDouble() / maxTokens.toDouble()
+        val estimatedTime = (tokensToRefill * timePerToken).toLong()
+        
+        // Cap at the maximum period
+        return minOf(estimatedTime, periodSeconds)
     }
 
     /**
@@ -85,23 +139,67 @@ class RateLimitingService {
      * @param userId The user's UUID
      */
     fun resetRateLimit(userId: UUID) {
-        buckets.remove(userId)
-        logger.info("Rate limit bucket reset for user {}", userId)
+        hourlyBuckets.remove(userId)
+        dailyBuckets.remove(userId)
+        logger.info("Rate limit buckets reset for user {}", userId)
     }
 
     /**
-     * Gets or creates a bucket for the specified user.
+     * Gets or creates an hourly bucket for the specified user.
      * Buckets are cached in memory for the lifetime of the application.
      *
      * @param userId The user's UUID
      * @param subscriptionPlan The user's subscription plan
-     * @return The user's rate limiting bucket
+     * @return The user's hourly rate limiting bucket
      */
-    private fun getBucketForUser(userId: UUID, subscriptionPlan: SubscriptionPlan): Bucket {
-        return buckets.computeIfAbsent(userId) {
-            logger.debug("Creating new rate limit bucket for user {} with plan {}", userId, subscriptionPlan.name)
-            subscriptionPlan.createBucket()
+    private fun getHourlyBucketForUser(userId: UUID, subscriptionPlan: SubscriptionPlan): Bucket {
+        return hourlyBuckets.computeIfAbsent(userId) {
+            logger.debug("Creating new hourly rate limit bucket for user {} with plan {}", userId, subscriptionPlan.name)
+            createHourlyBucket(subscriptionPlan)
         }
+    }
+    
+    /**
+     * Gets or creates a daily bucket for the specified user.
+     * Buckets are cached in memory for the lifetime of the application.
+     *
+     * @param userId The user's UUID
+     * @param subscriptionPlan The user's subscription plan
+     * @return The user's daily rate limiting bucket
+     */
+    private fun getDailyBucketForUser(userId: UUID, subscriptionPlan: SubscriptionPlan): Bucket {
+        return dailyBuckets.computeIfAbsent(userId) {
+            logger.debug("Creating new daily rate limit bucket for user {} with plan {}", userId, subscriptionPlan.name)
+            createDailyBucket(subscriptionPlan)
+        }
+    }
+    
+    /**
+     * Creates a new bucket configured with the hourly rate limit from the subscription plan.
+     *
+     * @param subscriptionPlan The subscription plan containing rate limits
+     * @return A new Bucket instance configured for hourly limits
+     */
+    private fun createHourlyBucket(subscriptionPlan: SubscriptionPlan): Bucket {
+        val hourlyLimit = Bandwidth.classic(
+            subscriptionPlan.messagesPerHour,
+            Refill.greedy(subscriptionPlan.messagesPerHour, Duration.ofHours(1))
+        )
+        return Bucket.builder().addLimit(hourlyLimit).build()
+    }
+    
+    /**
+     * Creates a new bucket configured with the daily rate limit from the subscription plan.
+     *
+     * @param subscriptionPlan The subscription plan containing rate limits
+     * @return A new Bucket instance configured for daily limits
+     */
+    private fun createDailyBucket(subscriptionPlan: SubscriptionPlan): Bucket {
+        val dailyLimit = Bandwidth.classic(
+            subscriptionPlan.messagesPerDay,
+            Refill.greedy(subscriptionPlan.messagesPerDay, Duration.ofDays(1))
+        )
+        return Bucket.builder().addLimit(dailyLimit).build()
     }
 
     /**
@@ -111,6 +209,10 @@ class RateLimitingService {
         val availableTokens: Long,
         val hourlyLimit: Long,
         val dailyLimit: Long,
+        val hourlyRemaining: Long,
+        val dailyRemaining: Long,
+        val hourlyResetSeconds: Long,
+        val dailyResetSeconds: Long,
         val planName: String
     ) {
         val percentageUsed: Double
