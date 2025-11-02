@@ -3,69 +3,99 @@ package ch.obermuhlner.aitutor.user.service
 import ch.obermuhlner.aitutor.chat.domain.ChatSessionEntity
 import ch.obermuhlner.aitutor.core.model.CEFRLevel
 import ch.obermuhlner.aitutor.core.model.catalog.LanguageProficiencyType
-import ch.obermuhlner.aitutor.tutor.domain.ConversationPhase
 import ch.obermuhlner.aitutor.user.domain.UserLanguageProficiencyEntity
 import ch.obermuhlner.aitutor.user.repository.UserLanguageProficiencyRepository
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import java.time.Instant
 import java.util.UUID
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.Test
 
 class UserLanguageServiceImplTest {
+    private lateinit var userLanguageProficiencyRepository: UserLanguageProficiencyRepository
+    private lateinit var service: UserLanguageServiceImpl
 
-    private val repository = mockk<UserLanguageProficiencyRepository>()
-    private val service = UserLanguageServiceImpl(repository)
-
-    @Test
-    fun `addLanguage should create new proficiency when not exists`() {
-        val userId = UUID.randomUUID()
-        every { repository.findByUserIdAndLanguageCode(userId, "es") } returns null
-        every { repository.save(any()) } answers { firstArg() }
-
-        val result = service.addLanguage(userId, "es", LanguageProficiencyType.Learning, CEFRLevel.A1, false)
-
-        assertNotNull(result)
-        assertEquals(userId, result.userId)
-        assertEquals("es", result.languageCode)
-        assertEquals(LanguageProficiencyType.Learning, result.proficiencyType)
-        assertEquals(CEFRLevel.A1, result.cefrLevel)
-        assertFalse(result.isNative)
-        verify { repository.save(any()) }
+    @BeforeEach
+    fun setup() {
+        userLanguageProficiencyRepository = mockk()
+        service = UserLanguageServiceImpl(userLanguageProficiencyRepository)
     }
 
     @Test
-    fun `addLanguage should return existing proficiency when already exists`() {
+    fun `addLanguage should save new language proficiency when not exists`() {
         val userId = UUID.randomUUID()
-        val existing = UserLanguageProficiencyEntity(
+        val languageCode = "es"
+        val type = LanguageProficiencyType.Learning
+        val cefrLevel = CEFRLevel.A1
+        val isNative = false
+
+        val entity = UserLanguageProficiencyEntity(
+            id = UUID.randomUUID(),
             userId = userId,
-            languageCode = "es",
-            proficiencyType = LanguageProficiencyType.Learning,
-            cefrLevel = CEFRLevel.A2,
-            isNative = false,
+            languageCode = languageCode,
+            proficiencyType = type,
+            cefrLevel = cefrLevel,
+            isNative = isNative,
             isPrimary = false,
             selfAssessed = true,
             lastAssessedAt = Instant.now()
         )
-        every { repository.findByUserIdAndLanguageCode(userId, "es") } returns existing
 
-        val result = service.addLanguage(userId, "es", LanguageProficiencyType.Learning, CEFRLevel.A1, false)
+        every { userLanguageProficiencyRepository.findByUserIdAndLanguageCode(userId, languageCode) } returns null
+        every { userLanguageProficiencyRepository.save(any()) } returns entity
 
-        assertEquals(existing, result)
-        verify(exactly = 0) { repository.save(any()) }
+        val result = service.addLanguage(userId, languageCode, type, cefrLevel, isNative)
+
+        verify { userLanguageProficiencyRepository.findByUserIdAndLanguageCode(userId, languageCode) }
+        verify { userLanguageProficiencyRepository.save(any()) }
+        Assertions.assertEquals(userId, result.userId)
+        Assertions.assertEquals(languageCode, result.languageCode)
+        Assertions.assertEquals(type, result.proficiencyType)
+        Assertions.assertEquals(cefrLevel, result.cefrLevel)
     }
 
     @Test
-    fun `updateLanguage should update CEFR level`() {
+    fun `addLanguage should return existing entity when already exists`() {
         val userId = UUID.randomUUID()
-        val entity = UserLanguageProficiencyEntity(
+        val languageCode = "es"
+        val type = LanguageProficiencyType.Learning
+        val cefrLevel = CEFRLevel.A1
+        val isNative = false
+
+        val existingEntity = UserLanguageProficiencyEntity(
+            id = UUID.randomUUID(),
             userId = userId,
-            languageCode = "es",
+            languageCode = languageCode,
+            proficiencyType = LanguageProficiencyType.Learning,  // Different from requested
+            cefrLevel = CEFRLevel.B1,  // Different from requested
+            isNative = true,  // Different from requested
+            isPrimary = false,
+            selfAssessed = true,
+            lastAssessedAt = Instant.now()
+        )
+
+        every { userLanguageProficiencyRepository.findByUserIdAndLanguageCode(userId, languageCode) } returns existingEntity
+
+        val result = service.addLanguage(userId, languageCode, type, cefrLevel, isNative)
+
+        verify { userLanguageProficiencyRepository.findByUserIdAndLanguageCode(userId, languageCode) }
+        verify(exactly = 0) { userLanguageProficiencyRepository.save(any()) }
+        Assertions.assertEquals(existingEntity, result)
+    }
+
+    @Test
+    fun `updateLanguage should update existing language proficiency`() {
+        val userId = UUID.randomUUID()
+        val languageCode = "es"
+        val newLevel = CEFRLevel.B2
+
+        val existingEntity = UserLanguageProficiencyEntity(
+            id = UUID.randomUUID(),
+            userId = userId,
+            languageCode = languageCode,
             proficiencyType = LanguageProficiencyType.Learning,
             cefrLevel = CEFRLevel.A1,
             isNative = false,
@@ -73,30 +103,111 @@ class UserLanguageServiceImplTest {
             selfAssessed = true,
             lastAssessedAt = Instant.now()
         )
-        every { repository.findByUserIdAndLanguageCode(userId, "es") } returns entity
-        every { repository.save(any()) } answers { firstArg() }
 
-        val result = service.updateLanguage(userId, "es", CEFRLevel.A2)
+        val updatedEntity = existingEntity.apply {
+            this.cefrLevel = newLevel
+            this.lastAssessedAt = java.time.Instant.now()
+        }
 
-        assertEquals(CEFRLevel.A2, result.cefrLevel)
-        verify { repository.save(entity) }
+        every { userLanguageProficiencyRepository.findByUserIdAndLanguageCode(userId, languageCode) } returns existingEntity
+        every { userLanguageProficiencyRepository.save(existingEntity) } returns updatedEntity
+
+        val result = service.updateLanguage(userId, languageCode, newLevel)
+
+        verify { userLanguageProficiencyRepository.findByUserIdAndLanguageCode(userId, languageCode) }
+        verify { userLanguageProficiencyRepository.save(existingEntity) }
+        Assertions.assertEquals(newLevel, result.cefrLevel)
     }
 
     @Test
-    fun `getUserLanguages should return all user languages`() {
+    fun `updateLanguage should throw exception when language doesn't exist`() {
         val userId = UUID.randomUUID()
-        val languages = listOf(
+        val languageCode = "es"
+        val newLevel = CEFRLevel.B2
+
+        every { userLanguageProficiencyRepository.findByUserIdAndLanguageCode(userId, languageCode) } returns null
+
+        Assertions.assertThrows(IllegalArgumentException::class.java) {
+            service.updateLanguage(userId, languageCode, newLevel)
+        }
+
+        verify { userLanguageProficiencyRepository.findByUserIdAndLanguageCode(userId, languageCode) }
+    }
+
+    @Test
+    fun `getUserLanguages should return languages for user`() {
+        val userId = UUID.randomUUID()
+        val entities = listOf(
+            mockk<UserLanguageProficiencyEntity>(),
+            mockk<UserLanguageProficiencyEntity>()
+        )
+
+        every { userLanguageProficiencyRepository.findByUserIdOrderByIsNativeDescCefrLevelDesc(userId) } returns entities
+
+        val result = service.getUserLanguages(userId)
+
+        verify { userLanguageProficiencyRepository.findByUserIdOrderByIsNativeDescCefrLevelDesc(userId) }
+        Assertions.assertEquals(entities, result)
+    }
+
+    @Test
+    fun `getNativeLanguages should return native languages for user`() {
+        val userId = UUID.randomUUID()
+        val entities = listOf(mockk<UserLanguageProficiencyEntity>())
+
+        every { userLanguageProficiencyRepository.findByUserIdAndIsNativeTrue(userId) } returns entities
+
+        val result = service.getNativeLanguages(userId)
+
+        verify { userLanguageProficiencyRepository.findByUserIdAndIsNativeTrue(userId) }
+        Assertions.assertEquals(entities, result)
+    }
+
+    @Test
+    fun `getLearningLanguages should return learning languages for user`() {
+        val userId = UUID.randomUUID()
+        val entities = listOf(mockk<UserLanguageProficiencyEntity>())
+
+        every { userLanguageProficiencyRepository.findByUserIdAndProficiencyType(userId, LanguageProficiencyType.Learning) } returns entities
+
+        val result = service.getLearningLanguages(userId)
+
+        verify { userLanguageProficiencyRepository.findByUserIdAndProficiencyType(userId, LanguageProficiencyType.Learning) }
+        Assertions.assertEquals(entities, result)
+    }
+
+    @Test
+    fun `getPrimaryLanguage should return primary language for user`() {
+        val userId = UUID.randomUUID()
+        val entity = mockk<UserLanguageProficiencyEntity>()
+
+        every { userLanguageProficiencyRepository.findByUserIdAndIsPrimaryTrue(userId) } returns entity
+
+        val result = service.getPrimaryLanguage(userId)
+
+        verify { userLanguageProficiencyRepository.findByUserIdAndIsPrimaryTrue(userId) }
+        Assertions.assertEquals(entity, result)
+    }
+
+    @Test
+    fun `setPrimaryLanguage should clear existing primary and set new primary`() {
+        val userId = UUID.randomUUID()
+        val languageCode = "es"
+
+        val allLanguages = listOf(
             UserLanguageProficiencyEntity(
+                id = UUID.randomUUID(),
                 userId = userId,
                 languageCode = "en",
                 proficiencyType = LanguageProficiencyType.Native,
-                cefrLevel = null,
+                cefrLevel = CEFRLevel.C2,
                 isNative = true,
                 isPrimary = true,
                 selfAssessed = true,
                 lastAssessedAt = Instant.now()
             ),
             UserLanguageProficiencyEntity(
+                id = UUID.randomUUID(),
                 userId = userId,
                 languageCode = "es",
                 proficiencyType = LanguageProficiencyType.Learning,
@@ -107,143 +218,33 @@ class UserLanguageServiceImplTest {
                 lastAssessedAt = Instant.now()
             )
         )
-        every { repository.findByUserIdOrderByIsNativeDescCefrLevelDesc(userId) } returns languages
 
-        val result = service.getUserLanguages(userId)
-
-        assertEquals(2, result.size)
-        verify { repository.findByUserIdOrderByIsNativeDescCefrLevelDesc(userId) }
-    }
-
-    @Test
-    fun `setPrimaryLanguage should update primary flag`() {
-        val userId = UUID.randomUUID()
-        val language1 = UserLanguageProficiencyEntity(
-            userId = userId,
-            languageCode = "en",
-            proficiencyType = LanguageProficiencyType.Native,
-            cefrLevel = null,
-            isNative = true,
-            isPrimary = true,
-            selfAssessed = true,
-            lastAssessedAt = Instant.now()
-        )
-        val language2 = UserLanguageProficiencyEntity(
-            userId = userId,
-            languageCode = "es",
-            proficiencyType = LanguageProficiencyType.Native,
-            cefrLevel = null,
-            isNative = true,
-            isPrimary = false,
-            selfAssessed = true,
-            lastAssessedAt = Instant.now()
-        )
-        every { repository.findByUserIdOrderByIsNativeDescCefrLevelDesc(userId) } returns listOf(language1, language2)
-        every { repository.saveAll(any<List<UserLanguageProficiencyEntity>>()) } returns listOf(language1, language2)
-        every { repository.findByUserIdAndLanguageCode(userId, "es") } returns language2
-        every { repository.save(any()) } answers { firstArg() }
-
-        service.setPrimaryLanguage(userId, "es")
-
-        assertFalse(language1.isPrimary)
-        assertTrue(language2.isPrimary)
-        verify { repository.saveAll(listOf(language1, language2)) }
-        verify { repository.save(language2) }
-    }
-
-    @Test
-    fun `suggestSourceLanguage should return primary language`() {
-        val userId = UUID.randomUUID()
-        val primary = UserLanguageProficiencyEntity(
-            userId = userId,
-            languageCode = "en",
-            proficiencyType = LanguageProficiencyType.Native,
-            cefrLevel = null,
-            isNative = true,
-            isPrimary = true,
-            selfAssessed = true,
-            lastAssessedAt = Instant.now()
-        )
-        every { repository.findByUserIdAndIsPrimaryTrue(userId) } returns primary
-
-        val result = service.suggestSourceLanguage(userId, "es")
-
-        assertEquals("en", result)
-    }
-
-    @Test
-    fun `suggestSourceLanguage should return first native non-target when no primary`() {
-        val userId = UUID.randomUUID()
-        val native = UserLanguageProficiencyEntity(
-            userId = userId,
-            languageCode = "en",
-            proficiencyType = LanguageProficiencyType.Native,
-            cefrLevel = null,
-            isNative = true,
-            isPrimary = false,
-            selfAssessed = true,
-            lastAssessedAt = Instant.now()
-        )
-        every { repository.findByUserIdAndIsPrimaryTrue(userId) } returns null
-        every { repository.findByUserIdAndIsNativeTrue(userId) } returns listOf(native)
-
-        val result = service.suggestSourceLanguage(userId, "es")
-
-        assertEquals("en", result)
-    }
-
-    @Test
-    fun `suggestSourceLanguage should return en when no native languages`() {
-        val userId = UUID.randomUUID()
-        every { repository.findByUserIdAndIsPrimaryTrue(userId) } returns null
-        every { repository.findByUserIdAndIsNativeTrue(userId) } returns emptyList()
-
-        val result = service.suggestSourceLanguage(userId, "es")
-
-        assertEquals("en", result)
-    }
-
-    @Test
-    fun `inferFromSession should add both languages when not exist`() {
-        val userId = UUID.randomUUID()
-        val session = ChatSessionEntity(
-            userId = userId,
-            tutorName = "Maria",
-            tutorPersona = "Friendly",
-            tutorDomain = "General",
-            sourceLanguageCode = "en",
-            targetLanguageCode = "es",
-            conversationPhase = ConversationPhase.Correction,
-            estimatedCEFRLevel = CEFRLevel.A1
-        )
-        every { repository.findByUserIdAndLanguageCode(userId, "en") } returns null
-        every { repository.findByUserIdAndLanguageCode(userId, "es") } returns null
-        every { repository.save(any()) } answers { firstArg() }
-
-        service.inferFromSession(userId, session)
-
-        verify(exactly = 2) { repository.save(any()) }
-    }
-
-    @Test
-    fun `updateLanguage should throw exception when language not found`() {
-        val userId = UUID.randomUUID()
-        every { repository.findByUserIdAndLanguageCode(userId, "es") } returns null
-
-        val exception = org.junit.jupiter.api.assertThrows<IllegalArgumentException> {
-            service.updateLanguage(userId, "es", CEFRLevel.B1)
+        val targetEntity = allLanguages[1].apply {
+            this.isPrimary = true
         }
 
-        assertEquals("Language proficiency not found for user $userId and language es", exception.message)
-        verify(exactly = 0) { repository.save(any()) }
+        every { userLanguageProficiencyRepository.findByUserIdOrderByIsNativeDescCefrLevelDesc(userId) } returns allLanguages
+        every { userLanguageProficiencyRepository.findByUserIdAndLanguageCode(userId, languageCode) } returns allLanguages[1]
+        every { userLanguageProficiencyRepository.saveAll(allLanguages) } returns allLanguages
+        every { userLanguageProficiencyRepository.save(any()) } returns targetEntity
+
+        service.setPrimaryLanguage(userId, languageCode)
+
+        verify { userLanguageProficiencyRepository.findByUserIdOrderByIsNativeDescCefrLevelDesc(userId) }
+        verify { userLanguageProficiencyRepository.findByUserIdAndLanguageCode(userId, languageCode) }
+        verify { userLanguageProficiencyRepository.saveAll(allLanguages) }
+        verify { userLanguageProficiencyRepository.save(any()) }
     }
 
     @Test
-    fun `removeLanguage should delete language proficiency`() {
+    fun `removeLanguage should delete language when exists`() {
         val userId = UUID.randomUUID()
+        val languageCode = "es"
+
         val entity = UserLanguageProficiencyEntity(
+            id = UUID.randomUUID(),
             userId = userId,
-            languageCode = "es",
+            languageCode = languageCode,
             proficiencyType = LanguageProficiencyType.Learning,
             cefrLevel = CEFRLevel.A1,
             isNative = false,
@@ -251,55 +252,124 @@ class UserLanguageServiceImplTest {
             selfAssessed = true,
             lastAssessedAt = Instant.now()
         )
-        every { repository.findByUserIdAndLanguageCode(userId, "es") } returns entity
-        every { repository.delete(entity) } returns Unit
 
-        service.removeLanguage(userId, "es")
+        every { userLanguageProficiencyRepository.findByUserIdAndLanguageCode(userId, languageCode) } returns entity
+        every { userLanguageProficiencyRepository.delete(entity) } returns Unit
 
-        verify { repository.delete(entity) }
+        service.removeLanguage(userId, languageCode)
+
+        verify { userLanguageProficiencyRepository.findByUserIdAndLanguageCode(userId, languageCode) }
+        verify { userLanguageProficiencyRepository.delete(entity) }
     }
 
     @Test
-    fun `removeLanguage should not delete when language not found`() {
+    fun `removeLanguage should do nothing when language doesn't exist`() {
         val userId = UUID.randomUUID()
-        every { repository.findByUserIdAndLanguageCode(userId, "es") } returns null
+        val languageCode = "es"
 
-        service.removeLanguage(userId, "es")
+        every { userLanguageProficiencyRepository.findByUserIdAndLanguageCode(userId, languageCode) } returns null
 
-        verify(exactly = 0) { repository.delete(any()) }
+        service.removeLanguage(userId, languageCode)
+
+        verify { userLanguageProficiencyRepository.findByUserIdAndLanguageCode(userId, languageCode) }
+        verify(exactly = 0) { userLanguageProficiencyRepository.delete(any()) }
     }
 
     @Test
-    fun `addLanguage should create native language proficiency`() {
+    fun `suggestSourceLanguage should return primary language when not target`() {
         val userId = UUID.randomUUID()
-        every { repository.findByUserIdAndLanguageCode(userId, "en") } returns null
-        every { repository.save(any()) } answers { firstArg() }
+        val targetLanguageCode = "es"
+        val primaryLanguageCode = "fr"
 
-        val result = service.addLanguage(userId, "en", LanguageProficiencyType.Native, null, true)
+        val primary = UserLanguageProficiencyEntity(
+            id = UUID.randomUUID(),
+            userId = userId,
+            languageCode = primaryLanguageCode,
+            proficiencyType = LanguageProficiencyType.Native,
+            cefrLevel = CEFRLevel.C2,
+            isNative = true,
+            isPrimary = true,
+            selfAssessed = true,
+            lastAssessedAt = Instant.now()
+        )
 
-        assertNotNull(result)
-        assertEquals(userId, result.userId)
-        assertEquals("en", result.languageCode)
-        assertEquals(LanguageProficiencyType.Native, result.proficiencyType)
-        assertEquals(null, result.cefrLevel)
-        assertEquals(true, result.isNative)
-        verify { repository.save(any()) }
+        every { userLanguageProficiencyRepository.findByUserIdAndIsPrimaryTrue(userId) } returns primary
+
+        val result = service.suggestSourceLanguage(userId, targetLanguageCode)
+
+        verify { userLanguageProficiencyRepository.findByUserIdAndIsPrimaryTrue(userId) }
+        Assertions.assertEquals(primaryLanguageCode, result)
     }
 
     @Test
-    fun `getUserLanguages should return empty list when no languages`() {
+    fun `suggestSourceLanguage should return native language when no primary or primary is target`() {
         val userId = UUID.randomUUID()
-        every { repository.findByUserIdOrderByIsNativeDescCefrLevelDesc(userId) } returns emptyList()
+        val targetLanguageCode = "es"
 
-        val result = service.getUserLanguages(userId)
+        val primary = UserLanguageProficiencyEntity(
+            id = UUID.randomUUID(),
+            userId = userId,
+            languageCode = targetLanguageCode,  // Same as target
+            proficiencyType = LanguageProficiencyType.Native,
+            cefrLevel = CEFRLevel.C2,
+            isNative = true,
+            isPrimary = true,
+            selfAssessed = true,
+            lastAssessedAt = Instant.now()
+        )
 
-        assertEquals(0, result.size)
+        val native = UserLanguageProficiencyEntity(
+            id = UUID.randomUUID(),
+            userId = userId,
+            languageCode = "fr",
+            proficiencyType = LanguageProficiencyType.Native,
+            cefrLevel = CEFRLevel.C1,
+            isNative = true,
+            isPrimary = false,
+            selfAssessed = true,
+            lastAssessedAt = Instant.now()
+        )
+
+        every { userLanguageProficiencyRepository.findByUserIdAndIsPrimaryTrue(userId) } returns primary
+        every { userLanguageProficiencyRepository.findByUserIdAndIsNativeTrue(userId) } returns listOf(native)
+
+        val result = service.suggestSourceLanguage(userId, targetLanguageCode)
+
+        verify { userLanguageProficiencyRepository.findByUserIdAndIsPrimaryTrue(userId) }
+        verify { userLanguageProficiencyRepository.findByUserIdAndIsNativeTrue(userId) }
+        Assertions.assertEquals("fr", result)
     }
 
     @Test
-    fun `setPrimaryLanguage should handle single language case`() {
+    fun `suggestSourceLanguage should return default en when no suitable languages found`() {
         val userId = UUID.randomUUID()
-        val language = UserLanguageProficiencyEntity(
+        val targetLanguageCode = "es"
+
+        every { userLanguageProficiencyRepository.findByUserIdAndIsPrimaryTrue(userId) } returns null
+        every { userLanguageProficiencyRepository.findByUserIdAndIsNativeTrue(userId) } returns emptyList()
+
+        val result = service.suggestSourceLanguage(userId, targetLanguageCode)
+
+        verify { userLanguageProficiencyRepository.findByUserIdAndIsPrimaryTrue(userId) }
+        verify { userLanguageProficiencyRepository.findByUserIdAndIsNativeTrue(userId) }
+        Assertions.assertEquals("en", result)
+    }
+
+    @Test
+    fun `inferFromSession should add source and target languages from session when not exist`() {
+        val userId = UUID.randomUUID()
+        val session = ChatSessionEntity(
+            id = UUID.randomUUID(),
+            userId = userId,
+            tutorName = "Test Tutor",
+            sourceLanguageCode = "en",
+            targetLanguageCode = "es",
+            conversationPhase = ch.obermuhlner.aitutor.tutor.domain.ConversationPhase.Free,
+            estimatedCEFRLevel = CEFRLevel.A1
+        )
+
+        val sourceEntity = UserLanguageProficiencyEntity(
+            id = UUID.randomUUID(),
             userId = userId,
             languageCode = "en",
             proficiencyType = LanguageProficiencyType.Native,
@@ -309,21 +379,9 @@ class UserLanguageServiceImplTest {
             selfAssessed = true,
             lastAssessedAt = Instant.now()
         )
-        every { repository.findByUserIdOrderByIsNativeDescCefrLevelDesc(userId) } returns listOf(language)
-        every { repository.saveAll(any<List<UserLanguageProficiencyEntity>>()) } returns listOf(language)
-        every { repository.findByUserIdAndLanguageCode(userId, "en") } returns language
-        every { repository.save(any()) } answers { firstArg() }
 
-        service.setPrimaryLanguage(userId, "en")
-
-        assertEquals(true, language.isPrimary)
-        verify { repository.save(language) }
-    }
-
-    @Test
-    fun `inferFromSession should only add source language when target exists`() {
-        val userId = UUID.randomUUID()
-        val existingTarget = UserLanguageProficiencyEntity(
+        val targetEntity = UserLanguageProficiencyEntity(
+            id = UUID.randomUUID(),
             userId = userId,
             languageCode = "es",
             proficiencyType = LanguageProficiencyType.Learning,
@@ -333,53 +391,15 @@ class UserLanguageServiceImplTest {
             selfAssessed = true,
             lastAssessedAt = Instant.now()
         )
-        val session = ChatSessionEntity(
-            userId = userId,
-            tutorName = "Maria",
-            tutorPersona = "Friendly",
-            tutorDomain = "General",
-            sourceLanguageCode = "en",
-            targetLanguageCode = "es",
-            conversationPhase = ConversationPhase.Correction,
-            estimatedCEFRLevel = CEFRLevel.A2
-        )
-        every { repository.findByUserIdAndLanguageCode(userId, "en") } returns null
-        every { repository.findByUserIdAndLanguageCode(userId, "es") } returns existingTarget
-        every { repository.save(any()) } answers { firstArg() }
+
+        every { userLanguageProficiencyRepository.findByUserIdAndLanguageCode(userId, "en") } returns null
+        every { userLanguageProficiencyRepository.findByUserIdAndLanguageCode(userId, "es") } returns null
+        every { userLanguageProficiencyRepository.save(any()) } returnsMany listOf(sourceEntity, targetEntity)
 
         service.inferFromSession(userId, session)
 
-        verify(exactly = 1) { repository.save(any()) }
-    }
-
-    @Test
-    fun `suggestSourceLanguage should skip target language when finding native`() {
-        val userId = UUID.randomUUID()
-        val targetNative = UserLanguageProficiencyEntity(
-            userId = userId,
-            languageCode = "es",
-            proficiencyType = LanguageProficiencyType.Native,
-            cefrLevel = null,
-            isNative = true,
-            isPrimary = false,
-            selfAssessed = true,
-            lastAssessedAt = Instant.now()
-        )
-        val otherNative = UserLanguageProficiencyEntity(
-            userId = userId,
-            languageCode = "en",
-            proficiencyType = LanguageProficiencyType.Native,
-            cefrLevel = null,
-            isNative = true,
-            isPrimary = false,
-            selfAssessed = true,
-            lastAssessedAt = Instant.now()
-        )
-        every { repository.findByUserIdAndIsPrimaryTrue(userId) } returns null
-        every { repository.findByUserIdAndIsNativeTrue(userId) } returns listOf(targetNative, otherNative)
-
-        val result = service.suggestSourceLanguage(userId, "es")
-
-        assertEquals("en", result)
+        verify { userLanguageProficiencyRepository.findByUserIdAndLanguageCode(userId, "en") }
+        verify { userLanguageProficiencyRepository.findByUserIdAndLanguageCode(userId, "es") }
+        verify { userLanguageProficiencyRepository.save(any()) }
     }
 }

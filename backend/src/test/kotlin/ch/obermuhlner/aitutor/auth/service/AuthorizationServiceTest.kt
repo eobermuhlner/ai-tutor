@@ -325,12 +325,12 @@ class AuthorizationServiceTest {
         val userDetails = User(username, "password", emptyList())
         val userEntity = createUser(userId, username)
         val session = createSession(sessionId, userId)
-        val authentication = createAuthentication(userDetails)
+        setupAuthentication(userDetails)
 
         every { sessionRepository.findById(sessionId) } returns Optional.of(session)
         every { userService.findByUsername(username) } returns userEntity
 
-        authorizationService.requireSessionAccessOrAdmin(sessionId, authentication)
+        authorizationService.requireSessionAccessOrAdmin(sessionId)
     }
 
     @Test
@@ -342,12 +342,12 @@ class AuthorizationServiceTest {
         val userDetails = User(username, "password", listOf(SimpleGrantedAuthority("ROLE_ADMIN")))
         val adminEntity = createUser(adminId, username, roles = setOf(UserRole.ADMIN))
         val session = createSession(sessionId, ownerId)
-        val authentication = createAuthenticationWithAdminRole(userDetails)
+        setupAuthentication(userDetails)
 
         every { sessionRepository.findById(sessionId) } returns Optional.of(session)
         every { userService.findByUsername(username) } returns adminEntity
 
-        authorizationService.requireSessionAccessOrAdmin(sessionId, authentication)
+        authorizationService.requireSessionAccessOrAdmin(sessionId)
     }
 
     @Test
@@ -359,13 +359,13 @@ class AuthorizationServiceTest {
         val userDetails = User(username, "password", emptyList())
         val userEntity = createUser(userId, username)
         val session = createSession(sessionId, ownerId)
-        val authentication = createAuthentication(userDetails)
+        setupAuthentication(userDetails)
 
         every { sessionRepository.findById(sessionId) } returns Optional.of(session)
         every { userService.findByUsername(username) } returns userEntity
 
         assertThrows(AccessDeniedException::class.java) {
-            authorizationService.requireSessionAccessOrAdmin(sessionId, authentication)
+            authorizationService.requireSessionAccessOrAdmin(sessionId)
         }
     }
 
@@ -374,32 +374,40 @@ class AuthorizationServiceTest {
         val sessionId = UUID.randomUUID()
         val username = "testuser"
         val userDetails = User(username, "password", emptyList())
-        val authentication = createAuthentication(userDetails)
+        setupAuthentication(userDetails)
 
         every { sessionRepository.findById(sessionId) } returns Optional.empty()
 
         assertThrows(IllegalArgumentException::class.java) {
-            authorizationService.requireSessionAccessOrAdmin(sessionId, authentication)
+            authorizationService.requireSessionAccessOrAdmin(sessionId)
         }
     }
 
     @Test
     fun `requireAdmin should not throw for admin`() {
+        val userId = UUID.randomUUID()
         val username = "admin"
         val userDetails = User(username, "password", listOf(SimpleGrantedAuthority("ROLE_ADMIN")))
-        val authentication = createAuthenticationWithAdminRole(userDetails)
+        val adminEntity = createUser(userId, username, roles = setOf(UserRole.ADMIN))
+        setupAuthentication(userDetails)
 
-        authorizationService.requireAdmin(authentication)
+        every { userService.findByUsername(username) } returns adminEntity
+
+        authorizationService.requireAdmin()
     }
 
     @Test
     fun `requireAdmin should throw AccessDeniedException for non-admin`() {
+        val userId = UUID.randomUUID()
         val username = "testuser"
         val userDetails = User(username, "password", emptyList())
-        val authentication = createAuthentication(userDetails)
+        val userEntity = createUser(userId, username)
+        setupAuthentication(userDetails)
+
+        every { userService.findByUsername(username) } returns userEntity
 
         assertThrows(AccessDeniedException::class.java) {
-            authorizationService.requireAdmin(authentication)
+            authorizationService.requireAdmin()
         }
     }
 
@@ -408,17 +416,7 @@ class AuthorizationServiceTest {
         SecurityContextHolder.getContext().authentication = authentication
     }
 
-    private fun createAuthentication(userDetails: UserDetails): Authentication {
-        return UsernamePasswordAuthenticationToken(userDetails, null, userDetails.authorities)
-    }
 
-    private fun createAuthenticationWithAdminRole(userDetails: UserDetails): Authentication {
-        return UsernamePasswordAuthenticationToken(
-            userDetails,
-            null,
-            listOf(SimpleGrantedAuthority("ROLE_ADMIN"))
-        )
-    }
 
     private fun createUser(
         id: UUID,

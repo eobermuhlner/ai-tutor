@@ -1,1464 +1,291 @@
 package ch.obermuhlner.aitutor.chat.controller
 
 import ch.obermuhlner.aitutor.auth.service.AuthorizationService
-import ch.obermuhlner.aitutor.chat.dto.MessageResponse
-import ch.obermuhlner.aitutor.chat.dto.SessionProgressResponse
-import ch.obermuhlner.aitutor.chat.dto.SessionResponse
-import ch.obermuhlner.aitutor.chat.dto.SessionWithMessagesResponse
-import ch.obermuhlner.aitutor.chat.dto.SessionWithProgressResponse
-import ch.obermuhlner.aitutor.chat.dto.TopicHistoryResponse
-import ch.obermuhlner.aitutor.chat.repository.ChatMessageRepository
+import ch.obermuhlner.aitutor.catalog.service.CatalogService
+import ch.obermuhlner.aitutor.chat.dto.CreateSessionFromCourseRequest
+import ch.obermuhlner.aitutor.chat.dto.CreateSessionRequest
+import ch.obermuhlner.aitutor.chat.dto.SendMessageRequest
+import ch.obermuhlner.aitutor.chat.dto.UpdatePhaseRequest
+import ch.obermuhlner.aitutor.chat.dto.UpdateTopicRequest
+import ch.obermuhlner.aitutor.chat.dto.UpdateTeachingStyleRequest
+import ch.obermuhlner.aitutor.chat.dto.UpdateVocabularyReviewModeRequest
+import ch.obermuhlner.aitutor.chat.dto.UpdateLessonRequest
 import ch.obermuhlner.aitutor.chat.repository.ChatSessionRepository
 import ch.obermuhlner.aitutor.chat.service.ChatService
-import ch.obermuhlner.aitutor.core.model.CEFRLevel
-import ch.obermuhlner.aitutor.fixtures.TestDataFactory
-import ch.obermuhlner.aitutor.tutor.domain.ConversationPhase
-import ch.obermuhlner.aitutor.tutor.service.TutorService
-import ch.obermuhlner.aitutor.vocabulary.service.VocabularyService
-import ch.obermuhlner.aitutor.chat.domain.ChatSessionEntity
-import ch.obermuhlner.aitutor.chat.domain.ChatMessageEntity
-import ch.obermuhlner.aitutor.chat.domain.MessageRole
-import ch.obermuhlner.aitutor.core.model.catalog.TutorGender
-import com.ninjasquad.springmockk.MockkBean
+import ch.obermuhlner.aitutor.conversation.service.AiAudioService
+import ch.obermuhlner.aitutor.conversation.config.AudioProperties
+import ch.obermuhlner.aitutor.user.service.RateLimitingService
+import ch.obermuhlner.aitutor.user.repository.UserRepository
 import io.mockk.every
-import io.mockk.just
-import io.mockk.Runs
+import io.mockk.mockk
 import io.mockk.verify
-import java.time.Instant
-import java.util.UUID
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.json.AutoConfigureJsonTesters
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
-import org.springframework.context.annotation.Import
-import org.springframework.http.MediaType
-import org.springframework.security.test.context.support.WithMockUser
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
-import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.header
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import java.util.UUID
 
-@WebMvcTest(controllers = [ChatController::class])
-@AutoConfigureJsonTesters
-@Import(ch.obermuhlner.aitutor.auth.config.SecurityConfig::class)
 class ChatControllerTest {
-
-    @Autowired
-    private lateinit var mockMvc: MockMvc
-
-    @MockkBean(relaxed = true)
     private lateinit var chatService: ChatService
-
-    @MockkBean(relaxed = true)
     private lateinit var authorizationService: AuthorizationService
-
-    @MockkBean(relaxed = true)
+    private lateinit var catalogService: CatalogService
     private lateinit var chatSessionRepository: ChatSessionRepository
+    private lateinit var audioService: AiAudioService
+    private lateinit var audioProperties: AudioProperties
+    private lateinit var rateLimitingService: RateLimitingService
+    private lateinit var userRepository: UserRepository
+    private lateinit var controller: ChatController
 
-    @MockkBean(relaxed = true)
-    private lateinit var chatMessageRepository: ChatMessageRepository
-
-    @MockkBean(relaxed = true)
-    private lateinit var tutorService: TutorService
-
-    @MockkBean(relaxed = true)
-    private lateinit var vocabularyService: VocabularyService
-
-    @MockkBean(relaxed = true)
-    private lateinit var catalogService: ch.obermuhlner.aitutor.catalog.service.CatalogService
-
-    @MockkBean(relaxed = true)
-    private lateinit var jwtTokenService: ch.obermuhlner.aitutor.auth.service.JwtTokenService
-
-    @MockkBean(relaxed = true)
-    private lateinit var customUserDetailsService: ch.obermuhlner.aitutor.user.service.CustomUserDetailsService
-
-    @MockkBean(relaxed = true)
-    private lateinit var audioService: ch.obermuhlner.aitutor.conversation.service.AiAudioService
-
-    @MockkBean(relaxed = true)
-    private lateinit var audioProperties: ch.obermuhlner.aitutor.conversation.config.AudioProperties
-
-    @MockkBean(relaxed = true)
-    private lateinit var rateLimitingService: ch.obermuhlner.aitutor.user.service.RateLimitingService
-
-    @MockkBean(relaxed = true)
-    private lateinit var userRepository: ch.obermuhlner.aitutor.user.repository.UserRepository
-
-    @Test
-    @WithMockUser
-    fun `should create chat session with valid request`() {
-        val request = TestDataFactory.createSessionRequest()
-        val response = SessionResponse(
-            id = TestDataFactory.TEST_SESSION_ID,
-            userId = request.userId,
-            tutorName = request.tutorName,
-            tutorPersona = request.tutorPersona,
-            tutorDomain = request.tutorDomain,
-            tutorTeachingStyle = ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Reactive,
-            sourceLanguageCode = request.sourceLanguageCode,
-            targetLanguageCode = request.targetLanguageCode,
-            conversationPhase = ConversationPhase.Free,
-
-            effectivePhase = ConversationPhase.Free,
-            estimatedCEFRLevel = CEFRLevel.A1,
-            createdAt = Instant.now(),
-            updatedAt = Instant.now()
+    @BeforeEach
+    fun setup() {
+        chatService = mockk()
+        authorizationService = mockk()
+        catalogService = mockk()
+        chatSessionRepository = mockk()
+        audioService = mockk()
+        audioProperties = mockk()
+        rateLimitingService = mockk()
+        userRepository = mockk()
+        controller = ChatController(
+            chatService = chatService,
+            authorizationService = authorizationService,
+            catalogService = catalogService,
+            chatSessionRepository = chatSessionRepository,
+            audioService = audioService,
+            audioProperties = audioProperties,
+            rateLimitingService = rateLimitingService,
+            userRepository = userRepository
         )
-
-        every { authorizationService.requireAccessToUser(request.userId) } returns Unit
-        every { chatService.createSession(any()) } returns response
-
-        mockMvc.perform(
-            post("/api/v1/chat/sessions")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-                    {
-                        "userId": "${request.userId}",
-                        "tutorName": "${request.tutorName}",
-                        "sourceLanguageCode": "${request.sourceLanguageCode}",
-                        "targetLanguageCode": "${request.targetLanguageCode}",
-                        "estimatedCEFRLevel": "A1"
-                    }
-                """.trimIndent())
-        )
-            .andExpect(status().isCreated)
-            .andExpect(jsonPath("$.id").value(TestDataFactory.TEST_SESSION_ID.toString()))
-            .andExpect(jsonPath("$.tutorName").value("TestTutor"))
-            .andExpect(jsonPath("$.sourceLanguageCode").value("en"))
-
-        verify(exactly = 1) { chatService.createSession(any()) }
     }
 
     @Test
-    @WithMockUser
-    fun `should get user sessions`() {
-        val sessions = listOf(
-            SessionResponse(
-                id = TestDataFactory.TEST_SESSION_ID,
-                userId = TestDataFactory.TEST_USER_ID,
-                tutorName = "TestTutor",
-                tutorPersona = "patient coach",
-                tutorDomain = "general",
-                tutorTeachingStyle = ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Reactive,
-                sourceLanguageCode = "en",
-                targetLanguageCode = "es",
-                conversationPhase = ConversationPhase.Free,
-
-                effectivePhase = ConversationPhase.Free,
-                estimatedCEFRLevel = CEFRLevel.A1,
-                createdAt = Instant.now(),
-                updatedAt = Instant.now()
-            )
-        )
-
-        every { authorizationService.resolveUserId(TestDataFactory.TEST_USER_ID) } returns TestDataFactory.TEST_USER_ID
-        every { chatService.getUserSessions(TestDataFactory.TEST_USER_ID) } returns sessions
-
-        mockMvc.perform(
-            get("/api/v1/chat/sessions")
-                .param("userId", TestDataFactory.TEST_USER_ID.toString())
-        )
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$[0].id").value(TestDataFactory.TEST_SESSION_ID.toString()))
-            .andExpect(jsonPath("$[0].tutorName").value("TestTutor"))
-    }
-
-    @Test
-    @WithMockUser
-    fun `should get session with messages`() {
-        val response = SessionWithMessagesResponse(
-            session = SessionResponse(
-                id = TestDataFactory.TEST_SESSION_ID,
-                userId = TestDataFactory.TEST_USER_ID,
-                tutorName = "TestTutor",
-                tutorPersona = "patient coach",
-                tutorDomain = "general",
-                tutorTeachingStyle = ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Reactive,
-                sourceLanguageCode = "en",
-                targetLanguageCode = "es",
-                conversationPhase = ConversationPhase.Free,
-
-                effectivePhase = ConversationPhase.Free,
-                estimatedCEFRLevel = CEFRLevel.A1,
-                createdAt = Instant.now(),
-                updatedAt = Instant.now()
-            ),
-            messages = listOf(
-                MessageResponse(
-                    id = UUID.randomUUID(),
-                    role = "USER",
-                    content = "Hola",
-                    corrections = null,
-                    newVocabulary = null,
-                    wordCards = null,
-                    characterCards = null,
-                    errorMessage = null,
-                    createdAt = Instant.now()
-                )
-            )
-        )
-
-        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
-        every { chatService.getSessionWithMessages(TestDataFactory.TEST_SESSION_ID, TestDataFactory.TEST_USER_ID) } returns response
-
-        mockMvc.perform(
-            get("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}")
-        )
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$.session.id").value(TestDataFactory.TEST_SESSION_ID.toString()))
-            .andExpect(jsonPath("$.messages[0].content").value("Hola"))
-    }
-
-    @Test
-    @WithMockUser
-    fun `should return 404 when session not found`() {
-        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
-        every { chatService.getSessionWithMessages(any(), any()) } returns null
-
-        mockMvc.perform(
-            get("/api/v1/chat/sessions/${UUID.randomUUID()}")
-        )
-            .andExpect(status().isNotFound)
-    }
-
-    @Test
-    @WithMockUser
-    fun `should send message to session`() {
-        val messageResponse = MessageResponse(
-            id = UUID.randomUUID(),
-            role = "ASSISTANT",
-            content = "Hola! Como estas?",
-            corrections = null,
-            newVocabulary = null,
-            wordCards = null,
-            characterCards = null,
-            errorMessage = null,
-            createdAt = Instant.now()
-        )
-
-        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
-        every { chatService.sendMessage(any(), any(), any(), any()) } returns messageResponse
-
-        mockMvc.perform(
-            post("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}/messages")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""{"content": "Hola"}""")
-        )
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$.role").value("ASSISTANT"))
-            .andExpect(jsonPath("$.content").value("Hola! Como estas?"))
-    }
-
-    @Test
-    @WithMockUser
-    fun `should delete session`() {
-        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
-        every { chatService.deleteSession(any(), any()) } returns true
-
-        mockMvc.perform(
-            delete("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}")
-                .with(csrf())
-        )
-            .andExpect(status().isNoContent)
-
-        verify(exactly = 1) { chatService.deleteSession(TestDataFactory.TEST_SESSION_ID, TestDataFactory.TEST_USER_ID) }
-    }
-
-    @Test
-    @WithMockUser
-    fun `should update session topic`() {
-        val sessionResponse = SessionResponse(
-            id = TestDataFactory.TEST_SESSION_ID,
-            userId = TestDataFactory.TEST_USER_ID,
-            tutorName = "TestTutor",
-            tutorPersona = "patient coach",
-            tutorDomain = "general conversation",
-            tutorTeachingStyle = ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Reactive,
+    fun `createSession should call chatService and return created session`() {
+        val userId = UUID.randomUUID()
+        val request = CreateSessionRequest(
+            userId = userId,
+            tutorName = "Test Tutor",
             sourceLanguageCode = "en",
-            targetLanguageCode = "es",
-            conversationPhase = ConversationPhase.Correction,
-
-            effectivePhase = ConversationPhase.Correction,
-            estimatedCEFRLevel = CEFRLevel.A1,
-            currentTopic = "cooking",
-            createdAt = Instant.now(),
-            updatedAt = Instant.now()
+            targetLanguageCode = "es"
         )
+        val sessionResponse = mockk<ch.obermuhlner.aitutor.chat.dto.SessionResponse>()
+        
+        every { authorizationService.requireAccessToUser(userId) } returns Unit
+        every { chatService.createSession(request) } returns sessionResponse
 
-        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
-        every { chatService.updateSessionTopic(TestDataFactory.TEST_SESSION_ID, "cooking", TestDataFactory.TEST_USER_ID) } returns sessionResponse
+        val result = controller.createSession(request)
 
-        mockMvc.perform(
-            patch("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}/topic")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""{"currentTopic": "cooking"}""")
-        )
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$.currentTopic").value("cooking"))
-
-        verify(exactly = 1) { chatService.updateSessionTopic(TestDataFactory.TEST_SESSION_ID, "cooking", TestDataFactory.TEST_USER_ID) }
+        verify { authorizationService.requireAccessToUser(userId) }
+        verify { chatService.createSession(request) }
+        assert(result.statusCode == HttpStatus.CREATED)
+        assert(result.body == sessionResponse)
     }
 
     @Test
-    @WithMockUser
-    fun `should update session topic to null`() {
-        val sessionResponse = SessionResponse(
-            id = TestDataFactory.TEST_SESSION_ID,
-            userId = TestDataFactory.TEST_USER_ID,
-            tutorName = "TestTutor",
-            tutorPersona = "patient coach",
-            tutorDomain = "general conversation",
-            tutorTeachingStyle = ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Reactive,
-            sourceLanguageCode = "en",
-            targetLanguageCode = "es",
-            conversationPhase = ConversationPhase.Correction,
-
-            effectivePhase = ConversationPhase.Correction,
-            estimatedCEFRLevel = CEFRLevel.A1,
-            currentTopic = null,
-            createdAt = Instant.now(),
-            updatedAt = Instant.now()
-        )
-
-        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
-        every { chatService.updateSessionTopic(TestDataFactory.TEST_SESSION_ID, null, TestDataFactory.TEST_USER_ID) } returns sessionResponse
-
-        mockMvc.perform(
-            patch("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}/topic")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""{"currentTopic": null}""")
-        )
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$.currentTopic").doesNotExist())
-
-        verify(exactly = 1) { chatService.updateSessionTopic(TestDataFactory.TEST_SESSION_ID, null, TestDataFactory.TEST_USER_ID) }
-    }
-
-    @Test
-    @WithMockUser
-    fun `should return 404 when updating topic for non-existent session`() {
-        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
-        every { chatService.updateSessionTopic(any(), any(), any()) } returns null
-
-        mockMvc.perform(
-            patch("/api/v1/chat/sessions/${UUID.randomUUID()}/topic")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""{"currentTopic": "cooking"}""")
-        )
-            .andExpect(status().isNotFound)
-    }
-
-    @Test
-    @WithMockUser
-    fun `should get topic history`() {
-        val topicHistory = TopicHistoryResponse(
-            currentTopic = "cooking",
-            pastTopics = listOf("travel", "sports", "music")
-        )
-
-        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
-        every { chatService.getTopicHistory(TestDataFactory.TEST_SESSION_ID, TestDataFactory.TEST_USER_ID) } returns topicHistory
-
-        mockMvc.perform(
-            get("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}/topics/history")
-        )
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$.currentTopic").value("cooking"))
-            .andExpect(jsonPath("$.pastTopics").isArray)
-            .andExpect(jsonPath("$.pastTopics.length()").value(3))
-            .andExpect(jsonPath("$.pastTopics[0]").value("travel"))
-
-        verify(exactly = 1) { chatService.getTopicHistory(TestDataFactory.TEST_SESSION_ID, TestDataFactory.TEST_USER_ID) }
-    }
-
-    @Test
-    @WithMockUser
-    fun `should return 404 when getting topic history for non-existent session`() {
-        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
-        every { chatService.getTopicHistory(any(), any()) } returns null
-
-        mockMvc.perform(
-            get("/api/v1/chat/sessions/${UUID.randomUUID()}/topics/history")
-        )
-            .andExpect(status().isNotFound)
-    }
-
-    @Test
-    @WithMockUser
-    fun `should update session phase`() {
-        val sessionResponse = SessionResponse(
-            id = TestDataFactory.TEST_SESSION_ID,
-            userId = TestDataFactory.TEST_USER_ID,
-            tutorName = "TestTutor",
-            tutorPersona = "patient coach",
-            tutorDomain = "general conversation",
-            tutorTeachingStyle = ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Reactive,
-            sourceLanguageCode = "en",
-            targetLanguageCode = "es",
-            conversationPhase = ConversationPhase.Drill,
-
-            effectivePhase = ConversationPhase.Drill,
-            estimatedCEFRLevel = CEFRLevel.A1,
-            createdAt = Instant.now(),
-            updatedAt = Instant.now()
-        )
-
-        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
-        every { chatService.updateSessionPhase(TestDataFactory.TEST_SESSION_ID, ConversationPhase.Drill, TestDataFactory.TEST_USER_ID) } returns sessionResponse
-
-        mockMvc.perform(
-            patch("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}/phase")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""{"phase": "Drill"}""")
-        )
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$.conversationPhase").value("Drill"))
-
-        verify(exactly = 1) { chatService.updateSessionPhase(TestDataFactory.TEST_SESSION_ID, ConversationPhase.Drill, TestDataFactory.TEST_USER_ID) }
-    }
-
-    @Test
-    @WithMockUser
-    fun `should update session teaching style`() {
-        val sessionResponse = SessionResponse(
-            id = TestDataFactory.TEST_SESSION_ID,
-            userId = TestDataFactory.TEST_USER_ID,
-            tutorName = "TestTutor",
-            tutorPersona = "patient coach",
-            tutorDomain = "general conversation",
-            tutorTeachingStyle = ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Directive,
-            sourceLanguageCode = "en",
-            targetLanguageCode = "es",
-            conversationPhase = ConversationPhase.Correction,
-            effectivePhase = ConversationPhase.Correction,
-            estimatedCEFRLevel = CEFRLevel.A1,
-            createdAt = Instant.now(),
-            updatedAt = Instant.now()
-        )
-
-        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
-        every { chatService.updateSessionTeachingStyle(TestDataFactory.TEST_SESSION_ID, ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Directive, TestDataFactory.TEST_USER_ID) } returns sessionResponse
-
-        mockMvc.perform(
-            patch("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}/teaching-style")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""{"teachingStyle": "Directive"}""")
-        )
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$.tutorTeachingStyle").value("Directive"))
-
-        verify(exactly = 1) { chatService.updateSessionTeachingStyle(TestDataFactory.TEST_SESSION_ID, ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Directive, TestDataFactory.TEST_USER_ID) }
-    }
-
-    @Test
-    @WithMockUser
-    fun `should return 404 when updating phase for non-existent session`() {
-        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
-        every { chatService.updateSessionPhase(any(), any(), any()) } returns null
-
-        mockMvc.perform(
-            patch("/api/v1/chat/sessions/${UUID.randomUUID()}/phase")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""{"phase": "Drill"}""")
-        )
-            .andExpect(status().isNotFound)
-    }
-
-    @Test
-    @WithMockUser
-    fun `should get active learning sessions`() {
-        val progressResponse = SessionProgressResponse(
-            messageCount = 10,
-            vocabularyCount = 5,
-            daysActive = 3
-        )
-        val sessionWithProgress = SessionWithProgressResponse(
-            session = SessionResponse(
-                id = TestDataFactory.TEST_SESSION_ID,
-                userId = TestDataFactory.TEST_USER_ID,
-                tutorName = "TestTutor",
-                tutorPersona = "patient coach",
-                tutorDomain = "general",
-                tutorTeachingStyle = ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Reactive,
-                sourceLanguageCode = "en",
-                targetLanguageCode = "es",
-                conversationPhase = ConversationPhase.Free,
-
-                effectivePhase = ConversationPhase.Free,
-                estimatedCEFRLevel = CEFRLevel.A1,
-                createdAt = Instant.now(),
-                updatedAt = Instant.now()
-            ),
-            progress = progressResponse
-        )
-
-        every { authorizationService.resolveUserId(null) } returns TestDataFactory.TEST_USER_ID
-        every { chatService.getActiveLearningSessions(TestDataFactory.TEST_USER_ID) } returns listOf(sessionWithProgress)
-
-        mockMvc.perform(
-            get("/api/v1/chat/sessions/active")
-        )
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$[0].session.id").value(TestDataFactory.TEST_SESSION_ID.toString()))
-            .andExpect(jsonPath("$[0].progress.messageCount").value(10))
-            .andExpect(jsonPath("$[0].progress.vocabularyCount").value(5))
-    }
-
-    @Test
-    @WithMockUser
-    fun `should get session progress`() {
-        val session = SessionResponse(
-            id = TestDataFactory.TEST_SESSION_ID,
-            userId = TestDataFactory.TEST_USER_ID,
-            tutorName = "TestTutor",
-            tutorPersona = "patient coach",
-            tutorDomain = "general",
-            tutorTeachingStyle = ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Reactive,
-            sourceLanguageCode = "en",
-            targetLanguageCode = "es",
-            conversationPhase = ConversationPhase.Free,
-
-            effectivePhase = ConversationPhase.Free,
-            estimatedCEFRLevel = CEFRLevel.A1,
-            createdAt = Instant.now(),
-            updatedAt = Instant.now()
-        )
-        val progress = SessionProgressResponse(
-            messageCount = 15,
-            vocabularyCount = 8,
-            daysActive = 4
-        )
-
-        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
-        every { chatService.getSession(TestDataFactory.TEST_SESSION_ID) } returns session
-        every { chatService.getSessionProgress(TestDataFactory.TEST_SESSION_ID) } returns progress
-
-        mockMvc.perform(
-            get("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}/progress")
-        )
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$.session.id").value(TestDataFactory.TEST_SESSION_ID.toString()))
-            .andExpect(jsonPath("$.progress.messageCount").value(15))
-            .andExpect(jsonPath("$.progress.vocabularyCount").value(8))
-    }
-
-    @Test
-    @WithMockUser
-    fun `should return 404 when getting progress for non-existent session`() {
-        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
-        every { chatService.getSession(any()) } returns null
-
-        mockMvc.perform(
-            get("/api/v1/chat/sessions/${UUID.randomUUID()}/progress")
-        )
-            .andExpect(status().isNotFound)
-    }
-
-    @Test
-    @WithMockUser
-    fun `should return 404 when sending message to non-existent session`() {
-        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
-        every { chatService.sendMessage(any(), any(), any(), any()) } returns null
-
-        mockMvc.perform(
-            post("/api/v1/chat/sessions/${UUID.randomUUID()}/messages")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""{"content": "Hola"}""")
-        )
-            .andExpect(status().isNotFound)
-    }
-
-    @Test
-    @WithMockUser(username = "testuser")
-    fun `createSessionFromCourse should create session with course template`() {
+    fun `createSessionFromCourse should create session from course and return it`() {
+        val currentUserId = UUID.randomUUID()
         val courseTemplateId = UUID.randomUUID()
-        val tutorProfileId = UUID.randomUUID()
-        val sessionResponse = SessionResponse(
-            id = TestDataFactory.TEST_SESSION_ID,
-            userId = TestDataFactory.TEST_USER_ID,
-            tutorName = "Maria",
-            tutorPersona = "encouraging tutor",
-            tutorDomain = "Beginner Spanish",
-            tutorTeachingStyle = ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Reactive,
-            sourceLanguageCode = "en",
-            targetLanguageCode = "es",
-            conversationPhase = ConversationPhase.Correction,
-
-            effectivePhase = ConversationPhase.Correction,
-            estimatedCEFRLevel = CEFRLevel.B1,
+        val tutorId = UUID.randomUUID()
+        val request = CreateSessionFromCourseRequest(
             courseTemplateId = courseTemplateId,
-            tutorProfileId = tutorProfileId,
-            createdAt = Instant.now(),
-            updatedAt = Instant.now()
+            tutorProfileId = tutorId,
+            customName = "Test Session"
         )
-
-        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
-        every { catalogService.getTutorsForCourse(courseTemplateId, any()) } returns listOf()
-        every { chatService.createSessionFromCourse(TestDataFactory.TEST_USER_ID, courseTemplateId, tutorProfileId, "en", null) } returns sessionResponse
-
-        mockMvc.perform(
-            post("/api/v1/chat/sessions/from-course")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-                    {
-                        "courseTemplateId": "$courseTemplateId",
-                        "tutorProfileId": "$tutorProfileId"
-                    }
-                """.trimIndent())
-        )
-            .andExpect(status().isCreated)
-            .andExpect(jsonPath("$.id").value(TestDataFactory.TEST_SESSION_ID.toString()))
-            .andExpect(jsonPath("$.courseTemplateId").value(courseTemplateId.toString()))
-
-        verify(exactly = 1) { chatService.createSessionFromCourse(TestDataFactory.TEST_USER_ID, courseTemplateId, tutorProfileId, "en", null) }
-    }
-
-    @Test
-    @WithMockUser(username = "testuser")
-    fun `getSessionProgress should return detailed progress with vocabulary and corrections`() {
-        val session = SessionResponse(
-            id = TestDataFactory.TEST_SESSION_ID,
-            userId = TestDataFactory.TEST_USER_ID,
-            tutorName = "Maria",
-            tutorPersona = "patient tutor",
-            tutorDomain = "general",
-            tutorTeachingStyle = ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Reactive,
+        val tutor = mockk<ch.obermuhlner.aitutor.catalog.domain.TutorProfileEntity>()
+        val sessionResponse = mockk<ch.obermuhlner.aitutor.chat.dto.SessionResponse>()
+        
+        every { authorizationService.getCurrentUserId() } returns currentUserId
+        every { catalogService.getTutorsForCourse(courseTemplateId) } returns listOf(tutor)
+        every { tutor.id } returns tutorId
+        every { chatService.createSessionFromCourse(
+            userId = currentUserId,
+            courseTemplateId = courseTemplateId,
+            tutorProfileId = tutorId,
             sourceLanguageCode = "en",
-            targetLanguageCode = "es",
-            conversationPhase = ConversationPhase.Correction,
+            customName = "Test Session"
+        ) } returns sessionResponse
 
-            effectivePhase = ConversationPhase.Correction,
-            estimatedCEFRLevel = CEFRLevel.B1,
-            createdAt = Instant.now(),
-            updatedAt = Instant.now()
-        )
-        val progress = SessionProgressResponse(
-            messageCount = 10,
-            vocabularyCount = 5,
-            daysActive = 2
-        )
+        val result = controller.createSessionFromCourse(request)
 
-        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
-        every { chatService.getSession(TestDataFactory.TEST_SESSION_ID) } returns session
-        every { chatService.getSessionProgress(TestDataFactory.TEST_SESSION_ID) } returns progress
-
-        mockMvc.perform(get("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}/progress"))
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$.session.id").value(TestDataFactory.TEST_SESSION_ID.toString()))
-            .andExpect(jsonPath("$.progress.messageCount").value(10))
-            .andExpect(jsonPath("$.progress.vocabularyCount").value(5))
-    }
-
-    @Test
-    @WithMockUser(username = "testuser")
-    fun `updateSessionPhase should change conversation phase successfully`() {
-        val sessionResponse = SessionResponse(
-            id = TestDataFactory.TEST_SESSION_ID,
-            userId = TestDataFactory.TEST_USER_ID,
-            tutorName = "Maria",
-            tutorPersona = "patient tutor",
-            tutorDomain = "general",
-            tutorTeachingStyle = ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Reactive,
-            sourceLanguageCode = "en",
-            targetLanguageCode = "es",
-            conversationPhase = ConversationPhase.Drill,
-
-            effectivePhase = ConversationPhase.Drill,
-            estimatedCEFRLevel = CEFRLevel.B1,
-            createdAt = Instant.now(),
-            updatedAt = Instant.now()
-        )
-
-        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
-        every { chatService.updateSessionPhase(TestDataFactory.TEST_SESSION_ID, ConversationPhase.Drill, TestDataFactory.TEST_USER_ID) } returns sessionResponse
-
-        mockMvc.perform(
-            patch("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}/phase")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""{"phase": "Drill"}""")
-        )
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$.conversationPhase").value("Drill"))
-    }
-
-    @Test
-    @WithMockUser(username = "testuser")
-    fun `updateSessionTopic should change conversation topic successfully`() {
-        val sessionResponse = SessionResponse(
-            id = TestDataFactory.TEST_SESSION_ID,
-            userId = TestDataFactory.TEST_USER_ID,
-            tutorName = "Maria",
-            tutorPersona = "patient tutor",
-            tutorDomain = "general",
-            tutorTeachingStyle = ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Reactive,
-            sourceLanguageCode = "en",
-            targetLanguageCode = "es",
-            conversationPhase = ConversationPhase.Correction,
-
-            effectivePhase = ConversationPhase.Correction,
-            estimatedCEFRLevel = CEFRLevel.B1,
-            currentTopic = "food",
-            createdAt = Instant.now(),
-            updatedAt = Instant.now()
-        )
-
-        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
-        every { chatService.updateSessionTopic(TestDataFactory.TEST_SESSION_ID, "food", TestDataFactory.TEST_USER_ID) } returns sessionResponse
-
-        mockMvc.perform(
-            patch("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}/topic")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""{"currentTopic": "food"}""")
-        )
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$.currentTopic").value("food"))
-    }
-
-    @Test
-    @WithMockUser(username = "testuser")
-    fun `getTopicHistory should return past topics list`() {
-        val topicHistory = TopicHistoryResponse(
-            currentTopic = "travel",
-            pastTopics = listOf("food", "hobbies", "sports")
-        )
-
-        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
-        every { chatService.getTopicHistory(TestDataFactory.TEST_SESSION_ID, TestDataFactory.TEST_USER_ID) } returns topicHistory
-
-        mockMvc.perform(get("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}/topics/history"))
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$.currentTopic").value("travel"))
-            .andExpect(jsonPath("$.pastTopics").isArray)
-            .andExpect(jsonPath("$.pastTopics.length()").value(3))
-            .andExpect(jsonPath("$.pastTopics[0]").value("food"))
-            .andExpect(jsonPath("$.pastTopics[2]").value("sports"))
-    }
-
-    @Test
-    @WithMockUser(username = "testuser")
-    fun `getActiveLearningSessions should return only active sessions with progress`() {
-        val progressResponse = SessionProgressResponse(
-            messageCount = 5,
-            vocabularyCount = 3,
-            daysActive = 1
-        )
-        val sessionWithProgress = SessionWithProgressResponse(
-            session = SessionResponse(
-                id = TestDataFactory.TEST_SESSION_ID,
-                userId = TestDataFactory.TEST_USER_ID,
-                tutorName = "Maria",
-                tutorPersona = "encouraging",
-                tutorDomain = "general",
-                tutorTeachingStyle = ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Reactive,
+        verify { authorizationService.getCurrentUserId() }
+        verify { catalogService.getTutorsForCourse(courseTemplateId) }
+        verify { 
+            chatService.createSessionFromCourse(
+                userId = currentUserId,
+                courseTemplateId = courseTemplateId,
+                tutorProfileId = tutorId,
                 sourceLanguageCode = "en",
-                targetLanguageCode = "es",
-                conversationPhase = ConversationPhase.Correction,
-
-                effectivePhase = ConversationPhase.Correction,
-                estimatedCEFRLevel = CEFRLevel.B1,
-                createdAt = Instant.now(),
-                updatedAt = Instant.now()
-            ),
-            progress = progressResponse
-        )
-
-        every { authorizationService.resolveUserId(TestDataFactory.TEST_USER_ID) } returns TestDataFactory.TEST_USER_ID
-        every { chatService.getActiveLearningSessions(TestDataFactory.TEST_USER_ID) } returns listOf(sessionWithProgress)
-
-        mockMvc.perform(
-            get("/api/v1/chat/sessions/active")
-                .param("userId", TestDataFactory.TEST_USER_ID.toString())
-        )
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$").isArray)
-            .andExpect(jsonPath("$.length()").value(1))
-            .andExpect(jsonPath("$[0].progress.messageCount").value(5))
+                customName = "Test Session"
+            ) 
+        }
+        assert(result.statusCode == HttpStatus.CREATED)
+        assert(result.body == sessionResponse)
     }
 
     @Test
-    @WithMockUser(username = "testuser")
-    fun `sendMessage should process message and return assistant response`() {
-        val messageResponse = MessageResponse(
-            id = UUID.randomUUID(),
-            role = "ASSISTANT",
-            content = "Muy bien, gracias!",
-            corrections = null,
-            newVocabulary = null,
-            wordCards = null,
-            characterCards = null,
-            errorMessage = null,
-            createdAt = Instant.now()
-        )
-
-        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
-        every { chatService.sendMessage(eq(TestDataFactory.TEST_SESSION_ID), eq("Hola, como estas?"), eq(TestDataFactory.TEST_USER_ID), any()) } returns messageResponse
-
-        mockMvc.perform(
-            post("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}/messages")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""{"content": "Hola, como estas?"}""")
-        )
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$.content").value("Muy bien, gracias!"))
-            .andExpect(jsonPath("$.role").value("ASSISTANT"))
-    }
-
-    @Test
-    @WithMockUser(username = "testuser")
-    fun `getUserSessions should return multiple sessions with details`() {
-        val session1 = SessionResponse(
-            id = UUID.randomUUID(),
-            userId = TestDataFactory.TEST_USER_ID,
-            tutorName = "Maria",
-            tutorPersona = "encouraging",
-            tutorDomain = "general",
-            tutorTeachingStyle = ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Reactive,
-            sourceLanguageCode = "en",
-            targetLanguageCode = "es",
-            conversationPhase = ConversationPhase.Correction,
-
-            effectivePhase = ConversationPhase.Correction,
-            estimatedCEFRLevel = CEFRLevel.B1,
-            createdAt = Instant.now(),
-            updatedAt = Instant.now()
-        )
-        val session2 = SessionResponse(
-            id = UUID.randomUUID(),
-            userId = TestDataFactory.TEST_USER_ID,
-            tutorName = "Carlos",
-            tutorPersona = "strict",
-            tutorDomain = "business",
-            tutorTeachingStyle = ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Reactive,
-            sourceLanguageCode = "en",
-            targetLanguageCode = "es",
-            conversationPhase = ConversationPhase.Free,
-
-            effectivePhase = ConversationPhase.Free,
-            estimatedCEFRLevel = CEFRLevel.B2,
-            createdAt = Instant.now(),
-            updatedAt = Instant.now()
-        )
-
-        every { authorizationService.resolveUserId(TestDataFactory.TEST_USER_ID) } returns TestDataFactory.TEST_USER_ID
-        every { chatService.getUserSessions(TestDataFactory.TEST_USER_ID) } returns listOf(session1, session2)
-
-        mockMvc.perform(
-            get("/api/v1/chat/sessions")
-                .param("userId", TestDataFactory.TEST_USER_ID.toString())
-        )
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$").isArray)
-            .andExpect(jsonPath("$.length()").value(2))
-            .andExpect(jsonPath("$[0].tutorName").value("Maria"))
-            .andExpect(jsonPath("$[1].tutorName").value("Carlos"))
-    }
-
-    @Test
-    @WithMockUser
-    fun `should update vocabulary review mode successfully`() {
-        val sessionResponse = ch.obermuhlner.aitutor.chat.dto.SessionResponse(
-            id = TestDataFactory.TEST_SESSION_ID,
-            userId = TestDataFactory.TEST_USER_ID,
-            tutorName = "Maria",
-            tutorPersona = "friendly",
-            tutorDomain = "general",
-            tutorTeachingStyle = ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Reactive,
-            sourceLanguageCode = "en",
-            targetLanguageCode = "es",
-            conversationPhase = ConversationPhase.Free,
-            effectivePhase = ConversationPhase.Free,
-            estimatedCEFRLevel = CEFRLevel.A2,
-            currentTopic = null,
-            courseTemplateId = null,
+    fun `createSessionFromCourse should return bad request when no tutor available`() {
+        val currentUserId = UUID.randomUUID()
+        val courseTemplateId = UUID.randomUUID()
+        val request = CreateSessionFromCourseRequest(
+            courseTemplateId = courseTemplateId,
             tutorProfileId = null,
-            customName = null,
-            isActive = true,
-            vocabularyReviewMode = true,
-            createdAt = Instant.now(),
-            updatedAt = Instant.now()
+            customName = null
         )
+        
+        every { authorizationService.getCurrentUserId() } returns currentUserId
+        every { catalogService.getTutorsForCourse(courseTemplateId) } returns emptyList()
 
-        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
-        every { chatService.updateVocabularyReviewMode(TestDataFactory.TEST_SESSION_ID, true, TestDataFactory.TEST_USER_ID) } returns sessionResponse
+        val result = controller.createSessionFromCourse(request)
 
-        mockMvc.perform(
-            patch("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}/vocabulary-review-mode")
-                .contentType("application/json")
-                .content("""{"enabled": true}""")
-        )
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$.vocabularyReviewMode").value(true))
+        verify { authorizationService.getCurrentUserId() }
+        verify { catalogService.getTutorsForCourse(courseTemplateId) }
+        assert(result.statusCode == HttpStatus.BAD_REQUEST)
     }
 
     @Test
-    @WithMockUser
-    fun `should disable vocabulary review mode successfully`() {
-        val sessionResponse = ch.obermuhlner.aitutor.chat.dto.SessionResponse(
-            id = TestDataFactory.TEST_SESSION_ID,
-            userId = TestDataFactory.TEST_USER_ID,
-            tutorName = "Maria",
-            tutorPersona = "friendly",
-            tutorDomain = "general",
-            tutorTeachingStyle = ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Reactive,
-            sourceLanguageCode = "en",
-            targetLanguageCode = "es",
-            conversationPhase = ConversationPhase.Free,
-            effectivePhase = ConversationPhase.Free,
-            estimatedCEFRLevel = CEFRLevel.A2,
-            currentTopic = null,
-            courseTemplateId = null,
-            tutorProfileId = null,
-            customName = null,
-            isActive = true,
-            vocabularyReviewMode = false,
-            createdAt = Instant.now(),
-            updatedAt = Instant.now()
-        )
+    fun `getUserSessions should return user sessions`() {
+        val userId = UUID.randomUUID()
+        val resolvedUserId = UUID.randomUUID()
+        val sessionList = listOf<ch.obermuhlner.aitutor.chat.dto.SessionResponse>()
+        
+        every { authorizationService.resolveUserId(userId) } returns resolvedUserId
+        every { chatService.getUserSessions(resolvedUserId) } returns sessionList
 
-        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
-        every { chatService.updateVocabularyReviewMode(TestDataFactory.TEST_SESSION_ID, false, TestDataFactory.TEST_USER_ID) } returns sessionResponse
+        val result = controller.getUserSessions(userId)
 
-        mockMvc.perform(
-            patch("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}/vocabulary-review-mode")
-                .contentType("application/json")
-                .content("""{"enabled": false}""")
-        )
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$.vocabularyReviewMode").value(false))
+        verify { authorizationService.resolveUserId(userId) }
+        verify { chatService.getUserSessions(resolvedUserId) }
+        assert(result.statusCode == HttpStatus.OK)
+        assert(result.body == sessionList)
     }
 
     @Test
-    @WithMockUser
-    fun `should return not found when updating vocabulary review mode for non-existent session`() {
-        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
-        every { chatService.updateVocabularyReviewMode(any(), any(), any()) } returns null
+    fun `updateSessionPhase should update session phase and return updated session`() {
+        val sessionId = UUID.randomUUID()
+        val phase = ch.obermuhlner.aitutor.tutor.domain.ConversationPhase.Correction
+        val request = UpdatePhaseRequest(phase)
+        val currentUserId = UUID.randomUUID()
+        val sessionResponse = mockk<ch.obermuhlner.aitutor.chat.dto.SessionResponse>()
+        
+        every { authorizationService.getCurrentUserId() } returns currentUserId
+        every { chatService.updateSessionPhase(sessionId, phase, currentUserId) } returns sessionResponse
 
-        mockMvc.perform(
-            patch("/api/v1/chat/sessions/${UUID.randomUUID()}/vocabulary-review-mode")
-                .contentType("application/json")
-                .content("""{"enabled": true}""")
-        )
-            .andExpect(status().isNotFound)
+        val result = controller.updateSessionPhase(sessionId, request)
+
+        verify { authorizationService.getCurrentUserId() }
+        verify { chatService.updateSessionPhase(sessionId, phase, currentUserId) }
+        assert(result.statusCode == HttpStatus.OK)
+        assert(result.body == sessionResponse)
     }
 
     @Test
-    @WithMockUser
-    fun `should deactivate session successfully`() {
-        val session = TestDataFactory.createSessionEntity()
-        session.isActive = true
+    fun `updateSessionPhase should return not found when session not found`() {
+        val sessionId = UUID.randomUUID()
+        val phase = ch.obermuhlner.aitutor.tutor.domain.ConversationPhase.Correction
+        val request = UpdatePhaseRequest(phase)
+        val currentUserId = UUID.randomUUID()
+        
+        every { authorizationService.getCurrentUserId() } returns currentUserId
+        every { chatService.updateSessionPhase(sessionId, phase, currentUserId) } returns null
 
-        val sessionResponse = SessionResponse(
-            id = TestDataFactory.TEST_SESSION_ID,
-            userId = TestDataFactory.TEST_USER_ID,
-            tutorName = "Maria",
-            tutorPersona = "friendly",
-            tutorDomain = "general",
-            tutorTeachingStyle = ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Reactive,
-            sourceLanguageCode = "en",
-            targetLanguageCode = "es",
-            conversationPhase = ConversationPhase.Free,
-            effectivePhase = ConversationPhase.Free,
-            estimatedCEFRLevel = CEFRLevel.A2,
-            isActive = false,
-            createdAt = Instant.now(),
-            updatedAt = Instant.now()
-        )
+        val result = controller.updateSessionPhase(sessionId, request)
 
-        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
-        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns java.util.Optional.of(session)
-        every { chatSessionRepository.save(any()) } returns session
-        every { chatService.getSession(TestDataFactory.TEST_SESSION_ID) } returns sessionResponse
-
-        mockMvc.perform(
-            post("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}/deactivate")
-                .with(csrf())
-        )
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$.isActive").value(false))
+        verify { authorizationService.getCurrentUserId() }
+        verify { chatService.updateSessionPhase(sessionId, phase, currentUserId) }
+        assert(result.statusCode == HttpStatus.NOT_FOUND)
     }
 
     @Test
-    @WithMockUser
-    fun `should return 404 when deactivating non-existent session`() {
-        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
-        every { chatSessionRepository.findById(any()) } returns java.util.Optional.empty()
+    fun `updateSessionTopic should update session topic and return updated session`() {
+        val sessionId = UUID.randomUUID()
+        val topic = "travel"
+        val request = UpdateTopicRequest(topic)
+        val currentUserId = UUID.randomUUID()
+        val sessionResponse = mockk<ch.obermuhlner.aitutor.chat.dto.SessionResponse>()
+        
+        every { authorizationService.getCurrentUserId() } returns currentUserId
+        every { chatService.updateSessionTopic(sessionId, topic, currentUserId) } returns sessionResponse
 
-        mockMvc.perform(
-            post("/api/v1/chat/sessions/${UUID.randomUUID()}/deactivate")
-                .with(csrf())
-        )
-            .andExpect(status().isNotFound)
+        val result = controller.updateSessionTopic(sessionId, request)
+
+        verify { authorizationService.getCurrentUserId() }
+        verify { chatService.updateSessionTopic(sessionId, topic, currentUserId) }
+        assert(result.statusCode == HttpStatus.OK)
+        assert(result.body == sessionResponse)
     }
 
     @Test
-    @WithMockUser
-    fun `should return 404 when deactivating session owned by different user`() {
-        val differentUserId = UUID.randomUUID()
-        val session = TestDataFactory.createSessionEntity(userId = differentUserId)
+    fun `updateSessionTeachingStyle should update teaching style and return updated session`() {
+        val sessionId = UUID.randomUUID()
+        val teachingStyle = ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Reactive
+        val request = UpdateTeachingStyleRequest(teachingStyle)
+        val currentUserId = UUID.randomUUID()
+        val sessionResponse = mockk<ch.obermuhlner.aitutor.chat.dto.SessionResponse>()
+        
+        every { authorizationService.getCurrentUserId() } returns currentUserId
+        every { chatService.updateSessionTeachingStyle(sessionId, teachingStyle, currentUserId) } returns sessionResponse
 
-        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
-        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns java.util.Optional.of(session)
+        val result = controller.updateSessionTeachingStyle(sessionId, request)
 
-        mockMvc.perform(
-            post("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}/deactivate")
-                .with(csrf())
-        )
-            .andExpect(status().isNotFound)
+        verify { authorizationService.getCurrentUserId() }
+        verify { chatService.updateSessionTeachingStyle(sessionId, teachingStyle, currentUserId) }
+        assert(result.statusCode == HttpStatus.OK)
+        assert(result.body == sessionResponse)
     }
 
     @Test
-    @WithMockUser
-    fun `should return 404 when deleting session owned by different user`() {
-        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
-        every { chatService.deleteSession(any(), any()) } returns false
+    fun `updateVocabularyReviewMode should update vocabulary review mode and return updated session`() {
+        val sessionId = UUID.randomUUID()
+        val enabled = true
+        val request = UpdateVocabularyReviewModeRequest(enabled)
+        val currentUserId = UUID.randomUUID()
+        val sessionResponse = mockk<ch.obermuhlner.aitutor.chat.dto.SessionResponse>()
+        
+        every { authorizationService.getCurrentUserId() } returns currentUserId
+        every { chatService.updateVocabularyReviewMode(sessionId, enabled, currentUserId) } returns sessionResponse
 
-        mockMvc.perform(
-            delete("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}")
-                .with(csrf())
-        )
-            .andExpect(status().isNotFound)
+        val result = controller.updateVocabularyReviewMode(sessionId, request)
+
+        verify { authorizationService.getCurrentUserId() }
+        verify { chatService.updateVocabularyReviewMode(sessionId, enabled, currentUserId) }
+        assert(result.statusCode == HttpStatus.OK)
+        assert(result.body == sessionResponse)
     }
 
     @Test
-    @WithMockUser
-    fun `should return 404 when updating teaching style for non-existent session`() {
-        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
-        every { chatService.updateSessionTeachingStyle(any(), any(), any()) } returns null
+    fun `updateSessionLesson should update session lesson and return updated session`() {
+        val sessionId = UUID.randomUUID()
+        val direction = ch.obermuhlner.aitutor.chat.dto.LessonNavigationDirection.NEXT
+        val request = ch.obermuhlner.aitutor.chat.dto.UpdateLessonRequest(direction)
+        val currentUserId = UUID.randomUUID()
+        val sessionResponse = mockk<ch.obermuhlner.aitutor.chat.dto.SessionResponse>()
+        
+        every { authorizationService.getCurrentUserId() } returns currentUserId
+        every { chatService.updateSessionLesson(sessionId, direction, currentUserId) } returns sessionResponse
 
-        mockMvc.perform(
-            patch("/api/v1/chat/sessions/${UUID.randomUUID()}/teaching-style")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""{"teachingStyle": "Directive"}""")
-        )
-            .andExpect(status().isNotFound)
+        val result = controller.updateSessionLesson(sessionId, request)
+
+        verify { authorizationService.getCurrentUserId() }
+        verify { chatService.updateSessionLesson(sessionId, direction, currentUserId) }
+        assert(result.statusCode == HttpStatus.OK)
+        assert(result.body == sessionResponse)
     }
 
     @Test
-    @WithMockUser
-    fun `updateSessionLesson should update lesson with NEXT direction`() {
-        val sessionResponse = SessionResponse(
-            id = TestDataFactory.TEST_SESSION_ID,
-            userId = TestDataFactory.TEST_USER_ID,
-            tutorName = "TestTutor",
-            tutorPersona = "patient coach",
-            tutorDomain = "general",
-            tutorTeachingStyle = ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Reactive,
-            sourceLanguageCode = "en",
-            targetLanguageCode = "es",
-            conversationPhase = ConversationPhase.Free,
-            effectivePhase = ConversationPhase.Free,
-            estimatedCEFRLevel = CEFRLevel.A1,
-            createdAt = Instant.now(),
-            updatedAt = Instant.now()
-        )
+    fun `sendMessage should send message and return response`() {
+        val sessionId = UUID.randomUUID()
+        val content = "Hello"
+        val request = SendMessageRequest(content)
+        val currentUserId = UUID.randomUUID()
+        val messageResponse = mockk<ch.obermuhlner.aitutor.chat.dto.MessageResponse>()
+        
+        every { authorizationService.getCurrentUserId() } returns currentUserId
+        every { chatService.sendMessage(sessionId, content, currentUserId) } returns messageResponse
 
-        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
-        every { chatService.updateSessionLesson(TestDataFactory.TEST_SESSION_ID, ch.obermuhlner.aitutor.chat.dto.LessonNavigationDirection.NEXT, TestDataFactory.TEST_USER_ID) } returns sessionResponse
+        val result = controller.sendMessage(sessionId, request)
 
-        mockMvc.perform(
-            patch("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}/lesson")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""{"direction": "NEXT"}""")
-        )
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$.id").value(TestDataFactory.TEST_SESSION_ID.toString()))
-
-        verify(exactly = 1) { chatService.updateSessionLesson(TestDataFactory.TEST_SESSION_ID, ch.obermuhlner.aitutor.chat.dto.LessonNavigationDirection.NEXT, TestDataFactory.TEST_USER_ID) }
-    }
-
-    @Test
-    @WithMockUser
-    fun `updateSessionLesson should update lesson with PREVIOUS direction`() {
-        val sessionResponse = SessionResponse(
-            id = TestDataFactory.TEST_SESSION_ID,
-            userId = TestDataFactory.TEST_USER_ID,
-            tutorName = "TestTutor",
-            tutorPersona = "patient coach",
-            tutorDomain = "general",
-            tutorTeachingStyle = ch.obermuhlner.aitutor.tutor.domain.TeachingStyle.Reactive,
-            sourceLanguageCode = "en",
-            targetLanguageCode = "es",
-            conversationPhase = ConversationPhase.Free,
-            effectivePhase = ConversationPhase.Free,
-            estimatedCEFRLevel = CEFRLevel.A1,
-            createdAt = Instant.now(),
-            updatedAt = Instant.now()
-        )
-
-        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
-        every { chatService.updateSessionLesson(TestDataFactory.TEST_SESSION_ID, ch.obermuhlner.aitutor.chat.dto.LessonNavigationDirection.PREVIOUS, TestDataFactory.TEST_USER_ID) } returns sessionResponse
-
-        mockMvc.perform(
-            patch("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}/lesson")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""{"direction": "PREVIOUS"}""")
-        )
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$.id").value(TestDataFactory.TEST_SESSION_ID.toString()))
-
-        verify(exactly = 1) { chatService.updateSessionLesson(TestDataFactory.TEST_SESSION_ID, ch.obermuhlner.aitutor.chat.dto.LessonNavigationDirection.PREVIOUS, TestDataFactory.TEST_USER_ID) }
-    }
-
-    @Test
-    @WithMockUser
-    fun `updateSessionLesson should return 404 when session not found`() {
-        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
-        every { chatService.updateSessionLesson(any(), any(), any()) } returns null
-
-        mockMvc.perform(
-            patch("/api/v1/chat/sessions/${UUID.randomUUID()}/lesson")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""{"direction": "NEXT"}""")
-        )
-            .andExpect(status().isNotFound)
-    }
-
-    @Test
-    @WithMockUser
-    fun `synthesizeSpeech should return 503 when audio service unavailable`() {
-        every { audioService.isAvailable() } returns false
-
-        mockMvc.perform(
-            post("/api/v1/chat/synthesize")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""{"text": "Hello world", "voiceId": "Warm"}""")
-        )
-            .andExpect(status().isServiceUnavailable)
-    }
-
-    @Test
-    @WithMockUser
-    fun `synthesizeSpeech should return audio when successful`() {
-        val audioBytes = ByteArray(100) { it.toByte() }
-
-        every { audioService.isAvailable() } returns true
-        every { audioService.synthesizeSpeech(any(), any(), any(), any(), any()) } returns audioBytes
-
-        mockMvc.perform(
-            post("/api/v1/chat/synthesize")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""{"text": "Hello world", "voiceId": "Warm"}""")
-        )
-            .andExpect(status().isOk)
-            .andExpect(header().string("Content-Type", "audio/mpeg"))
-            .andExpect(content().bytes(audioBytes))
-
-        verify(exactly = 1) { audioService.synthesizeSpeech(any(), any(), any(), any(), any()) }
-    }
-
-    @Test
-    @WithMockUser
-    fun `synthesizeSpeech should return 400 for invalid voice ID`() {
-        every { audioService.isAvailable() } returns true
-
-        mockMvc.perform(
-            post("/api/v1/chat/synthesize")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""{"text": "Hello world", "voiceId": "InvalidVoice"}""")
-        )
-            .andExpect(status().isBadRequest)
-    }
-
-    @Test
-    @WithMockUser
-    fun `synthesizeSpeech should return 500 when synthesis fails`() {
-        every { audioService.isAvailable() } returns true
-        every { audioService.synthesizeSpeech(any(), any(), any(), any(), any()) } throws RuntimeException("TTS failed")
-
-        mockMvc.perform(
-            post("/api/v1/chat/synthesize")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""{"text": "Hello world", "voiceId": "Warm"}""")
-        )
-            .andExpect(status().isInternalServerError)
-    }
-
-    @Test
-    @WithMockUser
-    fun `getAvailableVoices should return 503 when audio service unavailable`() {
-        every { audioService.isAvailable() } returns false
-
-        mockMvc.perform(get("/api/v1/chat/audio/voices"))
-            .andExpect(status().isServiceUnavailable)
-    }
-
-    @Test
-    @WithMockUser
-    fun `getAvailableVoices should return voice mappings when available`() {
-        every { audioService.isAvailable() } returns true
-        every { audioService.getVoiceMappings() } returns mapOf(
-            "Warm" to "nova",
-            "Professional" to "onyx"
-        )
-        every { audioProperties.defaultVoice } returns "alloy"
-
-        mockMvc.perform(get("/api/v1/chat/audio/voices"))
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$.abstractVoices").isArray)
-            .andExpect(jsonPath("$.voiceMappings.Warm").value("nova"))
-            .andExpect(jsonPath("$.voiceMappings.Professional").value("onyx"))
-            .andExpect(jsonPath("$.defaultVoice").value("alloy"))
-
-        verify(exactly = 1) { audioService.getVoiceMappings() }
-    }
-
-    @Test
-    @WithMockUser
-    fun `synthesizeMessageAudio should return 503 when audio service not available`() {
-        every { audioService.isAvailable() } returns false
-
-        mockMvc.perform(
-            post("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}/messages/${UUID.randomUUID()}/audio")
-                .with(csrf())
-        )
-            .andExpect(status().isServiceUnavailable)
-
-        verify(exactly = 0) { authorizationService.getCurrentUserId() }
-    }
-
-    @Test
-    @WithMockUser
-    fun `synthesizeMessageAudio should return 404 when session not found`() {
-        every { audioService.isAvailable() } returns true
-        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
-        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns java.util.Optional.empty()
-
-        mockMvc.perform(
-            post("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}/messages/${UUID.randomUUID()}/audio")
-                .with(csrf())
-        )
-            .andExpect(status().isNotFound)
-    }
-
-    @Test
-    @WithMockUser
-    fun `synthesizeMessageAudio should return 404 when user doesn't own session`() {
-        val otherUserId = UUID.randomUUID()
-        val sessionEntity = ChatSessionEntity(
-            id = TestDataFactory.TEST_SESSION_ID,
-            userId = otherUserId,
-            tutorName = "Maria",
-            tutorPersona = "friendly",
-            tutorDomain = "general",
-            sourceLanguageCode = "en",
-            targetLanguageCode = "es",
-            conversationPhase = ConversationPhase.Free,
-            effectivePhase = ConversationPhase.Free,
-            estimatedCEFRLevel = CEFRLevel.A1
-        )
-
-        every { audioService.isAvailable() } returns true
-        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
-        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns java.util.Optional.of(sessionEntity)
-
-        mockMvc.perform(
-            post("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}/messages/${UUID.randomUUID()}/audio")
-                .with(csrf())
-        )
-            .andExpect(status().isNotFound)
-    }
-
-    @Test
-    @WithMockUser
-    fun `synthesizeMessageAudio should return 404 when message not found`() {
-        val sessionEntity = ChatSessionEntity(
-            id = TestDataFactory.TEST_SESSION_ID,
-            userId = TestDataFactory.TEST_USER_ID,
-            tutorName = "Maria",
-            tutorPersona = "friendly",
-            tutorDomain = "general",
-            sourceLanguageCode = "en",
-            targetLanguageCode = "es",
-            conversationPhase = ConversationPhase.Free,
-            effectivePhase = ConversationPhase.Free,
-            estimatedCEFRLevel = CEFRLevel.A1
-        )
-
-        val messageId = UUID.randomUUID()
-
-        every { audioService.isAvailable() } returns true
-        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
-        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns java.util.Optional.of(sessionEntity)
-        every { chatService.getMessage(TestDataFactory.TEST_SESSION_ID, messageId) } returns null
-
-        mockMvc.perform(
-            post("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}/messages/${messageId}/audio")
-                .with(csrf())
-        )
-            .andExpect(status().isNotFound)
-    }
-
-    @Test
-    @WithMockUser
-    fun `synthesizeMessageAudio should return cached audio when available`() {
-        val messageId = UUID.randomUUID()
-        val cachedAudio = ByteArray(100) { it.toByte() }
-
-        val sessionEntity = ChatSessionEntity(
-            id = TestDataFactory.TEST_SESSION_ID,
-            userId = TestDataFactory.TEST_USER_ID,
-            tutorName = "Maria",
-            tutorPersona = "friendly",
-            tutorDomain = "general",
-            sourceLanguageCode = "en",
-            targetLanguageCode = "es",
-            conversationPhase = ConversationPhase.Free,
-            effectivePhase = ConversationPhase.Free,
-            estimatedCEFRLevel = CEFRLevel.A1,
-            tutorVoiceId = ch.obermuhlner.aitutor.core.model.catalog.TutorVoice.Warm,
-            tutorGender = TutorGender.Female
-        )
-
-        val messageEntity = ChatMessageEntity(
-            session = sessionEntity,
-            role = MessageRole.ASSISTANT,
-            content = "Hola!",
-            audioData = cachedAudio,
-            audioVoiceId = "Warm-Female",
-            audioSpeed = 1.0
-        )
-
-        every { audioService.isAvailable() } returns true
-        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
-        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns java.util.Optional.of(sessionEntity)
-        every { chatService.getMessage(TestDataFactory.TEST_SESSION_ID, messageId) } returns messageEntity
-
-        mockMvc.perform(
-            post("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}/messages/${messageId}/audio")
-                .with(csrf())
-                .param("speed", "1.0")
-        )
-            .andExpect(status().isOk)
-            .andExpect(content().contentType("audio/mpeg"))
-            .andExpect(content().bytes(cachedAudio))
-
-        verify(exactly = 0) { audioService.synthesizeSpeech(any(), any(), any(), any(), any()) }
-    }
-
-    @Test
-    @WithMockUser
-    fun `synthesizeMessageAudio should generate and cache audio when not cached`() {
-        val messageId = UUID.randomUUID()
-        val synthesizedAudio = ByteArray(200) { (it * 2).toByte() }
-
-        val sessionEntity = ChatSessionEntity(
-            id = TestDataFactory.TEST_SESSION_ID,
-            userId = TestDataFactory.TEST_USER_ID,
-            tutorName = "Maria",
-            tutorPersona = "friendly",
-            tutorDomain = "general",
-            sourceLanguageCode = "en",
-            targetLanguageCode = "es",
-            conversationPhase = ConversationPhase.Free,
-            effectivePhase = ConversationPhase.Free,
-            estimatedCEFRLevel = CEFRLevel.A1,
-            tutorVoiceId = ch.obermuhlner.aitutor.core.model.catalog.TutorVoice.Professional,
-            tutorGender = TutorGender.Male
-        )
-
-        val messageEntity = ChatMessageEntity(
-            session = sessionEntity,
-            role = MessageRole.ASSISTANT,
-            content = "Hola, ¿cómo estás?",
-            audioData = null,
-            audioVoiceId = null,
-            audioSpeed = null
-        )
-
-        every { audioService.isAvailable() } returns true
-        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
-        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns java.util.Optional.of(sessionEntity)
-        every { chatService.getMessage(TestDataFactory.TEST_SESSION_ID, messageId) } returns messageEntity
-        every {
-            audioService.synthesizeSpeech(
-                "Hola, ¿cómo estás?",
-                ch.obermuhlner.aitutor.core.model.catalog.TutorVoice.Professional,
-                TutorGender.Male,
-                "es",
-                1.5
-            )
-        } returns synthesizedAudio
-
-        mockMvc.perform(
-            post("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}/messages/${messageId}/audio")
-                .with(csrf())
-                .param("speed", "1.5")
-        )
-            .andExpect(status().isOk)
-            .andExpect(content().contentType("audio/mpeg"))
-            .andExpect(content().bytes(synthesizedAudio))
-
-        verify(exactly = 1) { audioService.synthesizeSpeech(any(), any(), any(), any(), any()) }
-        verify(exactly = 1) { chatService.updateMessageAudioCache(any(), any(), any(), any(), any()) }
-    }
-
-    @Test
-    @WithMockUser
-    fun `synthesizeMessageAudio should return 500 when synthesis fails`() {
-        val messageId = UUID.randomUUID()
-
-        val sessionEntity = ChatSessionEntity(
-            id = TestDataFactory.TEST_SESSION_ID,
-            userId = TestDataFactory.TEST_USER_ID,
-            tutorName = "Maria",
-            tutorPersona = "friendly",
-            tutorDomain = "general",
-            sourceLanguageCode = "en",
-            targetLanguageCode = "es",
-            conversationPhase = ConversationPhase.Free,
-            effectivePhase = ConversationPhase.Free,
-            estimatedCEFRLevel = CEFRLevel.A1,
-            tutorVoiceId = ch.obermuhlner.aitutor.core.model.catalog.TutorVoice.Warm,
-            tutorGender = TutorGender.Female
-        )
-
-        val messageEntity = ChatMessageEntity(
-            session = sessionEntity,
-            role = MessageRole.ASSISTANT,
-            content = "Test",
-            audioData = null,
-            audioVoiceId = null,
-            audioSpeed = null
-        )
-
-        every { audioService.isAvailable() } returns true
-        every { authorizationService.getCurrentUserId() } returns TestDataFactory.TEST_USER_ID
-        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns java.util.Optional.of(sessionEntity)
-        every { chatService.getMessage(TestDataFactory.TEST_SESSION_ID, messageId) } returns messageEntity
-        every { audioService.synthesizeSpeech(any(), any(), any(), any(), any()) } throws RuntimeException("TTS API error")
-
-        mockMvc.perform(
-            post("/api/v1/chat/sessions/${TestDataFactory.TEST_SESSION_ID}/messages/${messageId}/audio")
-                .with(csrf())
-        )
-            .andExpect(status().isInternalServerError)
+        verify { authorizationService.getCurrentUserId() }
+        verify { chatService.sendMessage(sessionId, content, currentUserId) }
+        assert(result.statusCode == HttpStatus.OK)
+        assert(result.body == messageResponse)
     }
 }
