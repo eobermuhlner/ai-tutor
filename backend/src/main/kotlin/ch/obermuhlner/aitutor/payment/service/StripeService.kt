@@ -94,17 +94,32 @@ class StripeService(
     }
     
     override fun cancelSubscription(subscriptionId: String): Subscription {
-        logger.info("Canceling subscription $subscriptionId")
+        logger.info("Attempting to cancel subscription $subscriptionId")
         
-        // Cancel the subscription (this will schedule it to be canceled at period end)
-        val subscription = Subscription.retrieve(subscriptionId)
-        val updatedSubscription = subscription.update(
-            mapOf(
-                "cancel_at_period_end" to true
-            )
+        // Retrieve the current subscription to check its status
+        val currentSubscription = Subscription.retrieve(subscriptionId)
+        
+        // Check if the subscription is already canceled
+        if (currentSubscription.status == "canceled") {
+            logger.warn("Subscription ${subscriptionId} is already canceled. Returning current subscription.")
+            return currentSubscription
+        }
+        
+        // Check if the subscription is already scheduled for cancellation
+        if (currentSubscription.cancelAtPeriodEnd) {
+            logger.info("Subscription ${subscriptionId} is already scheduled for cancellation at period end.")
+            // Just return the subscription as is - it's already scheduled for cancellation
+            return currentSubscription
+        }
+        
+        logger.info("Canceling subscription ${subscriptionId} which has status ${currentSubscription.status}")
+        
+        // Schedule the subscription to be canceled at the end of the current period
+        val updatedSubscription = currentSubscription.update(
+            mapOf("cancel_at_period_end" to true)
         )
         
-        logger.info("Scheduled subscription ${updatedSubscription.id} to be canceled at period end")
+        logger.info("Scheduled subscription ${updatedSubscription.id} to be canceled at period end, status: ${updatedSubscription.status}")
         return updatedSubscription
     }
 }
