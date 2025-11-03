@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { DollarSign, Check, Loader2 } from 'lucide-react';
 import Button from '../ui/Button';
 import { getRateLimitStatus, updateUserSubscriptionPlan, type RateLimitStatus } from '../../api/rateLimits';
@@ -78,14 +78,18 @@ export default function SubscriptionPlanSection() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [updatingPlan, setUpdatingPlan] = useState<SubscriptionPlan | null>(null);
+  // Simple flag to track if we're currently processing a cancellation
+  const [isProcessingCancellation, setIsProcessingCancellation] = useState(false);
 
   const loadRateLimitStatus = async () => {
     try {
+      console.log('loadRateLimitStatus called');
       setLoading(true);
       const [rateLimitData, subscriptionData] = await Promise.all([
         getRateLimitStatus(),
         getSubscriptionStatus()
       ]);
+      console.log('API calls completed:', { rateLimitData, subscriptionData });
       setStatus(rateLimitData);
       setSubscriptionStatus(subscriptionData);
       setError(null);
@@ -99,12 +103,12 @@ export default function SubscriptionPlanSection() {
 
   useEffect(() => {
     loadRateLimitStatus();
-  }, []);
+  }, []); // Run once on mount to set initial state
 
   // Refresh rate limit status when user data changes (e.g., after API key changes)
   useEffect(() => {
+    console.log('useEffect triggered - user changed, calling loadRateLimitStatus', { user, isProcessingCancellation });
     if (user) {
-      // Only reload if the subscription plan has changed
       loadRateLimitStatus();
     }
   }, [user]); // Only trigger when user changes
@@ -179,27 +183,57 @@ export default function SubscriptionPlanSection() {
   };
 
   const handleCancelSubscription = async () => {
+    console.log('handleCancelSubscription called');
     if (!window.confirm('Are you sure you want to cancel your Premium subscription? You will lose access to premium features at the end of your current billing period.')) {
       return;
     }
 
+    setIsProcessingCancellation(true);
+    
     try {
       // Optimistically update UI to show cancellation is in progress
-      setSubscriptionStatus(prev => 
-        prev ? {
+      setSubscriptionStatus(prev => {
+        console.log('Optimistic update:', prev);
+        return prev ? {
           ...prev,
           cancelAtPeriodEnd: true  // Show that cancellation is scheduled
         } : null
-      );
+      });
 
+      console.log('Calling cancelSubscription API');
       const result = await cancelSubscription();
-      
-      // Refresh subscription status to get the complete updated data
-      const subscriptionData = await getSubscriptionStatus();
-      setSubscriptionStatus(subscriptionData);
+      console.log('cancelSubscription API result:', result);
       
       // Refresh user data from server to update their plan
+      console.log('Calling refreshUser');
       await useAuthStore.getState().refreshUser();
+      
+      // There may be a delay for Stripe to update the subscription status
+      // Retry getting the subscription status a few times with delays
+      let subscriptionData;
+      let attempts = 0;
+      const maxAttempts = 5;
+      
+      do {
+        console.log(`Calling getSubscriptionStatus after refresh - attempt ${attempts + 1}`);
+        subscriptionData = await getSubscriptionStatus();
+        console.log(`Subscription data attempt ${attempts + 1}:`, subscriptionData);
+        
+        // If we get the correct status (with cancellation scheduled), break early
+        if (subscriptionData.cancelAtPeriodEnd) {
+          console.log('Correct cancellation status received, breaking retry loop');
+          break;
+        }
+        
+        // Wait 500ms before retrying, except on the last attempt
+        if (attempts < maxAttempts - 1) {
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
+        
+        attempts++;
+      } while (attempts < maxAttempts);
+      
+      setSubscriptionStatus(subscriptionData);
       
       // Show success message based on whether cancellation is immediate or scheduled
       if (result.cancelAtPeriodEnd) {
@@ -216,6 +250,9 @@ export default function SubscriptionPlanSection() {
       const error = err as { response?: { data?: { message?: string } } };
       const errorMessage = error.response?.data?.message || 'Failed to cancel subscription. Please try again.';
       toast.error(errorMessage);
+    } finally {
+      console.log('Setting isProcessingCancellation to false');
+      setIsProcessingCancellation(false);
     }
   };
 
@@ -486,9 +523,11 @@ export default function SubscriptionPlanSection() {
                             variant="danger"
                             className="w-full mb-2"
                             onClick={handleCancelSubscription}
-                            disabled={subscriptionStatus.cancelAtPeriodEnd}
+                            disabled={isProcessingCancellation || subscriptionStatus?.cancelAtPeriodEnd}
                           >
-                            {subscriptionStatus.cancelAtPeriodEnd ? 'Cancellation Scheduled' : 'Cancel Subscription'}
+                            {isProcessingCancellation ? 'Cancelling...' : 
+                             subscriptionStatus?.cancelAtPeriodEnd ? 'Cancellation Scheduled' : 
+                             'Cancel Subscription'}
                           </Button>
                         )}
                         {subscriptionStatus.cancelAtPeriodEnd && subscriptionStatus.currentPeriodEnd && (
