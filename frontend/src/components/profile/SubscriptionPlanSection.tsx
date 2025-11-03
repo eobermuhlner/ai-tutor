@@ -546,7 +546,7 @@ export default function SubscriptionPlanSection() {
                           </p>
                         )}
                       </>
-                    ) : (
+                    ) : plan.id !== 'FREE' ? (
                       <Button
                         variant={isCurrent ? "secondary" : "primary"}
                         className="w-full"
@@ -566,7 +566,7 @@ export default function SubscriptionPlanSection() {
                           "Select Plan"
                         )}
                       </Button>
-                    )}
+                    ) : null}
                   </div>
                 );
               })}
