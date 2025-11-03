@@ -78,10 +78,10 @@ class SubscriptionService(
             IllegalArgumentException("User not found: $userId")
         }
 
-        // Update subscription entity status
+        // Delete the subscription entity to avoid stale references
         stripeSubscriptionRepository.findByUserId(userId)?.let { subscription ->
-            subscription.status = "canceled"
-            stripeSubscriptionRepository.save(subscription)
+            stripeSubscriptionRepository.delete(subscription)
+            logger.info("Deleted subscription record for user $userId")
         }
 
         // Downgrade user to FREE plan

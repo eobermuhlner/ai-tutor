@@ -73,7 +73,8 @@ export default function ApiKeySettingsSection() {
 
       // Refresh user data to reflect the new subscription plan status
       useAuthStore.getState().refreshUser();
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { error?: string } } };
       const message = error.response?.data?.error || 'Failed to save configuration';
       toast.error(message);
     } finally {
@@ -93,8 +94,10 @@ export default function ApiKeySettingsSection() {
       
       // Refresh user data to reflect the new subscription plan status
       useAuthStore.getState().refreshUser();
-    } catch (error) {
-      toast.error('Failed to remove API key');
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      const errorMessage = error.response?.data?.message || 'Failed to remove API key';
+      toast.error(errorMessage);
     }
   };
 

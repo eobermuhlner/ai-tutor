@@ -107,7 +107,7 @@ export default function SubscriptionPlanSection() {
       // Only reload if the subscription plan has changed
       loadRateLimitStatus();
     }
-  }, [user?.subscriptionPlan]); // Only trigger when subscriptionPlan changes
+  }, [user]); // Only trigger when user changes
 
   const handlePlanChange = async (planId: SubscriptionPlan) => {
     if (!user) return;
@@ -130,9 +130,10 @@ export default function SubscriptionPlanSection() {
       try {
         const { url } = await createCheckoutSession();
         window.location.href = url; // Redirect to Stripe Checkout
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Failed to create checkout session:', err);
-        const errorMessage = err.response?.data?.message || 'Failed to start checkout. Please try again.';
+        const error = err as { response?: { data?: { message?: string } } };
+        const errorMessage = error.response?.data?.message || 'Failed to start checkout. Please try again.';
         toast.error(errorMessage);
         setUpdatingPlan(null);
       }
@@ -155,9 +156,10 @@ export default function SubscriptionPlanSection() {
       setStatus(result);
 
       toast.success(`Subscription plan updated to ${planOptions.find(p => p.id === planId)?.name}`);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to update subscription plan:', err);
-      const errorMessage = err.response?.data?.message || 'Failed to update subscription plan. Please try again.';
+      const error = err as { response?: { data?: { message?: string } } };
+      const errorMessage = error.response?.data?.message || 'Failed to update subscription plan. Please try again.';
       toast.error(errorMessage);
     } finally {
       setUpdatingPlan(null);
@@ -168,9 +170,10 @@ export default function SubscriptionPlanSection() {
     try {
       const { url } = await createBillingPortalSession();
       window.location.href = url; // Redirect to Stripe Billing Portal
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to create billing portal session:', err);
-      const errorMessage = err.response?.data?.message || 'Failed to open billing portal. Please try again.';
+      const error = err as { response?: { data?: { message?: string } } };
+      const errorMessage = error.response?.data?.message || 'Failed to open billing portal. Please try again.';
       toast.error(errorMessage);
     }
   };
@@ -181,24 +184,37 @@ export default function SubscriptionPlanSection() {
     }
 
     try {
+      // Optimistically update UI to show cancellation is in progress
+      setSubscriptionStatus(prev => 
+        prev ? {
+          ...prev,
+          cancelAtPeriodEnd: true  // Show that cancellation is scheduled
+        } : null
+      );
+
       const result = await cancelSubscription();
       
-      // Refresh subscription status
+      // Refresh subscription status to get the complete updated data
       const subscriptionData = await getSubscriptionStatus();
       setSubscriptionStatus(subscriptionData);
       
-      // Refresh user data from server
+      // Refresh user data from server to update their plan
       await useAuthStore.getState().refreshUser();
       
-      // Show success message
+      // Show success message based on whether cancellation is immediate or scheduled
       if (result.cancelAtPeriodEnd) {
-        toast.success('Subscription scheduled for cancellation at the end of the current billing period.');
+        toast.success(`Subscription scheduled for cancellation on ${new Date(result.currentPeriodEnd!).toLocaleDateString()}`);
       } else {
-        toast.success('Subscription has been canceled.');
+        toast.success('Subscription has been canceled');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to cancel subscription:', err);
-      const errorMessage = err.response?.data?.message || 'Failed to cancel subscription. Please try again.';
+      // If error, revert optimistic update by refreshing from server
+      const subscriptionData = await getSubscriptionStatus();
+      setSubscriptionStatus(subscriptionData);
+      
+      const error = err as { response?: { data?: { message?: string } } };
+      const errorMessage = error.response?.data?.message || 'Failed to cancel subscription. Please try again.';
       toast.error(errorMessage);
     }
   };

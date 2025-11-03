@@ -219,8 +219,9 @@ export default function ProfilePage() {
       toast.success('Email updated successfully');
       setNewEmail('');
       setIsChangingEmail(false);
-    } catch (err: any) {
-      const errorMessage = err.response?.data?.message || 'Failed to update email';
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      const errorMessage = error.response?.data?.message || 'Failed to update email';
       toast.error(errorMessage);
     } finally {
       setIsSubmittingEmail(false);
