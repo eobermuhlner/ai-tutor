@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, User, LogOut } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import Button from '../ui/Button';
 import LanguageIcons from './LanguageIcons';
@@ -9,10 +9,38 @@ export default function Header() {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+  const userButtonRef = useRef<HTMLDivElement>(null);
+
+  // Close user menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        userMenuOpen &&
+        userMenuRef.current &&
+        userButtonRef.current &&
+        !userMenuRef.current.contains(event.target as Node) &&
+        !userButtonRef.current.contains(event.target as Node)
+      ) {
+        setUserMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [userMenuOpen]);
 
   const handleLogout = async () => {
     await logout();
     navigate('/login');
+    setMobileMenuOpen(false);
+    setUserMenuOpen(false);
+  };
+
+  const goToProfile = () => {
+    navigate('/profile');
+    setUserMenuOpen(false);
     setMobileMenuOpen(false);
   };
 
@@ -23,7 +51,6 @@ export default function Header() {
     { label: 'Languages', path: '/languages' },
     { label: 'Vocabulary', path: '/vocabulary' },
     { label: 'Error Patterns', path: '/error-patterns' },
-    { label: 'Profile', path: '/profile' },
     ...(isAdmin ? [{ label: 'Admin', path: '/admin/summaries' }] : []),
   ];
 
@@ -62,15 +89,45 @@ export default function Header() {
           {/* Desktop User Menu */}
           {user && (
             <div className="hidden md:flex items-center gap-3">
-              <div className="flex items-center">
-                <span className="text-sm text-slate-600 px-3 py-1 bg-slate-100 rounded-full">
-                  {user.username}
-                </span>
-                <LanguageIcons userId={user.id} />
+              <div className="relative" ref={userMenuRef}>
+                <div
+                  ref={userButtonRef}
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  className="flex items-center gap-2 cursor-pointer px-3 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 transition-colors"
+                >
+                  <User className="w-4 h-4 text-slate-600" />
+                  <span className="text-sm text-slate-700 font-medium">{user.username}</span>
+                  <svg
+                    className={`w-4 h-4 text-slate-500 transition-transform ${userMenuOpen ? 'rotate-180' : ''}`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+
+                {/* User Dropdown Menu */}
+                {userMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-48 rounded-lg bg-white shadow-lg border border-slate-200 py-2 z-50">
+                    <button
+                      onClick={goToProfile}
+                      className="flex items-center w-full px-4 py-2 text-sm text-left text-slate-700 hover:bg-slate-100 transition-colors"
+                    >
+                      <User className="w-4 h-4 mr-2" />
+                      Profile
+                    </button>
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center w-full px-4 py-2 text-sm text-left text-red-600 hover:bg-red-50 transition-colors"
+                    >
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Logout
+                    </button>
+                  </div>
+                )}
               </div>
-              <Button variant="ghost" size="sm" onClick={handleLogout}>
-                Logout
-              </Button>
+              <LanguageIcons userId={user.id} />
             </div>
           )}
 
@@ -103,14 +160,13 @@ export default function Header() {
                   {item.label}
                 </button>
               ))}
-              <div className="pt-4 border-t border-slate-200 flex flex-col gap-3">
-                <div className="px-4 flex items-center gap-2">
-                  <span className="text-sm text-slate-600">
-                    {user.username}
-                  </span>
-                  <LanguageIcons userId={user.id} />
+              <div className="pt-4 border-t border-slate-200 flex flex-col gap-3 px-4">
+                <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
+                  <User className="w-5 h-5 text-slate-600" />
+                  <span className="text-sm text-slate-700 font-medium">{user.username}</span>
                 </div>
-                <Button variant="ghost" size="sm" onClick={handleLogout} className="w-full">
+                <Button variant="ghost" size="sm" onClick={handleLogout} className="w-full justify-start py-2 px-4 text-sm text-red-600 hover:text-red-700 hover:bg-red-50">
+                  <LogOut className="w-4 h-4 mr-2" />
                   Logout
                 </Button>
               </div>
