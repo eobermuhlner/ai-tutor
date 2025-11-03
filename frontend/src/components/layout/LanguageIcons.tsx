@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { CEFRLevel } from '../../types';
 import type { LanguageProficiency, Language } from '../../types';
 import { getLanguageProficiencies } from '../../api/userLanguages';
@@ -27,6 +28,7 @@ interface LanguageIconsProps {
 }
 
 export default function LanguageIcons({ userId }: LanguageIconsProps) {
+  const navigate = useNavigate();
   const [proficiencies, setProficiencies] = useState<LanguageProficiency[]>([]);
   const [languages, setLanguages] = useState<Language[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -92,6 +94,7 @@ export default function LanguageIcons({ userId }: LanguageIconsProps) {
                 ? 'ring-2 ring-blue-500 ring-offset-1' 
                 : 'ring-1 ring-slate-300'
             }`}
+            onClick={() => navigate('/profile#language-proficiencies')}
           >
             <span className="leading-none">
               {getLanguageFlag(proficiency.languageCode, languages)}

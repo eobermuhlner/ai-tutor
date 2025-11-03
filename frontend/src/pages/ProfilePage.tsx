@@ -1,13 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Plus, Lock, User } from 'lucide-react';
+import { Plus, User } from 'lucide-react';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import Spinner from '../components/ui/Spinner';
 import LanguageProficiencyList from '../components/profile/LanguageProficiencyList';
 import AddLanguageModal from '../components/profile/AddLanguageModal';
-import ApiKeySettingsSection from '../components/profile/ApiKeySettingsSection';
-import SubscriptionPlanSection from '../components/profile/SubscriptionPlanSection';
 import { useAuthStore } from '../store/authStore';
 import {
   getLanguageProficiencies,
@@ -69,11 +67,11 @@ export default function ProfilePage() {
       toast.success('Subscription activated! Welcome to Premium.');
       // Refresh user data to get updated subscription plan
       useAuthStore.getState().refreshUser();
-      // Clean up URL
+      // Clean up URL and redirect to subscription page
       window.history.replaceState({}, document.title, window.location.pathname);
     } else if (paymentResult === 'cancel') {
       toast('Checkout canceled. You can upgrade anytime.');
-      // Clean up URL
+      // Clean up URL and redirect to subscription page
       window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, []);
@@ -403,7 +401,7 @@ export default function ProfilePage() {
 
 
         {/* Language Proficiencies */}
-        <section className="bg-white rounded-2xl shadow-soft border border-slate-200 p-6 mb-6">
+        <section id="language-proficiencies" className="bg-white rounded-2xl shadow-soft border border-slate-200 p-6 mb-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-semibold text-slate-900">
               Language Proficiencies

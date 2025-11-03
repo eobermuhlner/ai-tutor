@@ -7,5 +7,5 @@ stripe:
   api-key: ${STRIPE_SECRET_KEY:}
   webhook-secret: ${STRIPE_WEBHOOK_SECRET:}
   price-id-subscription-10: ${STRIPE_PRICE_ID_SUBSCRIPTION_10:}
-  success-url: ${FRONTEND_URL:http://localhost:5173}/profile?payment=success
-  cancel-url: ${FRONTEND_URL:http://localhost:5173}/profile?payment=cancel
+  success-url: ${FRONTEND_URL:http://localhost:5173}/subscription?payment=success
+  cancel-url: ${FRONTEND_URL:http://localhost:5173}/subscription?payment=cancel

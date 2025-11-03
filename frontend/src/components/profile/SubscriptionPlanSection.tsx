@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { DollarSign, Check, Loader2 } from 'lucide-react';
 import Button from '../ui/Button';
 import { getRateLimitStatus, updateUserSubscriptionPlan, type RateLimitStatus } from '../../api/rateLimits';
