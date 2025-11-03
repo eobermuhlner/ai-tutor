@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { DollarSign, Check, Loader2 } from 'lucide-react';
 import Button from '../ui/Button';
 import { getRateLimitStatus, updateUserSubscriptionPlan, type RateLimitStatus } from '../../api/rateLimits';
-import { createCheckoutSession, createBillingPortalSession, getSubscriptionStatus, type SubscriptionStatusResponse } from '../../api/payment';
+import { createCheckoutSession, createBillingPortalSession, getSubscriptionStatus, cancelSubscription, type SubscriptionStatusResponse } from '../../api/payment';
 import { useAuthStore } from '../../store/authStore';
 import toast from 'react-hot-toast';
 
@@ -171,6 +171,34 @@ export default function SubscriptionPlanSection() {
     } catch (err: any) {
       console.error('Failed to create billing portal session:', err);
       const errorMessage = err.response?.data?.message || 'Failed to open billing portal. Please try again.';
+      toast.error(errorMessage);
+    }
+  };
+
+  const handleCancelSubscription = async () => {
+    if (!window.confirm('Are you sure you want to cancel your Premium subscription? You will lose access to premium features at the end of your current billing period.')) {
+      return;
+    }
+
+    try {
+      const result = await cancelSubscription();
+      
+      // Refresh subscription status
+      const subscriptionData = await getSubscriptionStatus();
+      setSubscriptionStatus(subscriptionData);
+      
+      // Refresh user data from server
+      await useAuthStore.getState().refreshUser();
+      
+      // Show success message
+      if (result.cancelAtPeriodEnd) {
+        toast.success('Subscription scheduled for cancellation at the end of the current billing period.');
+      } else {
+        toast.success('Subscription has been canceled.');
+      }
+    } catch (err: any) {
+      console.error('Failed to cancel subscription:', err);
+      const errorMessage = err.response?.data?.message || 'Failed to cancel subscription. Please try again.';
       toast.error(errorMessage);
     }
   };
@@ -435,6 +463,14 @@ export default function SubscriptionPlanSection() {
                           onClick={handleManageSubscription}
                         >
                           Manage Subscription
+                        </Button>
+                        <Button
+                          variant="danger"
+                          className="w-full mb-2"
+                          onClick={handleCancelSubscription}
+                          disabled={subscriptionStatus.cancelAtPeriodEnd}
+                        >
+                          {subscriptionStatus.cancelAtPeriodEnd ? 'Cancellation Scheduled' : 'Cancel Subscription'}
                         </Button>
                         {subscriptionStatus.cancelAtPeriodEnd && subscriptionStatus.currentPeriodEnd && (
                           <p className="text-xs text-red-600 text-center mt-2">

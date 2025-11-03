@@ -17,6 +17,14 @@ export interface SubscriptionStatusResponse {
   status: string;
 }
 
+export interface CancelSubscriptionResponse {
+  subscriptionId: string;
+  status: string;
+  canceledAt?: string;
+  cancelAtPeriodEnd: boolean;
+  currentPeriodEnd?: string;
+}
+
 export async function createCheckoutSession(): Promise<CheckoutSessionResponse> {
   const response = await apiClient.post<CheckoutSessionResponse>(
     '/payment/checkout-session'
@@ -34,6 +42,13 @@ export async function createBillingPortalSession(): Promise<BillingPortalSession
 export async function getSubscriptionStatus(): Promise<SubscriptionStatusResponse> {
   const response = await apiClient.get<SubscriptionStatusResponse>(
     '/payment/subscription-status'
+  );
+  return response.data;
+}
+
+export async function cancelSubscription(): Promise<CancelSubscriptionResponse> {
+  const response = await apiClient.post<CancelSubscriptionResponse>(
+    '/payment/cancel-subscription'
   );
   return response.data;
 }

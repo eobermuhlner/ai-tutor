@@ -1,6 +1,7 @@
 package ch.obermuhlner.aitutor.payment.service
 
 import ch.obermuhlner.aitutor.user.domain.UserEntity
+import com.stripe.model.Subscription
 import com.stripe.model.checkout.Session
 import com.stripe.model.billingportal.Session as PortalSession
 import org.slf4j.LoggerFactory
@@ -29,6 +30,12 @@ class NoOpStripeService : StripeServiceInterface {
 
     override fun createBillingPortalSession(customerId: String): PortalSession {
         logger.warn("Stripe is disabled. Cannot create billing portal session for customer $customerId")
-        throw UnsupportedOperationException("Stripe billing portal is not enabled. Please configure Stripe or use the 'stripe' profile.")
+        // Return a more informative error message
+        throw UnsupportedOperationException("Stripe billing portal is not enabled. Please configure Stripe Customer Portal in the Stripe Dashboard or use the 'stripe' profile.")
+    }
+    
+    override fun cancelSubscription(subscriptionId: String): Subscription {
+        logger.warn("Stripe is disabled. Cannot cancel subscription $subscriptionId")
+        throw UnsupportedOperationException("Stripe payment integration is not enabled. Please configure Stripe or use the 'stripe' profile.")
     }
 }

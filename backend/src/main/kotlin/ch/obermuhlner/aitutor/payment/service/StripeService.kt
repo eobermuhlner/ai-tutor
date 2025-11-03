@@ -4,11 +4,13 @@ import ch.obermuhlner.aitutor.payment.config.StripeConfig
 import ch.obermuhlner.aitutor.user.domain.UserEntity
 import ch.obermuhlner.aitutor.user.repository.UserRepository
 import com.stripe.model.Customer
+import com.stripe.model.Subscription
 import com.stripe.model.checkout.Session
 import com.stripe.model.billingportal.Session as PortalSession
 import com.stripe.param.CustomerCreateParams
 import com.stripe.param.checkout.SessionCreateParams
 import com.stripe.param.billingportal.SessionCreateParams as PortalSessionCreateParams
+import com.stripe.param.SubscriptionCancelParams
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
@@ -76,13 +78,33 @@ class StripeService(
     override fun createBillingPortalSession(customerId: String): PortalSession {
         logger.info("Creating billing portal session for customer $customerId")
 
-        val params = PortalSessionCreateParams.builder()
-            .setCustomer(customerId)
-            .setReturnUrl(stripeConfig.successUrl)
-            .build()
+        try {
+            val params = PortalSessionCreateParams.builder()
+                .setCustomer(customerId)
+                .setReturnUrl(stripeConfig.successUrl)
+                .build()
 
-        val session = PortalSession.create(params)
-        logger.info("Created billing portal session ${session.id}")
-        return session
+            val session = PortalSession.create(params)
+            logger.info("Created billing portal session ${session.id}")
+            return session
+        } catch (e: Exception) {
+            logger.error("Failed to create billing portal session for customer $customerId", e)
+            throw RuntimeException("Unable to create billing portal session. Please ensure Stripe Customer Portal is properly configured in the Stripe Dashboard.", e)
+        }
+    }
+    
+    override fun cancelSubscription(subscriptionId: String): Subscription {
+        logger.info("Canceling subscription $subscriptionId")
+        
+        // Cancel the subscription (this will schedule it to be canceled at period end)
+        val subscription = Subscription.retrieve(subscriptionId)
+        val updatedSubscription = subscription.update(
+            mapOf(
+                "cancel_at_period_end" to true
+            )
+        )
+        
+        logger.info("Scheduled subscription ${updatedSubscription.id} to be canceled at period end")
+        return updatedSubscription
     }
 }

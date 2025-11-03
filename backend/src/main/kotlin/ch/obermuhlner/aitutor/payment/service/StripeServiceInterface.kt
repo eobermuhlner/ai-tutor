@@ -1,6 +1,7 @@
 package ch.obermuhlner.aitutor.payment.service
 
 import ch.obermuhlner.aitutor.user.domain.UserEntity
+import com.stripe.model.Subscription
 import com.stripe.model.checkout.Session
 import com.stripe.model.billingportal.Session as PortalSession
 import java.util.UUID
@@ -13,4 +14,7 @@ interface StripeServiceInterface {
     fun getOrCreateCustomer(user: UserEntity): String
     fun createCheckoutSession(userId: UUID, userEmail: String, customerId: String): Session
     fun createBillingPortalSession(customerId: String): PortalSession
+    
+    // Add cancel subscription method
+    fun cancelSubscription(subscriptionId: String): Subscription
 }

@@ -7,6 +7,7 @@ import ch.obermuhlner.aitutor.payment.service.SubscriptionStatusResponse
 import ch.obermuhlner.aitutor.user.repository.UserRepository
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
@@ -22,6 +23,7 @@ class PaymentController(
     private val subscriptionService: SubscriptionService,
     private val userRepository: UserRepository
 ) {
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     @PostMapping("/checkout-session")
     @Operation(
@@ -63,12 +65,49 @@ class PaymentController(
         val customerId = user.stripeCustomerId
             ?: throw IllegalStateException("User does not have a Stripe customer ID")
 
-        // Create billing portal session
-        val session = stripeService.createBillingPortalSession(customerId)
+        try {
+            // Create billing portal session
+            val session = stripeService.createBillingPortalSession(customerId)
+
+            return ResponseEntity.ok(
+                BillingPortalSessionResponse(
+                    url = session.url
+                )
+            )
+        } catch (e: RuntimeException) {
+            logger.error("Failed to create billing portal session for user $userId", e)
+            // Provide more specific guidance for this common configuration issue
+            if (e.message?.contains("configuration") == true) {
+                throw IllegalStateException("Stripe Customer Portal is not configured. Please configure it in the Stripe Dashboard at https://dashboard.stripe.com/test/settings/billing/portal")
+            }
+            throw IllegalStateException("Unable to create billing portal session: ${e.message}")
+        }
+    }
+
+    @PostMapping("/cancel-subscription")
+    @Operation(
+        summary = "Cancel active subscription",
+        description = "Cancels the user's active subscription in Stripe"
+    )
+    fun cancelSubscription(): ResponseEntity<CancelSubscriptionResponse> {
+        val userId = authorizationService.getCurrentUserId()
+
+        // Get the current subscription to cancel
+        val subscriptionStatus = subscriptionService.getSubscriptionStatus(userId)
+        if (!subscriptionStatus.hasActiveSubscription || subscriptionStatus.stripeSubscriptionId == null) {
+            throw IllegalStateException("User does not have an active subscription to cancel")
+        }
+
+        // Cancel the subscription in Stripe
+        val canceledSubscription = stripeService.cancelSubscription(subscriptionStatus.stripeSubscriptionId)
 
         return ResponseEntity.ok(
-            BillingPortalSessionResponse(
-                url = session.url
+            CancelSubscriptionResponse(
+                subscriptionId = canceledSubscription.id,
+                status = canceledSubscription.status,
+                canceledAt = canceledSubscription.canceledAt?.let { java.time.Instant.ofEpochSecond(it) },
+                cancelAtPeriodEnd = canceledSubscription.cancelAtPeriodEnd,
+                currentPeriodEnd = canceledSubscription.currentPeriodEnd?.let { java.time.Instant.ofEpochSecond(it) }
             )
         )
     }
@@ -92,4 +131,12 @@ data class CheckoutSessionResponse(
 
 data class BillingPortalSessionResponse(
     val url: String
+)
+
+data class CancelSubscriptionResponse(
+    val subscriptionId: String,
+    val status: String,
+    val canceledAt: java.time.Instant?,
+    val cancelAtPeriodEnd: Boolean,
+    val currentPeriodEnd: java.time.Instant?
 )
