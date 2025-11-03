@@ -400,8 +400,7 @@ export default function ProfilePage() {
           </div>
         </section>
 
-        {/* Subscription Plan */}
-        <SubscriptionPlanSection />
+
 
         {/* Language Proficiencies */}
         <section className="bg-white rounded-2xl shadow-soft border border-slate-200 p-6 mb-6">
@@ -433,8 +432,7 @@ export default function ProfilePage() {
 
 
 
-        {/* API Key Settings */}
-        <ApiKeySettingsSection />
+
       </div>
 
       {/* Add/Edit Language Modal */}

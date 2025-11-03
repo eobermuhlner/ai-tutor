@@ -22,6 +22,7 @@ import ProfilePage from './pages/ProfilePage';
 import AdminSummaryPage from './pages/AdminSummaryPage';
 import CreateCustomTutorPage from './pages/CreateCustomTutorPage';
 import ErrorPatternsPage from './pages/ErrorPatternsPage';
+import SubscriptionPage from './pages/SubscriptionPage';
 import ErrorBoundary from './components/ui/ErrorBoundary';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -124,6 +125,15 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/subscription"
+              element={
+                <ProtectedRoute>
+                  <SubscriptionPage />
+                </ProtectedRoute>
+              }
+            />
+
             <Route
               path="/admin/summaries"
               element={
