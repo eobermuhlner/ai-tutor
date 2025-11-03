@@ -99,16 +99,18 @@ class StripeService(
         // Retrieve the current subscription to check its status
         val currentSubscription = Subscription.retrieve(subscriptionId)
         
-        // Check if the subscription is already canceled
-        if (currentSubscription.status == "canceled") {
-            logger.warn("Subscription ${subscriptionId} is already canceled. Returning current subscription.")
-            return currentSubscription
-        }
+        logger.info("Subscription ${subscriptionId} current status: ${currentSubscription.status}, cancel_at_period_end: ${currentSubscription.cancelAtPeriodEnd}")
         
-        // Check if the subscription is already scheduled for cancellation
+        // Check if the subscription is already scheduled for cancellation at period end
         if (currentSubscription.cancelAtPeriodEnd) {
             logger.info("Subscription ${subscriptionId} is already scheduled for cancellation at period end.")
             // Just return the subscription as is - it's already scheduled for cancellation
+            return currentSubscription
+        }
+        
+        // Check if it's already fully canceled (can't be canceled again)
+        if (currentSubscription.status == "canceled") {
+            logger.warn("Subscription ${subscriptionId} is already fully canceled. Returning current subscription.")
             return currentSubscription
         }
         

@@ -464,22 +464,30 @@ export default function SubscriptionPlanSection() {
                         >
                           Manage Subscription
                         </Button>
-                        <Button
-                          variant="danger"
-                          className="w-full mb-2"
-                          onClick={handleCancelSubscription}
-                          disabled={subscriptionStatus.cancelAtPeriodEnd}
-                        >
-                          {subscriptionStatus.cancelAtPeriodEnd ? 'Cancellation Scheduled' : 'Cancel Subscription'}
-                        </Button>
+                        {/* Show cancel button only if subscription is not already canceled and is cancellable */}
+                        {subscriptionStatus.status !== 'canceled' && (
+                          <Button
+                            variant="danger"
+                            className="w-full mb-2"
+                            onClick={handleCancelSubscription}
+                            disabled={subscriptionStatus.cancelAtPeriodEnd}
+                          >
+                            {subscriptionStatus.cancelAtPeriodEnd ? 'Cancellation Scheduled' : 'Cancel Subscription'}
+                          </Button>
+                        )}
                         {subscriptionStatus.cancelAtPeriodEnd && subscriptionStatus.currentPeriodEnd && (
                           <p className="text-xs text-red-600 text-center mt-2">
                             Cancels on {new Date(subscriptionStatus.currentPeriodEnd).toLocaleDateString()}
                           </p>
                         )}
-                        {!subscriptionStatus.cancelAtPeriodEnd && subscriptionStatus.currentPeriodEnd && (
+                        {!subscriptionStatus.cancelAtPeriodEnd && subscriptionStatus.status !== 'canceled' && subscriptionStatus.currentPeriodEnd && (
                           <p className="text-xs text-green-600 text-center mt-2">
                             Renews on {new Date(subscriptionStatus.currentPeriodEnd).toLocaleDateString()}
+                          </p>
+                        )}
+                        {subscriptionStatus.status === 'canceled' && (
+                          <p className="text-xs text-red-600 text-center mt-2">
+                            Subscription Ended
                           </p>
                         )}
                       </>
