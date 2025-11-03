@@ -61,6 +61,11 @@ class StripeService(
                     .build()
             )
             .putMetadata("user_id", userId.toString())
+            .setSubscriptionData(
+                SessionCreateParams.SubscriptionData.builder()
+                    .putMetadata("user_id", userId.toString())
+                    .build()
+            )
             .build()
 
         val session = Session.create(params)

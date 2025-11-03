@@ -23,11 +23,14 @@ class SubscriptionService(
 
     @Transactional
     fun activateSubscription(userId: UUID, stripeSubscription: Subscription) {
-        logger.info("Activating subscription for user $userId with Stripe subscription ${stripeSubscription.id}")
+        logger.info("Activating subscription for user $userId with Stripe subscription ${stripeSubscription.id}, status: ${stripeSubscription.status}")
 
         val user = userRepository.findById(userId).orElseThrow {
+            logger.error("User not found: $userId when activating subscription")
             IllegalArgumentException("User not found: $userId")
         }
+
+        logger.info("Current user subscription plan: ${user.subscriptionPlan}, Stripe subscription status: ${stripeSubscription.status}")
 
         // Create or update subscription entity
         val subscriptionEntity = stripeSubscriptionRepository.findByUserId(userId)
@@ -37,27 +40,33 @@ class SubscriptionService(
                 stripeSubscriptionId = stripeSubscription.id,
                 stripePriceId = stripeSubscription.items.data.firstOrNull()?.price?.id ?: "",
                 status = stripeSubscription.status,
-                currentPeriodStart = Instant.ofEpochSecond(stripeSubscription.currentPeriodStart),
-                currentPeriodEnd = Instant.ofEpochSecond(stripeSubscription.currentPeriodEnd),
+                currentPeriodStart = if (stripeSubscription.currentPeriodStart != null) Instant.ofEpochSecond(stripeSubscription.currentPeriodStart) else Instant.now(),
+                currentPeriodEnd = if (stripeSubscription.currentPeriodEnd != null) Instant.ofEpochSecond(stripeSubscription.currentPeriodEnd) else Instant.now().plusSeconds(30L * 24 * 60 * 60), // 30 days default
                 cancelAtPeriodEnd = stripeSubscription.cancelAtPeriodEnd
             )
 
         subscriptionEntity.status = stripeSubscription.status
-        subscriptionEntity.currentPeriodStart = Instant.ofEpochSecond(stripeSubscription.currentPeriodStart)
-        subscriptionEntity.currentPeriodEnd = Instant.ofEpochSecond(stripeSubscription.currentPeriodEnd)
+        subscriptionEntity.currentPeriodStart = if (stripeSubscription.currentPeriodStart != null) Instant.ofEpochSecond(stripeSubscription.currentPeriodStart) else Instant.now()
+        subscriptionEntity.currentPeriodEnd = if (stripeSubscription.currentPeriodEnd != null) Instant.ofEpochSecond(stripeSubscription.currentPeriodEnd) else Instant.now().plusSeconds(30L * 24 * 60 * 60) // 30 days default
         subscriptionEntity.cancelAtPeriodEnd = stripeSubscription.cancelAtPeriodEnd
 
         stripeSubscriptionRepository.save(subscriptionEntity)
+        logger.info("Saved subscription entity for user $userId")
 
         // Update user subscription plan
         val newPlan = SubscriptionPlan.SUBSCRIPTION_10
+        logger.info("Setting user $userId subscription plan to $newPlan (was ${user.subscriptionPlan})")
+        
         if (user.subscriptionPlan != newPlan) {
+            logger.info("User $userId plan changed from ${user.subscriptionPlan} to $newPlan, saving update")
             user.subscriptionPlan = newPlan
             userRepository.save(user)
 
             // Reset rate limits to apply new plan limits
             rateLimitingService.resetRateLimit(userId)
-            logger.info("Updated user $userId subscription plan to $newPlan")
+            logger.info("Successfully updated user $userId subscription plan to $newPlan and reset rate limits")
+        } else {
+            logger.info("User $userId already has plan $newPlan, no update needed")
         }
     }
 
