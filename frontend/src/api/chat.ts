@@ -1,33 +1,13 @@
 import apiClient from './client';
-import { CEFRLevel, TeachingStyle, ConversationPhase, ErrorType, ErrorSeverity, MessageRole } from '../types';
-import type { Correction } from '../types';
+import { CEFRLevel, TeachingStyle, ConversationPhase, MessageRole } from '../types';
 import type { Session, Message, SessionProgress, InitiateMessageContext } from '../types';
 import * as storage from '../utils/storage';
 import { API_BASE_URL } from '../utils/constants';
-
-const BASE_URL = import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'http://localhost:8080';
-
-// Backend response format (different from frontend Message type)
-interface BackendCorrection {
-  span: string;
-  errorType: string;
-  severity: string;
-  correctedTargetLanguage: string;
-  whySourceLanguage: string;
-  whyTargetLanguage: string;
-}
-
-interface BackendMessageResponse {
-  id: string;
-  role: string;
-  content: string;
-  corrections: BackendCorrection[] | null;
-  newVocabulary: NewVocabulary[] | null;
-  wordCards: BackendWordCard[] | null;
-  characterCards: BackendCharacterCard[] | null;
-  createdAt: string; // ISO timestamp from backend
-  errorMessage?: string;
-}
+import {
+  transformBackendMessage,
+  transformCorrection,
+  type BackendMessageResponse,
+} from '../utils/messageTransformer';
 
 interface NewVocabulary {
   word: string;
@@ -36,67 +16,6 @@ interface NewVocabulary {
   exampleTranslation: string;
   frequency: number;
   difficulty: string;
-}
-
-interface BackendWordCard {
-  titleSourceLanguage: string;
-  titleTargetLanguage: string;
-  descriptionSourceLanguage: string;
-  descriptionTargetLanguage: string;
-  conceptName?: string | null;
-  imageUrl?: string | null;
-}
-
-interface BackendCharacterCard {
-  character: string;
-  pronunciation: string;
-  meaning: string;
-  example: string;
-  strokeOrder?: number;
-}
-
-
-
-// Transform backend correction to frontend format
-function transformCorrection(backendCorrection: BackendCorrection, userText: string): Correction | null {
-  const span = backendCorrection.span;
-  const startIndex = userText.indexOf(span);
-
-  if (startIndex === -1) {
-    return null;
-  }
-
-  const endIndex = startIndex + span.length;
-
-  // Map severity from backend format
-  const severityMap: Record<string, string> = {
-    'Low': 'LOW',
-    'Medium': 'MEDIUM',
-    'High': 'HIGH',
-    'Critical': 'CRITICAL',
-  };
-
-  // Map error type from backend format
-  const errorTypeMap: Record<string, string> = {
-    'Typography': 'SPELLING',
-    'Grammar': 'GRAMMAR',
-    'Vocabulary': 'VOCABULARY',
-    'WordOrder': 'WORD_ORDER',
-    'VerbForm': 'VERB_FORM',
-    'Article': 'ARTICLE',
-    'Preposition': 'PREPOSITION',
-    'Punctuation': 'PUNCTUATION',
-  };
-
-  return {
-    startIndex,
-    endIndex,
-    originalText: span,
-    correctedText: backendCorrection.correctedTargetLanguage,
-    errorType: errorTypeMap[backendCorrection.errorType] as ErrorType || 'OTHER' as ErrorType,
-    severity: severityMap[backendCorrection.severity] as ErrorSeverity || 'MEDIUM' as ErrorSeverity,
-    explanation: backendCorrection.whySourceLanguage,
-  };
 }
 
 export async function createSessionFromCourse(
@@ -221,17 +140,11 @@ export async function getSession(sessionId: string): Promise<Session & { message
   const messages: Message[] = [];
   for (let i = 0; i < response.data.messages.length; i++) {
     const msg = response.data.messages[i];
-    const frontendMsg: Message = {
-      id: msg.id,
-      sessionId,
-      role: msg.role as MessageRole,
-      content: msg.content,
-      timestamp: msg.createdAt,
-      errorMessage: msg.errorMessage,
-      metadata: undefined,
-    };
 
-    // If this is an assistant message with corrections, attach them to the previous user message
+    // Use utility to transform message
+    const frontendMsg = transformBackendMessage(msg, sessionId);
+
+    // If this is an assistant message with corrections, move them to the previous user message
     if (msg.role === 'ASSISTANT' && msg.corrections && msg.corrections.length > 0 && messages.length > 0) {
       const lastMsg = messages[messages.length - 1];
       if (lastMsg.role === 'USER') {
@@ -242,61 +155,12 @@ export async function getSession(sessionId: string): Promise<Session & { message
 
         if (transformedCorrections.length > 0) {
           lastMsg.metadata = {
+            ...lastMsg.metadata,
             corrections: transformedCorrections,
             phase: 'CORRECTION' as ConversationPhase,
           };
         }
       }
-    } else if (msg.role !== 'ASSISTANT' && msg.corrections && msg.corrections.length > 0) {
-      // If corrections are on a non-assistant message (shouldn't happen, but handle it)
-      const transformedCorrections = msg.corrections
-        .map(c => transformCorrection(c, msg.content))
-        .filter(c => c !== null);
-
-      if (transformedCorrections.length > 0) {
-        frontendMsg.metadata = {
-          corrections: transformedCorrections,
-          phase: 'CORRECTION' as ConversationPhase,
-        };
-      }
-    }
-
-    // Add word cards if present
-    if (msg.wordCards && msg.wordCards.length > 0) {
-      // Transform imageUrl to ensure it's a complete URL (check if already a full URL before adding base)
-      const transformedWordCards = msg.wordCards.map((card: BackendWordCard) => ({
-        titleSourceLanguage: card.titleSourceLanguage,
-        titleTargetLanguage: card.titleTargetLanguage,
-        descriptionSourceLanguage: card.descriptionSourceLanguage,
-        descriptionTargetLanguage: card.descriptionTargetLanguage,
-        imageUrl: card.imageUrl ?
-          card.imageUrl.startsWith('http') ? card.imageUrl : `${BASE_URL}${card.imageUrl}`
-          : null,
-        conceptName: card.conceptName,
-      }));
-      frontendMsg.metadata = {
-        ...frontendMsg.metadata,
-        corrections: frontendMsg.metadata?.corrections || [],
-        phase: frontendMsg.metadata?.phase || 'FREE' as ConversationPhase,
-        wordCards: transformedWordCards,
-      };
-    }
-
-    // Add character cards if present
-    if (msg.characterCards && msg.characterCards.length > 0) {
-      // Transform backend character cards to frontend format
-      const transformedCharacterCards = msg.characterCards.map((card: BackendCharacterCard) => ({
-        character: card.character,
-        pronunciation: card.pronunciation,
-        description: card.meaning || card.example || card.character, // Use meaning, example, or character as description
-      }));
-      
-      frontendMsg.metadata = {
-        ...frontendMsg.metadata,
-        corrections: frontendMsg.metadata?.corrections || [],
-        phase: frontendMsg.metadata?.phase || 'FREE' as ConversationPhase,
-        characterCards: transformedCharacterCards,
-      };
     }
 
     messages.push(frontendMsg);
@@ -475,68 +339,8 @@ export async function sendChatMessage(
     { content: message }
   );
 
-  // Transform backend response to frontend Message format
-  const backendMsg = response.data;
-
-  // Transform corrections if present
-  let transformedCorrections = undefined;
-  if (backendMsg.corrections && backendMsg.corrections.length > 0) {
-    transformedCorrections = backendMsg.corrections
-      .map(c => transformCorrection(c, userText))
-      .filter(c => c !== null);
-  }
-
-  const frontendMsg: Message = {
-    id: backendMsg.id,
-    sessionId,
-    role: backendMsg.role as MessageRole,
-    content: backendMsg.content,
-    timestamp: backendMsg.createdAt,
-    errorMessage: backendMsg.errorMessage,
-    metadata: transformedCorrections && transformedCorrections.length > 0
-      ? { corrections: transformedCorrections, phase: 'CORRECTION' as ConversationPhase }
-      : undefined,
-  };
-
-  // Add word cards if present
-  if (backendMsg.wordCards && backendMsg.wordCards.length > 0) {
-    // Transform imageUrl to ensure it's a complete URL (check if already a full URL before adding base)
-    const transformedWordCards = backendMsg.wordCards.map((card: BackendWordCard) => ({
-      titleSourceLanguage: card.titleSourceLanguage,
-      titleTargetLanguage: card.titleTargetLanguage,
-      descriptionSourceLanguage: card.descriptionSourceLanguage,
-      descriptionTargetLanguage: card.descriptionTargetLanguage,
-      imageUrl: card.imageUrl ?
-        card.imageUrl.startsWith('http') ? card.imageUrl : `${BASE_URL}${card.imageUrl}`
-        : null,
-      conceptName: card.conceptName,
-    }));
-    frontendMsg.metadata = {
-      ...frontendMsg.metadata,
-      corrections: frontendMsg.metadata?.corrections || [],
-      phase: frontendMsg.metadata?.phase || 'FREE' as ConversationPhase,
-      wordCards: transformedWordCards,
-    };
-  }
-
-  // Add character cards if present
-  if (backendMsg.characterCards && backendMsg.characterCards.length > 0) {
-    // Transform backend character cards to frontend format
-    const transformedCharacterCards = backendMsg.characterCards.map((card: BackendCharacterCard) => ({
-      character: card.character,
-      pronunciation: card.pronunciation,
-      description: card.meaning || card.example || card.character, // Use meaning, example, or character as description
-    }));
-    
-    frontendMsg.metadata = {
-      ...frontendMsg.metadata,
-      corrections: frontendMsg.metadata?.corrections || [],
-      phase: frontendMsg.metadata?.phase || 'FREE' as ConversationPhase,
-      characterCards: transformedCharacterCards,
-    };
-  }
-
-  return frontendMsg;
+  // Transform backend response to frontend Message format using utility
+  return transformBackendMessage(response.data, sessionId, userText);
 }
 
 // Tutor-initiated message APIs
@@ -553,56 +357,8 @@ export async function initiateTutorMessage(
     { context }
   );
 
-  const backendMsg = response.data;
-
-  // Transform backend response to frontend Message format
-  const frontendMsg: Message = {
-    id: backendMsg.id,
-    sessionId,
-    role: backendMsg.role as MessageRole,
-    content: backendMsg.content,
-    timestamp: backendMsg.createdAt,
-    errorMessage: backendMsg.errorMessage,
-    metadata: undefined,
-  };
-
-  // Add word cards if present
-  if (backendMsg.wordCards && backendMsg.wordCards.length > 0) {
-    const transformedWordCards = backendMsg.wordCards.map((card: BackendWordCard) => ({
-      titleSourceLanguage: card.titleSourceLanguage,
-      titleTargetLanguage: card.titleTargetLanguage,
-      descriptionSourceLanguage: card.descriptionSourceLanguage,
-      descriptionTargetLanguage: card.descriptionTargetLanguage,
-      imageUrl: card.imageUrl ?
-        card.imageUrl.startsWith('http') ? card.imageUrl : `${BASE_URL}${card.imageUrl}`
-        : null,
-      conceptName: card.conceptName,
-    }));
-    frontendMsg.metadata = {
-      corrections: [],
-      phase: 'FREE' as ConversationPhase,
-      wordCards: transformedWordCards,
-    };
-  }
-
-  // Add character cards if present
-  if (backendMsg.characterCards && backendMsg.characterCards.length > 0) {
-    // Transform backend character cards to frontend format
-    const transformedCharacterCards = backendMsg.characterCards.map((card: BackendCharacterCard) => ({
-      character: card.character,
-      pronunciation: card.pronunciation,
-      description: card.meaning || card.example || card.character, // Use meaning, example, or character as description
-    }));
-    
-    frontendMsg.metadata = {
-      ...frontendMsg.metadata,
-      corrections: frontendMsg.metadata?.corrections || [],
-      phase: frontendMsg.metadata?.phase || 'FREE' as ConversationPhase,
-      characterCards: transformedCharacterCards,
-    };
-  }
-
-  return frontendMsg;
+  // Transform backend response to frontend Message format using utility
+  return transformBackendMessage(response.data, sessionId);
 }
 
 /**
@@ -706,51 +462,8 @@ export function initiateTutorMessageStream(
               // Parse the complete message object
               try {
                 const backendMsg = JSON.parse(data) as BackendMessageResponse;
-                const frontendMsg: Message = {
-                  id: backendMsg.id,
-                  sessionId,
-                  role: backendMsg.role as MessageRole,
-                  content: backendMsg.content,
-                  timestamp: backendMsg.createdAt,
-                  errorMessage: backendMsg.errorMessage,
-                  metadata: undefined,
-                };
-
-                // Add word cards if present
-                if (backendMsg.wordCards && backendMsg.wordCards.length > 0) {
-                  const transformedWordCards = backendMsg.wordCards.map((card: BackendWordCard) => ({
-                    titleSourceLanguage: card.titleSourceLanguage,
-                    titleTargetLanguage: card.titleTargetLanguage,
-                    descriptionSourceLanguage: card.descriptionSourceLanguage,
-                    descriptionTargetLanguage: card.descriptionTargetLanguage,
-                    imageUrl: card.imageUrl ?
-                      card.imageUrl.startsWith('http') ? card.imageUrl : `${BASE_URL}${card.imageUrl}`
-                      : null,
-                    conceptName: card.conceptName,
-                  }));
-                  frontendMsg.metadata = {
-                    corrections: [],
-                    phase: 'FREE' as ConversationPhase,
-                    wordCards: transformedWordCards,
-                  };
-                }
-
-                // Add character cards if present
-                if (backendMsg.characterCards && backendMsg.characterCards.length > 0) {
-                  // Transform backend character cards to frontend format
-                  const transformedCharacterCards = backendMsg.characterCards.map((card: BackendCharacterCard) => ({
-                    character: card.character,
-                    pronunciation: card.pronunciation,
-                    description: card.meaning || card.example || card.character, // Use meaning, example, or character as description
-                  }));
-                  
-                  frontendMsg.metadata = {
-                    ...frontendMsg.metadata,
-                    corrections: frontendMsg.metadata?.corrections || [],
-                    phase: frontendMsg.metadata?.phase || 'FREE' as ConversationPhase,
-                    characterCards: transformedCharacterCards,
-                  };
-                }
+                // Transform backend response to frontend Message format using utility
+                const frontendMsg = transformBackendMessage(backendMsg, sessionId);
 
                 console.log('✅ SSE Complete:', frontendMsg);
                 onComplete(frontendMsg);
