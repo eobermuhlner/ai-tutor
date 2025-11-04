@@ -53,7 +53,9 @@ class TutorService(
     @Value("\${ai-tutor.prompts.error-classification-guidance}") private val errorClassificationGuidance: String,
     @Value("\${ai-tutor.prompts.vocabulary.no-tracking}") private val vocabularyNoTrackingTemplate: String,
     @Value("\${ai-tutor.prompts.vocabulary.with-tracking}") private val vocabularyWithTrackingTemplate: String,
-    @Value("\${ai-tutor.prompts.teaching-style.course-based}") private val teachingStyleCourseBasedTemplate: String,
+    @Value("\${ai-tutor.prompts.course-teaching-style.reactive}") private val courseTeachingStyleReactiveTemplate: String,
+    @Value("\${ai-tutor.prompts.course-teaching-style.guided}") private val courseTeachingStyleGuidedTemplate: String,
+    @Value("\${ai-tutor.prompts.course-teaching-style.directive}") private val courseTeachingStyleDirectiveTemplate: String,
     @Value("\${ai-tutor.prompts.teaching-style.reactive}") private val teachingStyleReactiveTemplate: String,
     @Value("\${ai-tutor.prompts.teaching-style.guided}") private val teachingStyleGuidedTemplate: String,
     @Value("\${ai-tutor.prompts.teaching-style.directive}") private val teachingStyleDirectiveTemplate: String,
@@ -119,14 +121,9 @@ class TutorService(
             null
         }
 
-        // Override teaching style for course-based sessions
-        val teachingStyleGuidance = if (currentLesson != null) {
-            // Use course-based teaching style (ignores tutor's preferred style)
-            PromptTemplate(teachingStyleCourseBasedTemplate).render(mapOf("targetLanguage" to targetLanguage))
-        } else {
-            // Use tutor's preferred teaching style for free conversation
-            buildTeachingStyleGuidance(tutor.teachingStyle, targetLanguage)
-        }
+        val teachingStyleGuidance = buildTeachingStyleGuidance(tutor.teachingStyle, targetLanguage)
+
+        val courseTeachingStyleGuidance = buildCourseTeachingStyleGuidance(tutor.teachingStyle, targetLanguage)
 
         // Extract decision metadata with safe defaults for backward compatibility
         val phaseReason = conversationState.phaseReason ?: "Balanced default phase"
@@ -146,6 +143,7 @@ class TutorService(
             sourceLanguageCode = sourceLanguageCode,
             vocabularyGuidance = vocabularyGuidance,
             teachingStyleGuidance = teachingStyleGuidance,
+            courseTeachingStyleGuidance = courseTeachingStyleGuidance,
             currentLesson = currentLesson,
             curriculum = curriculum
         )
@@ -208,6 +206,23 @@ class TutorService(
             TeachingStyle.Directive -> teachingStyleDirectiveTemplate
         }
         return PromptTemplate(template).render(mapOf("targetLanguage" to targetLanguage))
+    }
+
+    private fun buildCourseTeachingStyleGuidance(teachingStyle: TeachingStyle, targetLanguage: String): String {
+        val template = when (teachingStyle) {
+            TeachingStyle.Reactive -> courseTeachingStyleReactiveTemplate
+            TeachingStyle.Guided -> courseTeachingStyleGuidedTemplate
+            TeachingStyle.Directive -> courseTeachingStyleDirectiveTemplate
+        }
+        return PromptTemplate(template).render(mapOf("targetLanguage" to targetLanguage))
+    }
+
+    private fun getTeachingStyleDescription(teachingStyle: TeachingStyle): String {
+        return when (teachingStyle) {
+            TeachingStyle.Reactive -> "Follow the learner's conversational lead within lesson content, allowing natural topic flow while staying within lesson scope"
+            TeachingStyle.Guided -> "Provide strategic prompts and discovery questions related to lesson content, guiding learners to notice patterns"
+            TeachingStyle.Directive -> "Give explicit instruction and structured lessons, with clear guidance on lesson objectives and exercises"
+        }
     }
 
     private fun buildLanguageMetadataPrompt(languageCode: String): String {
@@ -302,6 +317,7 @@ class TutorService(
         sourceLanguageCode: String,
         vocabularyGuidance: String,
         teachingStyleGuidance: String,
+        courseTeachingStyleGuidance: String,
         currentLesson: LessonContent? = null,
         curriculum: CourseCurriculum? = null
     ): String = buildString {
@@ -316,7 +332,8 @@ class TutorService(
             "tutorPersona" to tutor.persona,
             "tutorDomain" to tutor.domain,
             "vocabularyGuidance" to vocabularyGuidance,
-            "teachingStyleGuidance" to teachingStyleGuidance
+            "teachingStyleGuidance" to teachingStyleGuidance,
+            "courseTeachingStyleGuidance" to courseTeachingStyleGuidance,
         )))
 
         val levelPromptTemplate = levelToPromptTemplateMap[conversationState.estimatedCEFRLevel]

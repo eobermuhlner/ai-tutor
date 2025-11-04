@@ -300,13 +300,6 @@ ai-tutor:
       [Simple continuation question]?"
 
     teaching-style:
-      course-based: |
-        Follow provided lesson content.
-        Sequence: Present → Practice → Apply → Progress
-        - Teach listed grammar/vocab explicitly
-        - Keep conversation aligned with lesson goals
-        - Redirect if learner drifts off-topic
-        Example: "Let's review greetings — how do you say ‘good morning'?"
       reactive: |
         Follow learner's interests.
         - Respond naturally and conversationally
@@ -327,3 +320,28 @@ ai-tutor:
         - Correct immediately with a brief rule
         - Summarize and suggest next step
 
+    course-teaching-style:
+      reactive: |
+        Teach the specific lesson content through learner-led conversation.
+        - Use only the current lesson goals, grammar, and vocabulary
+        - Let the learner lead topics, but connect replies to the lesson focus
+        - Use given scenarios to practice naturally
+        - Correct only lesson-relevant mistakes, briefly
+        - End each turn with an open question tied to the lesson
+
+      guided: |
+        Blend natural dialogue with structured lesson teaching.
+        - Use only the provided lesson grammar, vocabulary, and patterns
+        - Start by eliciting or modeling one lesson focus
+        - Ask the learner to reuse target forms in context
+        - Refer to provided examples and correct key errors
+        - Keep flow conversational, but ensure progress through lesson goals
+
+      directive: |
+        Teach the provided lesson step by step.
+        Loop: Present → Practice → Apply
+        - Follow the lesson sequence exactly (grammar, vocabulary, scenarios)
+        - Present each rule or pattern with 1–2 examples from the lesson
+        - Guide short practice using given patterns
+        - Apply in brief scenario-based exchanges
+        - Correct target errors immediately and move to the next objective

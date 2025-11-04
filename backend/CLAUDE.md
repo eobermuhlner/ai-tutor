@@ -315,6 +315,20 @@ Regex patterns are too brittle for parsing actual language text:
 - These "strange" characters can cause parsing issues and encoding problems
 - Stick to plain ASCII characters for maximum compatibility across systems
 
+### Prompt Configuration Guidelines
+
+**ALL prompt content must be located in application-prompts-*.yml files**
+- **application-prompts-large.yml** - Prompts optimized for large models (GPT-4o, Claude Sonnet, etc.)
+- **application-prompts-medium.yml** - Prompts optimized for medium models
+- **application-prompts-small.yml** - Prompts optimized for small/efficient models
+
+**application.yml should NOT contain actual prompt content**
+- Only configuration parameters, not prompt templates
+- Profile activation and general settings go in application.yml
+- Actual prompt content must be loaded from the profile-specific files
+
+This separation allows for different prompt optimization strategies based on model capabilities while maintaining a clean architecture. The active profile (set via spring.profiles.active) determines which prompts file to load at runtime.
+
 ### Git Commit Guidelines
 
 See the root `CLAUDE.md` for project-wide git commit guidelines.
