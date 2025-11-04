@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
+import type { ReactNode } from 'react';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { getSession, sendChatMessage, updatePhase as updatePhaseAPI, updateTopic as updateTopicAPI, updateTeachingStyle as updateTeachingStyleAPI, updateVocabularyReviewMode as updateVocabularyReviewModeAPI } from '../api/chat';
@@ -284,6 +285,10 @@ export function ChatSessionProvider({ children, sessionId }: ChatSessionProvider
     }
   };
 
+  const updateUserLevel = (newLevel: CEFRLevel) => {
+    setUserLevel(newLevel);
+  };
+
   const handleReengage = (message: Message) => {
     setMessages((prev) => [...prev, message]);
   };
@@ -335,6 +340,7 @@ export function ChatSessionProvider({ children, sessionId }: ChatSessionProvider
     updateTopic,
     updateTeachingStyle,
     updateVocabularyReviewMode,
+    updateUserLevel,
     refreshDueCount,
     handleReengage,
     addMessage,

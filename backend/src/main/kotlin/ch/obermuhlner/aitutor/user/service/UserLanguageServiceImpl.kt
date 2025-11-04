@@ -53,12 +53,23 @@ class UserLanguageServiceImpl(
     @Transactional
     override fun updateLanguage(userId: UUID, languageCode: String, cefrLevel: CEFRLevel): UserLanguageProficiencyEntity {
         val entity = userLanguageProficiencyRepository.findByUserIdAndLanguageCode(userId, languageCode)
-            ?: throw IllegalArgumentException("Language proficiency not found for user $userId and language $languageCode")
 
-        entity.cefrLevel = cefrLevel
-        entity.lastAssessedAt = Instant.now()
-
-        return userLanguageProficiencyRepository.save(entity)
+        return if (entity != null) {
+            // Update existing record
+            entity.cefrLevel = cefrLevel
+            entity.lastAssessedAt = Instant.now()
+            userLanguageProficiencyRepository.save(entity)
+        } else {
+            // Create new learning language record if it doesn't exist
+            logger.info("Language proficiency not found for user $userId and language $languageCode, creating new record with level $cefrLevel")
+            addLanguage(
+                userId = userId,
+                languageCode = languageCode,
+                type = LanguageProficiencyType.Learning,
+                cefrLevel = cefrLevel,
+                isNative = false
+            )
+        }
     }
 
     override fun getUserLanguages(userId: UUID): List<UserLanguageProficiencyEntity> {

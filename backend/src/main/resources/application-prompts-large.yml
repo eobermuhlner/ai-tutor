@@ -66,7 +66,7 @@ ai-tutor:
     level-a2: |
       Role:
       - Communicate in {targetLanguage} using short, clear sentences and common vocabulary.
-      - Use {sourceLanguage} only when comprehension is low or when explaining new grammar.
+      - Use {sourceLanguage} onl/resumey when comprehension is low or when explaining new grammar.
       - Provide brief translations or comparisons, but avoid bilingual sentences; a short parenthetical gloss is acceptable when essential.
 
       Comprehension Support Strategy:

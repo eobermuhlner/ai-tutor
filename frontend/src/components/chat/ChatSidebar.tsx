@@ -6,6 +6,7 @@ import VocabularyReviewPanel from '../vocabulary/VocabularyReviewPanel';
 import LessonPanel from './LessonPanel';
 import TTSSettings from './TTSSettings';
 import RateLimitIndicator from '../profile/RateLimitIndicator';
+import UserLevelSelector from './UserLevelSelector';
 import { useChatSession } from '../../contexts/ChatSessionContext';
 
 type SidebarTab = 'summary' | 'review' | 'settings' | 'lesson';
@@ -20,6 +21,7 @@ export default function ChatSidebar({ isVisible }: ChatSidebarProps) {
     courseId,
     messages,
     targetLanguageCode,
+    userLevel,
     phase,
     teachingStyle,
     isSending,
@@ -30,6 +32,7 @@ export default function ChatSidebar({ isVisible }: ChatSidebarProps) {
     updatePhase,
     updateTeachingStyle,
     updateVocabularyReviewMode,
+    updateUserLevel,
     refreshDueCount,
   } = useChatSession();
 
@@ -124,6 +127,15 @@ export default function ChatSidebar({ isVisible }: ChatSidebarProps) {
           {sidebarTab === 'settings' && (
             <div className="space-y-6">
               <div>
+                <UserLevelSelector
+                  currentLevel={userLevel}
+                  targetLanguageCode={targetLanguageCode}
+                  disabled={isSending}
+                  onLevelChange={updateUserLevel}
+                />
+              </div>
+
+              <div className="border-t border-slate-200 pt-6">
                 <h3 className="text-sm font-semibold text-slate-900 mb-3">Conversation Mode</h3>
                 <PhaseSelector
                   currentPhase={phase.current}

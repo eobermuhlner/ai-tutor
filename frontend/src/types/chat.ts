@@ -77,6 +77,7 @@ export interface ChatSessionActions {
   updateTopic: (topic: string | null) => Promise<void>;
   updateTeachingStyle: (style: TeachingStyle) => Promise<void>;
   updateVocabularyReviewMode: (enabled: boolean) => Promise<void>;
+  updateUserLevel: (level: CEFRLevel) => void;
   refreshDueCount: () => Promise<void>;
   handleReengage: (message: Message) => void;
   addMessage: (message: Message) => void;
