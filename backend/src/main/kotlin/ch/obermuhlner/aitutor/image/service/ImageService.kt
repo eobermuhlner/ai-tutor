@@ -59,8 +59,13 @@ class ImageService(
 
     @Transactional(readOnly = true)
     fun getImageByPerson(countryCode: String, gender: TutorGender, age: Int, text: String): ImageData? {
-        val requiredTags = listOf("person", countryCode, gender.toString(), "age_$age")
-        val optionalTags = text.split(separatorRegex)
+        val ageLower = (age / 10) * 10
+        val ageUpper = ageLower + 10
+
+        val requiredTags = listOf("person", countryCode, gender.toString())
+        val optionalTags = listOf("age_$age", "age_${ageLower}_${ageUpper}")
+
+        val textTags = text.split(separatorRegex)
             .map { it.trim() }
             .filter { it.isNotEmpty() }
             .flatMap { word ->
@@ -73,7 +78,7 @@ class ImageService(
         val searchResults = try {
             imageStoreClient.searchImagesByTags(
                 requiredTags,
-                optionalTags,
+                optionalTags + textTags,
             )
         } catch (e: Exception) {
             logger.error("Failed to search images", e)
@@ -93,8 +98,13 @@ class ImageService(
 
     @Transactional(readOnly = true)
     fun getImageUrlByPerson(countryCode: String, gender: TutorGender, age: Int, text: String): String? {
-        val requiredTags = listOf("person", countryCode, gender.toString(), "age_$age")
-        val optionalTags = text.split(separatorRegex)
+        val ageLower = (age / 10) * 10
+        val ageUpper = ageLower + 10
+
+        val requiredTags = listOf("person", countryCode, gender.toString(), "age_$age", "age_${ageLower}_${ageUpper}")
+        val optionalTags = listOf("age_$age", "age_${ageLower}_${ageUpper}")
+
+        val textTags = text.split(separatorRegex)
             .map { it.trim() }
             .filter { it.isNotEmpty() }
             .flatMap { word ->
@@ -107,7 +117,7 @@ class ImageService(
         val searchResults = try {
             imageStoreClient.searchImagesByTags(
                 requiredTags,
-                optionalTags,
+                optionalTags + textTags,
             )
         } catch (e: Exception) {
             logger.error("Failed to search images", e)
