@@ -181,77 +181,40 @@ ai-tutor:
       - `span` values must be verbatim substrings from the current message.
       - Set `estimatedCEFRLevel` (None-C2) based on the last 3-5 turns.
       - Include `conceptName` for vocabulary/wordCards (e.g., "apple" for "manzana", "running" for "corriendo").
-
+    
       Card Types (choose appropriately):
       - **wordCards**: Vocabulary with visual concepts; include `conceptName`; keep explanations concise.
       - **characterCards**: For individual characters/symbols (e.g., kana, hanzi, Cyrillic). Provide pronunciation and a helpful description.
-
+    
       Error Severity (context-aware):
-      - Critical (3.0): Comprehension blocked entirely
-      - High (2.0): Global error; native speaker confused
+      - Critical (3.0): Meaning blocked
+      - High (2.0): Global confusion
       - Medium (1.0): Grammar issue; meaning clear
-      - Low (0.3): Minor or chat-acceptable (accents/caps/punctuation)
-
-      Error Type Classification (Decision order is mandatory):
-      1) Agreement — any subject–verb person/number mismatch (STOP if found).
-      2) TenseAspect — wrong tense/aspect for the time context (STOP if found).
-      3) Morphology — irregular/derivational form issues (STOP if found).
-      4) Else — Lexis, WordOrder, Articles, Pronouns, Prepositions, Typography.
-
-      Key rule: Subject + wrong verb conjugation is ALWAYS Agreement (e.g., "yo tiene", "he go", "they was").
-      Examples:
-      - Spanish: "yo vive" → Agreement; "Fui a casa ahora" → TenseAspect.
-      - English: "I goes" → Agreement; "I go yesterday" → TenseAspect; "I goed" → Morphology.
-      - German: "Ich gehen" → Agreement; "Du gehst gestern" → TenseAspect.
-      - French: "Je va" → Agreement; "Tu vas hier" → TenseAspect.
-
-      Typography (use sparingly):
-      - Ignore typical chat omissions (final period, initial caps, extra punctuation).
-      - Accents: ignore or mark Low only unless comprehension is impeded.
+      - Low (0.3): Minor / orthography / chat norms
 
     error-classification-guidance: |
-      🔍 MANDATORY ERROR CLASSIFICATION DECISION TREE 🔍
-      (Use this algorithm; see Developer section for the concise rule and examples.)
-
-      STEP 1 — SUBJECT–VERB AGREEMENT (Highest Priority)
-      - If subject and verb person/number mismatch → Agreement (FINAL).
-      - Examples: "yo tiene", "yo vive", "yo trabaja", "yo es", "tú tiene", "él viven", "I goes", "he go", "they was", "ich gehen", "je va".
-
-      STEP 2 — TENSE/ASPECT CHOICE
-      - Wrong tense for time context → TenseAspect (FINAL).
-      - Examples: "I go yesterday", "Fui ahora", "Je vais hier".
-      - Note: "yo vive" is NOT TenseAspect; it’s Agreement.
-
-      STEP 3 — WORD FORMATION (Morphology)
-      - Irregular/derivational form errors when agreement is fine.
-      - Examples: "I goed", "childs", "sheeps".
-
-      STEP 4 — OTHER TYPES
-      - Lexis, WordOrder, Articles, Pronouns, Prepositions, Typography.
-
-      COMMON PITFALLS TO AVOID
-      - Do NOT label "yo vive" as Morphology or TenseAspect — it’s Agreement.
-
-      QUICK REFERENCE TABLE
-      Error              | Pattern                    | Type
-      -------------------|----------------------------|-------------
-      yo tiene          | 1st person + 3rd verb      | Agreement
-      yo vive           | 1st person + 3rd verb      | Agreement
-      yo trabaja        | 1st person + 3rd verb      | Agreement
-      yo es             | 1st person + 3rd verb      | Agreement
-      tú tiene          | 2nd person + 3rd verb      | Agreement
-      él viven          | singular + plural verb     | Agreement
-      I goes            | 1st person + 3rd verb      | Agreement
-      he go             | 3rd person + 1st/2nd verb  | Agreement
-      they was          | plural + singular verb     | Agreement
-      ich gehen         | 1st person + infinitive    | Agreement
-      je va             | 1st person + 3rd verb      | Agreement
-      I go yesterday    | present + past marker      | TenseAspect
-      Fui ahora         | past + "now" marker        | TenseAspect
-      I goed            | irregular past error       | Morphology
-      childs            | irregular plural error     | Morphology
-
-      Remember: follow steps in order; Agreement takes priority when present.
+      Error Type Classification — MINIMAL, RUNTIME-SAFE (apply in this order and stop at first match):
+      1) Agreement — subject and verb person/number mismatch.
+         - Heuristic: subject pronoun/noun present + verb ending/person doesn’t match.
+         - Examples: "yo vive", "he go", "they was".
+      2) TenseAspect — tense/aspect doesn’t fit a clear time cue (e.g., ayer/now/tomorrow).
+         - Examples: "I go yesterday", "Fui ahora".
+      3) Morphology — irregular form/derivation, *no* agreement issue.
+         - Examples: "I goed", "childs".
+      4) Other — one of {Lexis, WordOrder, Articles, Pronouns, Prepositions, Typography}.
+    
+      Typography:
+      - Ignore chat norms (final period, initial caps, extra punctuation).
+      - Accents: ignore or mark Low unless they impede reading.
+    
+      Phase Budgets (for explicit corrections in the message; hover tips can include more):
+      - phase-free: 0
+      - phase-correction: 1
+      - phase-drill: 2
+    
+      Notes:
+      - Prefer prompting self-correction before giving the fix.
+      - Keep explanations to a single short sentence per correction.
 
     vocabulary:
       no-tracking: |
