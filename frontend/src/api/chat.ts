@@ -39,11 +39,12 @@ interface NewVocabulary {
 }
 
 interface BackendWordCard {
-  word: string;
-  translation: string;
-  example: string;
-  imageUrl?: string;
-  pronunciation?: string;
+  titleSourceLanguage: string;
+  titleTargetLanguage: string;
+  descriptionSourceLanguage: string;
+  descriptionTargetLanguage: string;
+  conceptName?: string | null;
+  imageUrl?: string | null;
 }
 
 interface BackendCharacterCard {
@@ -264,14 +265,14 @@ export async function getSession(sessionId: string): Promise<Session & { message
     if (msg.wordCards && msg.wordCards.length > 0) {
       // Transform imageUrl to ensure it's a complete URL (check if already a full URL before adding base)
       const transformedWordCards = msg.wordCards.map((card: BackendWordCard) => ({
-        titleSourceLanguage: card.translation,
-        titleTargetLanguage: card.word,
-        descriptionSourceLanguage: card.translation,
-        descriptionTargetLanguage: card.example,
+        titleSourceLanguage: card.titleSourceLanguage,
+        titleTargetLanguage: card.titleTargetLanguage,
+        descriptionSourceLanguage: card.descriptionSourceLanguage,
+        descriptionTargetLanguage: card.descriptionTargetLanguage,
         imageUrl: card.imageUrl ?
           card.imageUrl.startsWith('http') ? card.imageUrl : `${BASE_URL}${card.imageUrl}`
           : null,
-        conceptName: card.word,
+        conceptName: card.conceptName,
       }));
       frontendMsg.metadata = {
         ...frontendMsg.metadata,
@@ -501,14 +502,14 @@ export async function sendChatMessage(
   if (backendMsg.wordCards && backendMsg.wordCards.length > 0) {
     // Transform imageUrl to ensure it's a complete URL (check if already a full URL before adding base)
     const transformedWordCards = backendMsg.wordCards.map((card: BackendWordCard) => ({
-      titleSourceLanguage: card.translation,
-      titleTargetLanguage: card.word,
-      descriptionSourceLanguage: card.translation,
-      descriptionTargetLanguage: card.example,
+      titleSourceLanguage: card.titleSourceLanguage,
+      titleTargetLanguage: card.titleTargetLanguage,
+      descriptionSourceLanguage: card.descriptionSourceLanguage,
+      descriptionTargetLanguage: card.descriptionTargetLanguage,
       imageUrl: card.imageUrl ?
         card.imageUrl.startsWith('http') ? card.imageUrl : `${BASE_URL}${card.imageUrl}`
         : null,
-      conceptName: card.word,
+      conceptName: card.conceptName,
     }));
     frontendMsg.metadata = {
       ...frontendMsg.metadata,
@@ -568,14 +569,14 @@ export async function initiateTutorMessage(
   // Add word cards if present
   if (backendMsg.wordCards && backendMsg.wordCards.length > 0) {
     const transformedWordCards = backendMsg.wordCards.map((card: BackendWordCard) => ({
-      titleSourceLanguage: card.translation,
-      titleTargetLanguage: card.word,
-      descriptionSourceLanguage: card.translation,
-      descriptionTargetLanguage: card.example,
+      titleSourceLanguage: card.titleSourceLanguage,
+      titleTargetLanguage: card.titleTargetLanguage,
+      descriptionSourceLanguage: card.descriptionSourceLanguage,
+      descriptionTargetLanguage: card.descriptionTargetLanguage,
       imageUrl: card.imageUrl ?
         card.imageUrl.startsWith('http') ? card.imageUrl : `${BASE_URL}${card.imageUrl}`
         : null,
-      conceptName: card.word,
+      conceptName: card.conceptName,
     }));
     frontendMsg.metadata = {
       corrections: [],
@@ -718,14 +719,14 @@ export function initiateTutorMessageStream(
                 // Add word cards if present
                 if (backendMsg.wordCards && backendMsg.wordCards.length > 0) {
                   const transformedWordCards = backendMsg.wordCards.map((card: BackendWordCard) => ({
-                    titleSourceLanguage: card.translation,
-                    titleTargetLanguage: card.word,
-                    descriptionSourceLanguage: card.translation,
-                    descriptionTargetLanguage: card.example,
+                    titleSourceLanguage: card.titleSourceLanguage,
+                    titleTargetLanguage: card.titleTargetLanguage,
+                    descriptionSourceLanguage: card.descriptionSourceLanguage,
+                    descriptionTargetLanguage: card.descriptionTargetLanguage,
                     imageUrl: card.imageUrl ?
                       card.imageUrl.startsWith('http') ? card.imageUrl : `${BASE_URL}${card.imageUrl}`
                       : null,
-                    conceptName: card.word,
+                    conceptName: card.conceptName,
                   }));
                   frontendMsg.metadata = {
                     corrections: [],
