@@ -111,7 +111,7 @@ export default function SubscriptionPlanSection() {
     if (user) {
       loadRateLimitStatus();
     }
-  }, [user]); // Only trigger when user changes
+  }, [user, isProcessingCancellation]); // Only trigger when user or isProcessingCancellation changes
 
   const handlePlanChange = async (planId: SubscriptionPlan) => {
     if (!user) return;

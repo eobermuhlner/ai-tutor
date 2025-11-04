@@ -90,10 +90,13 @@ apiClient.interceptors.response.use(
       }
 
       try {
-        // Import dynamically to avoid circular dependency
-        const authApi = await import('./auth');
-        const { accessToken, refreshToken: newRefreshToken } =
-          await authApi.refreshToken(refreshToken);
+        // Make the refresh token request directly without importing auth API to avoid circular dependency
+        const refreshResponse = await axios.post(`${API_BASE_URL}/auth/refresh`, {
+          refreshToken,
+        }, {
+          headers: { 'Content-Type': 'application/json' }
+        });
+        const { accessToken, refreshToken: newRefreshToken } = refreshResponse.data;
         storage.setTokens(accessToken, newRefreshToken);
         if (originalRequest.headers) {
           originalRequest.headers.Authorization = `Bearer ${accessToken}`;
