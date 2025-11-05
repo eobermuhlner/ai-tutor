@@ -39,6 +39,12 @@ export default function ProfilePage() {
   const [newEmail, setNewEmail] = useState('');
   const [isSubmittingEmail, setIsSubmittingEmail] = useState(false);
 
+  // Profile name change state
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [firstName, setFirstName] = useState(user?.firstName || '');
+  const [lastName, setLastName] = useState(user?.lastName || '');
+  const [isSubmittingName, setIsSubmittingName] = useState(false);
+
   const loadProficiencies = useCallback(async () => {
     if (!user) return;
 
@@ -55,6 +61,8 @@ export default function ProfilePage() {
   useEffect(() => {
     if (user) {
       loadProficiencies();
+      setFirstName(user.firstName || '');
+      setLastName(user.lastName || '');
     }
   }, [user, loadProficiencies]);
 
@@ -226,6 +234,27 @@ export default function ProfilePage() {
     }
   };
 
+  const handleUpdateName = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    setIsSubmittingName(true);
+    try {
+      await import('../api/auth').then(({ updateProfile }) => 
+        updateProfile(firstName || null, lastName || null)
+      );
+      // Refresh user data to get updated name
+      await useAuthStore.getState().refreshUser();
+      toast.success('Name updated successfully');
+      setIsEditingName(false);
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      const errorMessage = error.response?.data?.message || 'Failed to update name';
+      toast.error(errorMessage);
+    } finally {
+      setIsSubmittingName(false);
+    }
+  };
+
   if (!user) {
     return (
       <Layout>
@@ -325,13 +354,74 @@ export default function ProfilePage() {
                 </form>
               )}
             </div>
-            {(user.firstName || user.lastName) && (
-              <div>
-                <label className="text-sm font-semibold text-slate-500">Name</label>
-                <p className="text-slate-900 mt-1">
-                  {[user.firstName, user.lastName].filter(Boolean).join(' ')}
-                </p>
+            {!isEditingName ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-semibold text-slate-500">First Name</label>
+                  <p className="text-slate-900 mt-1">{user.firstName || '-'}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-semibold text-slate-500">Last Name</label>
+                  <div className="flex items-center gap-3 mt-1">
+                    <p className="text-slate-900">{user.lastName || '-'}</p>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => {
+                        setFirstName(user.firstName || '');
+                        setLastName(user.lastName || '');
+                        setIsEditingName(true);
+                      }}
+                    >
+                      Edit
+                    </Button>
+                  </div>
+                </div>
               </div>
+            ) : (
+              <form onSubmit={handleUpdateName} className="space-y-3 mt-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Input
+                    type="text"
+                    label="First Name"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    disabled={isSubmittingName}
+                    placeholder="Your first name"
+                  />
+                  <Input
+                    type="text"
+                    label="Last Name"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    disabled={isSubmittingName}
+                    placeholder="Your last name"
+                  />
+                </div>
+                <div className="flex gap-3">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => {
+                      setIsEditingName(false);
+                      setFirstName(user.firstName || '');
+                      setLastName(user.lastName || '');
+                    }}
+                    disabled={isSubmittingName}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    size="sm"
+                    isLoading={isSubmittingName}
+                  >
+                    Save Name
+                  </Button>
+                </div>
+              </form>
             )}
             <div className="pt-4 border-t border-slate-100">
               <h3 className="text-sm font-semibold text-slate-500 mb-2">Account Security</h3>

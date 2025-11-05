@@ -78,3 +78,11 @@ export async function changeEmail(newEmail: string): Promise<User> {
   });
   return response.data;
 }
+
+export async function updateProfile(firstName: string | null, lastName: string | null): Promise<User> {
+  const response = await apiClient.post<User>('/auth/profile', {
+    firstName,
+    lastName,
+  });
+  return response.data;
+}

@@ -113,4 +113,14 @@ class AuthController(
         )
         return ResponseEntity.ok(response)
     }
+
+    @PostMapping("/profile")
+    @Operation(summary = "Update user profile", description = "Allows authenticated user to update their profile information (firstName, lastName)")
+    fun updateProfile(
+        @RequestBody request: ch.obermuhlner.aitutor.auth.dto.UpdateUserProfileRequest
+    ): ResponseEntity<UserResponse> {
+        val userId = authorizationService.getCurrentUserId()
+        val response = authService.updateProfile(userId, request.firstName, request.lastName)
+        return ResponseEntity.ok(response)
+    }
 }

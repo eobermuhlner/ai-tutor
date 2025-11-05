@@ -247,6 +247,27 @@ class AuthService(
         logger.info("Email changed successfully for user: ${user.username}")
     }
 
+    fun updateProfile(userId: UUID, firstName: String?, lastName: String?): UserResponse {
+        logger.info("Profile update request for user: $userId")
+
+        val user = userService.findById(userId)
+            ?: throw UserNotFoundException("User not found: $userId")
+
+        // Update profile fields if provided
+        if (firstName != null) {
+            user.firstName = firstName
+        }
+        if (lastName != null) {
+            user.lastName = lastName
+        }
+
+        val updatedUser = userService.updateUser(user)
+
+        logger.info("Profile updated successfully for user: ${updatedUser.username}")
+
+        return toUserResponse(updatedUser)
+    }
+
     private fun validateUsername(username: String) {
         if (username.length < 3 || username.length > 32) {
             throw IllegalArgumentException("Username must be between 3 and 32 characters")
