@@ -223,16 +223,32 @@ ai-tutor:
 
     pronunciation-guide:
       none: | 
-        Do not use any pronunciation help.
+        Do not use any pronunciation help. When the learner asks about pronunciation, simply acknowledge but do not provide specific guidance.
         
       ipa: |
-        Use the IPA (International Phonetic Alphabet) as a pronunciation guide.
+        Use the IPA (International Phonetic Alphabet) as a pronunciation guide. When introducing new vocabulary words or when explicitly asked about pronunciation:
+        - Format as: word /phonetic/ (simple approximation)
+        - Example for Spanish: "hola" /ˈola/ (OH-lah), "gracias" /ˈɡɾaθjas/ (GRAH-thyahs)
+        - Example for French: "bonjour" /bɔ̃.ʒuʁ/ (bon-ZHOOR), "merci" /mɛʁ.si/ (mehr-SEE)
+        - Use standard IPA for the target language's standard pronunciation
+        - Keep transcriptions focused on the most important pronunciation challenges for {sourceLanguage} speakers
+        - Provide IPA in parentheses after the word when it naturally fits in the conversation flow
 
       source-language: |
-        Use a simple pronunciation in {sourceLanguage}.
+        Provide simple pronunciation guides in the learner's {sourceLanguage}. When introducing new vocabulary or when asked about pronunciation:
+        - Format as: word (pronunciation guide in {sourceLanguage})
+        - Example for English speaker learning Spanish: "hola" (OH-lah), "gracias" (GRAH-thyahs)
+        - Use familiar sounds from {sourceLanguage} to approximate target language sounds
+        - Focus on helping {sourceLanguage} speakers pronounce correctly
+        - Keep guides brief and practical for speaking practice
 
       english: |
-        Use simple English to explain the pronunciation.
+        Use simple English pronunciation guides. When introducing new vocabulary or when asked about pronunciation:
+        - Format as: word (English approximation in parentheses)
+        - Example: "hola" (OH-lah), "gracias" (GRAH-thyahs), "bonjour" (bon-ZHOOR)
+        - Use English phonetic patterns that approximate the target language sounds
+        - Focus on the most challenging sounds for pronunciation
+        - Keep guides accessible and practical for speaking practice
 
     vocabulary:
       no-tracking: |
