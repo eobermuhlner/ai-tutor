@@ -87,6 +87,7 @@ class TutorService(
         messages: List<Message>,
         sessionId: UUID? = null,
         session: ChatSessionEntity? = null,
+        userName: String? = null,
         onReplyChunk: (String) -> Unit = { print(it) },
         chatModel: org.springframework.ai.chat.model.ChatModel? = null // Optional per-user ChatModel
     ): TutorResponse? {
@@ -144,7 +145,8 @@ class TutorService(
             teachingStyleGuidance = teachingStyleGuidance,
             courseTeachingStyleGuidance = courseTeachingStyleGuidance,
             currentLesson = currentLesson,
-            curriculum = curriculum
+            curriculum = curriculum,
+            userName = userName
         )
 
         val systemMessages = listOf(SystemMessage(consolidatedSystemPrompt))
@@ -318,7 +320,8 @@ class TutorService(
         teachingStyleGuidance: String,
         courseTeachingStyleGuidance: String,
         currentLesson: LessonContent? = null,
-        curriculum: CourseCurriculum? = null
+        curriculum: CourseCurriculum? = null,
+        userName: String? = null
     ): String = buildString {
         // Base system prompt (role, persona, languages)
         append(PromptTemplate(systemPromptTemplate).render(mapOf(
@@ -333,6 +336,10 @@ class TutorService(
             "vocabularyGuidance" to vocabularyGuidance,
             "teachingStyleGuidance" to teachingStyleGuidance,
             "courseTeachingStyleGuidance" to courseTeachingStyleGuidance,
+            "userName" to (userName ?: "Learner"),
+            "cefrLevel" to conversationState.estimatedCEFRLevel,
+            "currentTopic" to conversationState.currentTopic,
+            "phaseReason" to conversationState.phaseReason,
         )))
 
         val levelPromptTemplate = levelToPromptTemplateMap[conversationState.estimatedCEFRLevel]

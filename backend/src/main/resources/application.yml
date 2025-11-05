@@ -64,6 +64,9 @@ cors:
 ai-tutor:
   chat:
     strict-schema-enforcement: true  # Enable strict JSON schema enforcement for OpenAI/Ollama
+  cefr:
+    level-change:
+      minimum-turns-before-change: ${CEFR_LEVEL_MIN_TURNS:3}  # Minimum turns before allowing CEFR level changes
   context:
     max-tokens: 100000  # Safety margin below model's 128k limit
     recent-messages: 10  # Keep last 10 messages at full fidelity

@@ -55,6 +55,7 @@ class ChatService(
     private val imageService: ImageService,
     private val objectMapper: ObjectMapper,
     @Value("\${ai-tutor.messages.technical-error}") private val technicalErrorMessage: String,
+    @Value("\${ai-tutor.cefr.level-change.minimum-turns-before-change:3}") private val minTurnsForLevelChange: Int,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -387,8 +388,15 @@ class ChatService(
             null
         }
 
+        val userName = if (user != null) {
+            val nameParts = listOfNotNull(user.firstName, user.lastName).filter { it.isNotBlank() }
+            if (nameParts.isNotEmpty()) nameParts.joinToString(" ") else user.username
+        } else {
+            null
+        }
+
         val tutorResponse = try {
-            tutorService.respond(tutor, conversationState, session.userId, messageHistory, session.id, session, onReplyChunk, userChatModel)
+            tutorService.respond(tutor, conversationState, session.userId, messageHistory, session.id, session, userName, onReplyChunk, userChatModel)
         } catch (e: Exception) {
             logger.error("ChatModel call failed for session ${session.id}, user ${session.userId}", e)
             null
@@ -416,7 +424,16 @@ class ChatService(
             // When user has explicit phase preference, effective phase matches it
             session.effectivePhase = session.conversationPhase
         }
-        session.estimatedCEFRLevel = tutorResponse.conversationResponse.conversationState.estimatedCEFRLevel
+        // Only update CEFR level if minimum number of turns has been reached
+        val messageCount = chatMessageRepository.countBySessionId(sessionId).toInt()
+        val shouldUpdateLevel = messageCount >= minTurnsForLevelChange
+        
+        if (shouldUpdateLevel) {
+            session.estimatedCEFRLevel = tutorResponse.conversationResponse.conversationState.estimatedCEFRLevel
+            logger.debug("Updated CEFR level to ${tutorResponse.conversationResponse.conversationState.estimatedCEFRLevel} after $messageCount turns (minimum: $minTurnsForLevelChange)")
+        } else {
+            logger.debug("Skipping CEFR level update (current: ${session.estimatedCEFRLevel}, proposed: ${tutorResponse.conversationResponse.conversationState.estimatedCEFRLevel}) - minimum turns not reached: $messageCount/$minTurnsForLevelChange")
+        }
 
         // Validate and apply topic change from LLM with hysteresis
         val llmProposedTopic = tutorResponse.conversationResponse.conversationState.currentTopic
@@ -627,8 +644,15 @@ class ChatService(
             null
         }
 
+        val userName = if (user != null) {
+            val nameParts = listOfNotNull(user.firstName, user.lastName).filter { it.isNotBlank() }
+            if (nameParts.isNotEmpty()) nameParts.joinToString(" ") else user.username
+        } else {
+            null
+        }
+
         val tutorResponse = try {
-            tutorService.respond(tutor, conversationState, session.userId, messageHistory, session.id, session, onReplyChunk, userChatModel)
+            tutorService.respond(tutor, conversationState, session.userId, messageHistory, session.id, session, userName, onReplyChunk, userChatModel)
         } catch (e: Exception) {
             logger.error("ChatModel call failed for tutor-initiated message: session=${session.id}, user=${session.userId}", e)
             null
@@ -653,7 +677,16 @@ class ChatService(
         } else {
             session.effectivePhase = session.conversationPhase
         }
-        session.estimatedCEFRLevel = tutorResponse.conversationResponse.conversationState.estimatedCEFRLevel
+        // Only update CEFR level if minimum number of turns has been reached
+        val messageCount = chatMessageRepository.countBySessionId(sessionId).toInt()
+        val shouldUpdateLevel = messageCount >= minTurnsForLevelChange
+        
+        if (shouldUpdateLevel) {
+            session.estimatedCEFRLevel = tutorResponse.conversationResponse.conversationState.estimatedCEFRLevel
+            logger.debug("Updated CEFR level to ${tutorResponse.conversationResponse.conversationState.estimatedCEFRLevel} after $messageCount turns (minimum: $minTurnsForLevelChange)")
+        } else {
+            logger.debug("Skipping CEFR level update (current: ${session.estimatedCEFRLevel}, proposed: ${tutorResponse.conversationResponse.conversationState.estimatedCEFRLevel}) - minimum turns not reached: $messageCount/$minTurnsForLevelChange")
+        }
 
         // Handle topic changes
         val llmProposedTopic = tutorResponse.conversationResponse.conversationState.currentTopic
