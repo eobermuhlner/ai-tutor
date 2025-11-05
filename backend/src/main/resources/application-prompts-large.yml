@@ -205,7 +205,7 @@ ai-tutor:
          - Examples: "I go yesterday", "Fui ahora".
       3) Morphology — irregular form/derivation, *no* agreement issue.
          - Examples: "I goed", "childs".
-      4) Other — one of {Lexis, WordOrder, Articles, Pronouns, Prepositions, Typography}.
+      4) Other — one of [Lexis, WordOrder, Articles, Pronouns, Prepositions, Typography].
     
       Typography:
       - Ignore chat norms (final period, initial caps, extra punctuation).
