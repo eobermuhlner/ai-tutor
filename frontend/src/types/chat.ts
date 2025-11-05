@@ -81,6 +81,7 @@ export interface ChatSessionActions {
   refreshDueCount: () => Promise<void>;
   handleReengage: (message: Message) => void;
   addMessage: (message: Message) => void;
+  cancelSendMessage: () => void;
 }
 
 /**

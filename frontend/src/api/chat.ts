@@ -1,22 +1,11 @@
 import apiClient from './client';
 import { CEFRLevel, TeachingStyle, ConversationPhase, MessageRole } from '../types';
 import type { Session, Message, SessionProgress, InitiateMessageContext } from '../types';
-import * as storage from '../utils/storage';
-import { API_BASE_URL } from '../utils/constants';
 import {
   transformBackendMessage,
   transformCorrection,
   type BackendMessageResponse,
 } from '../utils/messageTransformer';
-
-interface NewVocabulary {
-  word: string;
-  translation: string;
-  exampleTarget: string;
-  exampleTranslation: string;
-  frequency: number;
-  difficulty: string;
-}
 
 export async function createSessionFromCourse(
   courseId: string,
@@ -383,7 +372,7 @@ export function initiateTutorMessageStream(
 
       // Create a timeout promise
       const timeoutPromise = new Promise<Response>((_, reject) => {
-        setTimeout(() => reject(new Error('SSE fetch timeout after 10 seconds')), 10000);
+        setTimeout(() => reject(new Error('SSE fetch timeout after 30 seconds')), 30000);
       });
 
       // Race between fetch and timeout

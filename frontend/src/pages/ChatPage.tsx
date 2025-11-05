@@ -14,6 +14,7 @@ function ChatPageContent() {
     targetLanguageCode,
     isLoading,
     isSending,
+    cancelSendMessage,
     sendMessage,
   } = useChatSession();
 
@@ -42,6 +43,7 @@ function ChatPageContent() {
           {/* Input */}
           <MessageInput
             onSend={sendMessage}
+            onCancel={cancelSendMessage}
             disabled={isSending}
             languageCode={targetLanguageCode}
           />

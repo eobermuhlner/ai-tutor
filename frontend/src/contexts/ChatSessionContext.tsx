@@ -24,7 +24,7 @@ export function ChatSessionProvider({ children, sessionId }: ChatSessionProvider
   const [sessionLoaded, setSessionLoaded] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
-
+  
   // Session identity
   const [courseId, setCourseId] = useState<string | undefined>(undefined);
   const [courseName, setCourseName] = useState('');
@@ -204,6 +204,12 @@ export function ChatSessionProvider({ children, sessionId }: ChatSessionProvider
     }
   };
 
+  const cancelSendMessage = () => {
+    // In HTTP-based implementation, we can't truly cancel an in-flight request
+    // But we can provide feedback to the user
+    toast('Cannot cancel messages with current implementation', { icon: 'ℹ️' });
+  };
+
   const updatePhase = async (phase: ConversationPhase) => {
     if (!sessionId || isSending) return;
 
@@ -344,6 +350,7 @@ export function ChatSessionProvider({ children, sessionId }: ChatSessionProvider
     refreshDueCount,
     handleReengage,
     addMessage,
+    cancelSendMessage,
   };
 
   return (
