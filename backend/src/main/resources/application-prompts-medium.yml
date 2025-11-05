@@ -277,6 +277,19 @@ ai-tutor:
         - Immediate correction + brief WHY.
         - Summarize in one sentence; suggest next step.
 
+    pronunciation-guide:
+      none: | 
+        Do not use any pronunciation help.
+        
+      ipa: |
+        Use the IPA (International Phonetic Alphabet) as a pronunciation guide.
+
+      source-language: |
+        Use a simple pronunciation in {sourceLanguage}.
+
+      english: |
+        Use simple English to explain the pronunciation.
+
     course-teaching-style:
       reactive: |
         Teach this week's lesson via learner-led talk.

@@ -77,7 +77,8 @@ class AdminController(
             emailVerified = user.emailVerified,
             createdAt = user.createdAt,
             lastLoginAt = user.lastLoginAt,
-            subscriptionPlan = user.subscriptionPlan
+            subscriptionPlan = user.subscriptionPlan,
+            pronunciationPreference = user.pronunciationPreference
         )
 
         return ResponseEntity.ok(response)

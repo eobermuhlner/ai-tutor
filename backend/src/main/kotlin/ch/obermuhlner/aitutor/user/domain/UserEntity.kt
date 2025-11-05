@@ -103,5 +103,9 @@ class UserEntity(
 
     @Enumerated(EnumType.STRING)
     @Column(name = "subscription_plan", nullable = false, length = 32)
-    var subscriptionPlan: SubscriptionPlan = SubscriptionPlan.FREE
+    var subscriptionPlan: SubscriptionPlan = SubscriptionPlan.FREE,
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "pronunciation_preference", nullable = false, length = 32)
+    var pronunciationPreference: PronunciationPreference = PronunciationPreference.NONE
 )

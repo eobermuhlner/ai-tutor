@@ -1,23 +1,13 @@
 package ch.obermuhlner.aitutor.auth.controller
 
-import ch.obermuhlner.aitutor.auth.dto.ChangeEmailRequest
-import ch.obermuhlner.aitutor.auth.dto.ChangePasswordRequest
-import ch.obermuhlner.aitutor.auth.dto.LoginRequest
-import ch.obermuhlner.aitutor.auth.dto.LoginResponse
-import ch.obermuhlner.aitutor.auth.dto.RefreshTokenRequest
-import ch.obermuhlner.aitutor.auth.dto.RegisterRequest
-import ch.obermuhlner.aitutor.auth.dto.UserResponse
+import ch.obermuhlner.aitutor.auth.dto.*
 import ch.obermuhlner.aitutor.auth.service.AuthService
 import ch.obermuhlner.aitutor.auth.service.AuthorizationService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -72,7 +62,8 @@ class AuthController(
             emailVerified = user.emailVerified,
             createdAt = user.createdAt,
             lastLoginAt = user.lastLoginAt,
-            subscriptionPlan = user.subscriptionPlan
+            subscriptionPlan = user.subscriptionPlan,
+            pronunciationPreference = user.pronunciationPreference
         )
 
         return ResponseEntity.ok(response)
@@ -109,7 +100,8 @@ class AuthController(
             emailVerified = user.emailVerified,
             createdAt = user.createdAt,
             lastLoginAt = user.lastLoginAt,
-            subscriptionPlan = user.subscriptionPlan
+            subscriptionPlan = user.subscriptionPlan,
+            pronunciationPreference = user.pronunciationPreference
         )
         return ResponseEntity.ok(response)
     }
@@ -121,6 +113,16 @@ class AuthController(
     ): ResponseEntity<UserResponse> {
         val userId = authorizationService.getCurrentUserId()
         val response = authService.updateProfile(userId, request.firstName, request.lastName)
+        return ResponseEntity.ok(response)
+    }
+
+    @PostMapping("/pronunciation-preference")
+    @Operation(summary = "Update pronunciation preference", description = "Allows authenticated user to update their pronunciation guide preference")
+    fun updatePronunciationPreference(
+        @RequestBody request: ch.obermuhlner.aitutor.auth.dto.UpdatePronunciationPreferenceRequest
+    ): ResponseEntity<UserResponse> {
+        val userId = authorizationService.getCurrentUserId()
+        val response = authService.updatePronunciationPreference(userId, request.pronunciationPreference)
         return ResponseEntity.ok(response)
     }
 }

@@ -93,6 +93,14 @@ export interface User {
   createdAt: string | null;
   lastLoginAt: string | null;
   subscriptionPlan: 'FREE' | 'FREE_BYOK' | 'SUBSCRIPTION_10';
+  pronunciationPreference: PronunciationPreference;
+}
+
+export enum PronunciationPreference {
+  NONE = 'NONE',
+  IPA = 'IPA',
+  SOURCE_LANGUAGE = 'SOURCE_LANGUAGE',
+  ENGLISH = 'ENGLISH',
 }
 
 export interface Message {

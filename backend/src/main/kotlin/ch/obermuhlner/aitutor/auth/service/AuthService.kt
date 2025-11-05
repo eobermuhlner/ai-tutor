@@ -17,6 +17,7 @@ import ch.obermuhlner.aitutor.auth.exception.InvalidCredentialsException
 import ch.obermuhlner.aitutor.auth.exception.InvalidTokenException
 import ch.obermuhlner.aitutor.auth.exception.UserNotFoundException
 import ch.obermuhlner.aitutor.auth.exception.WeakPasswordException
+import ch.obermuhlner.aitutor.user.domain.PronunciationPreference
 import ch.obermuhlner.aitutor.user.domain.RefreshTokenEntity
 import ch.obermuhlner.aitutor.user.domain.UserEntity
 import ch.obermuhlner.aitutor.user.domain.UserRole
@@ -68,7 +69,8 @@ class AuthService(
             lastName = request.lastName,
             roles = mutableSetOf(UserRole.USER),
             enabled = true,
-            emailVerified = false
+            emailVerified = false,
+            pronunciationPreference = PronunciationPreference.NONE
         )
 
         val savedUser = userService.createUser(user)
@@ -268,6 +270,20 @@ class AuthService(
         return toUserResponse(updatedUser)
     }
 
+    fun updatePronunciationPreference(userId: UUID, pronunciationPreference: PronunciationPreference): UserResponse {
+        logger.info("Pronunciation preference update request for user: $userId")
+
+        val user = userService.findById(userId)
+            ?: throw UserNotFoundException("User not found: $userId")
+
+        user.pronunciationPreference = pronunciationPreference
+        val updatedUser = userService.updateUser(user)
+
+        logger.info("Pronunciation preference updated to ${pronunciationPreference} for user: ${updatedUser.username}")
+
+        return toUserResponse(updatedUser)
+    }
+
     private fun validateUsername(username: String) {
         if (username.length < 3 || username.length > 32) {
             throw IllegalArgumentException("Username must be between 3 and 32 characters")
@@ -320,7 +336,8 @@ class AuthService(
             emailVerified = user.emailVerified,
             createdAt = user.createdAt,
             lastLoginAt = user.lastLoginAt,
-            subscriptionPlan = user.subscriptionPlan
+            subscriptionPlan = user.subscriptionPlan,
+            pronunciationPreference = user.pronunciationPreference
         )
     }
 }

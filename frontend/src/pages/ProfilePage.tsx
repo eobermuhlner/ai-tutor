@@ -44,6 +44,11 @@ export default function ProfilePage() {
   const [firstName, setFirstName] = useState(user?.firstName || '');
   const [lastName, setLastName] = useState(user?.lastName || '');
   const [isSubmittingName, setIsSubmittingName] = useState(false);
+  
+  // Pronunciation preference state
+  const [isEditingPronunciation, setIsEditingPronunciation] = useState(false);
+  const [pronunciationPreference, setPronunciationPreference] = useState(user?.pronunciationPreference || 'NONE');
+  const [isSubmittingPronunciation, setIsSubmittingPronunciation] = useState(false);
 
   const loadProficiencies = useCallback(async () => {
     if (!user) return;
@@ -63,6 +68,7 @@ export default function ProfilePage() {
       loadProficiencies();
       setFirstName(user.firstName || '');
       setLastName(user.lastName || '');
+      setPronunciationPreference(user.pronunciationPreference);
     }
   }, [user, loadProficiencies]);
 
@@ -252,6 +258,27 @@ export default function ProfilePage() {
       toast.error(errorMessage);
     } finally {
       setIsSubmittingName(false);
+    }
+  };
+
+  const handleUpdatePronunciationPreference = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    setIsSubmittingPronunciation(true);
+    try {
+      await import('../api/auth').then(({ updatePronunciationPreference }) => 
+        updatePronunciationPreference(pronunciationPreference)
+      );
+      // Refresh user data to get updated pronunciation preference
+      await useAuthStore.getState().refreshUser();
+      toast.success('Pronunciation preference updated successfully');
+      setIsEditingPronunciation(false);
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      const errorMessage = error.response?.data?.message || 'Failed to update pronunciation preference';
+      toast.error(errorMessage);
+    } finally {
+      setIsSubmittingPronunciation(false);
     }
   };
 
@@ -488,7 +515,78 @@ export default function ProfilePage() {
           </div>
         </section>
 
-
+        {/* Pronunciation Preference */}
+        <section className="bg-white rounded-2xl shadow-soft border border-slate-200 p-6 mb-6">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand-500 to-brand-600 flex items-center justify-center">
+              <User className="w-6 h-6 text-white" />
+            </div>
+            <h2 className="text-xl font-semibold text-slate-900">
+              Pronunciation Guide
+            </h2>
+          </div>
+          <div className="space-y-4">
+            {!isEditingPronunciation ? (
+              <div>
+                <label className="text-sm font-semibold text-slate-500">Pronunciation Preference</label>
+                <div className="flex items-center gap-3 mt-1">
+                  <p className="text-slate-900 capitalize">
+                    {user.pronunciationPreference.replace('_', ' ').toLowerCase()}
+                  </p>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => {
+                      setPronunciationPreference(user.pronunciationPreference);
+                      setIsEditingPronunciation(true);
+                    }}
+                  >
+                    Edit
+                  </Button>
+                </div>
+                <p className="text-sm text-slate-600 mt-2">
+                  Choose how pronunciation guidance is provided during conversations
+                </p>
+              </div>
+            ) : (
+              <form onSubmit={handleUpdatePronunciationPreference} className="space-y-3 mt-2">
+                <select
+                  value={pronunciationPreference}
+                  onChange={(e) => setPronunciationPreference(e.target.value)}
+                  disabled={isSubmittingPronunciation}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 disabled:opacity-50"
+                >
+                  <option value="NONE">No pronunciation guide</option>
+                  <option value="IPA">Use International Phonetic Alphabet (IPA)</option>
+                  <option value="SOURCE_LANGUAGE">Use source language pronunciation</option>
+                  <option value="ENGLISH">Use simple English pronunciation</option>
+                </select>
+                <div className="flex gap-3">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => {
+                      setIsEditingPronunciation(false);
+                      setPronunciationPreference(user.pronunciationPreference);
+                    }}
+                    disabled={isSubmittingPronunciation}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    size="sm"
+                    isLoading={isSubmittingPronunciation}
+                  >
+                    Save Preference
+                  </Button>
+                </div>
+              </form>
+            )}
+          </div>
+        </section>
 
         {/* Language Proficiencies */}
         <section id="language-proficiencies" className="bg-white rounded-2xl shadow-soft border border-slate-200 p-6 mb-6">

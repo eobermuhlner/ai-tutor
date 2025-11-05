@@ -396,7 +396,18 @@ class ChatService(
         }
 
         val tutorResponse = try {
-            tutorService.respond(tutor, conversationState, session.userId, messageHistory, session.id, session, userName, onReplyChunk, userChatModel)
+            tutorService.respond(
+                tutor = tutor,
+                conversationState = conversationState,
+                userId = session.userId,
+                messages = messageHistory,
+                sessionId = session.id,
+                session = session,
+                userName = userName,
+                pronunciationPreference = user?.pronunciationPreference,
+                onReplyChunk = onReplyChunk,
+                chatModel = userChatModel
+            )
         } catch (e: Exception) {
             logger.error("ChatModel call failed for session ${session.id}, user ${session.userId}", e)
             null
@@ -652,7 +663,18 @@ class ChatService(
         }
 
         val tutorResponse = try {
-            tutorService.respond(tutor, conversationState, session.userId, messageHistory, session.id, session, userName, onReplyChunk, userChatModel)
+            tutorService.respond(
+                tutor = tutor,
+                conversationState = conversationState,
+                userId = session.userId,
+                messages = messageHistory,
+                sessionId = session.id,
+                session = session,
+                userName = userName,
+                pronunciationPreference = user?.pronunciationPreference,
+                onReplyChunk = onReplyChunk,
+                chatModel = userChatModel
+            )
         } catch (e: Exception) {
             logger.error("ChatModel call failed for tutor-initiated message: session=${session.id}, user=${session.userId}", e)
             null

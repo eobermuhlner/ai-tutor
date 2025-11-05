@@ -86,3 +86,10 @@ export async function updateProfile(firstName: string | null, lastName: string |
   });
   return response.data;
 }
+
+export async function updatePronunciationPreference(pronunciationPreference: string): Promise<User> {
+  const response = await apiClient.post<User>('/auth/pronunciation-preference', {
+    pronunciationPreference,
+  });
+  return response.data;
+}

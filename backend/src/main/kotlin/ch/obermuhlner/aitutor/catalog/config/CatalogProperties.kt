@@ -61,5 +61,6 @@ data class CourseConfig(
     val targetLevel: CEFRLevel,
     val estimatedWeeks: Int?,
     val learningGoalsEnglish: List<String>,
-    val displayOrder: Int
+    val displayOrder: Int,
+    val requiresCurriculum: Boolean = true  // Default true for backward compatibility
 )

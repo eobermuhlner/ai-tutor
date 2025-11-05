@@ -50,11 +50,18 @@ class SeedDataService(
         val missingCourses = mutableListOf<String>()
         
         for (config in catalogProperties.courses) {
+            // Skip validation for courses that don't require curriculum
+            if (!config.requiresCurriculum) {
+                logger.debug("Skipping curriculum validation for ${config.nameEnglish} (${config.languageCode}) - requiresCurriculum=false")
+                validCourses++
+                continue
+            }
+
             // Generate slug as per LessonProgressionService logic
             val languageOnly = config.languageCode.lowercase().substringBefore("-")
             val nameEnglish = config.nameEnglish
             val courseSlug = "$languageOnly-${nameEnglish.lowercase().replace(" ", "-")}"
-            
+
             val curriculumResource = ClassPathResource("course-content/$courseSlug/curriculum.yml")
             if (curriculumResource.exists()) {
                 logger.debug("Found curriculum file for course $courseSlug: ${curriculumResource.path}")

@@ -9,6 +9,7 @@ import ch.obermuhlner.aitutor.tutor.domain.ConversationResponse
 import ch.obermuhlner.aitutor.tutor.domain.ConversationState
 import ch.obermuhlner.aitutor.tutor.domain.TeachingStyle
 import ch.obermuhlner.aitutor.tutor.domain.Tutor
+import ch.obermuhlner.aitutor.user.domain.PronunciationPreference
 import ch.obermuhlner.aitutor.vocabulary.service.VocabularyContextService
 import ch.obermuhlner.aitutor.lesson.service.LessonProgressionService
 import ch.obermuhlner.aitutor.lesson.service.LessonContentService
@@ -62,6 +63,10 @@ class TutorService(
     @Value("\${ai-tutor.prompts.initiate-welcome}") private val initiateWelcomeTemplate: String,
     @Value("\${ai-tutor.prompts.initiate-reengage}") private val initiateReengageTemplate: String,
     @Value("\${ai-tutor.prompts.initiate-reengage-light}") private val initiateReengageLightTemplate: String,
+    @Value("\${ai-tutor.prompts.pronunciation-guide.none}") private val pronunciationGuideNoneTemplate: String,
+    @Value("\${ai-tutor.prompts.pronunciation-guide.ipa}") private val pronunciationGuideIpaTemplate: String,
+    @Value("\${ai-tutor.prompts.pronunciation-guide.source-language}") private val pronunciationGuideSourceLanguageTemplate: String,
+    @Value("\${ai-tutor.prompts.pronunciation-guide.english}") private val pronunciationGuideEnglishTemplate: String,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -88,6 +93,7 @@ class TutorService(
         sessionId: UUID? = null,
         session: ChatSessionEntity? = null,
         userName: String? = null,
+        pronunciationPreference: ch.obermuhlner.aitutor.user.domain.PronunciationPreference? = null,
         onReplyChunk: (String) -> Unit = { print(it) },
         chatModel: org.springframework.ai.chat.model.ChatModel? = null // Optional per-user ChatModel
     ): TutorResponse? {
@@ -146,7 +152,8 @@ class TutorService(
             courseTeachingStyleGuidance = courseTeachingStyleGuidance,
             currentLesson = currentLesson,
             curriculum = curriculum,
-            userName = userName
+            userName = userName,
+            pronunciationPreference = pronunciationPreference
         )
 
         val systemMessages = listOf(SystemMessage(consolidatedSystemPrompt))
@@ -321,7 +328,8 @@ class TutorService(
         courseTeachingStyleGuidance: String,
         currentLesson: LessonContent? = null,
         curriculum: CourseCurriculum? = null,
-        userName: String? = null
+        userName: String? = null,
+        pronunciationPreference: ch.obermuhlner.aitutor.user.domain.PronunciationPreference? = null
     ): String = buildString {
         // Base system prompt (role, persona, languages)
         append(PromptTemplate(systemPromptTemplate).render(mapOf(
@@ -355,6 +363,32 @@ class TutorService(
             "teachingStyleGuidance" to teachingStyleGuidance
         )))
 
+        append("\n\n")
+
+        // Pronunciation guidance based on user preference
+        val pronunciationGuidance = when (pronunciationPreference ?: ch.obermuhlner.aitutor.user.domain.PronunciationPreference.NONE) {
+            ch.obermuhlner.aitutor.user.domain.PronunciationPreference.NONE -> 
+                PromptTemplate(pronunciationGuideNoneTemplate).render(mapOf(
+                    "targetLanguage" to targetLanguage,
+                    "sourceLanguage" to sourceLanguage
+                ))
+            ch.obermuhlner.aitutor.user.domain.PronunciationPreference.IPA -> 
+                PromptTemplate(pronunciationGuideIpaTemplate).render(mapOf(
+                    "targetLanguage" to targetLanguage,
+                    "sourceLanguage" to sourceLanguage
+                ))
+            ch.obermuhlner.aitutor.user.domain.PronunciationPreference.SOURCE_LANGUAGE -> 
+                PromptTemplate(pronunciationGuideSourceLanguageTemplate).render(mapOf(
+                    "targetLanguage" to targetLanguage,
+                    "sourceLanguage" to sourceLanguage
+                ))
+            ch.obermuhlner.aitutor.user.domain.PronunciationPreference.ENGLISH -> 
+                PromptTemplate(pronunciationGuideEnglishTemplate).render(mapOf(
+                    "targetLanguage" to targetLanguage,
+                    "sourceLanguage" to sourceLanguage
+                ))
+        }
+        append(pronunciationGuidance)
         append("\n\n")
 
         // Phase-specific behavior

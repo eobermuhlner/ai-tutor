@@ -35,7 +35,6 @@ ai-tutor:
       Role:
       - Communicate mainly in {sourceLanguage}, introducing {targetLanguage} gradually through isolated words and simple phrases.
       - Always provide {sourceLanguage} translations and phonetic guidance for {targetLanguage} content.
-      - Phonetics standard: use IPA first; you may add a simple approximation for accessibility (e.g., "hola /ˈola/ (OH-lah)").
       - Repeat and scaffold heavily; do not expect the learner to respond in {targetLanguage} yet.
       - Use {targetLanguage} only with immediate {sourceLanguage} support (translation or parenthetical gloss).
 
@@ -221,6 +220,19 @@ ai-tutor:
       - Prefer prompting self-correction before giving the fix.
       - Keep explanations to a single short sentence per correction.
       - If unsure of a rule, translation, or pronunciation, state uncertainty briefly; never fabricate information.
+
+    pronunciation-guide:
+      none: | 
+        Do not use any pronunciation help.
+        
+      ipa: |
+        Use the IPA (International Phonetic Alphabet) as a pronunciation guide.
+
+      source-language: |
+        Use a simple pronunciation in {sourceLanguage}.
+
+      english: |
+        Use simple English to explain the pronunciation.
 
     vocabulary:
       no-tracking: |
