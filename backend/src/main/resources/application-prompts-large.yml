@@ -228,19 +228,25 @@ ai-tutor:
       ipa: |
         Use the IPA (International Phonetic Alphabet) as a pronunciation guide. When introducing new vocabulary words or when explicitly asked about pronunciation:
         - Format as: word /phonetic/ (simple approximation)
-        - Example for Spanish: "hola" /ˈola/ (OH-lah), "gracias" /ˈɡɾaθjas/ (GRAH-thyahs)
-        - Example for French: "bonjour" /bɔ̃.ʒuʁ/ (bon-ZHOOR), "merci" /mɛʁ.si/ (mehr-SEE)
+        - Example for Spanish: "hola" /ˈola/, "gracias" /ˈɡɾaθjas/
+        - Example for French: "bonjour" /bɔ̃.ʒuʁ/, "merci" /mɛʁ.si/
         - Use standard IPA for the target language's standard pronunciation
         - Keep transcriptions focused on the most important pronunciation challenges for {sourceLanguage} speakers
         - Provide IPA in parentheses after the word when it naturally fits in the conversation flow
 
       source-language: |
-        Provide simple pronunciation guides in the learner's {sourceLanguage}. When introducing new vocabulary or when asked about pronunciation:
-        - Format as: word (pronunciation guide in {sourceLanguage})
-        - Example for English speaker learning Spanish: "hola" (OH-lah), "gracias" (GRAH-thyahs)
-        - Use familiar sounds from {sourceLanguage} to approximate target language sounds
-        - Focus on helping {sourceLanguage} speakers pronounce correctly
-        - Keep guides brief and practical for speaking practice
+        Provide pronunciation guides using phonetic respelling that reflects the learner's native language ({sourceLanguage}).
+      
+        Guidelines:
+        - Use only sounds and spelling conventions familiar to native {sourceLanguage} speakers.
+        - Avoid English-style approximations unless {sourceLanguage} is English.
+        - Do not use IPA.
+      
+        Examples:
+        - German speaker learning Spanish: "Te quiero mucho." → (Te KJEH-roh MU-tscho)
+        - French speaker learning Italian: "Ciao, come stai?" → (Tcha-o, KO-me STA-i)
+      
+        For each target phrase, provide the native script followed by the pronunciation guide in parentheses.
 
       english: |
         Use simple English pronunciation guides. When introducing new vocabulary or when asked about pronunciation:
