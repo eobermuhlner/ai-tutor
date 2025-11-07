@@ -27,6 +27,55 @@ An intelligent language learning platform powered by AI that provides personaliz
 - Gradle 8.x
 - OpenAI API key
 
+### Docker Setup
+
+Alternatively, you can run the entire application using Docker without installing Java or Gradle:
+
+1. **Prerequisites for Docker:**
+   - Docker Desktop or Docker Engine
+   - Docker Compose
+
+2. **Create a .env file** in the project root with your AI provider configuration:
+
+```bash
+# .env file
+OPENAI_API_KEY=your-openai-api-key-here
+JWT_SECRET=change-this-to-a-secure-random-key
+```
+
+3. **Build and run with Docker Compose:**
+```bash
+# Build and start all services (detached mode)
+docker-compose up --build -d
+
+# View logs
+docker-compose logs -f
+
+# Stop services
+docker-compose down
+```
+
+4. **Alternative: Build individual services:**
+```bash
+# Build only the backend
+docker build -f backend/Dockerfile . -t ai-tutor-backend
+
+# Build only the frontend  
+docker build -f frontend/Dockerfile frontend -t ai-tutor-frontend
+```
+
+5. **Access the application:**
+   - Frontend: http://localhost:5173
+   - Backend API: http://localhost:8080
+   - H2 Console: http://localhost:8080/h2-console
+   - API Documentation: http://localhost:8080/swagger-ui.html
+
+### Standard Setup (without Docker)
+
+- Java 17 or higher
+- Gradle 8.x
+- OpenAI API key
+
 ### Installation
 
 1. Clone the repository:
@@ -323,6 +372,35 @@ spring.h2.console.enabled: true
 spring.jpa.hibernate.ddl-auto: create-drop
 ```
 
+### Docker Configuration
+
+When running with Docker, configuration is managed through environment variables in the `.env` file and `docker-compose.yml`:
+
+**Required configuration in `.env` file:**
+```bash
+# API Keys (at least one required)
+OPENAI_API_KEY=your-openai-api-key
+# AZURE_OPENAI_API_KEY=your-azure-api-key
+# AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com
+# OLLAMA_BASE_URL=http://host.docker.internal:11434  # Uncomment if using Ollama
+
+# Security (required)
+JWT_SECRET=change-this-to-a-secure-random-key
+
+# Optional defaults
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=admin
+DEMO_USERNAME=demo
+DEMO_PASSWORD=demo
+```
+
+**Docker-specific configuration in `docker-compose.yml`:**
+- Backend runs on port 8080
+- Frontend runs on port 5173 (served via nginx on port 80)
+- Health checks for both services
+- Course content mounted as volume for easy updates
+- Service dependency to ensure backend starts before frontend
+
 ### H2 Console
 
 Access the H2 database console at: `http://localhost:8080/h2-console`
@@ -333,7 +411,7 @@ Access the H2 database console at: `http://localhost:8080/h2-console`
 ### Building
 
 ```bash
-# Build all modules
+# Build all modules (traditional method)
 ./gradlew build
 
 # Build without tests
@@ -349,10 +427,26 @@ Access the H2 database console at: `http://localhost:8080/h2-console`
 ./gradlew :backend:bootJar
 ```
 
+### Building with Docker
+
+```bash
+# Build Docker images for both services
+docker-compose build
+
+# Build only backend service
+docker-compose build backend
+
+# Build only frontend service
+docker-compose build frontend
+
+# Rebuild and start services
+docker-compose up --build
+```
+
 ### Running
 
 ```bash
-# Run Spring Boot REST API server
+# Run Spring Boot REST API server (traditional method)
 ./gradlew :backend:bootRun
 
 # Run standalone CLI client (future)
@@ -363,6 +457,36 @@ java -jar backend/build/libs/ai-tutor-0.0.1-SNAPSHOT.jar
 
 # Run test harness
 ./gradlew :backend:runTestHarness
+```
+
+### Running with Docker
+
+```bash
+# Start all services (detached mode)
+docker-compose up -d
+
+# Start all services (attached mode, shows logs)
+docker-compose up
+
+# Start specific service only
+docker-compose up backend
+docker-compose up frontend
+
+# View logs from all services
+docker-compose logs
+
+# View logs from specific service
+docker-compose logs backend
+docker-compose logs frontend
+
+# Stop all services
+docker-compose down
+
+# Stop all services and remove volumes
+docker-compose down -v
+
+# Rebuild and restart specific service
+docker-compose up --build backend
 ```
 
 **Note:** This project has multiple entry points:
