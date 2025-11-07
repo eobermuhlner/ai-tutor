@@ -48,3 +48,4 @@ backend/out/
 /test-reports/
 /screenshots/
 /stripe_cli/
+/.env

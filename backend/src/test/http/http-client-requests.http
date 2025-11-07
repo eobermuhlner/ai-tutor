@@ -1,3 +1,7 @@
+### Actuator Health
+GET {{host}}/actuator/health
+
+
 ###########################
 ### Authentication Examples
 ###########################

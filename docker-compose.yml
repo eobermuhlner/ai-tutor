@@ -29,15 +29,11 @@ services:
 
       # Admin User
       - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
-      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-adminadmin}
 
       # Demo User
       - DEMO_USERNAME=${DEMO_USERNAME:-demo}
       - DEMO_PASSWORD=${DEMO_PASSWORD:-demo}
-
-      # Database
-      - SPRING_DATASOURCE_URL=jdbc:h2:mem:testdb
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
     volumes:
       # Mount course content for easy updates without rebuild
       - ./backend/src/main/resources/course-content:/app/course-content
@@ -47,6 +43,9 @@ services:
       timeout: 3s
       start_period: 60s
       retries: 3
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       - ai-tutor-network
 
@@ -55,7 +54,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        - VITE_API_URL=http://localhost:8080
+        - VITE_API_URL=http://localhost:8080/api/v1
     container_name: ai-tutor-frontend
     ports:
       - "5173:80"
@@ -63,11 +62,12 @@ services:
       backend:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+      test: ["CMD-SHELL", "curl -fsS http://localhost/ >/dev/null"]
       interval: 30s
       timeout: 3s
       start_period: 5s
       retries: 3
+    restart: unless-stopped
     networks:
       - ai-tutor-network
 

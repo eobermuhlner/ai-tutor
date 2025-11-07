@@ -67,9 +67,10 @@ class SecurityConfig(
                         "/webjars/**"
                     ).permitAll()
 
-                    // Health endpoint (handy for load balancers/monitors)
+                    // Actuator endpoints (health, info, metrics)
                     .requestMatchers(
-                        "/actuator/health"
+                        "/actuator",
+                        "/actuator/**"
                     ).permitAll()
 
                     // All API requires auth

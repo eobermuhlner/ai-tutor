@@ -14,6 +14,19 @@ spring:
       dev-stripe: dev,h2-file,ai-openai,prompts-large,stripe
       test: test,h2-mem,ai-dummy,prompts-small
 
+management:
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when-authorized
+  health:
+    defaults:
+      enabled: true
+
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
