@@ -360,6 +360,7 @@ export function ChatSessionProvider({ children, sessionId }: ChatSessionProvider
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useChatSession(): ChatSessionContextValue {
   const context = useContext(ChatSessionContext);
   if (!context) {

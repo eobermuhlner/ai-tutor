@@ -4,8 +4,7 @@ import {
   getErrorTrend,
   getRecentErrorSamples,
 } from './analytics';
-import apiClient from './client';
-import type { ErrorPattern, ErrorTrendResponse, ErrorSample } from '../types';
+import type { ErrorPattern, ErrorTrend, ErrorTrendResponse, ErrorSample } from '../types';
 
 // Define the mock function
 const mockGet = vi.fn();
@@ -28,9 +27,13 @@ describe('analytics API module', () => {
       const mockPatterns: ErrorPattern[] = [
         {
           errorType: 'GRAMMAR',
-          errorPattern: 'missing article',
+          totalCount: 120,
+          criticalCount: 20,
+          highCount: 30,
+          mediumCount: 50,
+          lowCount: 20,
           weightedScore: 95.5,
-          frequency: 120,
+          firstSeenAt: new Date().toISOString(),
           lastSeenAt: new Date().toISOString(),
         }
       ];
@@ -49,16 +52,24 @@ describe('analytics API module', () => {
       const mockPatterns: ErrorPattern[] = [
         {
           errorType: 'SPELLING',
-          errorPattern: 'missing accent',
+          totalCount: 80,
+          criticalCount: 10,
+          highCount: 20,
+          mediumCount: 35,
+          lowCount: 15,
           weightedScore: 85.2,
-          frequency: 80,
+          firstSeenAt: new Date().toISOString(),
           lastSeenAt: new Date().toISOString(),
         },
         {
           errorType: 'VERB_FORM',
-          errorPattern: 'wrong conjugation',
+          totalCount: 65,
+          criticalCount: 15,
+          highCount: 20,
+          mediumCount: 25,
+          lowCount: 5,
           weightedScore: 75.8,
-          frequency: 65,
+          firstSeenAt: new Date().toISOString(),
           lastSeenAt: new Date().toISOString(),
         }
       ];
@@ -78,12 +89,7 @@ describe('analytics API module', () => {
       const lang = 'de';
       const mockTrend: ErrorTrendResponse = {
         errorType: errorType,
-        language: lang,
-        trend: 'IMPROVING',
-        changePercentage: -15.5,
-        period: '30d',
-        previousValue: 25,
-        currentValue: 21,
+        trend: 'IMPROVING' as ErrorTrend,
       };
       
       mockGet.mockResolvedValue({ data: mockTrend });
@@ -99,12 +105,7 @@ describe('analytics API module', () => {
       const lang = 'it';
       const mockTrend: ErrorTrendResponse = {
         errorType: errorType,
-        language: lang,
-        trend: 'WORSENING',
-        changePercentage: 22.3,
-        period: '30d',
-        previousValue: 15,
-        currentValue: 18,
+        trend: 'WORSENING' as ErrorTrend,
       };
       
       mockGet.mockResolvedValue({ data: mockTrend });
@@ -121,13 +122,10 @@ describe('analytics API module', () => {
       const mockSamples: ErrorSample[] = [
         {
           id: 'sample1',
-          userId: 'user123',
-          sessionId: 'session1',
-          messageId: 'msg1',
-          originalText: 'I goes to school',
-          correctedText: 'I go to school',
           errorType: 'VERB_FORM',
-          timestamp: new Date().toISOString(),
+          severity: 'HIGH',
+          errorSpan: 'goes',
+          occurredAt: new Date().toISOString(),
         }
       ];
       
@@ -144,23 +142,17 @@ describe('analytics API module', () => {
       const mockSamples: ErrorSample[] = [
         {
           id: 'sample1',
-          userId: 'user123',
-          sessionId: 'session1',
-          messageId: 'msg1',
-          originalText: 'I goes to school',
-          correctedText: 'I go to school',
           errorType: 'VERB_FORM',
-          timestamp: new Date().toISOString(),
+          severity: 'HIGH',
+          errorSpan: 'goes',
+          occurredAt: new Date().toISOString(),
         },
         {
           id: 'sample2',
-          userId: 'user456',
-          sessionId: 'session2',
-          messageId: 'msg2',
-          originalText: 'She don\'t like apples',
-          correctedText: 'She doesn\'t like apples',
           errorType: 'VERB_FORM',
-          timestamp: new Date().toISOString(),
+          severity: 'HIGH',
+          errorSpan: 'don\'t',
+          occurredAt: new Date().toISOString(),
         }
       ];
       

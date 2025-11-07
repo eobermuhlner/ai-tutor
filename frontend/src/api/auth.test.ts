@@ -7,18 +7,22 @@ import {
   logout,
   changePassword,
   changeEmail,
-  type User
 } from './auth';
-import apiClient from './client';
+import { PronunciationPreference } from '../types';
+import type { User } from '../types';
 
 // Mock the apiClient
-vi.mock('./client');
+const mockGet = vi.fn();
+const mockPost = vi.fn();
+const mockPut = vi.fn();
 
-const mockApiClient = apiClient as { 
-  post: typeof vi.fn;
-  get: typeof vi.fn;
-  put: typeof vi.fn;
-};
+vi.mock('./client', () => ({
+  default: {
+    get: mockGet,
+    post: mockPost,
+    put: mockPut,
+  }
+}));
 
 describe('auth API module', () => {
   beforeEach(() => {
@@ -39,13 +43,14 @@ describe('auth API module', () => {
         createdAt: new Date().toISOString(),
         lastLoginAt: null,
         subscriptionPlan: 'FREE',
+        pronunciationPreference: 'NONE' as PronunciationPreference,
       };
       
-      (mockApiClient.post as any).mockResolvedValue({ data: mockUser });
+      mockPost.mockResolvedValue({ data: mockUser });
       
       const result = await register('testuser', 'test@example.com', 'password123');
       
-      expect(mockApiClient.post).toHaveBeenCalledWith('/auth/register', {
+      expect(mockPost).toHaveBeenCalledWith('/auth/register', {
         username: 'testuser',
         email: 'test@example.com',
         password: 'password123',
@@ -73,14 +78,15 @@ describe('auth API module', () => {
           createdAt: new Date().toISOString(),
           lastLoginAt: null,
           subscriptionPlan: 'FREE',
+          pronunciationPreference: 'NONE' as PronunciationPreference,
         }
       };
       
-      (mockApiClient.post as any).mockResolvedValue({ data: loginResponse });
+      mockPost.mockResolvedValue({ data: loginResponse });
       
       const result = await login('test@example.com', 'password123');
       
-      expect(mockApiClient.post).toHaveBeenCalledWith('/auth/login', {
+      expect(mockPost).toHaveBeenCalledWith('/auth/login', {
         username: 'test@example.com', // Backend expects 'username' field (can be username or email)
         password: 'password123',
       });
@@ -107,14 +113,15 @@ describe('auth API module', () => {
           createdAt: new Date().toISOString(),
           lastLoginAt: null,
           subscriptionPlan: 'FREE',
+          pronunciationPreference: 'NONE' as PronunciationPreference,
         }
       };
       
-      (mockApiClient.post as any).mockResolvedValue({ data: refreshResponse });
+      mockPost.mockResolvedValue({ data: refreshResponse });
       
       const result = await refreshToken('old-refresh-token');
       
-      expect(mockApiClient.post).toHaveBeenCalledWith('/auth/refresh', {
+      expect(mockPost).toHaveBeenCalledWith('/auth/refresh', {
         refreshToken: 'old-refresh-token',
       });
       expect(result).toEqual(refreshResponse);
@@ -135,34 +142,35 @@ describe('auth API module', () => {
         createdAt: new Date().toISOString(),
         lastLoginAt: null,
         subscriptionPlan: 'FREE',
+        pronunciationPreference: 'NONE' as PronunciationPreference,
       };
       
-      (mockApiClient.get as any).mockResolvedValue({ data: mockUser });
+      mockGet.mockResolvedValue({ data: mockUser });
       
       const result = await getMe();
       
-      expect(mockApiClient.get).toHaveBeenCalledWith('/auth/me');
+      expect(mockGet).toHaveBeenCalledWith('/auth/me');
       expect(result).toEqual(mockUser);
     });
   });
 
   describe('logout', () => {
     it('should logout the user', async () => {
-      (mockApiClient.post as any).mockResolvedValue({});
+      mockPost.mockResolvedValue({});
       
       await logout();
       
-      expect(mockApiClient.post).toHaveBeenCalledWith('/auth/logout');
+      expect(mockPost).toHaveBeenCalledWith('/auth/logout');
     });
   });
 
   describe('changePassword', () => {
     it('should change user password', async () => {
-      (mockApiClient.post as any).mockResolvedValue({});
+      mockPost.mockResolvedValue({});
       
       await changePassword('current-password', 'new-password');
       
-      expect(mockApiClient.post).toHaveBeenCalledWith('/auth/password', {
+      expect(mockPost).toHaveBeenCalledWith('/auth/password', {
         currentPassword: 'current-password',
         newPassword: 'new-password',
       });
@@ -183,13 +191,14 @@ describe('auth API module', () => {
         createdAt: new Date().toISOString(),
         lastLoginAt: null,
         subscriptionPlan: 'FREE',
+        pronunciationPreference: 'NONE' as PronunciationPreference,
       };
       
-      (mockApiClient.post as any).mockResolvedValue({ data: mockUser });
+      mockPost.mockResolvedValue({ data: mockUser });
       
       const result = await changeEmail('newemail@example.com');
       
-      expect(mockApiClient.post).toHaveBeenCalledWith('/auth/email', {
+      expect(mockPost).toHaveBeenCalledWith('/auth/email', {
         newEmail: 'newemail@example.com',
       });
       expect(result).toEqual(mockUser);

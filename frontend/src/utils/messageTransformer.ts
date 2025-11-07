@@ -38,7 +38,7 @@ export interface BackendMessageResponse {
   role: string;
   content: string;
   corrections: BackendCorrection[] | null;
-  newVocabulary: any[] | null;
+  newVocabulary: unknown[] | null;
   wordCards: BackendWordCard[] | null;
   characterCards: BackendCharacterCard[] | null;
   createdAt: string;

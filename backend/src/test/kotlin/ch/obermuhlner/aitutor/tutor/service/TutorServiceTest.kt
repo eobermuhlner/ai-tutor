@@ -100,17 +100,22 @@ class TutorServiceTest {
             phaseCorrectionPromptTemplate = phaseCorrectionPromptTemplate,
             phaseDrillPromptTemplate = phaseDrillPromptTemplate,
             developerPromptTemplate = developerPromptTemplate,
-            errorClassificationGuidance = "Error classification decision tree guidance",
             vocabularyNoTrackingTemplate = vocabularyNoTrackingTemplate,
             vocabularyWithTrackingTemplate = vocabularyWithTrackingTemplate,
-            teachingStyleCourseBasedTemplate = "Course-based teaching style guidance",
+            courseTeachingStyleReactiveTemplate = "Course-based reactive teaching style guidance",
+            courseTeachingStyleGuidedTemplate = "Course-based guided teaching style guidance",
+            courseTeachingStyleDirectiveTemplate = "Course-based directive teaching style guidance",
             teachingStyleReactiveTemplate = "Reactive teaching style guidance",
             teachingStyleGuidedTemplate = "Guided teaching style guidance",
             teachingStyleDirectiveTemplate = "Directive teaching style guidance",
             lessonPrompt = "Lesson template",
             initiateWelcomeTemplate = "Welcome template",
             initiateReengageTemplate = "Reengage template",
-            initiateReengageLightTemplate = "Reengage light template"
+            initiateReengageLightTemplate = "Reengage light template",
+            pronunciationGuideNoneTemplate = "Pronunciation guide none template",
+            pronunciationGuideIpaTemplate = "Pronunciation guide IPA template",
+            pronunciationGuideSourceLanguageTemplate = "Pronunciation guide source language template",
+            pronunciationGuideEnglishTemplate = "Pronunciation guide English template"
         )
     }
 

@@ -9,7 +9,8 @@ import apiClient from './client';
 // Mock the apiClient
 vi.mock('./client');
 
-const mockApiClient = apiClient as { 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const mockApiClient = apiClient as any as {
   get: typeof vi.fn;
   patch: typeof vi.fn;
 };
@@ -34,6 +35,7 @@ describe('rateLimits API module', () => {
         subscriptionPlan: 'FREE'
       };
       
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (mockApiClient.get as any).mockResolvedValue({ data: mockStatus });
       
       const result = await getRateLimitStatus();
@@ -58,6 +60,7 @@ describe('rateLimits API module', () => {
         subscriptionPlan: 'SUBSCRIPTION_10'
       };
       
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (mockApiClient.patch as any).mockResolvedValue({ data: mockStatus });
       
       const result = await updateUserSubscriptionPlan('SUBSCRIPTION_10');
@@ -83,6 +86,7 @@ describe('rateLimits API module', () => {
         subscriptionPlan: 'FREE_BYOK'
       };
       
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (mockApiClient.patch as any).mockResolvedValue({ data: mockStatus });
       
       const result = await updateUserSubscriptionPlan('FREE_BYOK');

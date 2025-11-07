@@ -3,7 +3,6 @@ import {
   getSkillBreakdown,
   triggerReassessment,
 } from './assessment';
-import apiClient from './client';
 import type { SkillBreakdown } from '../types';
 
 // Define the mock functions
@@ -27,10 +26,13 @@ describe('assessment API module', () => {
     it('should fetch skill breakdown for a session', async () => {
       const sessionId = 'session123';
       const mockBreakdown: SkillBreakdown = {
+        overall: 'B1',
         grammar: 'B1',
         vocabulary: 'A2',
         fluency: 'B2',
         comprehension: 'B1',
+        lastAssessedAt: new Date().toISOString(),
+        assessmentCount: 3,
       };
       
       mockGet.mockResolvedValue({ data: mockBreakdown });
@@ -46,10 +48,13 @@ describe('assessment API module', () => {
     it('should trigger reassessment for a session', async () => {
       const sessionId = 'session123';
       const mockBreakdown: SkillBreakdown = {
+        overall: 'B2',
         grammar: 'B2',
         vocabulary: 'B1',
         fluency: 'B2',
         comprehension: 'B1',
+        lastAssessedAt: new Date().toISOString(),
+        assessmentCount: 5,
       };
       
       mockPost.mockResolvedValue({ data: mockBreakdown });

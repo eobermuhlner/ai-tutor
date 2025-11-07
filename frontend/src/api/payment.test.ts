@@ -14,7 +14,8 @@ import apiClient from './client';
 // Mock the apiClient
 vi.mock('./client');
 
-const mockApiClient = apiClient as { 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const mockApiClient = apiClient as any as {
   post: typeof vi.fn;
   get: typeof vi.fn;
 };
@@ -31,6 +32,7 @@ describe('payment API module', () => {
         url: 'https://checkout.stripe.com/c/pay/test_123'
       };
       
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (mockApiClient.post as any).mockResolvedValue({ data: mockResponse });
       
       const result = await createCheckoutSession();
@@ -46,6 +48,7 @@ describe('payment API module', () => {
         url: 'https://billing.stripe.com/test_123'
       };
       
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (mockApiClient.post as any).mockResolvedValue({ data: mockResponse });
       
       const result = await createBillingPortalSession();
@@ -65,6 +68,7 @@ describe('payment API module', () => {
         status: 'active'
       };
       
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (mockApiClient.get as any).mockResolvedValue({ data: mockResponse });
       
       const result = await getSubscriptionStatus();
@@ -82,6 +86,7 @@ describe('payment API module', () => {
         status: 'canceled'
       };
       
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (mockApiClient.get as any).mockResolvedValue({ data: mockResponse });
       
       const result = await getSubscriptionStatus();
@@ -100,6 +105,7 @@ describe('payment API module', () => {
         cancelAtPeriodEnd: false
       };
       
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (mockApiClient.post as any).mockResolvedValue({ data: mockResponse });
       
       const result = await cancelSubscription();
@@ -116,6 +122,7 @@ describe('payment API module', () => {
         currentPeriodEnd: '2023-12-31T23:59:59.000Z'
       };
       
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (mockApiClient.post as any).mockResolvedValue({ data: mockResponse });
       
       const result = await cancelSubscription();

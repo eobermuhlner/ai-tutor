@@ -1,11 +1,13 @@
 import apiClient from './client';
-import { CEFRLevel, TeachingStyle, ConversationPhase, MessageRole } from '../types';
+import { CEFRLevel, TeachingStyle, ConversationPhase } from '../types';
 import type { Session, Message, SessionProgress, InitiateMessageContext } from '../types';
 import {
   transformBackendMessage,
   transformCorrection,
   type BackendMessageResponse,
 } from '../utils/messageTransformer';
+import * as storage from '../utils/storage';
+import { API_BASE_URL } from '../utils/constants';
 
 export async function createSessionFromCourse(
   courseId: string,

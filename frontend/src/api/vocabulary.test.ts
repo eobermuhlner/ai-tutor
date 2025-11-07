@@ -12,7 +12,8 @@ import apiClient from './client';
 // Mock the apiClient
 vi.mock('./client');
 
-const mockApiClient = apiClient as { 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const mockApiClient = apiClient as any as {
   get: typeof vi.fn;
   post: typeof vi.fn;
 };
@@ -42,6 +43,7 @@ describe('vocabulary API module', () => {
         }
       ];
       
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (mockApiClient.get as any).mockResolvedValue({ data: mockVocabulary });
       
       const result = await getVocabulary(userId);
@@ -70,6 +72,7 @@ describe('vocabulary API module', () => {
         }
       ];
       
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (mockApiClient.get as any).mockResolvedValue({ data: mockVocabulary });
       
       const result = await getVocabulary(userId, language);
@@ -84,28 +87,25 @@ describe('vocabulary API module', () => {
       const itemId = 'vocab1';
       const mockItem: VocabularyItemWithContexts = {
         id: itemId,
-        userId: 'user123',
-        word: 'hello',
-        languageCode: 'en',
-        targetLanguageCode: 'es',
-        translation: 'hola',
-        partOfSpeech: 'noun',
-        frequency: 10,
-        difficulty: 1,
-        nextReviewAt: new Date().toISOString(),
+        lemma: 'hello',
+        lang: 'en',
+        exposures: 5,
+        lastSeenAt: new Date().toISOString(),
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        imageUrl: null,
+        conceptName: null,
+        nextReviewAt: new Date().toISOString(),
+        reviewStage: 1,
+        isDue: false,
         contexts: [
           {
-            id: 'context1',
-            vocabularyId: itemId,
-            source: 'Hello world',
-            target: 'Hola mundo',
-            createdAt: new Date().toISOString(),
+            context: 'Hello world - Hola mundo',
+            turnId: 'turn1',
           }
         ]
       };
       
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (mockApiClient.get as any).mockResolvedValue({ data: mockItem });
       
       const result = await getVocabularyItem(itemId);
@@ -135,6 +135,7 @@ describe('vocabulary API module', () => {
         }
       ];
       
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (mockApiClient.get as any).mockResolvedValue({ data: mockVocabulary });
       
       const result = await getDueVocabulary(lang);
@@ -163,6 +164,7 @@ describe('vocabulary API module', () => {
         }
       ];
       
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (mockApiClient.get as any).mockResolvedValue({ data: mockVocabulary });
       
       const result = await getDueVocabulary(lang, limit);
@@ -177,6 +179,7 @@ describe('vocabulary API module', () => {
       const lang = 'de';
       const mockCount = { count: 5 };
       
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (mockApiClient.get as any).mockResolvedValue({ data: mockCount });
       
       const result = await getDueCount(lang);
@@ -205,6 +208,7 @@ describe('vocabulary API module', () => {
         updatedAt: new Date().toISOString(),
       };
       
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (mockApiClient.post as any).mockResolvedValue({ data: mockVocabulary });
       
       const result = await recordReview(itemId, success);
@@ -231,6 +235,7 @@ describe('vocabulary API module', () => {
         updatedAt: new Date().toISOString(),
       };
       
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (mockApiClient.post as any).mockResolvedValue({ data: mockVocabulary });
       
       const result = await recordReview(itemId, success);

@@ -5,20 +5,24 @@ import {
   updateLanguageProficiency,
   setPrimaryLanguage,
   removeLanguageProficiency,
-  type LanguageProficiency
 } from './userLanguages';
-import apiClient from './client';
+import type { LanguageProficiency } from '../types';
 import { CEFRLevel, LanguageProficiencyType } from '../types';
 
 // Mock the apiClient
-vi.mock('./client');
+const mockGet = vi.fn();
+const mockPost = vi.fn();
+const mockPatch = vi.fn();
+const mockDelete = vi.fn();
 
-const mockApiClient = apiClient as { 
-  get: typeof vi.fn;
-  post: typeof vi.fn;
-  patch: typeof vi.fn;
-  delete: typeof vi.fn;
-};
+vi.mock('./client', () => ({
+  default: {
+    get: mockGet,
+    post: mockPost,
+    patch: mockPatch,
+    delete: mockDelete,
+  }
+}));
 
 describe('userLanguages API module', () => {
   beforeEach(() => {
@@ -35,17 +39,20 @@ describe('userLanguages API module', () => {
           languageCode: 'en',
           proficiencyType: LanguageProficiencyType.Learning,
           cefrLevel: CEFRLevel.B1,
+          isNative: false,
           isPrimary: true,
+          selfAssessed: true,
+          lastAssessedAt: new Date().toISOString(),
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         }
       ];
       
-      (mockApiClient.get as any).mockResolvedValue({ data: mockProficiencies });
+      mockGet.mockResolvedValue({ data: mockProficiencies });
       
       const result = await getLanguageProficiencies(userId);
       
-      expect(mockApiClient.get).toHaveBeenCalledWith(`/users/${userId}/languages`);
+      expect(mockGet).toHaveBeenCalledWith(`/users/${userId}/languages`);
       expect(result).toEqual(mockProficiencies);
     });
   });
@@ -59,12 +66,15 @@ describe('userLanguages API module', () => {
         languageCode: 'es',
         proficiencyType: LanguageProficiencyType.Learning,
         cefrLevel: CEFRLevel.A2,
+        isNative: false,
         isPrimary: false,
+        selfAssessed: true,
+        lastAssessedAt: new Date().toISOString(),
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
       
-      (mockApiClient.post as any).mockResolvedValue({ data: mockProficiency });
+      mockPost.mockResolvedValue({ data: mockProficiency });
       
       const result = await addLanguageProficiency(
         userId, 
@@ -73,7 +83,7 @@ describe('userLanguages API module', () => {
         CEFRLevel.A2
       );
       
-      expect(mockApiClient.post).toHaveBeenCalledWith(
+      expect(mockPost).toHaveBeenCalledWith(
         `/users/${userId}/languages`,
         {
           languageCode: 'es',
@@ -93,12 +103,15 @@ describe('userLanguages API module', () => {
         languageCode: 'en',
         proficiencyType: LanguageProficiencyType.Native,
         cefrLevel: CEFRLevel.C2,
+        isNative: true,
         isPrimary: true,
+        selfAssessed: true,
+        lastAssessedAt: new Date().toISOString(),
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
       
-      (mockApiClient.post as any).mockResolvedValue({ data: mockProficiency });
+      mockPost.mockResolvedValue({ data: mockProficiency });
       
       const result = await addLanguageProficiency(
         userId, 
@@ -106,7 +119,7 @@ describe('userLanguages API module', () => {
         LanguageProficiencyType.Native
       );
       
-      expect(mockApiClient.post).toHaveBeenCalledWith(
+      expect(mockPost).toHaveBeenCalledWith(
         `/users/${userId}/languages`,
         {
           languageCode: 'en',
@@ -129,12 +142,15 @@ describe('userLanguages API module', () => {
         languageCode: languageCode,
         proficiencyType: LanguageProficiencyType.Learning,
         cefrLevel: CEFRLevel.B2,
+        isNative: false,
         isPrimary: false,
+        selfAssessed: true,
+        lastAssessedAt: new Date().toISOString(),
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
       
-      (mockApiClient.patch as any).mockResolvedValue({ data: mockUpdatedProficiency });
+      mockPatch.mockResolvedValue({ data: mockUpdatedProficiency });
       
       const result = await updateLanguageProficiency(
         userId,
@@ -142,7 +158,7 @@ describe('userLanguages API module', () => {
         CEFRLevel.B2
       );
       
-      expect(mockApiClient.patch).toHaveBeenCalledWith(
+      expect(mockPatch).toHaveBeenCalledWith(
         `/users/${userId}/languages/${languageCode}`,
         {
           cefrLevel: CEFRLevel.B2,
@@ -162,16 +178,19 @@ describe('userLanguages API module', () => {
         languageCode: languageCode,
         proficiencyType: LanguageProficiencyType.Learning,
         cefrLevel: CEFRLevel.B1,
+        isNative: false,
         isPrimary: true,
+        selfAssessed: true,
+        lastAssessedAt: new Date().toISOString(),
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
       
-      (mockApiClient.post as any).mockResolvedValue({ data: mockProficiency });
+      mockPost.mockResolvedValue({ data: mockProficiency });
       
       const result = await setPrimaryLanguage(userId, languageCode);
       
-      expect(mockApiClient.post).toHaveBeenCalledWith(
+      expect(mockPost).toHaveBeenCalledWith(
         `/users/${userId}/languages/${languageCode}/primary`
       );
       expect(result).toEqual(mockProficiency);
@@ -183,11 +202,11 @@ describe('userLanguages API module', () => {
       const userId = 'user123';
       const languageCode = 'it';
       
-      (mockApiClient.delete as any).mockResolvedValue({});
+      mockDelete.mockResolvedValue({});
       
       await removeLanguageProficiency(userId, languageCode);
       
-      expect(mockApiClient.delete).toHaveBeenCalledWith(
+      expect(mockDelete).toHaveBeenCalledWith(
         `/users/${userId}/languages/${languageCode}`
       );
     });

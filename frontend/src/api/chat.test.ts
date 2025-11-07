@@ -14,8 +14,8 @@ import {
   sendChatMessage,
   initiateTutorMessage,
 } from './chat';
-import apiClient from './client';
-import type { Session, Message, SessionProgress, ConversationPhase, TeachingStyle } from '../types';
+import { CEFRLevel, ConversationPhase, TeachingStyle, MessageRole } from '../types';
+import type { Session, Message, SessionProgress } from '../types';
 
 // Define the mock functions
 const mockGet = vi.fn();
@@ -39,38 +39,43 @@ describe('chat API module', () => {
 
   describe('createSessionFromCourse', () => {
     it('should create a new session from course', async () => {
-      const request = {
-        courseId: 'course1',
-        targetLanguageCode: 'es',
-        userLevel: 'A1'
-      };
-      
+      const courseId = 'course1';
+
       const mockSession: Session = {
         id: 'session1',
         userId: 'user1',
         courseId: 'course1',
         courseName: 'Spanish for Beginners',
         targetLanguageCode: 'es',
-        userLevel: 'A1',
-        phase: 'FREE',
-        effectivePhase: 'FREE',
+        userLevel: CEFRLevel.A1,
+        phase: ConversationPhase.FREE,
+        effectivePhase: ConversationPhase.FREE,
         currentTopic: null,
         vocabularyReviewMode: false,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
+        tutorTeachingStyle: undefined,
+        tutorAge: undefined,
+        tutorImage: undefined,
+        tutorEmoji: undefined,
+        tutorProfileId: undefined,
+        tutorName: undefined,
+        tutorPersona: undefined,
+        cefrGrammar: undefined,
+        cefrVocabulary: undefined,
+        cefrFluency: undefined,
+        cefrComprehension: undefined,
+        lastAssessmentAt: undefined,
       };
-      
-      (mockApiClient.post as any).mockResolvedValue({ data: mockSession });
-      
-      const result = await createSessionFromCourse(request);
-      
-      expect(mockApiClient.post).toHaveBeenCalledWith('/chat/sessions/from-course', {
-        courseTemplateId: request.courseId,
-        targetLanguageCode: request.targetLanguageCode,
-        sourceLanguageCode: 'en', // default value if not provided
-        userLevel: request.userLevel,
+
+      mockPost.mockResolvedValue({ data: mockSession });
+
+      const result = await createSessionFromCourse(courseId);
+
+      expect(mockPost).toHaveBeenCalledWith('/chat/sessions/from-course', {
+        courseTemplateId: courseId,
+        tutorProfileId: undefined,
         customName: undefined,
-        tutorProfileId: undefined
       });
       expect(result).toEqual(mockSession);
     });
@@ -122,14 +127,26 @@ describe('chat API module', () => {
           vocabularyReviewMode: false,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
+          tutorTeachingStyle: undefined,
+          tutorAge: undefined,
+          tutorImage: undefined,
+          tutorEmoji: undefined,
+          tutorProfileId: undefined,
+          tutorName: undefined,
+          tutorPersona: undefined,
+          cefrGrammar: undefined,
+          cefrVocabulary: undefined,
+          cefrFluency: undefined,
+          cefrComprehension: undefined,
+          lastAssessmentAt: undefined,
         }
       ];
       
-      (mockApiClient.get as any).mockResolvedValue({ data: mockResponse });
+      mockGet.mockResolvedValue({ data: mockResponse });
       
       const result = await getSessions(userId);
       
-      expect(mockApiClient.get).toHaveBeenCalledWith('/chat/sessions', { params: { userId } });
+      expect(mockGet).toHaveBeenCalledWith('/chat/sessions', { params: { userId } });
       expect(result).toEqual(mockSessions);
     });
   });
@@ -180,14 +197,26 @@ describe('chat API module', () => {
           vocabularyReviewMode: false,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
+          tutorTeachingStyle: undefined,
+          tutorAge: undefined,
+          tutorImage: undefined,
+          tutorEmoji: undefined,
+          tutorProfileId: undefined,
+          tutorName: undefined,
+          tutorPersona: undefined,
+          cefrGrammar: undefined,
+          cefrVocabulary: undefined,
+          cefrFluency: undefined,
+          cefrComprehension: undefined,
+          lastAssessmentAt: undefined,
         }
       ];
       
-      (mockApiClient.get as any).mockResolvedValue({ data: mockResponse });
+      mockGet.mockResolvedValue({ data: mockResponse });
       
       const result = await getActiveSessions(userId);
       
-      expect(mockApiClient.get).toHaveBeenCalledWith('/chat/sessions/active', { params: { userId } });
+      expect(mockGet).toHaveBeenCalledWith('/chat/sessions/active', { params: { userId } });
       expect(result).toEqual(mockSessions);
     });
   });
@@ -229,12 +258,24 @@ describe('chat API module', () => {
         targetLanguageCode: 'es',
         sourceLanguageCode: 'en',
         userLevel: 'A1',
-        phase: 'FREE' as ConversationPhase,
-        effectivePhase: 'FREE' as ConversationPhase,
+        phase: 'FREE',
+        effectivePhase: 'FREE',
         currentTopic: null,
         vocabularyReviewMode: false,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
+        tutorTeachingStyle: undefined,
+        tutorAge: undefined,
+        tutorImage: undefined,
+        tutorEmoji: undefined,
+        tutorProfileId: undefined,
+        tutorName: undefined,
+        tutorPersona: undefined,
+        cefrGrammar: undefined,
+        cefrVocabulary: undefined,
+        cefrFluency: undefined,
+        cefrComprehension: undefined,
+        lastAssessmentAt: undefined,
         messages: [
           {
             id: 'msg1',
@@ -248,11 +289,11 @@ describe('chat API module', () => {
         ]
       };
       
-      (mockApiClient.get as any).mockResolvedValue({ data: mockBackendSession });
+      mockGet.mockResolvedValue({ data: mockBackendSession });
       
       const result = await getSession(sessionId);
       
-      expect(mockApiClient.get).toHaveBeenCalledWith(`/chat/sessions/${sessionId}`);
+      expect(mockGet).toHaveBeenCalledWith(`/chat/sessions/${sessionId}`);
       expect(result).toEqual(mockSession);
     });
   });
@@ -263,18 +304,35 @@ describe('chat API module', () => {
       const mockProgress: SessionProgress = {
         sessionId: sessionId,
         totalMessages: 25,
-        correctionsReceived: 5,
-        vocabularyLearned: 10,
-        currentCEFRLevel: 'A1',
-        timeSpent: 1200, // seconds
-        lastActive: new Date().toISOString(),
+        topicsCovered: [
+          { topic: 'greetings', turnCount: 5 },
+          { topic: 'introductions', turnCount: 3 }
+        ],
+        errorsByType: {
+          GRAMMAR: 2,
+          SPELLING: 0,
+          VOCABULARY: 1,
+          WORD_ORDER: 0,
+          VERB_FORM: 0,
+          ARTICLE: 0,
+          PREPOSITION: 0,
+          PUNCTUATION: 0,
+          OTHER: 0,
+        },
+        vocabularyCount: 10,
+        timeByPhase: {
+          FREE: 600,
+          CORRECTION: 300,
+          DRILL: 200,
+          AUTO: 100,
+        },
       };
       
-      (mockApiClient.get as any).mockResolvedValue({ data: mockProgress });
+      mockGet.mockResolvedValue({ data: mockProgress });
       
       const result = await getSessionProgress(sessionId);
       
-      expect(mockApiClient.get).toHaveBeenCalledWith(`/chat/sessions/${sessionId}/progress`);
+      expect(mockGet).toHaveBeenCalledWith(`/chat/sessions/${sessionId}/progress`);
       expect(result).toEqual(mockProgress);
     });
   });
@@ -282,14 +340,13 @@ describe('chat API module', () => {
   describe('updatePhase', () => {
     it('should update conversation phase', async () => {
       const sessionId = 'session1';
-      const phase: ConversationPhase = 'CORRECTION';
+      const phase: ConversationPhase = ConversationPhase.CORRECTION;
       const mockBackendSession = {
         id: sessionId,
         userId: 'user1',
         courseTemplateId: 'course1',
         courseTemplateName: 'Spanish for Beginners',
         targetLanguageCode: 'es',
-        sourceLanguageCode: 'en',
         userLevel: 'A1',
         conversationPhase: 'CORRECTION',
         effectivePhase: 'CORRECTION',
@@ -298,28 +355,39 @@ describe('chat API module', () => {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
-      
+
       const mockSession: Session = {
         id: sessionId,
         userId: 'user1',
         courseId: 'course1',
         courseName: 'Spanish for Beginners',
         targetLanguageCode: 'es',
-        sourceLanguageCode: 'en',
-        userLevel: 'A1',
-        phase: 'CORRECTION',
-        effectivePhase: 'CORRECTION',
+        userLevel: CEFRLevel.A1,
+        phase: ConversationPhase.CORRECTION,
+        effectivePhase: ConversationPhase.CORRECTION,
         currentTopic: 'greetings',
         vocabularyReviewMode: false,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
+        tutorTeachingStyle: undefined,
+        tutorAge: undefined,
+        tutorImage: undefined,
+        tutorEmoji: undefined,
+        tutorProfileId: undefined,
+        tutorName: undefined,
+        tutorPersona: undefined,
+        cefrGrammar: undefined,
+        cefrVocabulary: undefined,
+        cefrFluency: undefined,
+        cefrComprehension: undefined,
+        lastAssessmentAt: undefined,
       };
-      
-      (mockApiClient.patch as any).mockResolvedValue({ data: mockBackendSession });
-      
+
+      mockPatch.mockResolvedValue({ data: mockBackendSession });
+
       const result = await updatePhase(sessionId, phase);
-      
-      expect(mockApiClient.patch).toHaveBeenCalledWith(`/chat/sessions/${sessionId}/phase`, { phase: 'Correction' });
+
+      expect(mockPatch).toHaveBeenCalledWith(`/chat/sessions/${sessionId}/phase`, { phase: 'CORRECTION' });
       expect(result).toEqual(mockSession);
     });
   });
@@ -327,28 +395,39 @@ describe('chat API module', () => {
   describe('updateTeachingStyle', () => {
     it('should update teaching style', async () => {
       const sessionId = 'session1';
-      const teachingStyle: TeachingStyle = 'Guided';
+      const teachingStyle: TeachingStyle = TeachingStyle.Guided;
       const mockSession: Session = {
         id: sessionId,
         userId: 'user1',
         courseId: 'course1',
         courseName: 'Spanish for Beginners',
         targetLanguageCode: 'es',
-        userLevel: 'A1',
-        phase: 'FREE',
-        effectivePhase: 'FREE',
+        userLevel: CEFRLevel.A1,
+        phase: ConversationPhase.FREE,
+        effectivePhase: ConversationPhase.FREE,
         currentTopic: 'greetings',
-        tutorTeachingStyle: 'Guided',
+        tutorTeachingStyle: TeachingStyle.Guided,
         vocabularyReviewMode: false,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
+        tutorAge: undefined,
+        tutorImage: undefined,
+        tutorEmoji: undefined,
+        tutorProfileId: undefined,
+        tutorName: undefined,
+        tutorPersona: undefined,
+        cefrGrammar: undefined,
+        cefrVocabulary: undefined,
+        cefrFluency: undefined,
+        cefrComprehension: undefined,
+        lastAssessmentAt: undefined,
       };
-      
-      (mockApiClient.patch as any).mockResolvedValue({ data: mockSession });
-      
+
+      mockPatch.mockResolvedValue({ data: mockSession });
+
       const result = await updateTeachingStyle(sessionId, teachingStyle);
       
-      expect(mockApiClient.patch).toHaveBeenCalledWith(`/chat/sessions/${sessionId}/teaching-style`, { teachingStyle });
+      expect(mockPatch).toHaveBeenCalledWith(`/chat/sessions/${sessionId}/teaching-style`, { teachingStyle });
       expect(result).toEqual(mockSession);
     });
   });
@@ -379,21 +458,32 @@ describe('chat API module', () => {
         courseId: 'course1',
         courseName: 'Spanish for Beginners',
         targetLanguageCode: 'es',
-        sourceLanguageCode: 'en',
-        userLevel: 'A1',
-        phase: 'FREE',
-        effectivePhase: 'FREE',
+        userLevel: CEFRLevel.A1,
+        phase: ConversationPhase.FREE,
+        effectivePhase: ConversationPhase.FREE,
         currentTopic: 'food',
         vocabularyReviewMode: false,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
+        tutorTeachingStyle: undefined,
+        tutorAge: undefined,
+        tutorImage: undefined,
+        tutorEmoji: undefined,
+        tutorProfileId: undefined,
+        tutorName: undefined,
+        tutorPersona: undefined,
+        cefrGrammar: undefined,
+        cefrVocabulary: undefined,
+        cefrFluency: undefined,
+        cefrComprehension: undefined,
+        lastAssessmentAt: undefined,
       };
       
-      (mockApiClient.patch as any).mockResolvedValue({ data: mockBackendSession });
+      mockPatch.mockResolvedValue({ data: mockBackendSession });
       
       const result = await updateTopic(sessionId, topic);
       
-      expect(mockApiClient.patch).toHaveBeenCalledWith(`/chat/sessions/${sessionId}/topic`, { currentTopic: topic });
+      expect(mockPatch).toHaveBeenCalledWith(`/chat/sessions/${sessionId}/topic`, { currentTopic: topic });
       expect(result).toEqual(mockSession);
     });
   });
@@ -424,21 +514,32 @@ describe('chat API module', () => {
         courseId: 'course1',
         courseName: 'Spanish for Beginners',
         targetLanguageCode: 'es',
-        sourceLanguageCode: 'en',
-        userLevel: 'A1',
-        phase: 'FREE',
-        effectivePhase: 'FREE',
+        userLevel: CEFRLevel.A1,
+        phase: ConversationPhase.FREE,
+        effectivePhase: ConversationPhase.FREE,
         currentTopic: 'greetings',
         vocabularyReviewMode: true,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
+        tutorTeachingStyle: undefined,
+        tutorAge: undefined,
+        tutorImage: undefined,
+        tutorEmoji: undefined,
+        tutorProfileId: undefined,
+        tutorName: undefined,
+        tutorPersona: undefined,
+        cefrGrammar: undefined,
+        cefrVocabulary: undefined,
+        cefrFluency: undefined,
+        cefrComprehension: undefined,
+        lastAssessmentAt: undefined,
       };
       
-      (mockApiClient.patch as any).mockResolvedValue({ data: mockBackendSession });
+      mockPatch.mockResolvedValue({ data: mockBackendSession });
       
       const result = await updateVocabularyReviewMode(sessionId, vocabularyReviewMode);
       
-      expect(mockApiClient.patch).toHaveBeenCalledWith(`/chat/sessions/${sessionId}/vocabulary-review-mode`, { enabled: vocabularyReviewMode });
+      expect(mockPatch).toHaveBeenCalledWith(`/chat/sessions/${sessionId}/vocabulary-review-mode`, { enabled: vocabularyReviewMode });
       expect(result).toEqual(mockSession);
     });
   });
@@ -447,18 +548,17 @@ describe('chat API module', () => {
     it('should delete a session', async () => {
       const sessionId = 'session1';
       
-      (mockApiClient.delete as any).mockResolvedValue({});
+      mockDelete.mockResolvedValue({});
       
       await deleteSession(sessionId);
       
-      expect(mockApiClient.delete).toHaveBeenCalledWith(`/chat/sessions/${sessionId}`);
+      expect(mockDelete).toHaveBeenCalledWith(`/chat/sessions/${sessionId}`);
     });
   });
 
   describe('navigateLesson', () => {
     it('should navigate to a specific lesson', async () => {
       const sessionId = 'session1';
-      const lessonIndex = 2;
       const mockBackendSession = {
         id: sessionId,
         userId: 'user1',
@@ -481,21 +581,32 @@ describe('chat API module', () => {
         courseId: 'course1',
         courseName: 'Spanish for Beginners',
         targetLanguageCode: 'es',
-        sourceLanguageCode: 'en',
-        userLevel: 'A1',
-        phase: 'FREE',
-        effectivePhase: 'FREE',
+        userLevel: CEFRLevel.A1,
+        phase: ConversationPhase.FREE,
+        effectivePhase: ConversationPhase.FREE,
         currentTopic: 'greetings',
         vocabularyReviewMode: false,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
+        tutorTeachingStyle: undefined,
+        tutorAge: undefined,
+        tutorImage: undefined,
+        tutorEmoji: undefined,
+        tutorProfileId: undefined,
+        tutorName: undefined,
+        tutorPersona: undefined,
+        cefrGrammar: undefined,
+        cefrVocabulary: undefined,
+        cefrFluency: undefined,
+        cefrComprehension: undefined,
+        lastAssessmentAt: undefined,
       };
-      
-      (mockApiClient.post as any).mockResolvedValue({ data: mockBackendSession });
-      
-      const result = await navigateLesson(sessionId, lessonIndex);
-      
-      expect(mockApiClient.post).toHaveBeenCalledWith(`/chat/sessions/${sessionId}/navigate`, { lessonIndex });
+
+      mockPatch.mockResolvedValue({ data: mockBackendSession });
+
+      const result = await navigateLesson(sessionId, 'NEXT');
+
+      expect(mockPatch).toHaveBeenCalledWith(`/chat/sessions/${sessionId}/lesson`, { direction: 'NEXT' });
       expect(result).toEqual(mockSession);
     });
   });
@@ -512,23 +623,23 @@ describe('chat API module', () => {
         metadata: undefined,
         errorMessage: undefined,
       };
-      
+
       const mockMessage: Message = {
         id: 'msg1',
         sessionId: sessionId,
-        role: 'USER',
+        role: MessageRole.USER,
         content: messageText,
         timestamp: new Date().toISOString(),
         metadata: undefined,
         errorMessage: undefined,
       };
-      
-      (mockApiClient.post as any).mockResolvedValue({ data: mockBackendMessage });
-      
-      const result = await sendChatMessage(sessionId, messageText);
-      
-      expect(mockApiClient.post).toHaveBeenCalledWith(`/chat/sessions/${sessionId}/messages`, { 
-        content: messageText 
+
+      mockPost.mockResolvedValue({ data: mockBackendMessage });
+
+      const result = await sendChatMessage(sessionId, messageText, messageText);
+
+      expect(mockPost).toHaveBeenCalledWith(`/chat/sessions/${sessionId}/messages`, {
+        content: messageText
       });
       expect(result).toEqual(mockMessage);
     });
@@ -546,23 +657,23 @@ describe('chat API module', () => {
         metadata: undefined,
         errorMessage: undefined,
       };
-      
+
       const mockMessage: Message = {
         id: 'msg1',
         sessionId: sessionId,
-        role: 'ASSISTANT',
+        role: MessageRole.ASSISTANT,
         content: 'Hello! Welcome to your language learning session.',
         timestamp: new Date().toISOString(),
         metadata: undefined,
         errorMessage: undefined,
       };
-      
-      (mockApiClient.post as any).mockResolvedValue({ data: mockBackendMessage });
-      
+
+      mockPost.mockResolvedValue({ data: mockBackendMessage });
+
       const result = await initiateTutorMessage(sessionId, context);
-      
-      expect(mockApiClient.post).toHaveBeenCalledWith(`/chat/sessions/${sessionId}/messages/initiate`, { 
-        context 
+
+      expect(mockPost).toHaveBeenCalledWith(`/chat/sessions/${sessionId}/messages/initiate`, {
+        context
       });
       expect(result).toEqual(mockMessage);
     });

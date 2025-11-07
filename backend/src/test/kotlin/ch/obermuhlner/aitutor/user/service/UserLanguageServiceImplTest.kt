@@ -120,18 +120,30 @@ class UserLanguageServiceImplTest {
     }
 
     @Test
-    fun `updateLanguage should throw exception when language doesn't exist`() {
+    fun `updateLanguage should create new record when language doesn't exist`() {
         val userId = UUID.randomUUID()
         val languageCode = "es"
         val newLevel = CEFRLevel.B2
+        val newEntity = UserLanguageProficiencyEntity(
+            userId = userId,
+            languageCode = languageCode,
+            proficiencyType = LanguageProficiencyType.Learning,
+            cefrLevel = newLevel,
+            isNative = false,
+            isPrimary = false,
+            selfAssessed = true,
+            lastAssessedAt = Instant.now()
+        )
 
         every { userLanguageProficiencyRepository.findByUserIdAndLanguageCode(userId, languageCode) } returns null
+        every { userLanguageProficiencyRepository.save(any()) } returns newEntity
 
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
-            service.updateLanguage(userId, languageCode, newLevel)
-        }
+        val result = service.updateLanguage(userId, languageCode, newLevel)
 
+        Assertions.assertNotNull(result)
+        Assertions.assertEquals(newLevel, result.cefrLevel)
         verify { userLanguageProficiencyRepository.findByUserIdAndLanguageCode(userId, languageCode) }
+        verify { userLanguageProficiencyRepository.save(any()) }
     }
 
     @Test

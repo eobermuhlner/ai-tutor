@@ -5,10 +5,8 @@ import {
   getCourse,
   getTutors,
   createCustomTutor,
-  getTutorImage,
-  getTutorImagePreview,
 } from './catalog';
-import apiClient from './client';
+import { CEFRLevel, CourseCategory, Difficulty, TutorGender, TutorPersonality, TeachingStyle, ConversationPhase } from '../types';
 import type { Language, Course, CourseDetail, Tutor, TutorDetail, CreateTutorRequest } from '../types';
 
 // Define the mock functions
@@ -31,7 +29,7 @@ const mockFileReader = {
   result: 'data:image/png;base64,test-image-data'
 };
 
-global.FileReader = vi.fn(() => mockFileReader);
+global.FileReader = vi.fn(() => mockFileReader) as unknown as typeof FileReader;
 
 describe('catalog API module', () => {
   beforeEach(() => {
@@ -50,16 +48,18 @@ describe('catalog API module', () => {
           code: 'en',
           name: 'English',
           flagEmoji: '🇺🇸',
-          isTarget: true,
-          isSource: true,
+          nativeName: 'English',
+          difficulty: 'BEGINNER' as Difficulty,
+          description: 'English language',
+          courseCount: 3,
         }
       ];
       
-      (mockApiClient.get as any).mockResolvedValue({ data: mockLanguages });
+      mockGet.mockResolvedValue({ data: mockLanguages });
       
       const result = await getLanguages();
       
-      expect(mockApiClient.get).toHaveBeenCalledWith('/catalog/languages', {
+      expect(mockGet).toHaveBeenCalledWith('/catalog/languages', {
         params: { locale: 'en' },
       });
       expect(result).toEqual(mockLanguages);
@@ -72,16 +72,18 @@ describe('catalog API module', () => {
           code: 'es',
           name: 'Spanish',
           flagEmoji: '🇪🇸',
-          isTarget: true,
-          isSource: true,
+          nativeName: 'Español',
+          difficulty: 'BEGINNER' as Difficulty,
+          description: 'Spanish language',
+          courseCount: 2,
         }
       ];
       
-      (mockApiClient.get as any).mockResolvedValue({ data: mockLanguages });
+      mockGet.mockResolvedValue({ data: mockLanguages });
       
       const result = await getLanguages(locale);
       
-      expect(mockApiClient.get).toHaveBeenCalledWith('/catalog/languages', {
+      expect(mockGet).toHaveBeenCalledWith('/catalog/languages', {
         params: { locale: 'es' },
       });
       expect(result).toEqual(mockLanguages);
@@ -94,25 +96,28 @@ describe('catalog API module', () => {
       const mockCourses: Course[] = [
         {
           id: 'course1',
-          title: 'Spanish for Beginners',
-          description: 'Learn basic Spanish',
           languageCode: 'es',
-          category: 'GENERAL',
-          difficulty: 'BEGINNER',
-          estimatedDuration: 10,
-          estimatedDurationUnit: 'hours',
-          targetLevel: 'A1',
-          sourceLevel: 'A1',
+          name: 'Spanish for Beginners',
+          shortDescription: 'Learn basic Spanish',
+          description: 'Learn basic Spanish',
+          category: 'GENERAL' as CourseCategory,
+          targetAudience: 'Beginners',
+          startingLevel: 'A1' as CEFRLevel,
+          targetLevel: 'A1' as CEFRLevel,
+          estimatedWeeks: 10,
+          displayOrder: 1,
+          difficulty: 'BEGINNER' as Difficulty,
+          userLevel: 'A1' as CEFRLevel,
         }
       ];
       
-      (mockApiClient.get as any).mockResolvedValue({ data: mockCourses });
+      mockGet.mockResolvedValue({ data: mockCourses });
       
       const result = await getCourses(languageCode);
       
-      expect(mockApiClient.get).toHaveBeenCalledWith(
+      expect(mockGet).toHaveBeenCalledWith(
         `/catalog/languages/${languageCode}/courses`,
-        { params: { locale: 'en' } }
+        { params: { sourceLanguage: 'en' } }
       );
       expect(result).toEqual(mockCourses);
     });
@@ -125,28 +130,31 @@ describe('catalog API module', () => {
       const mockCourses: Course[] = [
         {
           id: 'course2',
-          title: 'French for Travel',
-          description: 'Travel-specific French phrases',
           languageCode: 'fr',
-          category: 'TRAVEL',
-          difficulty: 'INTERMEDIATE',
-          estimatedDuration: 5,
-          estimatedDurationUnit: 'hours',
-          targetLevel: 'A2',
-          sourceLevel: 'A1',
+          name: 'French for Travel',
+          shortDescription: 'Travel-specific French phrases',
+          description: 'Travel-specific French phrases',
+          category: 'TRAVEL' as CourseCategory,
+          targetAudience: 'Travelers',
+          startingLevel: 'A1' as CEFRLevel,
+          targetLevel: 'A2' as CEFRLevel,
+          estimatedWeeks: 5,
+          displayOrder: 1,
+          difficulty: 'INTERMEDIATE' as Difficulty,
+          userLevel: 'A1' as CEFRLevel,
         }
       ];
       
-      (mockApiClient.get as any).mockResolvedValue({ data: mockCourses });
+      mockGet.mockResolvedValue({ data: mockCourses });
       
       const result = await getCourses(languageCode, locale, cefrLevel, category);
       
-      expect(mockApiClient.get).toHaveBeenCalledWith(
+      expect(mockGet).toHaveBeenCalledWith(
         `/catalog/languages/${languageCode}/courses`,
         { 
           params: { 
-            locale: 'de',
-            cefrLevel: 'A2',
+            sourceLanguage: 'de',
+            userLevel: 'A2',
             category: 'TRAVEL'
           } 
         }
@@ -160,25 +168,33 @@ describe('catalog API module', () => {
       const courseId = 'course1';
       const mockCourse: CourseDetail = {
         id: courseId,
-        title: 'Spanish for Beginners',
-        description: 'Learn basic Spanish',
         languageCode: 'es',
-        category: 'GENERAL',
-        difficulty: 'BEGINNER',
-        estimatedDuration: 10,
-        estimatedDurationUnit: 'hours',
-        targetLevel: 'A1',
-        sourceLevel: 'A1',
-        lessons: [],
+        name: 'Spanish for Beginners',
+        shortDescription: 'Learn basic Spanish',
+        description: 'Learn basic Spanish',
+        category: 'GENERAL' as CourseCategory,
+        targetAudience: 'Beginners',
+        startingLevel: 'A1' as CEFRLevel,
+        targetLevel: 'A1' as CEFRLevel,
+        estimatedWeeks: 10,
+        displayOrder: 1,
+        difficulty: 'BEGINNER' as Difficulty,
+        suggestedTutors: [],
+        defaultPhase: 'CORRECTION' as ConversationPhase,
+        topicSequence: null,
+        learningGoals: [],
+        tags: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       };
       
-      (mockApiClient.get as any).mockResolvedValue({ data: mockCourse });
+      mockGet.mockResolvedValue({ data: mockCourse });
       
       const result = await getCourse(courseId);
       
-      expect(mockApiClient.get).toHaveBeenCalledWith(
+      expect(mockGet).toHaveBeenCalledWith(
         `/catalog/courses/${courseId}`,
-        { params: { locale: 'en' } }
+        { params: { sourceLanguage: 'en' } }
       );
       expect(result).toEqual(mockCourse);
     });
@@ -188,25 +204,33 @@ describe('catalog API module', () => {
       const locale = 'fr';
       const mockCourse: CourseDetail = {
         id: courseId,
-        title: 'Français pour Débutants',
-        description: 'Apprenez le français de base',
         languageCode: 'fr',
-        category: 'GENERAL',
-        difficulty: 'BEGINNER',
-        estimatedDuration: 10,
-        estimatedDurationUnit: 'hours',
-        targetLevel: 'A1',
-        sourceLevel: 'A1',
-        lessons: [],
+        name: 'Français pour Débutants',
+        shortDescription: 'Apprenez le français de base',
+        description: 'Apprenez le français de base',
+        category: 'GENERAL' as CourseCategory,
+        targetAudience: 'Beginners',
+        startingLevel: 'A1' as CEFRLevel,
+        targetLevel: 'A1' as CEFRLevel,
+        estimatedWeeks: 10,
+        displayOrder: 1,
+        difficulty: 'BEGINNER' as Difficulty,
+        suggestedTutors: [],
+        defaultPhase: 'CORRECTION' as ConversationPhase,
+        topicSequence: null,
+        learningGoals: [],
+        tags: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       };
       
-      (mockApiClient.get as any).mockResolvedValue({ data: mockCourse });
+      mockGet.mockResolvedValue({ data: mockCourse });
       
       const result = await getCourse(courseId, locale);
       
-      expect(mockApiClient.get).toHaveBeenCalledWith(
+      expect(mockGet).toHaveBeenCalledWith(
         `/catalog/courses/${courseId}`,
-        { params: { locale: 'fr' } }
+        { params: { sourceLanguage: 'fr' } }
       );
       expect(result).toEqual(mockCourse);
     });
@@ -219,21 +243,29 @@ describe('catalog API module', () => {
         {
           id: 'tutor1',
           name: 'Maria',
-          languageCode: 'es',
-          gender: 'Female',
+          emoji: '👩',
+          persona: 'A friendly Spanish tutor',
+          domain: 'Spanish',
+          personality: 'Encouraging' as TutorPersonality,
+          teachingStyle: 'Guided' as TeachingStyle,
+          description: 'A friendly Spanish tutor who encourages students to speak more',
+          targetLanguageCode: 'es',
+          culturalBackground: 'Spanish',
           age: 30,
-          personality: 'Encouraging',
-          isGlobal: true,
+          gender: 'Female' as TutorGender,
+          imageUrl: null,
+          displayOrder: 1,
+          location: 'Spain',
         }
       ];
       
-      (mockApiClient.get as any).mockResolvedValue({ data: mockTutors });
+      mockGet.mockResolvedValue({ data: mockTutors });
       
       const result = await getTutors(languageCode);
       
-      expect(mockApiClient.get).toHaveBeenCalledWith(
+      expect(mockGet).toHaveBeenCalledWith(
         `/catalog/languages/${languageCode}/tutors`,
-        { params: { locale: 'en' } }
+        { params: { sourceLanguage: 'en' } }
       );
       expect(result).toEqual(mockTutors);
     });
@@ -245,21 +277,29 @@ describe('catalog API module', () => {
         {
           id: 'tutor2',
           name: 'Hans',
-          languageCode: 'de',
-          gender: 'Male',
+          emoji: '👨',
+          persona: 'A strict German tutor',
+          domain: 'German',
+          personality: 'Strict' as TutorPersonality,
+          teachingStyle: 'Directive' as TeachingStyle,
+          description: 'A strict German tutor who focuses on grammar and accuracy',
+          targetLanguageCode: 'de',
+          culturalBackground: 'German',
           age: 40,
-          personality: 'Strict',
-          isGlobal: true,
+          gender: 'Male' as TutorGender,
+          imageUrl: null,
+          displayOrder: 1,
+          location: 'Germany',
         }
       ];
       
-      (mockApiClient.get as any).mockResolvedValue({ data: mockTutors });
+      mockGet.mockResolvedValue({ data: mockTutors });
       
       const result = await getTutors(languageCode, locale);
       
-      expect(mockApiClient.get).toHaveBeenCalledWith(
+      expect(mockGet).toHaveBeenCalledWith(
         `/catalog/languages/${languageCode}/tutors`,
-        { params: { locale: 'it' } }
+        { params: { sourceLanguage: 'it' } }
       );
       expect(result).toEqual(mockTutors);
     });
@@ -269,32 +309,46 @@ describe('catalog API module', () => {
     it('should create a custom tutor', async () => {
       const request: CreateTutorRequest = {
         name: 'My Tutor',
-        languageCode: 'es',
-        gender: 'Neutral',
+        emoji: '📚',
+        personaEnglish: 'A personalized Spanish tutor',
+        domainEnglish: 'Spanish',
+        descriptionEnglish: 'A personalized Spanish tutor',
+        personality: 'Casual' as TutorPersonality,
+        teachingStyle: 'Guided' as TeachingStyle,
+        targetLanguageCode: 'es',
+        culturalBackground: 'Spanish',
+        gender: 'Neutral' as TutorGender,
         age: 25,
-        personality: 'Casual',
-        isGlobal: false,
-        description: 'A personalized Spanish tutor',
+        location: 'Spain',
+        isActive: true,
+        displayOrder: 1,
       };
       
       const mockTutor: TutorDetail = {
         id: 'custom-tutor-123',
         name: 'My Tutor',
-        languageCode: 'es',
-        gender: 'Neutral',
-        age: 25,
-        personality: 'Casual',
-        isGlobal: false,
+        emoji: '📚',
+        persona: 'A personalized Spanish tutor',
+        domain: 'Spanish',
+        personality: 'Casual' as TutorPersonality,
+        teachingStyle: 'Guided' as TeachingStyle,
         description: 'A personalized Spanish tutor',
+        targetLanguageCode: 'es',
+        culturalBackground: 'Spanish',
+        age: 25,
+        gender: 'Neutral' as TutorGender,
+        imageUrl: null,
+        displayOrder: 1,
+        location: 'Spain',
         createdAt: new Date().toISOString(),
-        image: null,
+        updatedAt: new Date().toISOString(),
       };
       
-      (mockApiClient.post as any).mockResolvedValue({ data: mockTutor });
+      mockPost.mockResolvedValue({ data: mockTutor });
       
       const result = await createCustomTutor(request);
       
-      expect(mockApiClient.post).toHaveBeenCalledWith('/catalog/tutors', request);
+      expect(mockPost).toHaveBeenCalledWith('/catalog/tutors', request);
       expect(result).toEqual(mockTutor);
     });
   });

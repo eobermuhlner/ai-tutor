@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { 
   updateUserSubscriptionPlan,
 } from './admin';
+import { PronunciationPreference } from '../types';
 import type { User } from '../types';
 
 // Define the mock type
@@ -35,6 +36,7 @@ describe('admin API module', () => {
         createdAt: new Date().toISOString(),
         lastLoginAt: null,
         subscriptionPlan: 'FREE',
+        pronunciationPreference: 'NONE' as PronunciationPreference,
       };
       
       mockPatch.mockResolvedValue({ data: mockUser });
@@ -64,6 +66,7 @@ describe('admin API module', () => {
         createdAt: new Date().toISOString(),
         lastLoginAt: null,
         subscriptionPlan: 'SUBSCRIPTION_10',
+        pronunciationPreference: 'NONE' as PronunciationPreference,
       };
       
       mockPatch.mockResolvedValue({ data: mockUser });
@@ -93,6 +96,7 @@ describe('admin API module', () => {
         createdAt: new Date().toISOString(),
         lastLoginAt: null,
         subscriptionPlan: 'FREE_BYOK',
+        pronunciationPreference: 'NONE' as PronunciationPreference,
       };
       
       mockPatch.mockResolvedValue({ data: mockUser });

@@ -4,9 +4,8 @@ import {
   setApiKey, 
   removeApiKey,
   LlmProvider,
+  type ApiKeyConfiguration
 } from './apiKeys';
-import apiClient from './client';
-import type { ApiKeyConfiguration } from '../types';
 
 // Define mock functions
 const mockGet = vi.fn();

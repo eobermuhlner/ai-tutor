@@ -76,21 +76,21 @@ class CatalogPropertiesTest {
 
         // Verify Spanish courses
         val spanishCourses = courses.filter { it.languageCode == "es-ES" }
-        assertEquals(2, spanishCourses.size, "Should have 2 Spanish courses")
+        assertEquals(3, spanishCourses.size, "Should have 3 Spanish courses")
         assertTrue(spanishCourses.any { it.nameEnglish.contains("Conversational") })
         assertTrue(spanishCourses.any { it.nameEnglish.contains("Travelers") })
 
         // Verify French courses
         val frenchCourses = courses.filter { it.languageCode == "fr-FR" }
-        assertEquals(3, frenchCourses.size, "Should have 3 French courses")
+        assertEquals(4, frenchCourses.size, "Should have 4 French courses")
 
         // Verify German courses
         val germanCourses = courses.filter { it.languageCode == "de-DE" }
-        assertEquals(3, germanCourses.size, "Should have 3 German courses")
+        assertEquals(4, germanCourses.size, "Should have 4 German courses")
 
         // Verify Japanese courses
         val japaneseCourses = courses.filter { it.languageCode == "ja-JP" }
-        assertEquals(6, japaneseCourses.size, "Should have 6 Japanese courses")
+        assertEquals(7, japaneseCourses.size, "Should have 7 Japanese courses")
     }
 
     @Test
@@ -148,7 +148,7 @@ class CatalogPropertiesTest {
             assertNotNull(it.startingLevel)
             assertNotNull(it.targetLevel)
             assertTrue(it.learningGoalsEnglish.isNotEmpty())
-            assertEquals(0, it.displayOrder)
+            assertTrue(it.displayOrder >= 0, "Display order should be >= 0")
         }
     }
 

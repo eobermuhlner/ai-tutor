@@ -4,19 +4,19 @@ import {
   getSessionSummaryDetails,
   triggerSummarization,
   getGlobalStats,
-  type SessionSummaryInfo,
-  type SummaryDetail,
-  type GlobalSummaryStats
 } from './summaries';
-import apiClient from './client';
+import type { SessionSummaryInfo, SummaryDetail, GlobalSummaryStats } from '../types';
 
 // Mock the apiClient
-vi.mock('./client');
+const mockGet = vi.fn();
+const mockPost = vi.fn();
 
-const mockApiClient = apiClient as { 
-  get: typeof vi.fn;
-  post: typeof vi.fn;
-};
+vi.mock('./client', () => ({
+  default: {
+    get: mockGet,
+    post: mockPost,
+  }
+}));
 
 describe('summaries API module', () => {
   beforeEach(() => {
@@ -29,18 +29,20 @@ describe('summaries API module', () => {
       const mockSummaryInfo: SessionSummaryInfo = {
         sessionId,
         totalMessages: 100,
-        totalSummaries: 5,
-        totalCompressionRatio: 0.75,
-        totalTokensSaved: 500,
-        totalProcessingTime: 120,
-        lastSummaryAt: new Date().toISOString(),
+        summaryLevels: [
+          { level: 1, count: 5, totalTokens: 100, coveredSequences: { start: 0, end: 4 } },
+          { level: 2, count: 2, totalTokens: 50, coveredSequences: { start: 5, end: 9 } },
+        ],
+        lastSummarizedSequence: 10,
+        estimatedTokenSavings: 200,
+        compressionRatio: 0.75,
       };
       
-      (mockApiClient.get as any).mockResolvedValue({ data: mockSummaryInfo });
+      mockGet.mockResolvedValue({ data: mockSummaryInfo });
       
       const result = await getSessionSummaryInfo(sessionId);
       
-      expect(mockApiClient.get).toHaveBeenCalledWith(`/summaries/sessions/${sessionId}/info`);
+      expect(mockGet).toHaveBeenCalledWith(`/summaries/sessions/${sessionId}/info`);
       expect(result).toEqual(mockSummaryInfo);
     });
   });
@@ -51,22 +53,24 @@ describe('summaries API module', () => {
       const mockSummaryDetails: SummaryDetail[] = [
         {
           id: 'summary1',
-          sessionId: sessionId,
-          sourceType: 'LEVEL_1',
-          sourceIds: ['msg1', 'msg2', 'msg3'],
+          summaryLevel: 1,
+          startSequence: 0,
+          endSequence: 4,
           summaryText: 'This is a summary of the conversation so far.',
           tokenCount: 100,
-          compressionRatio: 0.5,
-          processingTime: 20,
+          sourceType: 'LEVEL_1',
+          sourceIds: ['msg1', 'msg2', 'msg3', 'msg4', 'msg5'],
+          supersededById: null,
+          isActive: true,
           createdAt: new Date().toISOString(),
         }
       ];
       
-      (mockApiClient.get as any).mockResolvedValue({ data: mockSummaryDetails });
+      mockGet.mockResolvedValue({ data: mockSummaryDetails });
       
       const result = await getSessionSummaryDetails(sessionId);
       
-      expect(mockApiClient.get).toHaveBeenCalledWith(`/summaries/sessions/${sessionId}/details`);
+      expect(mockGet).toHaveBeenCalledWith(`/summaries/sessions/${sessionId}/details`);
       expect(result).toEqual(mockSummaryDetails);
     });
   });
@@ -79,11 +83,11 @@ describe('summaries API module', () => {
         message: 'Summarization triggered successfully'
       };
       
-      (mockApiClient.post as any).mockResolvedValue({ data: mockResponse });
+      mockPost.mockResolvedValue({ data: mockResponse });
       
       const result = await triggerSummarization(sessionId);
       
-      expect(mockApiClient.post).toHaveBeenCalledWith(`/summaries/sessions/${sessionId}/trigger`);
+      expect(mockPost).toHaveBeenCalledWith(`/summaries/sessions/${sessionId}/trigger`);
       expect(result).toEqual(mockResponse);
     });
   });
@@ -91,20 +95,17 @@ describe('summaries API module', () => {
   describe('getGlobalStats', () => {
     it('should fetch global summarization statistics', async () => {
       const mockGlobalStats: GlobalSummaryStats = {
-        totalSessionsProcessed: 1000,
-        totalSummariesCreated: 5000,
-        totalTokensProcessed: 1000000,
+        totalSessions: 1000,
+        totalSummaries: 5000,
+        averageCompressionRatio: 0.5,
         totalTokensSaved: 500000,
-        avgCompressionRatio: 0.5,
-        activeProcesses: 2,
-        lastUpdated: new Date().toISOString(),
       };
       
-      (mockApiClient.get as any).mockResolvedValue({ data: mockGlobalStats });
+      mockGet.mockResolvedValue({ data: mockGlobalStats });
       
       const result = await getGlobalStats();
       
-      expect(mockApiClient.get).toHaveBeenCalledWith('/summaries/stats');
+      expect(mockGet).toHaveBeenCalledWith('/summaries/stats');
       expect(result).toEqual(mockGlobalStats);
     });
   });

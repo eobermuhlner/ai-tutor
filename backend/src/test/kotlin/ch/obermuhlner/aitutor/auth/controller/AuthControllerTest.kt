@@ -83,7 +83,8 @@ class AuthControllerTest {
             emailVerified = false,
             createdAt = Instant.now(),
             lastLoginAt = null,
-            subscriptionPlan = ch.obermuhlner.aitutor.user.domain.SubscriptionPlan.FREE
+            subscriptionPlan = ch.obermuhlner.aitutor.user.domain.SubscriptionPlan.FREE,
+            pronunciationPreference = ch.obermuhlner.aitutor.user.domain.PronunciationPreference.NONE
         )
 
         every { authService.register(request) } returns response
@@ -121,7 +122,8 @@ class AuthControllerTest {
                 emailVerified = false,
                 createdAt = Instant.now(),
                 lastLoginAt = Instant.now(),
-                subscriptionPlan = ch.obermuhlner.aitutor.user.domain.SubscriptionPlan.FREE
+                subscriptionPlan = ch.obermuhlner.aitutor.user.domain.SubscriptionPlan.FREE,
+                pronunciationPreference = ch.obermuhlner.aitutor.user.domain.PronunciationPreference.NONE
             )
         )
 
@@ -162,7 +164,8 @@ class AuthControllerTest {
                 emailVerified = false,
                 createdAt = Instant.now(),
                 lastLoginAt = null,
-                subscriptionPlan = ch.obermuhlner.aitutor.user.domain.SubscriptionPlan.FREE
+                subscriptionPlan = ch.obermuhlner.aitutor.user.domain.SubscriptionPlan.FREE,
+                pronunciationPreference = ch.obermuhlner.aitutor.user.domain.PronunciationPreference.NONE
             )
         )
 

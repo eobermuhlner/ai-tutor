@@ -3,18 +3,19 @@ import {
   getAvailableVoices,
   synthesizeMessageAudio,
   synthesizeText,
-  type VoicesResponse,
-  type SynthesizeRequest
 } from './tts';
-import apiClient from './client';
+import type { VoicesResponse, SynthesizeRequest } from '../types';
 
 // Mock the apiClient
-vi.mock('./client');
+const mockGet = vi.fn();
+const mockPost = vi.fn();
 
-const mockApiClient = apiClient as { 
-  get: typeof vi.fn;
-  post: typeof vi.fn;
-};
+vi.mock('./client', () => ({
+  default: {
+    get: mockGet,
+    post: mockPost,
+  }
+}));
 
 describe('tts API module', () => {
   beforeEach(() => {
@@ -24,38 +25,35 @@ describe('tts API module', () => {
   describe('getAvailableVoices', () => {
     it('should fetch available voices', async () => {
       const mockVoices: VoicesResponse = {
-        voices: [
-          {
-            id: 'voice1',
-            name: 'English Female',
-            language: 'en-US',
-            gender: 'Female',
-            previewUrl: 'https://example.com/preview.mp3'
-          }
-        ]
+        abstractVoices: ['Warm', 'Professional', 'Energetic', 'Calm', 'Authoritative', 'Friendly'],
+        voiceMappings: {
+          'Warm': 'voice_warm_123',
+          'Professional': 'voice_professional_456'
+        },
+        defaultVoice: 'Warm'
       };
       
-      (mockApiClient.get as any).mockResolvedValue({ data: mockVoices });
+      mockGet.mockResolvedValue({ data: mockVoices });
       
       const result = await getAvailableVoices();
       
-      expect(mockApiClient.get).toHaveBeenCalledWith('/chat/audio/voices');
+      expect(mockGet).toHaveBeenCalledWith('/chat/audio/voices');
       expect(result).toEqual(mockVoices);
     });
 
     it('should return null when TTS is not available (404)', async () => {
       const error404 = { response: { status: 404 } };
-      (mockApiClient.get as any).mockRejectedValue(error404);
+      mockGet.mockRejectedValue(error404);
       
       const result = await getAvailableVoices();
       
-      expect(mockApiClient.get).toHaveBeenCalledWith('/chat/audio/voices');
+      expect(mockGet).toHaveBeenCalledWith('/chat/audio/voices');
       expect(result).toBeNull();
     });
 
     it('should re-throw other errors', async () => {
       const error500 = { response: { status: 500 } };
-      (mockApiClient.get as any).mockRejectedValue(error500);
+      mockGet.mockRejectedValue(error500);
       
       await expect(getAvailableVoices()).rejects.toEqual(error500);
     });
@@ -68,11 +66,11 @@ describe('tts API module', () => {
       const speed = 1.0;
       const mockBlob = new Blob(['audio data'], { type: 'audio/mpeg' });
       
-      (mockApiClient.post as any).mockResolvedValue({ data: mockBlob });
+      mockPost.mockResolvedValue({ data: mockBlob });
       
       const result = await synthesizeMessageAudio(sessionId, messageId, speed);
       
-      expect(mockApiClient.post).toHaveBeenCalledWith(
+      expect(mockPost).toHaveBeenCalledWith(
         `/chat/sessions/${sessionId}/messages/${messageId}/audio`,
         null,
         {
@@ -89,11 +87,11 @@ describe('tts API module', () => {
       const speed = 1.2;
       const mockBlob = new Blob(['audio data'], { type: 'audio/mpeg' });
       
-      (mockApiClient.post as any).mockResolvedValue({ data: mockBlob });
+      mockPost.mockResolvedValue({ data: mockBlob });
       
       const result = await synthesizeMessageAudio(sessionId, messageId, speed);
       
-      expect(mockApiClient.post).toHaveBeenCalledWith(
+      expect(mockPost).toHaveBeenCalledWith(
         `/chat/sessions/${sessionId}/messages/${messageId}/audio`,
         null,
         {
@@ -112,7 +110,7 @@ describe('tts API module', () => {
       const speed = 1.0;
       const mockBlob = new Blob(['audio data'], { type: 'audio/mpeg' });
       
-      (mockApiClient.post as any).mockResolvedValue({ data: mockBlob });
+      mockPost.mockResolvedValue({ data: mockBlob });
       
       const result = await synthesizeText(text, voiceId, speed);
       
@@ -122,7 +120,7 @@ describe('tts API module', () => {
         speed,
       };
       
-      expect(mockApiClient.post).toHaveBeenCalledWith(
+      expect(mockPost).toHaveBeenCalledWith(
         '/chat/synthesize',
         expectedRequest,
         {
@@ -138,7 +136,7 @@ describe('tts API module', () => {
       const speed = 0.8;
       const mockBlob = new Blob(['audio data'], { type: 'audio/mpeg' });
       
-      (mockApiClient.post as any).mockResolvedValue({ data: mockBlob });
+      mockPost.mockResolvedValue({ data: mockBlob });
       
       const result = await synthesizeText(text, voiceId, speed);
       
@@ -148,7 +146,7 @@ describe('tts API module', () => {
         speed,
       };
       
-      expect(mockApiClient.post).toHaveBeenCalledWith(
+      expect(mockPost).toHaveBeenCalledWith(
         '/chat/synthesize',
         expectedRequest,
         {

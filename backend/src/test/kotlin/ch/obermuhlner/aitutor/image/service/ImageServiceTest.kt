@@ -52,7 +52,7 @@ class ImageServiceTest {
         assertEquals("png", result?.format)
         assertEquals("image/png", result?.contentType)
 
-        verify(imageStoreClient, times(1)).searchImagesByTags(listOf(concept), emptyList(), emptyList())
+        verify(imageStoreClient, times(1)).searchImagesByTags(listOf(concept))
         verify(imageStoreClient, times(1)).getImageData(1L)
     }
 
@@ -66,7 +66,7 @@ class ImageServiceTest {
 
         assertNull(result)
 
-        verify(imageStoreClient, times(1)).searchImagesByTags(listOf(concept), emptyList(), emptyList())
+        verify(imageStoreClient, times(1)).searchImagesByTags(listOf(concept))
         verify(imageStoreClient, never()).getImageData(any())
     }
 
@@ -91,7 +91,7 @@ class ImageServiceTest {
 
         assertNull(result)
 
-        verify(imageStoreClient, times(1)).searchImagesByTags(listOf(concept), emptyList(), emptyList())
+        verify(imageStoreClient, times(1)).searchImagesByTags(listOf(concept))
         verify(imageStoreClient, times(1)).getImageData(1L)
     }
 
@@ -105,7 +105,7 @@ class ImageServiceTest {
 
         assertNull(result)
 
-        verify(imageStoreClient, times(1)).searchImagesByTags(listOf(concept), emptyList(), emptyList())
+        verify(imageStoreClient, times(1)).searchImagesByTags(listOf(concept))
         verify(imageStoreClient, never()).getImageData(any())
     }
 
@@ -161,10 +161,13 @@ class ImageServiceTest {
         assertEquals(imageBytes, result?.data)
         assertEquals("png", result?.format)
 
+        val ageLower = (age / 10) * 10
+        val ageUpper = ageLower + 10
+        val expectedRequired = listOf("person", countryCode, gender.toString())
+        val expectedOptional = listOf("age_$age", "age_${ageLower}_${ageUpper}", "teacher", "school")
         verify(imageStoreClient, times(1)).searchImagesByTags(
-            eq(listOf("person", countryCode, gender.toString(), "age_$age")),
-            eq(listOf("teacher", "school")),
-            eq(emptyList())
+            expectedRequired,
+            expectedOptional
         )
     }
 
@@ -209,10 +212,13 @@ class ImageServiceTest {
         assertNotNull(result)
 
         // Verify normalized tags are included (café -> cafe, niño -> nino)
+        val ageLower = (age / 10) * 10
+        val ageUpper = ageLower + 10
+        val expectedRequired = listOf("person", countryCode, gender.toString())
+        val expectedOptional = listOf("age_$age", "age_${ageLower}_${ageUpper}", "café", "cafe", "niño", "nino")
         verify(imageStoreClient, times(1)).searchImagesByTags(
-            eq(listOf("person", countryCode, gender.toString(), "age_$age")),
-            eq(listOf("café", "cafe", "niño", "nino")),
-            eq(emptyList())
+            expectedRequired,
+            expectedOptional
         )
     }
 
@@ -241,11 +247,14 @@ class ImageServiceTest {
 
         assertNotNull(result)
 
-        // Should only have required tags, no optional tags
+        // Should only have required tags, and age range as optional tags
+        val ageLower = (age / 10) * 10
+        val ageUpper = ageLower + 10
+        val expectedRequired = listOf("person", countryCode, gender.toString())
+        val expectedOptional = listOf("age_$age", "age_${ageLower}_${ageUpper}")
         verify(imageStoreClient, times(1)).searchImagesByTags(
-            eq(listOf("person", countryCode, gender.toString(), "age_$age")),
-            eq(emptyList()),
-            eq(emptyList())
+            expectedRequired,
+            expectedOptional
         )
     }
 
@@ -275,10 +284,13 @@ class ImageServiceTest {
         assertNotNull(result)
 
         // Verify tags are split and trimmed correctly
+        val ageLower = (age / 10) * 10
+        val ageUpper = ageLower + 10
+        val expectedRequired = listOf("person", countryCode, gender.toString())
+        val expectedOptional = listOf("age_$age", "age_${ageLower}_${ageUpper}", "engineer", "programmer", "developer")
         verify(imageStoreClient, times(1)).searchImagesByTags(
-            eq(listOf("person", countryCode, gender.toString(), "age_$age")),
-            eq(listOf("engineer", "programmer", "developer")),
-            eq(emptyList())
+            expectedRequired,
+            expectedOptional
         )
     }
 
@@ -349,10 +361,13 @@ class ImageServiceTest {
         assertNotNull(result)
 
         // Verify deduplication: école (twice) + ecole + school (twice) -> école, ecole, school
+        val ageLower = (age / 10) * 10
+        val ageUpper = ageLower + 10
+        val expectedRequired = listOf("person", countryCode, gender.toString())
+        val expectedOptional = listOf("age_$age", "age_${ageLower}_${ageUpper}", "école", "ecole", "school")
         verify(imageStoreClient, times(1)).searchImagesByTags(
-            eq(listOf("person", countryCode, gender.toString(), "age_$age")),
-            eq(listOf("école", "ecole", "school")),
-            eq(emptyList())
+            expectedRequired,
+            expectedOptional
         )
     }
 
@@ -382,10 +397,13 @@ class ImageServiceTest {
         assertNotNull(result)
 
         // Words without accents should only appear once
+        val ageLower = (age / 10) * 10
+        val ageUpper = ageLower + 10
+        val expectedRequired = listOf("person", countryCode, gender.toString())
+        val expectedOptional = listOf("age_$age", "age_${ageLower}_${ageUpper}", "doctor", "nurse")
         verify(imageStoreClient, times(1)).searchImagesByTags(
-            eq(listOf("person", countryCode, gender.toString(), "age_$age")),
-            eq(listOf("doctor", "nurse")),
-            eq(emptyList())
+            expectedRequired,
+            expectedOptional
         )
     }
 
