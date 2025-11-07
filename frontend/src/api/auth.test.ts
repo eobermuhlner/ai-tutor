@@ -11,18 +11,24 @@ import {
 import { PronunciationPreference } from '../types';
 import type { User } from '../types';
 
-// Mock the apiClient
-const mockGet = vi.fn();
-const mockPost = vi.fn();
-const mockPut = vi.fn();
+// Use vi.hoisted to properly handle the hoisting issue
+const { mockGet, mockPost, mockPut } = vi.hoisted(() => {
+  return {
+    mockGet: vi.fn(),
+    mockPost: vi.fn(),
+    mockPut: vi.fn(),
+  };
+});
 
-vi.mock('./client', () => ({
-  default: {
-    get: mockGet,
-    post: mockPost,
-    put: mockPut,
-  }
-}));
+vi.mock('./client', () => {
+  return {
+    default: {
+      get: mockGet,
+      post: mockPost,
+      put: mockPut,
+    }
+  };
+});
 
 describe('auth API module', () => {
   beforeEach(() => {

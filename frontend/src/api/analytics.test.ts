@@ -6,15 +6,20 @@ import {
 } from './analytics';
 import type { ErrorPattern, ErrorTrend, ErrorTrendResponse, ErrorSample } from '../types';
 
-// Define the mock function
-const mockGet = vi.fn();
+// Use vi.hoisted to properly handle the hoisting issue
+const { mockGet } = vi.hoisted(() => {
+  return {
+    mockGet: vi.fn(),
+  };
+});
 
-// Mock the apiClient
-vi.mock('./client', () => ({
-  default: {
-    get: mockGet,
-  }
-}));
+vi.mock('./client', () => {
+  return {
+    default: {
+      get: mockGet,
+    }
+  };
+});
 
 describe('analytics API module', () => {
   beforeEach(() => {

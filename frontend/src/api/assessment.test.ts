@@ -5,17 +5,22 @@ import {
 } from './assessment';
 import type { SkillBreakdown } from '../types';
 
-// Define the mock functions
-const mockGet = vi.fn();
-const mockPost = vi.fn();
+// Use vi.hoisted to properly handle the hoisting issue
+const { mockGet, mockPost } = vi.hoisted(() => {
+  return {
+    mockGet: vi.fn(),
+    mockPost: vi.fn(),
+  };
+});
 
-// Mock the apiClient
-vi.mock('./client', () => ({
-  default: {
-    get: mockGet,
-    post: mockPost,
-  }
-}));
+vi.mock('./client', () => {
+  return {
+    default: {
+      get: mockGet,
+      post: mockPost,
+    }
+  };
+});
 
 describe('assessment API module', () => {
   beforeEach(() => {

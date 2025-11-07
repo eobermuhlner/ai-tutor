@@ -6,16 +6,22 @@ import {
 } from './tts';
 import type { VoicesResponse, SynthesizeRequest } from '../types';
 
-// Mock the apiClient
-const mockGet = vi.fn();
-const mockPost = vi.fn();
+// Use vi.hoisted to properly handle the hoisting issue
+const { mockGet, mockPost } = vi.hoisted(() => {
+  return {
+    mockGet: vi.fn(),
+    mockPost: vi.fn(),
+  };
+});
 
-vi.mock('./client', () => ({
-  default: {
-    get: mockGet,
-    post: mockPost,
-  }
-}));
+vi.mock('./client', () => {
+  return {
+    default: {
+      get: mockGet,
+      post: mockPost,
+    }
+  };
+});
 
 describe('tts API module', () => {
   beforeEach(() => {

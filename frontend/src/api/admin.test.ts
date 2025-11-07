@@ -5,14 +5,20 @@ import {
 import { PronunciationPreference } from '../types';
 import type { User } from '../types';
 
-// Define the mock type
-const mockPatch = vi.fn();
+// Use vi.hoisted to properly handle the hoisting issue
+const { mockPatch } = vi.hoisted(() => {
+  return {
+    mockPatch: vi.fn(),
+  };
+});
 
-vi.mock('./client', () => ({
-  default: {
-    patch: mockPatch,
-  }
-}));
+vi.mock('./client', () => {
+  return {
+    default: {
+      patch: mockPatch,
+    }
+  };
+});
 
 describe('admin API module', () => {
   beforeEach(() => {

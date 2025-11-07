@@ -7,19 +7,24 @@ import {
   type ApiKeyConfiguration
 } from './apiKeys';
 
-// Define mock functions
-const mockGet = vi.fn();
-const mockPut = vi.fn();
-const mockDelete = vi.fn();
+// Use vi.hoisted to properly handle the hoisting issue
+const { mockGet, mockPut, mockDelete } = vi.hoisted(() => {
+  return {
+    mockGet: vi.fn(),
+    mockPut: vi.fn(),
+    mockDelete: vi.fn(),
+  };
+});
 
-// Mock the apiClient
-vi.mock('./client', () => ({
-  default: {
-    get: mockGet,
-    put: mockPut,
-    delete: mockDelete,
-  }
-}));
+vi.mock('./client', () => {
+  return {
+    default: {
+      get: mockGet,
+      put: mockPut,
+      delete: mockDelete,
+    }
+  };
+});
 
 describe('apiKeys API module', () => {
   beforeEach(() => {

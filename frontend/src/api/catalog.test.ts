@@ -9,17 +9,22 @@ import {
 import { CEFRLevel, CourseCategory, Difficulty, TutorGender, TutorPersonality, TeachingStyle, ConversationPhase } from '../types';
 import type { Language, Course, CourseDetail, Tutor, TutorDetail, CreateTutorRequest } from '../types';
 
-// Define the mock functions
-const mockGet = vi.fn();
-const mockPost = vi.fn();
+// Use vi.hoisted to properly handle the hoisting issue
+const { mockGet, mockPost } = vi.hoisted(() => {
+  return {
+    mockGet: vi.fn(),
+    mockPost: vi.fn(),
+  };
+});
 
-// Mock the apiClient
-vi.mock('./client', () => ({
-  default: {
-    get: mockGet,
-    post: mockPost,
-  }
-}));
+vi.mock('./client', () => {
+  return {
+    default: {
+      get: mockGet,
+      post: mockPost,
+    }
+  };
+});
 
 // Mock the FileReader for image handling
 const mockFileReader = {
@@ -117,7 +122,7 @@ describe('catalog API module', () => {
       
       expect(mockGet).toHaveBeenCalledWith(
         `/catalog/languages/${languageCode}/courses`,
-        { params: { sourceLanguage: 'en' } }
+        { params: { locale: 'en' } }
       );
       expect(result).toEqual(mockCourses);
     });
@@ -153,8 +158,8 @@ describe('catalog API module', () => {
         `/catalog/languages/${languageCode}/courses`,
         { 
           params: { 
-            sourceLanguage: 'de',
-            userLevel: 'A2',
+            locale: 'de',
+            cefrLevel: 'A2',
             category: 'TRAVEL'
           } 
         }
@@ -194,7 +199,7 @@ describe('catalog API module', () => {
       
       expect(mockGet).toHaveBeenCalledWith(
         `/catalog/courses/${courseId}`,
-        { params: { sourceLanguage: 'en' } }
+        { params: { locale: 'en' } }
       );
       expect(result).toEqual(mockCourse);
     });
@@ -230,7 +235,7 @@ describe('catalog API module', () => {
       
       expect(mockGet).toHaveBeenCalledWith(
         `/catalog/courses/${courseId}`,
-        { params: { sourceLanguage: 'fr' } }
+        { params: { locale: 'fr' } }
       );
       expect(result).toEqual(mockCourse);
     });
@@ -265,7 +270,7 @@ describe('catalog API module', () => {
       
       expect(mockGet).toHaveBeenCalledWith(
         `/catalog/languages/${languageCode}/tutors`,
-        { params: { sourceLanguage: 'en' } }
+        { params: { locale: 'en' } }
       );
       expect(result).toEqual(mockTutors);
     });
@@ -299,7 +304,7 @@ describe('catalog API module', () => {
       
       expect(mockGet).toHaveBeenCalledWith(
         `/catalog/languages/${languageCode}/tutors`,
-        { params: { sourceLanguage: 'it' } }
+        { params: { locale: 'it' } }
       );
       expect(result).toEqual(mockTutors);
     });

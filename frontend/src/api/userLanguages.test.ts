@@ -9,20 +9,26 @@ import {
 import type { LanguageProficiency } from '../types';
 import { CEFRLevel, LanguageProficiencyType } from '../types';
 
-// Mock the apiClient
-const mockGet = vi.fn();
-const mockPost = vi.fn();
-const mockPatch = vi.fn();
-const mockDelete = vi.fn();
+// Use vi.hoisted to properly handle the hoisting issue
+const { mockGet, mockPost, mockPatch, mockDelete } = vi.hoisted(() => {
+  return {
+    mockGet: vi.fn(),
+    mockPost: vi.fn(),
+    mockPatch: vi.fn(),
+    mockDelete: vi.fn(),
+  };
+});
 
-vi.mock('./client', () => ({
-  default: {
-    get: mockGet,
-    post: mockPost,
-    patch: mockPatch,
-    delete: mockDelete,
-  }
-}));
+vi.mock('./client', () => {
+  return {
+    default: {
+      get: mockGet,
+      post: mockPost,
+      patch: mockPatch,
+      delete: mockDelete,
+    }
+  };
+});
 
 describe('userLanguages API module', () => {
   beforeEach(() => {
