@@ -35,7 +35,8 @@ LABEL org.opencontainers.image.description="Spring Boot REST API for AI-powered 
 LABEL org.opencontainers.image.vendor="AI Tutor"
 
 # Create non-root user for security
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+RUN groupadd --system appgroup \
+ && useradd --system --create-home --gid appgroup appuser
 
 # Set working directory
 WORKDIR /app
