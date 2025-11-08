@@ -116,7 +116,7 @@ jobs:
             BUILD_DATE=${{ github.event.repository.updated_at }}
             VCS_REF=${{ github.sha }}
             VERSION=${{ inputs.environment }}
-            VITE_API_URL=${{ inputs.environment == 'production' && 'https://api.example.com' || 'https://api-staging.example.com' }}
+            VITE_API_URL=${{ inputs.environment == 'production' && 'https://ai-tutor.obermuhlner.ch' }}
 
   summary:
     name: Build Summary
