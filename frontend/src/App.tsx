@@ -20,6 +20,8 @@ import ChatPage from './pages/ChatPage';
 import VocabularyPage from './pages/VocabularyPage';
 import ProfilePage from './pages/ProfilePage';
 import AdminSummaryPage from './pages/AdminSummaryPage';
+import AdminUsersPage from './pages/AdminUsersPage';
+import AdminUserDetailPage from './pages/AdminUserDetailPage';
 import CreateCustomTutorPage from './pages/CreateCustomTutorPage';
 import ErrorPatternsPage from './pages/ErrorPatternsPage';
 import SubscriptionPage from './pages/SubscriptionPage';
@@ -139,6 +141,22 @@ function App() {
               element={
                 <ProtectedRoute>
                   <AdminSummaryPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/users"
+              element={
+                <ProtectedRoute>
+                  <AdminUsersPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/users/:userId"
+              element={
+                <ProtectedRoute>
+                  <AdminUserDetailPage />
                 </ProtectedRoute>
               }
             />

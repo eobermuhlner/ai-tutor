@@ -89,6 +89,7 @@ export interface User {
   lastName: string | null;
   roles: string[];
   enabled: boolean;
+  locked: boolean;
   emailVerified: boolean;
   createdAt: string | null;
   lastLoginAt: string | null;

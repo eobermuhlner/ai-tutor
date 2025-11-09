@@ -14,6 +14,7 @@ data class UserResponse(
     val lastName: String?,
     val roles: Set<UserRole>,
     val enabled: Boolean,
+    val locked: Boolean,
     val emailVerified: Boolean,
     val createdAt: Instant?,
     val lastLoginAt: Instant?,

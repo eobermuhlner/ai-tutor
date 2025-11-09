@@ -28,7 +28,8 @@
       "Bash(../gradlew :backend:test:*)",
       "Bash(npm run build:*)",
       "Bash(npx tsc:*)",
-      "Bash(npm run lint)"
+      "Bash(npm run lint)",
+      "Bash(npm test)"
     ],
     "deny": [],
     "ask": []

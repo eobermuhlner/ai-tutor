@@ -119,7 +119,7 @@ export default function SummaryDashboard() {
               Total Sessions
             </div>
             <div className="mt-2 text-2xl font-bold text-slate-900">
-              {globalStats.totalSessions.toLocaleString()}
+              {(globalStats.totalSessions ?? 0).toLocaleString()}
             </div>
           </div>
           <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
@@ -127,7 +127,7 @@ export default function SummaryDashboard() {
               Total Summaries
             </div>
             <div className="mt-2 text-2xl font-bold text-slate-900">
-              {globalStats.totalSummaries.toLocaleString()}
+              {(globalStats.totalSummaries ?? 0).toLocaleString()}
             </div>
           </div>
           <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
@@ -135,7 +135,9 @@ export default function SummaryDashboard() {
               Avg Compression
             </div>
             <div className="mt-2 text-2xl font-bold text-emerald-600">
-              {Math.round((1 - 1 / globalStats.averageCompressionRatio) * 100)}%
+              {globalStats.averageCompressionRatio
+                ? Math.round((1 - 1 / globalStats.averageCompressionRatio) * 100)
+                : 0}%
             </div>
           </div>
           <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
@@ -143,7 +145,7 @@ export default function SummaryDashboard() {
               Total Tokens Saved
             </div>
             <div className="mt-2 text-2xl font-bold text-blue-600">
-              {globalStats.totalTokensSaved.toLocaleString()}
+              {(globalStats.totalTokensSaved ?? 0).toLocaleString()}
             </div>
           </div>
         </div>

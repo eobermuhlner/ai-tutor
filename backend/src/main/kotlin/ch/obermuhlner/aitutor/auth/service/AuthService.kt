@@ -333,6 +333,7 @@ class AuthService(
             lastName = user.lastName,
             roles = user.roles,
             enabled = user.enabled,
+            locked = user.locked,
             emailVerified = user.emailVerified,
             createdAt = user.createdAt,
             lastLoginAt = user.lastLoginAt,

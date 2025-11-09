@@ -44,15 +44,21 @@ export default function Header() {
     setMobileMenuOpen(false);
   };
 
-  const isAdmin = user?.roles?.includes('ROLE_ADMIN') || false;
+  const isAdmin = user?.roles?.includes('ADMIN') || false;
 
   const navItems = [
     { label: 'Sessions', path: '/sessions' },
     { label: 'Languages', path: '/languages' },
     { label: 'Vocabulary', path: '/vocabulary' },
     { label: 'Error Patterns', path: '/error-patterns' },
-    ...(isAdmin ? [{ label: 'Admin', path: '/admin/summaries' }] : []),
   ];
+
+  const adminNavItems = isAdmin
+    ? [
+        { label: 'Users', path: '/admin/users' },
+        { label: 'Summaries', path: '/admin/summaries' },
+      ]
+    : [];
 
   const handleNavClick = (path: string) => {
     navigate(path);
@@ -83,6 +89,20 @@ export default function Header() {
                   {item.label}
                 </button>
               ))}
+              {isAdmin && (
+                <>
+                  <div className="h-6 w-px bg-slate-300 mx-2"></div>
+                  {adminNavItems.map((item) => (
+                    <button
+                      key={item.path}
+                      onClick={() => navigate(item.path)}
+                      className="px-4 py-2 text-sm font-medium text-purple-700 hover:text-purple-800 hover:bg-purple-50 rounded-lg transition-all duration-200"
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </>
+              )}
             </nav>
           )}
 
@@ -171,6 +191,23 @@ export default function Header() {
                   {item.label}
                 </button>
               ))}
+              {isAdmin && adminNavItems.length > 0 && (
+                <>
+                  <div className="my-2 border-t border-slate-200"></div>
+                  <div className="px-4 py-2 text-xs font-semibold text-purple-600 uppercase tracking-wider">
+                    Admin
+                  </div>
+                  {adminNavItems.map((item) => (
+                    <button
+                      key={item.path}
+                      onClick={() => handleNavClick(item.path)}
+                      className="px-4 py-3 text-left text-sm font-medium text-purple-700 hover:text-purple-800 hover:bg-purple-50 rounded-lg transition-all"
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </>
+              )}
               <div className="pt-4 border-t border-slate-200 flex flex-col gap-3 px-4">
                 <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
                   <User className="w-5 h-5 text-slate-600" />
