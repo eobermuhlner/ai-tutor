@@ -44,9 +44,6 @@ WORKDIR /app
 # Copy JAR from builder stage
 COPY --from=builder /app/backend/build/libs/*.jar app.jar
 
-# Copy course content
-COPY --from=builder /app/backend/src/main/resources/course-content /app/course-content
-
 # Change ownership to non-root user
 RUN chown -R appuser:appgroup /app
 
