@@ -55,9 +55,9 @@ test-reports/
 # Documentation
 README.md
 CLAUDE.md
-**/*.md
-!src/main/resources/course-content/**/*.md
-!src/main/resources/course-content/**/*.yml
+#**/*.md
+#!src/main/resources/course-content/**/*.md
+#!src/main/resources/course-content/**/*.yml
 
 # CI/CD
 .github/
