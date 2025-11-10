@@ -111,9 +111,8 @@ Configure these secrets in your GitHub repository settings (Settings > Secrets a
 
 ### Required for Docker Build
 
-- **`DOCKERHUB_USERNAME`**: Your Docker Hub username
-- **`DOCKERHUB_TOKEN`**: Docker Hub access token (not password!)
-  - Create at: https://hub.docker.com/settings/security
+- **`GITHUB_TOKEN`**: GitHub token with package access permissions (read:packages, write:packages)
+  - Automatically provided by GitHub Actions with appropriate permissions
 
 ### Required for Coverage Reporting
 
