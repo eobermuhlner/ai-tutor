@@ -25,6 +25,8 @@ import AdminUserDetailPage from './pages/AdminUserDetailPage';
 import CreateCustomTutorPage from './pages/CreateCustomTutorPage';
 import ErrorPatternsPage from './pages/ErrorPatternsPage';
 import SubscriptionPage from './pages/SubscriptionPage';
+import CourseManagementPage from './pages/CourseManagementPage';
+import CourseEditorPage from './pages/CourseEditorPage';
 import ErrorBoundary from './components/ui/ErrorBoundary';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -165,6 +167,31 @@ function App() {
               element={
                 <ProtectedRoute>
                   <CreateCustomTutorPage />
+                </ProtectedRoute>
+              }
+            />
+            
+            <Route
+              path="/courses/manage"
+              element={
+                <ProtectedRoute>
+                  <CourseManagementPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/courses/create"
+              element={
+                <ProtectedRoute>
+                  <CourseEditorPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/courses/edit/:courseId"
+              element={
+                <ProtectedRoute>
+                  <CourseEditorPage />
                 </ProtectedRoute>
               }
             />

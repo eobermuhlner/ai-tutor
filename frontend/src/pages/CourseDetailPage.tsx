@@ -6,6 +6,7 @@ import Spinner from '../components/ui/Spinner';
 import TutorCard from '../components/catalog/TutorCard';
 import { getCourse, getLanguages } from '../api/catalog';
 import { createSessionFromCourse } from '../api/chat';
+import { useAuthStore } from '../store/authStore';
 import { formatLanguageDisplay, getLanguageAriaLabel } from '../utils/languageDisplay';
 import type { CourseDetail, Language } from '../types';
 import toast from 'react-hot-toast';
@@ -18,6 +19,7 @@ export default function CourseDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isCreatingSession, setIsCreatingSession] = useState(false);
   const navigate = useNavigate();
+  const { user } = useAuthStore();
 
   const loadCourse = useCallback(async () => {
     if (!id) return;
@@ -129,6 +131,21 @@ export default function CourseDetailPage() {
               <span className="inline-flex items-center rounded-full bg-brand-100 px-4 py-1.5 text-sm font-semibold text-brand-700" aria-label={languageAriaLabel}>
                 {languageDisplay}
               </span>
+              {course.isDraft && (
+                <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-800">
+                  Draft
+                </span>
+              )}
+              {user && (user.roles.includes('EDITOR') || user.roles.includes('ADMIN')) && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigate(`/courses/edit/${course.id}`)}
+                  className="ml-auto"
+                >
+                  Edit Course
+                </Button>
+              )}
             </div>
             <h1 className="mb-2 text-3xl font-bold text-gray-900">
               {course.name}

@@ -1,8 +1,11 @@
 package ch.obermuhlner.aitutor.lesson.service
 
+import ch.obermuhlner.aitutor.catalog.repository.CourseTemplateRepository
+import ch.obermuhlner.aitutor.catalog.repository.LessonContentRepository
 import ch.obermuhlner.aitutor.core.model.CEFRLevel
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
@@ -12,7 +15,18 @@ import org.junit.jupiter.api.Test
 class LessonContentServiceTest {
 
     private val objectMapper = ObjectMapper().registerKotlinModule()
-    private val lessonContentService = LessonContentService(objectMapper)
+    private val lessonContentRepository: LessonContentRepository = mockk()
+    private val courseTemplateRepository: CourseTemplateRepository = mockk()
+
+    init {
+        // By default, return null/empty from database to fallback to file-based system
+        io.mockk.every { lessonContentRepository.findByCourseIdAndLessonId(any(), any()) } returns null
+        io.mockk.every { courseTemplateRepository.findById(any()) } returns java.util.Optional.empty()
+        io.mockk.every { courseTemplateRepository.findAll() } returns listOf()
+        io.mockk.every { lessonContentRepository.findByCourseId(any()) } returns listOf()
+    }
+
+    private val lessonContentService = LessonContentService(objectMapper, lessonContentRepository, courseTemplateRepository)
 
     @Test
     fun `should load Spanish curriculum successfully`() {

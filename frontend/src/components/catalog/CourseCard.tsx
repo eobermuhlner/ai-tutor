@@ -31,6 +31,11 @@ export default function CourseCard({ course, onClick, language }: CourseCardProp
         <h3 className="text-lg font-semibold text-slate-900 group-hover:text-brand-600 transition-colors">
           {course.name}
         </h3>
+        {course.isDraft && (
+          <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-800">
+            Draft
+          </span>
+        )}
       </div>
 
       <p className="mb-4 line-clamp-2 text-sm text-slate-600">

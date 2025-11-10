@@ -1,5 +1,7 @@
 package ch.obermuhlner.aitutor.lesson.service
 
+import ch.obermuhlner.aitutor.catalog.repository.CourseTemplateRepository
+import ch.obermuhlner.aitutor.catalog.repository.LessonContentRepository
 import ch.obermuhlner.aitutor.core.model.CEFRLevel
 import ch.obermuhlner.aitutor.lesson.domain.CourseCurriculum
 import ch.obermuhlner.aitutor.lesson.domain.GrammarPoint
@@ -10,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import org.slf4j.LoggerFactory
 import org.springframework.core.io.ClassPathResource
@@ -17,7 +20,9 @@ import org.springframework.stereotype.Service
 
 @Service
 class LessonContentService(
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
+    private val lessonContentRepository: LessonContentRepository,
+    private val courseTemplateRepository: CourseTemplateRepository
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
     private val lessonCache = ConcurrentHashMap<String, LessonContent>()
@@ -32,11 +37,97 @@ class LessonContentService(
         val cached = lessonCache[cacheKey]
         if (cached != null) return cached
 
+        // First try to find in database, but only if courseId looks like a UUID
+        val courseEntity = if (isValidUUID(courseId)) {
+            try {
+                courseTemplateRepository.findById(UUID.fromString(courseId))
+            } catch (e: Exception) {
+                // If parsing fails, continue with file system lookup
+                null
+            }
+        } else {
+            null
+        }
+        
+        if (courseEntity?.isPresent == true) {
+            val course = courseEntity.get()
+            // For published courses, prioritize database content
+            if (!course.isDraft) {
+                val lessonEntity = lessonContentRepository.findByCourseIdAndLessonId(course.id, lessonId)
+                if (lessonEntity != null) {
+                    val lessonContent = parseLessonFromEntity(lessonEntity)
+                    lessonCache[cacheKey] = lessonContent
+                    return lessonContent
+                }
+            }
+        }
+        
+        // If not found in database or courseId is not a UUID, try filesystem
         val loaded = loadLessonFromFile(courseId, lessonId)
         if (loaded != null) {
             lessonCache[cacheKey] = loaded
         }
         return loaded
+    }
+
+    private fun isValidUUID(uuid: String): Boolean {
+        return try {
+            UUID.fromString(uuid)
+            true
+        } catch (e: IllegalArgumentException) {
+            false
+        }
+    }
+
+    private fun parseLessonFromEntity(lessonEntity: ch.obermuhlner.aitutor.catalog.domain.LessonContentEntity): LessonContent {
+        // Extract information from the database entity's markdown content
+        // This is similar to the existing parseLesson method but adapted for database content
+        val markdown = lessonEntity.content
+        
+        // Extract YAML frontmatter (between --- delimiters)
+        val frontmatterRegex = Regex("""^---\s*\n(.*?)\n---\s*\n""", RegexOption.DOT_MATCHES_ALL)
+        val frontmatterMatch = frontmatterRegex.find(markdown)
+
+        val frontmatter = if (frontmatterMatch != null) {
+            try {
+                yamlMapper.readValue<Map<String, Any>>(frontmatterMatch.groupValues[1])
+            } catch (e: Exception) {
+                logger.warn("Failed to parse frontmatter for lesson ${lessonEntity.lessonId}", e)
+                emptyMap()
+            }
+        } else {
+            emptyMap()
+        }
+
+        val contentWithoutFrontmatter = if (frontmatterMatch != null) {
+            markdown.substring(frontmatterMatch.range.last + 1)
+        } else {
+            markdown
+        }
+
+        // Extract sections using regex
+        val goals = extractListSection(contentWithoutFrontmatter, "This Week's Goals")
+        val grammarPoints = extractGrammarPoints(contentWithoutFrontmatter)
+        val vocabulary = extractVocabulary(contentWithoutFrontmatter)
+        val scenarios = extractScenarios(contentWithoutFrontmatter)
+        val practicePatterns = extractListSection(contentWithoutFrontmatter, "Practice Patterns")
+        val commonMistakes = extractListSection(contentWithoutFrontmatter, "Common Mistakes to Watch")
+
+        return LessonContent(
+            id = lessonEntity.lessonId,
+            title = lessonEntity.title,
+            weekNumber = null, // Extract from frontmatter if available
+            estimatedDuration = frontmatter["estimatedDuration"] as? String,
+            focusAreas = (frontmatter["focusAreas"] as? List<*>)?.mapNotNull { it as? String } ?: emptyList(),
+            targetCEFR = CEFRLevel.valueOf(frontmatter["targetCEFR"] as? String ?: "A1"),
+            goals = goals,
+            grammarPoints = grammarPoints,
+            essentialVocabulary = vocabulary,
+            conversationScenarios = scenarios,
+            practicePatterns = practicePatterns,
+            commonMistakes = commonMistakes,
+            fullMarkdown = lessonEntity.content
+        )
     }
 
     private fun loadLessonFromFile(courseId: String, lessonId: String): LessonContent? {

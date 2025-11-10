@@ -411,6 +411,155 @@ class AuthorizationServiceTest {
         }
     }
 
+    @Test
+    fun `isEditor should return true for editor user`() {
+        val userId = UUID.randomUUID()
+        val username = "editor"
+        val userDetails = User(username, "password", listOf(SimpleGrantedAuthority("ROLE_EDITOR")))
+        val userEntity = createUser(userId, username, roles = setOf(UserRole.EDITOR))
+
+        setupAuthentication(userDetails)
+        every { userService.findByUsername(username) } returns userEntity
+
+        val result = authorizationService.isEditor()
+
+        assertTrue(result)
+    }
+
+    @Test
+    fun `isEditor should return false for non-editor user`() {
+        val userId = UUID.randomUUID()
+        val username = "user"
+        val userDetails = User(username, "password", emptyList())
+        val userEntity = createUser(userId, username)
+
+        setupAuthentication(userDetails)
+        every { userService.findByUsername(username) } returns userEntity
+
+        val result = authorizationService.isEditor()
+
+        assertFalse(result)
+    }
+
+    @Test
+    fun `isEditor should return false when no authentication`() {
+        SecurityContextHolder.clearContext()
+
+        val result = authorizationService.isEditor()
+
+        assertFalse(result)
+    }
+
+    @Test
+    fun `isEditorOrAdmin should return true for editor user`() {
+        val userId = UUID.randomUUID()
+        val username = "editor"
+        val userDetails = User(username, "password", listOf(SimpleGrantedAuthority("ROLE_EDITOR")))
+        val userEntity = createUser(userId, username, roles = setOf(UserRole.EDITOR))
+
+        setupAuthentication(userDetails)
+        every { userService.findByUsername(username) } returns userEntity
+
+        val result = authorizationService.isEditorOrAdmin()
+
+        assertTrue(result)
+    }
+
+    @Test
+    fun `isEditorOrAdmin should return true for admin user`() {
+        val userId = UUID.randomUUID()
+        val username = "admin"
+        val userDetails = User(username, "password", listOf(SimpleGrantedAuthority("ROLE_ADMIN")))
+        val userEntity = createUser(userId, username, roles = setOf(UserRole.ADMIN))
+
+        setupAuthentication(userDetails)
+        every { userService.findByUsername(username) } returns userEntity
+
+        val result = authorizationService.isEditorOrAdmin()
+
+        assertTrue(result)
+    }
+
+    @Test
+    fun `isEditorOrAdmin should return true for user with both roles`() {
+        val userId = UUID.randomUUID()
+        val username = "editor-admin"
+        val userDetails = User(username, "password", listOf(SimpleGrantedAuthority("ROLE_EDITOR"), SimpleGrantedAuthority("ROLE_ADMIN")))
+        val userEntity = createUser(userId, username, roles = setOf(UserRole.EDITOR, UserRole.ADMIN))
+
+        setupAuthentication(userDetails)
+        every { userService.findByUsername(username) } returns userEntity
+
+        val result = authorizationService.isEditorOrAdmin()
+
+        assertTrue(result)
+    }
+
+    @Test
+    fun `isEditorOrAdmin should return false for non-editor and non-admin user`() {
+        val userId = UUID.randomUUID()
+        val username = "user"
+        val userDetails = User(username, "password", emptyList())
+        val userEntity = createUser(userId, username)
+
+        setupAuthentication(userDetails)
+        every { userService.findByUsername(username) } returns userEntity
+
+        val result = authorizationService.isEditorOrAdmin()
+
+        assertFalse(result)
+    }
+
+    @Test
+    fun `isEditorOrAdmin should return false when no authentication`() {
+        SecurityContextHolder.clearContext()
+
+        val result = authorizationService.isEditorOrAdmin()
+
+        assertFalse(result)
+    }
+
+    @Test
+    fun `requireEditor should not throw for editor user`() {
+        val userId = UUID.randomUUID()
+        val username = "editor"
+        val userDetails = User(username, "password", listOf(SimpleGrantedAuthority("ROLE_EDITOR")))
+        val userEntity = createUser(userId, username, roles = setOf(UserRole.EDITOR))
+        setupAuthentication(userDetails)
+
+        every { userService.findByUsername(username) } returns userEntity
+
+        authorizationService.requireEditor()
+    }
+
+    @Test
+    fun `requireEditor should not throw for admin user`() {
+        val userId = UUID.randomUUID()
+        val username = "admin"
+        val userDetails = User(username, "password", listOf(SimpleGrantedAuthority("ROLE_ADMIN")))
+        val adminEntity = createUser(userId, username, roles = setOf(UserRole.ADMIN))
+        setupAuthentication(userDetails)
+
+        every { userService.findByUsername(username) } returns adminEntity
+
+        authorizationService.requireEditor()
+    }
+
+    @Test
+    fun `requireEditor should throw InsufficientPermissionsException for non-editor and non-admin`() {
+        val userId = UUID.randomUUID()
+        val username = "testuser"
+        val userDetails = User(username, "password", emptyList())
+        val userEntity = createUser(userId, username)
+        setupAuthentication(userDetails)
+
+        every { userService.findByUsername(username) } returns userEntity
+
+        assertThrows(InsufficientPermissionsException::class.java) {
+            authorizationService.requireEditor()
+        }
+    }
+
     private fun setupAuthentication(userDetails: UserDetails) {
         val authentication = UsernamePasswordAuthenticationToken(userDetails, null, userDetails.authorities)
         SecurityContextHolder.getContext().authentication = authentication

@@ -198,6 +198,7 @@ export interface Course {
   userLevel?: CEFRLevel;
   estimatedWeeks: number | null;
   displayOrder: number;
+  isDraft?: boolean;
 }
 
 export interface CourseDetail extends Course {

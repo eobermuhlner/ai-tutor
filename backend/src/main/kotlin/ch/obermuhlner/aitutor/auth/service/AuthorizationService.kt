@@ -134,4 +134,39 @@ class AuthorizationService(
             throw AccessDeniedException("Admin role required")
         }
     }
+
+    /**
+     * Check if the currently authenticated user has EDITOR role
+     */
+    fun isEditor(): Boolean {
+        return try {
+            val user = getCurrentUser()
+            user.roles.contains(UserRole.EDITOR)
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    /**
+     * Check if the currently authenticated user has either EDITOR or ADMIN role
+     */
+    fun isEditorOrAdmin(): Boolean {
+        return try {
+            val user = getCurrentUser()
+            user.roles.contains(UserRole.EDITOR) || user.roles.contains(UserRole.ADMIN)
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    /**
+     * Require editor role (or admin role since admins can do everything editors can).
+     * @throws InsufficientPermissionsException if user is not editor
+     */
+    fun requireEditor() {
+        val user = getCurrentUser()
+        if (!user.roles.contains(UserRole.EDITOR) && !user.roles.contains(UserRole.ADMIN)) {
+            throw InsufficientPermissionsException("Editor role required")
+        }
+    }
 }

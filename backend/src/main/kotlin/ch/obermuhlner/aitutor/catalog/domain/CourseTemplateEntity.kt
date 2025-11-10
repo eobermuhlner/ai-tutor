@@ -79,5 +79,17 @@ class CourseTemplateEntity(
 
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
-    var updatedAt: Instant? = null
+    var updatedAt: Instant? = null,
+
+    @Column(name = "is_draft", nullable = false, columnDefinition = "boolean default false")
+    var isDraft: Boolean = false,
+
+    @Column(name = "published_at")
+    var publishedAt: Instant? = null,
+
+    @Column(name = "last_edited_by")
+    var lastEditedBy: UUID? = null,
+
+    @Column(name = "version", nullable = false, columnDefinition = "integer default 1")
+    var version: Int = 1
 )
