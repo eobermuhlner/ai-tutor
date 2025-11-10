@@ -427,26 +427,26 @@ export default function CourseManagementPage() {
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-        <DialogTitle>Confirm Delete</DialogTitle>
         <DialogContent>
+          <DialogTitle>Confirm Delete</DialogTitle>
           <p className="text-slate-600">
             Are you sure you want to delete this course? This action cannot be undone.
           </p>
+          <DialogActions>
+            <Button 
+              variant="outline" 
+              onClick={() => setShowConfirmDialog(false)}
+            >
+              Cancel
+            </Button>
+            <Button 
+              variant="danger" 
+              onClick={handleDeleteCourse}
+            >
+              Delete
+            </Button>
+          </DialogActions>
         </DialogContent>
-        <DialogActions>
-          <Button 
-            variant="outline" 
-            onClick={() => setShowConfirmDialog(false)}
-          >
-            Cancel
-          </Button>
-          <Button 
-            variant="danger" 
-            onClick={handleDeleteCourse}
-          >
-            Delete
-          </Button>
-        </DialogActions>
       </Dialog>
     </div>
     </Layout>
