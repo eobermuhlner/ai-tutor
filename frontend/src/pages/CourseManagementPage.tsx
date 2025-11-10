@@ -76,6 +76,17 @@ export default function CourseManagementPage() {
     // Default fallback
     return { emoji: '🌐', text: languageCode.toUpperCase() };
   };
+
+  const getLocalizedName = (nameJson: string): string => {
+    try {
+      const nameMap = JSON.parse(nameJson);
+      // Fallback to English, then to the first available
+      return nameMap['en'] || Object.values(nameMap)[0] || 'Untitled Course';
+    } catch {
+      // If parsing fails, return a default
+      return 'Untitled Course';
+    }
+  };
   const [courseToDelete, setCourseToDelete] = useState<string | null>(null);
 
   useEffect(() => {
@@ -212,6 +223,9 @@ export default function CourseManagementPage() {
                     Course
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                    Level Range
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                     Language
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
@@ -229,8 +243,10 @@ export default function CourseManagementPage() {
                 {courses.map((course) => (
                   <tr key={course.id} className="hover:bg-slate-50 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-slate-900">{course.name}</div>
-                      <div className="text-sm text-slate-500">
+                      <div className="text-sm font-medium text-slate-900">{getLocalizedName(course.nameJson)}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-slate-900">
                         {course.startingLevel} → {course.targetLevel}
                       </div>
                     </td>
@@ -315,8 +331,10 @@ export default function CourseManagementPage() {
               <div key={course.id} className="border border-slate-200 rounded-lg p-4 bg-white shadow-sm">
                 <div className="flex justify-between items-start">
                   <div>
-                    <h3 className="font-medium text-slate-900">{course.name}</h3>
-                    <p className="text-sm text-slate-500">{course.startingLevel} → {course.targetLevel}</p>
+                    <h3 className="font-medium text-slate-900">{getLocalizedName(course.nameJson)}</h3>
+                    <p className="text-sm text-slate-900 mt-1">
+                      <span className="text-slate-500">Level:</span> {course.startingLevel} → {course.targetLevel}
+                    </p>
                   </div>
                   {getStatusBadge(course.isDraft)}
                 </div>
