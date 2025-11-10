@@ -1,7 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import type { User } from '../../types';
 import { formatDistanceToNow } from 'date-fns';
-import Button from '../ui/Button';
 import {
   User as UserIcon,
   Shield,
@@ -41,6 +40,7 @@ export default function UserTable({ users, onQuickAction }: UserTableProps) {
   };
 
   const toggleMenu = (userId: string, e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
     setOpenMenuId(openMenuId === userId ? null : userId);
   };
@@ -216,7 +216,7 @@ export default function UserTable({ users, onQuickAction }: UserTableProps) {
                   >
                     <div className="py-1">
                       <button
-                        onClick={(e) => handleRowClick(user.id)}
+                        onClick={() => handleRowClick(user.id)}
                         className="block w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-100"
                       >
                         View Details

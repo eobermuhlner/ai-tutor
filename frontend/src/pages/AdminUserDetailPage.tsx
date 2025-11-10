@@ -19,7 +19,6 @@ import {
   ArrowLeft,
   Save,
   Lock,
-  Unlock,
   Key,
   LogOut,
   Crown,

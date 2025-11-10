@@ -1,5 +1,4 @@
 import { useEffect, useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
 import UserTable from '../components/admin/UserTable';
 import Button from '../components/ui/Button';
@@ -14,7 +13,6 @@ import { Users as UsersIcon, Search, Filter, ChevronLeft, ChevronRight } from 'l
 import toast from 'react-hot-toast';
 
 export default function AdminUsersPage() {
-  const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalElements, setTotalElements] = useState(0);
