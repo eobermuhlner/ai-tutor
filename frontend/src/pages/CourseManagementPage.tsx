@@ -7,6 +7,7 @@ import { format } from 'date-fns';
 import Button from '../components/ui/Button';
 import { Dialog, DialogActions, DialogContent, DialogTitle } from '../components/ui/Dialog';
 import Tooltip from '../components/ui/Tooltip';
+import Layout from '../components/layout/Layout';
 import { getLanguages } from '../api/catalog';
 
 export default function CourseManagementPage() {
@@ -160,17 +161,20 @@ export default function CourseManagementPage() {
 
   if (!user || !user.roles.includes('EDITOR') && !user.roles.includes('ADMIN')) {
     return (
-      <div className="max-w-4xl mx-auto p-6">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <h2 className="text-lg font-semibold text-red-800">Access Denied</h2>
-          <p className="text-red-600">You must be an editor or admin to manage courses.</p>
+      <Layout>
+        <div className="max-w-4xl mx-auto p-6">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <h2 className="text-lg font-semibold text-red-800">Access Denied</h2>
+            <p className="text-red-600">You must be an editor or admin to manage courses.</p>
+          </div>
         </div>
-      </div>
+      </Layout>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto p-6">
+    <Layout>
+      <div className="max-w-7xl mx-auto p-6">
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold text-slate-900">Course Management</h1>
@@ -199,7 +203,8 @@ export default function CourseManagementPage() {
         </div>
       ) : (
         <div className="bg-white rounded-xl shadow-soft border border-slate-200 overflow-hidden">
-          <div className="overflow-x-auto">
+          {/* Desktop Table View */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="min-w-full divide-y divide-slate-200">
               <thead className="bg-slate-50">
                 <tr>
@@ -303,6 +308,88 @@ export default function CourseManagementPage() {
               </tbody>
             </table>
           </div>
+          
+          {/* Mobile Card View */}
+          <div className="md:hidden space-y-4 p-4">
+            {courses.map((course) => (
+              <div key={course.id} className="border border-slate-200 rounded-lg p-4 bg-white shadow-sm">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="font-medium text-slate-900">{course.name}</h3>
+                    <p className="text-sm text-slate-500">{course.startingLevel} → {course.targetLevel}</p>
+                  </div>
+                  {getStatusBadge(course.isDraft)}
+                </div>
+                
+                <div className="mt-3 flex items-center gap-2">
+                  {(() => {
+                    const langParts = getLanguageDisplayParts(course.languageCode);
+                    return (
+                      <div className="flex items-center gap-1">
+                        <span className="text-base">{langParts.emoji}</span>
+                        <span className="text-sm text-slate-600">{langParts.text}</span>
+                      </div>
+                    );
+                  })()}
+                </div>
+                
+                <div className="mt-3 text-sm text-slate-500">
+                  Last Updated: {course.updatedAt ? format(new Date(course.updatedAt), 'MMM d, yyyy') : 'N/A'}
+                </div>
+                
+                <div className="mt-4 flex justify-end gap-1">
+                  <Tooltip title="Edit">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => navigate(`/courses/edit/${course.id}`)}
+                      className="p-2"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                  </Tooltip>
+                  <div className="flex gap-1">
+                    {course.isDraft ? (
+                      <Tooltip title="Publish">
+                        <Button
+                          variant="primary"
+                          size="sm"
+                          onClick={() => handlePublishCourse(course.id)}
+                          className="p-2"
+                        >
+                          <CheckCircle className="w-4 h-4" />
+                        </Button>
+                      </Tooltip>
+                    ) : (
+                      <Tooltip title="Unpublish">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleUnpublishCourse(course.id)}
+                          className="p-2"
+                        >
+                          <XCircle className="w-4 h-4" />
+                        </Button>
+                      </Tooltip>
+                    )}
+                    <Tooltip title="Delete">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setCourseToDelete(course.id);
+                          setShowConfirmDialog(true);
+                        }}
+                        className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </Tooltip>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
 
           {courses.length === 0 && (
             <div className="text-center py-12">
@@ -344,5 +431,6 @@ export default function CourseManagementPage() {
         </DialogActions>
       </Dialog>
     </div>
+    </Layout>
   );
 }
