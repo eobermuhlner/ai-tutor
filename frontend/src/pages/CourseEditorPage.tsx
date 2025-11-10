@@ -8,7 +8,7 @@ import type { Language, Tutor } from '../types';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import Select from '../components/ui/Select';
-import Textarea from '../components/ui/Textarea';
+import MultilingualTextArea from '../components/ui/MultilingualTextArea';
 import { Tabs, TabsList, TabsTrigger } from '../components/ui/Tabs';
 
 interface FormData {
@@ -339,50 +339,41 @@ export default function CourseEditorPage() {
 
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
-                Course Name (JSON) *
+                Course Name (Multilingual) *
               </label>
-              <Textarea
+              <MultilingualTextArea
                 value={formData.nameJson}
-                onChange={(e) => handleInputChange('nameJson', e.target.value)}
-                placeholder='{"en":"Course Name", "es":"Nombre del Curso"}'
+                onChange={(value) => handleInputChange('nameJson', value)}
+                placeholder='Enter course name in different languages'
                 rows={3}
                 disabled={loading}
               />
-              <p className="mt-1 text-sm text-slate-500">
-                JSON format with language codes as keys
-              </p>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
-                Short Description (JSON) *
+                Short Description (Multilingual) *
               </label>
-              <Textarea
+              <MultilingualTextArea
                 value={formData.shortDescriptionJson}
-                onChange={(e) => handleInputChange('shortDescriptionJson', e.target.value)}
-                placeholder='{"en":"Short description", "es":"Descripción corta"}'
+                onChange={(value) => handleInputChange('shortDescriptionJson', value)}
+                placeholder='Enter short description in different languages'
                 rows={3}
                 disabled={loading}
               />
-              <p className="mt-1 text-sm text-slate-500">
-                JSON format with language codes as keys
-              </p>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
-                Full Description (JSON) *
+                Full Description (Multilingual) *
               </label>
-              <Textarea
+              <MultilingualTextArea
                 value={formData.descriptionJson}
-                onChange={(e) => handleInputChange('descriptionJson', e.target.value)}
-                placeholder='{"en":"Full description", "es":"Descripción completa"}'
+                onChange={(value) => handleInputChange('descriptionJson', value)}
+                placeholder='Enter full description in different languages'
                 rows={5}
                 disabled={loading}
               />
-              <p className="mt-1 text-sm text-slate-500">
-                JSON format with language codes as keys
-              </p>
             </div>
           </div>
         )}
@@ -436,33 +427,30 @@ export default function CourseEditorPage() {
 
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
-                Target Audience (JSON) *
+                Target Audience (Multilingual) *
               </label>
-              <Textarea
+              <MultilingualTextArea
                 value={formData.targetAudienceJson}
-                onChange={(e) => handleInputChange('targetAudienceJson', e.target.value)}
-                placeholder='{"en":"Course target audience", "es":"Público objetivo"}'
+                onChange={(value) => handleInputChange('targetAudienceJson', value)}
+                placeholder='Enter target audience in different languages'
                 rows={3}
                 disabled={loading}
               />
-              <p className="mt-1 text-sm text-slate-500">
-                JSON format with language codes as keys
-              </p>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
-                Learning Goals (JSON) *
+                Learning Goals (Multilingual) *
               </label>
-              <Textarea
+              <MultilingualTextArea
                 value={formData.learningGoalsJson}
-                onChange={(e) => handleInputChange('learningGoalsJson', e.target.value)}
-                placeholder='{"en":["Goal 1", "Goal 2"], "es":["Objetivo 1", "Objetivo 2"]}'
+                onChange={(value) => handleInputChange('learningGoalsJson', value)}
+                placeholder='Enter learning goals in different languages'
                 rows={5}
                 disabled={loading}
               />
               <p className="mt-1 text-sm text-slate-500">
-                JSON format with language codes as keys. Format: {`{"langCode": ["goal1", "goal2"]}`}
+                Define learning goals in multiple languages
               </p>
             </div>
           </div>
