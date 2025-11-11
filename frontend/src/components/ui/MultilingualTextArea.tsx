@@ -226,7 +226,7 @@ const MultilingualTextArea = ({
         </label>
       )}
       
-      <div className="border border-slate-300 rounded-lg overflow-hidden">
+      <div className="border border-slate-300 rounded-lg overflow-hidden shadow-sm">
         {/* Tab Headers */}
         <div className="flex items-center border-b border-slate-200 bg-slate-50">
           <div className="flex overflow-x-auto">
@@ -319,7 +319,7 @@ const MultilingualTextArea = ({
             onChange={(e) => handleContentChange(e.target.value)}
             placeholder={placeholder}
             rows={rows}
-            className="w-full"
+            className="w-full p-3"
             disabled={disabled}
           />
         </div>

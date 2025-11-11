@@ -6,6 +6,7 @@ import { createCourse, updateCourse, getCourse } from '../api/courseManagement';
 import { getLessons } from '../api/lessonManagement';
 import { useAuthStore } from '../store/authStore';
 import type { Language, Tutor } from '../types';
+import { CourseCategory } from '../types';
 import type { LessonResponse } from '../api/lessonManagement';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
@@ -58,7 +59,7 @@ export default function CourseEditorPage() {
     nameJson: '{"en":"New Course"}',
     shortDescriptionJson: '{"en":"Short description"}',
     descriptionJson: '{"en":"Detailed course description"}',
-    category: 'GENERAL',
+    category: 'General',
     startingLevel: 'A1',
     targetLevel: 'A2',
     targetAudienceJson: '{"en":"Course target audience"}',
@@ -348,11 +349,14 @@ export default function CourseEditorPage() {
                   value={formData.category}
                   onChange={(value) => handleInputChange('category', value)}
                   options={[
-                    { value: 'GENERAL', label: 'General' },
-                    { value: 'BUSINESS', label: 'Business' },
-                    { value: 'TRAVEL', label: 'Travel' },
-                    { value: 'ACADEMIC', label: 'Academic' },
-                    { value: 'EXAM_PREP', label: 'Exam Preparation' },
+                    { value: 'General', label: 'General' },
+                    { value: 'Business', label: 'Business' },
+                    { value: 'Travel', label: 'Travel' },
+                    { value: 'Academic', label: 'Academic' },
+                    { value: 'ExamPrep', label: 'Exam Preparation' },
+                    { value: 'Conversational', label: 'Conversational' },
+                    { value: 'Grammar', label: 'Grammar' },
+                    { value: 'Hobby', label: 'Hobby' },
                   ]}
                   disabled={loading}
                 />
