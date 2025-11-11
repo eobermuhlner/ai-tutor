@@ -150,11 +150,14 @@ const MultilingualTextArea = ({
       const newTabs = prevTabs.map(tab => 
         tab.code === activeTab ? { ...tab, content } : tab
       );
+      // Update the JSON value immediately after state update
+      const obj: Record<string, string> = {};
+      newTabs.forEach(tab => {
+        obj[tab.code] = tab.content;
+      });
+      onChange(JSON.stringify(obj));
       return newTabs;
     });
-    
-    // Debounce the JSON update for performance
-    setTimeout(updateJsonValue, 0);
   };
 
   const addTab = (langCode: string) => {

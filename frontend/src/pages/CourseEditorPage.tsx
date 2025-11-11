@@ -54,7 +54,7 @@ export default function CourseEditorPage() {
   const [initialDataLoaded, setInitialDataLoaded] = useState(false);
 
   const [formData, setFormData] = useState<FormData>({
-    languageCode: '',
+    languageCode: 'en-US',  // Default to English-USA
     nameJson: '{"en":"New Course"}',
     shortDescriptionJson: '{"en":"Short description"}',
     descriptionJson: '{"en":"Detailed course description"}',
@@ -572,11 +572,18 @@ export default function CourseEditorPage() {
             <p className="text-slate-600">Create and manage the lessons for your course.</p>
             
             <div className="bg-slate-50 border border-slate-200 rounded-lg p-6">
-              <LessonEditor 
-                courseId={courseId || ''} 
-                lessons={lessons} 
-                onLessonsChange={setLessons} 
-              />
+              {courseId ? (
+                <LessonEditor 
+                  courseId={courseId} 
+                  lessons={lessons} 
+                  onLessonsChange={setLessons} 
+                />
+              ) : (
+                <div className="text-center py-12">
+                  <p className="text-slate-500 mb-4">Please save the course first before adding lessons.</p>
+                  <p className="text-sm text-slate-400">Lessons can be added after the course is created.</p>
+                </div>
+              )}
             </div>
           </div>
         )}

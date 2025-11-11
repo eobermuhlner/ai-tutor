@@ -40,6 +40,25 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
   }, [lessons]);
 
   const handleAddLesson = async () => {
+    // For new courses without a courseId yet, create a temporary lesson
+    if (!courseId) {
+      const tempLesson: InternalLesson = {
+        id: `temp-${Date.now()}`,
+        lessonId: `week-${internalLessons.length + 1}-new-topic`,
+        title: 'New Lesson',
+        content: `# New Lesson\n\nThis is a new lesson. Add your content here.`,
+        displayOrder: internalLessons.length,
+        minimumDays: 1,
+        requiredTurns: 5,
+        isEditing: true
+      };
+      
+      setInternalLessons([...internalLessons, tempLesson]);
+      setActiveLessonId(tempLesson.id);
+      onLessonsChange([...lessons, tempLesson]);
+      return;
+    }
+
     const newLessonRequest: LessonRequest = {
       lessonId: `week-${lessons.length + 1}-new-topic`,
       title: 'New Lesson',
@@ -65,6 +84,17 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
 
   const handleDeleteLesson = async (lessonId: string, lessonBackendId: string) => {
     if (!window.confirm('Are you sure you want to delete this lesson? This action cannot be undone.')) {
+      return;
+    }
+    
+    // If it's a temporary lesson (no courseId yet), just update local state
+    if ((lessonId.startsWith('temp-') || !courseId) && !lessonBackendId.startsWith('temp-')) {
+      const updatedLessons = internalLessons.filter(lesson => lesson.id !== lessonId);
+      setInternalLessons(updatedLessons);
+      if (activeLessonId === lessonId) {
+        setActiveLessonId(updatedLessons.length > 0 ? updatedLessons[0].id : null);
+      }
+      onLessonsChange(updatedLessons);
       return;
     }
     
@@ -97,6 +127,21 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
   const handleSaveLesson = async (lessonId: string) => {
     const lessonToSave = internalLessons.find(l => l.id === lessonId);
     if (!lessonToSave) return;
+
+    // If it's a temporary lesson (new course) and no courseId available yet, just update the local state
+    if (lessonToSave.id.startsWith('temp-') && !courseId) {
+      setInternalLessons(internalLessons.map(lesson => 
+        lesson.id === lessonId 
+          ? { ...lesson, isEditing: false } 
+          : lesson
+      ));
+      onLessonsChange(internalLessons.map(lesson => 
+        lesson.id === lessonId 
+          ? { ...lesson, isEditing: false } 
+          : lesson
+      ));
+      return;
+    }
     
     // Convert InternalLesson to LessonRequest (excluding backend-only fields)
     const lessonRequest: LessonRequest = {
@@ -209,7 +254,7 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleDeleteLesson(lesson.id, lesson.lessonId)}
+                        onClick={() => handleDeleteLesson(lesson.id, lesson.id)}
                         title="Delete lesson"
                         disabled={loading}
                       >
