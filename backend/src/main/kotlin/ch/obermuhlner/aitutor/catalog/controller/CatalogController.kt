@@ -6,9 +6,11 @@ import ch.obermuhlner.aitutor.catalog.dto.CreateTutorRequest
 import ch.obermuhlner.aitutor.catalog.dto.LanguageResponse
 import ch.obermuhlner.aitutor.catalog.dto.TutorDetailResponse
 import ch.obermuhlner.aitutor.catalog.dto.TutorResponse
+import ch.obermuhlner.aitutor.catalog.dto.UpdateTutorRequest
 import ch.obermuhlner.aitutor.catalog.service.CatalogService
 import ch.obermuhlner.aitutor.image.service.ImageService
 import ch.obermuhlner.aitutor.language.service.LocalizationService
+import org.springframework.web.bind.annotation.PutMapping
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import java.util.UUID
@@ -247,6 +249,42 @@ class CatalogController(
         val isAdmin = authorizationService.isAdmin()
 
         val tutor = catalogService.createTutor(request, currentUserId, isAdmin)
+        return TutorDetailResponse(
+            id = tutor.id,
+            name = tutor.name,
+            emoji = tutor.emoji,
+            persona = localizationService.getLocalizedText(tutor.personaJson, locale, tutor.personaEnglish, "en"),
+            domain = localizationService.getLocalizedText(tutor.domainJson, locale, tutor.domainEnglish, "en"),
+            personality = tutor.personality,
+            teachingStyle = tutor.teachingStyle,
+            description = localizationService.getLocalizedText(tutor.descriptionJson, locale, tutor.descriptionEnglish, "en"),
+            targetLanguageCode = tutor.targetLanguageCode,
+            culturalBackground = tutor.culturalBackgroundJson?.let {
+                localizationService.getLocalizedText(it, locale, "", "en")
+            },
+            location = tutor.location,
+            age = tutor.age,
+            gender = tutor.gender,
+            imageUrl = generateTutorImageUrl(tutor),
+            createdAt = tutor.createdAt ?: java.time.Instant.now(),
+            updatedAt = tutor.updatedAt ?: java.time.Instant.now()
+        )
+    }
+
+    @PutMapping("/tutors/{tutorId}")
+    @ResponseStatus(HttpStatus.OK)
+    fun updateTutor(
+        @PathVariable tutorId: UUID,
+        @RequestBody request: UpdateTutorRequest,
+        @RequestParam(required = false, defaultValue = "en") locale: String
+    ): TutorDetailResponse {
+        // Get authenticated user (required for updating tutors)
+        val currentUserId = authorizationService.getCurrentUserId()
+        val isAdmin = authorizationService.isAdmin()
+
+        val tutor = catalogService.updateTutor(tutorId, request, currentUserId, isAdmin)
+            ?: throw org.springframework.web.server.ResponseStatusException(HttpStatus.NOT_FOUND, "Tutor not found")
+        
         return TutorDetailResponse(
             id = tutor.id,
             name = tutor.name,

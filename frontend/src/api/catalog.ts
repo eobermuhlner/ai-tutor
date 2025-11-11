@@ -55,6 +55,14 @@ export async function createCustomTutor(
   return response.data;
 }
 
+export async function updateCustomTutor(
+  tutorId: string,
+  request: Partial<CreateTutorRequest>
+): Promise<TutorDetail> {
+  const response = await apiClient.put<TutorDetail>(`/catalog/tutors/${tutorId}`, request);
+  return response.data;
+}
+
 export async function getTutorImage(tutorId: string): Promise<string | null> {
   try {
     const response = await apiClient.get<Blob>(

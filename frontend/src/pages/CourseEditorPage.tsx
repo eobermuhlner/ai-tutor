@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Save, CheckCircle, AlertCircle } from 'lucide-react';
-import { getLanguages, getTutors, createCustomTutor } from '../api/catalog';
+import { getLanguages, getTutors, createCustomTutor, updateCustomTutor } from '../api/catalog';
 import { createCourse, updateCourse, getCourse } from '../api/courseManagement';
 import { getLessons } from '../api/lessonManagement';
 import { useAuthStore } from '../store/authStore';
@@ -105,6 +105,36 @@ export default function CourseEditorPage() {
     gender: TutorGender.Neutral,
   });
 
+  // State for editing tutors
+  const [editingTutor, setEditingTutor] = useState<Tutor | null>(null);
+  const [editTutorForm, setEditTutorForm] = useState<{
+    name: string;
+    emoji: string;
+    personaEnglish: string;
+    domainEnglish: string;
+    descriptionEnglish: string;
+    personality: TutorPersonality;
+    teachingStyle: TeachingStyle;
+    targetLanguageCode: string;
+    culturalBackground: string;
+    location: string;
+    age: number;
+    gender: TutorGender;
+  }>({
+    name: '',
+    emoji: '👩‍🏫',
+    personaEnglish: '',
+    domainEnglish: '',
+    descriptionEnglish: '',
+    personality: TutorPersonality.Casual,
+    teachingStyle: TeachingStyle.Reactive,
+    targetLanguageCode: formData.languageCode,
+    culturalBackground: '',
+    location: '',
+    age: 30,
+    gender: TutorGender.Neutral,
+  });
+
   // Update new tutor form when course language changes
   useEffect(() => {
     setNewTutorForm(prev => ({
@@ -129,6 +159,7 @@ export default function CourseEditorPage() {
     }
   }, [formData.languageCode, courseId]);
   const [isCreatingTutor, setIsCreatingTutor] = useState(false);
+  const [isUpdatingTutor, setIsUpdatingTutor] = useState(false);
 
   useEffect(() => {
     const loadInitialData = async () => {
@@ -366,6 +397,77 @@ export default function CourseEditorPage() {
     } finally {
       setIsCreatingTutor(false);
     }
+  };
+
+  const handleEditTutor = (tutor: Tutor) => {
+    // Set the tutor data in the edit form
+    setEditTutorForm({
+      name: tutor.name || '',
+      emoji: tutor.emoji || '👩‍🏫',
+      personaEnglish: tutor.persona || tutor.name || '',
+      domainEnglish: tutor.domain || '',
+      descriptionEnglish: tutor.description || '',
+      personality: tutor.personality,
+      teachingStyle: tutor.teachingStyle,
+      targetLanguageCode: tutor.targetLanguageCode,
+      culturalBackground: tutor.culturalBackground || '',
+      location: tutor.location || '',
+      age: tutor.age,
+      gender: tutor.gender || TutorGender.Neutral,
+    });
+    setEditingTutor(tutor);
+    // Switch to create tab to show the edit form
+    setActiveTutorTab('create');
+  };
+
+  const handleUpdateTutor = async () => {
+    if (!editingTutor) return;
+    
+    setIsUpdatingTutor(true);
+    setError(null);
+
+    try {
+      const request = {
+        name: editTutorForm.name,
+        emoji: editTutorForm.emoji,
+        personaEnglish: editTutorForm.personaEnglish,
+        domainEnglish: editTutorForm.domainEnglish,
+        descriptionEnglish: editTutorForm.descriptionEnglish,
+        personality: editTutorForm.personality,
+        teachingStyle: editTutorForm.teachingStyle,
+        targetLanguageCode: editTutorForm.targetLanguageCode,
+        age: editTutorForm.age,
+        gender: editTutorForm.gender,
+        culturalBackground: editTutorForm.culturalBackground || undefined,
+        location: editTutorForm.location || undefined,
+        isActive: true, // Keep active by default
+        displayOrder: 0, // Default display order
+      };
+
+      const updatedTutor = await updateCustomTutor(editingTutor.id, request);
+      
+      // Update the tutor in the tutors list
+      setTutors(prev => prev.map(t => t.id === updatedTutor.id ? updatedTutor : t));
+      
+      // Reset editing state
+      setEditingTutor(null);
+      setIsUpdatingTutor(false);
+      setActiveTutorTab('select');
+    } catch (error: unknown) {
+      console.error('Error updating tutor:', error);
+      const errorMessage = (error as { response?: { data?: { message?: string } } }).response?.data?.message || 
+                           (error as Error).message || 
+                           'Failed to update custom tutor';
+      setError(errorMessage);
+    } finally {
+      setIsUpdatingTutor(false);
+    }
+  };
+
+  const cancelEditTutor = () => {
+    setEditingTutor(null);
+    setIsUpdatingTutor(false);
+    setActiveTutorTab('select');
   };
 
   const handleSubmit = async (publish: boolean) => {
@@ -779,21 +881,32 @@ export default function CourseEditorPage() {
                     <h3 className="font-medium text-slate-900 mb-4">Select Tutors for this Course</h3>
                     <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {tutors.filter(t => t.targetLanguageCode === formData.languageCode).map(tutor => (
-                        <label key={tutor.id} className="flex items-center p-3 border rounded-lg hover:bg-slate-50 cursor-pointer">
+                        <div key={tutor.id} className="flex items-center p-3 border rounded-lg hover:bg-slate-50">
                           <input
                             type="checkbox"
                             checked={selectedTutors.includes(tutor.id)}
                             onChange={() => handleTutorChange(tutor.id)}
-                            className="h-4 w-4 text-brand-600 rounded focus:ring-brand-500"
+                            className="h-4 w-4 text-brand-600 rounded focus:ring-brand-500 mr-3"
                           />
-                          <div className="ml-3 flex items-center">
+                          <div className="flex-1 flex items-center">
                             <span className="text-2xl">{tutor.emoji}</span>
-                            <div className="ml-2">
+                            <div className="ml-2 flex-1">
                               <div className="font-medium text-slate-900">{tutor.name}</div>
                               <div className="text-sm text-slate-500">{tutor.domain}</div>
                             </div>
                           </div>
-                        </label>
+                          {/* Edit button only for user-created tutors (not for seed data global tutors) */}
+                          <button
+                            type="button"
+                            onClick={() => handleEditTutor(tutor)}
+                            className="ml-2 p-1.5 text-sm rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-700"
+                            title="Edit tutor"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                          </button>
+                        </div>
                       ))}
                     </div>
                     {tutors.filter(t => t.targetLanguageCode === formData.languageCode).length === 0 && (
@@ -807,11 +920,15 @@ export default function CourseEditorPage() {
                 
                 {activeTutorTab === 'create' && (
                   <div className="space-y-4">
-                    <h3 className="font-medium text-slate-900">Create New Tutor</h3>
+                    <h3 className="font-medium text-slate-900">{editingTutor ? 'Edit Tutor' : 'Create New Tutor'}</h3>
                     <div className="bg-slate-50 p-4 rounded-lg">
-                      <p className="text-slate-600 mb-4">Use this form to create a new tutor specifically for this language course.</p>
+                      <p className="text-slate-600 mb-4">
+                        {editingTutor 
+                          ? `Editing tutor: ${editingTutor.name}` 
+                          : 'Use this form to create a new tutor specifically for this language course.'}
+                      </p>
                       
-                      {/* Tutor Creation Form */}
+                      {/* Tutor Creation/Editing Form */}
                       <div className="space-y-4">
                         <div>
                           <label className="block text-sm font-medium text-slate-700 mb-1">
@@ -819,8 +936,14 @@ export default function CourseEditorPage() {
                           </label>
                           <input
                             type="text"
-                            value={newTutorForm.name}
-                            onChange={(e) => setNewTutorForm({...newTutorForm, name: e.target.value})}
+                            value={editingTutor ? editTutorForm.name : newTutorForm.name}
+                            onChange={(e) => {
+                              if (editingTutor) {
+                                setEditTutorForm({...editTutorForm, name: e.target.value});
+                              } else {
+                                setNewTutorForm({...newTutorForm, name: e.target.value});
+                              }
+                            }}
                             className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                             placeholder="e.g., Maria"
                           />
@@ -833,8 +956,14 @@ export default function CourseEditorPage() {
                           <div className="flex gap-2">
                             <input
                               type="text"
-                              value={newTutorForm.emoji}
-                              onChange={(e) => setNewTutorForm({...newTutorForm, emoji: e.target.value})}
+                              value={editingTutor ? editTutorForm.emoji : newTutorForm.emoji}
+                              onChange={(e) => {
+                                if (editingTutor) {
+                                  setEditTutorForm({...editTutorForm, emoji: e.target.value});
+                                } else {
+                                  setNewTutorForm({...newTutorForm, emoji: e.target.value});
+                                }
+                              }}
                               className="flex-1 px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                               placeholder="👩‍🏫"
                               maxLength={4}
@@ -842,7 +971,13 @@ export default function CourseEditorPage() {
                             <button
                               type="button"
                               className="px-4 py-2 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-md transition-colors text-xl"
-                              onClick={() => setNewTutorForm({...newTutorForm, emoji: getRandomEmoji(newTutorForm.gender)})}>
+                              onClick={() => {
+                                if (editingTutor) {
+                                  setEditTutorForm({...editTutorForm, emoji: getRandomEmoji(editTutorForm.gender)});
+                                } else {
+                                  setNewTutorForm({...newTutorForm, emoji: getRandomEmoji(newTutorForm.gender)});
+                                }
+                              }}>
                               🎲
                             </button>
                           </div>
@@ -853,8 +988,14 @@ export default function CourseEditorPage() {
                             Target Language
                           </label>
                           <select
-                            value={newTutorForm.targetLanguageCode}
-                            onChange={(e) => setNewTutorForm({...newTutorForm, targetLanguageCode: e.target.value})}
+                            value={editingTutor ? editTutorForm.targetLanguageCode : newTutorForm.targetLanguageCode}
+                            onChange={(e) => {
+                              if (editingTutor) {
+                                setEditTutorForm({...editTutorForm, targetLanguageCode: e.target.value});
+                              } else {
+                                setNewTutorForm({...newTutorForm, targetLanguageCode: e.target.value});
+                              }
+                            }}
                             className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                           >
                             {languages.map((lang) => (
@@ -872,9 +1013,15 @@ export default function CourseEditorPage() {
                           <div className="grid grid-cols-3 gap-2">
                             <button
                               type="button"
-                              onClick={() => setNewTutorForm({...newTutorForm, gender: TutorGender.Neutral})}
+                              onClick={() => {
+                                if (editingTutor) {
+                                  setEditTutorForm({...editTutorForm, gender: TutorGender.Neutral});
+                                } else {
+                                  setNewTutorForm({...newTutorForm, gender: TutorGender.Neutral});
+                                }
+                              }}
                               className={`p-2 rounded-lg border text-center ${
-                                newTutorForm.gender === TutorGender.Neutral
+                                (editingTutor ? editTutorForm.gender : newTutorForm.gender) === TutorGender.Neutral
                                   ? 'border-brand-500 bg-brand-50'
                                   : 'border-slate-200 hover:border-brand-300'
                               }`}
@@ -884,9 +1031,15 @@ export default function CourseEditorPage() {
                             </button>
                             <button
                               type="button"
-                              onClick={() => setNewTutorForm({...newTutorForm, gender: TutorGender.Male})}
+                              onClick={() => {
+                                if (editingTutor) {
+                                  setEditTutorForm({...editTutorForm, gender: TutorGender.Male});
+                                } else {
+                                  setNewTutorForm({...newTutorForm, gender: TutorGender.Male});
+                                }
+                              }}
                               className={`p-2 rounded-lg border text-center ${
-                                newTutorForm.gender === TutorGender.Male
+                                (editingTutor ? editTutorForm.gender : newTutorForm.gender) === TutorGender.Male
                                   ? 'border-brand-500 bg-brand-50'
                                   : 'border-slate-200 hover:border-brand-300'
                               }`}
@@ -896,9 +1049,15 @@ export default function CourseEditorPage() {
                             </button>
                             <button
                               type="button"
-                              onClick={() => setNewTutorForm({...newTutorForm, gender: TutorGender.Female})}
+                              onClick={() => {
+                                if (editingTutor) {
+                                  setEditTutorForm({...editTutorForm, gender: TutorGender.Female});
+                                } else {
+                                  setNewTutorForm({...newTutorForm, gender: TutorGender.Female});
+                                }
+                              }}
                               className={`p-2 rounded-lg border text-center ${
-                                newTutorForm.gender === TutorGender.Female
+                                (editingTutor ? editTutorForm.gender : newTutorForm.gender) === TutorGender.Female
                                   ? 'border-brand-500 bg-brand-50'
                                   : 'border-slate-200 hover:border-brand-300'
                               }`}
@@ -915,8 +1074,14 @@ export default function CourseEditorPage() {
                           </label>
                           <input
                             type="number"
-                            value={newTutorForm.age}
-                            onChange={(e) => setNewTutorForm({...newTutorForm, age: parseInt(e.target.value) || 30})}
+                            value={editingTutor ? editTutorForm.age : newTutorForm.age}
+                            onChange={(e) => {
+                              if (editingTutor) {
+                                setEditTutorForm({...editTutorForm, age: parseInt(e.target.value) || 30});
+                              } else {
+                                setNewTutorForm({...newTutorForm, age: parseInt(e.target.value) || 30});
+                              }
+                            }}
                             className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                             min="18"
                             max="100"
@@ -929,8 +1094,14 @@ export default function CourseEditorPage() {
                           </label>
                           <input
                             type="text"
-                            value={newTutorForm.personaEnglish}
-                            onChange={(e) => setNewTutorForm({...newTutorForm, personaEnglish: e.target.value})}
+                            value={editingTutor ? editTutorForm.personaEnglish : newTutorForm.personaEnglish}
+                            onChange={(e) => {
+                              if (editingTutor) {
+                                setEditTutorForm({...editTutorForm, personaEnglish: e.target.value});
+                              } else {
+                                setNewTutorForm({...newTutorForm, personaEnglish: e.target.value});
+                              }
+                            }}
                             className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                             placeholder="e.g., Native Spanish teacher from Madrid"
                           />
@@ -942,8 +1113,14 @@ export default function CourseEditorPage() {
                           </label>
                           <input
                             type="text"
-                            value={newTutorForm.domainEnglish}
-                            onChange={(e) => setNewTutorForm({...newTutorForm, domainEnglish: e.target.value})}
+                            value={editingTutor ? editTutorForm.domainEnglish : newTutorForm.domainEnglish}
+                            onChange={(e) => {
+                              if (editingTutor) {
+                                setEditTutorForm({...editTutorForm, domainEnglish: e.target.value});
+                              } else {
+                                setNewTutorForm({...newTutorForm, domainEnglish: e.target.value});
+                              }
+                            }}
                             className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                             placeholder="e.g., Spanish grammar and conversation"
                           />
@@ -954,8 +1131,14 @@ export default function CourseEditorPage() {
                             Description
                           </label>
                           <textarea
-                            value={newTutorForm.descriptionEnglish}
-                            onChange={(e) => setNewTutorForm({...newTutorForm, descriptionEnglish: e.target.value})}
+                            value={editingTutor ? editTutorForm.descriptionEnglish : newTutorForm.descriptionEnglish}
+                            onChange={(e) => {
+                              if (editingTutor) {
+                                setEditTutorForm({...editTutorForm, descriptionEnglish: e.target.value});
+                              } else {
+                                setNewTutorForm({...newTutorForm, descriptionEnglish: e.target.value});
+                              }
+                            }}
                             className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                             placeholder="Describe your tutor's background, teaching approach, and what makes them unique..."
                             rows={3}
@@ -967,8 +1150,14 @@ export default function CourseEditorPage() {
                             Personality
                           </label>
                           <select
-                            value={newTutorForm.personality}
-                            onChange={(e) => setNewTutorForm({...newTutorForm, personality: e.target.value as TutorPersonality})}
+                            value={editingTutor ? editTutorForm.personality : newTutorForm.personality}
+                            onChange={(e) => {
+                              if (editingTutor) {
+                                setEditTutorForm({...editTutorForm, personality: e.target.value as TutorPersonality});
+                              } else {
+                                setNewTutorForm({...newTutorForm, personality: e.target.value as TutorPersonality});
+                              }
+                            }}
                             className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                           >
                             <option value={TutorPersonality.Casual}>{TutorPersonality.Casual}</option>
@@ -984,8 +1173,14 @@ export default function CourseEditorPage() {
                             Teaching Style
                           </label>
                           <select
-                            value={newTutorForm.teachingStyle}
-                            onChange={(e) => setNewTutorForm({...newTutorForm, teachingStyle: e.target.value as TeachingStyle})}
+                            value={editingTutor ? editTutorForm.teachingStyle : newTutorForm.teachingStyle}
+                            onChange={(e) => {
+                              if (editingTutor) {
+                                setEditTutorForm({...editTutorForm, teachingStyle: e.target.value as TeachingStyle});
+                              } else {
+                                setNewTutorForm({...newTutorForm, teachingStyle: e.target.value as TeachingStyle});
+                              }
+                            }}
                             className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                           >
                             <option value={TeachingStyle.Reactive}>{TeachingStyle.Reactive}</option>
@@ -994,15 +1189,36 @@ export default function CourseEditorPage() {
                           </select>
                         </div>
 
-                        <div className="pt-4">
-                          <button
-                            type="button"
-                            onClick={handleCreateTutor}
-                            disabled={isCreatingTutor}
-                            className="w-full bg-brand-600 hover:bg-brand-700 text-white font-medium py-2 px-4 rounded-md disabled:opacity-50"
-                          >
-                            {isCreatingTutor ? 'Creating...' : 'Create Tutor'}
-                          </button>
+                        <div className="pt-4 flex gap-3">
+                          {editingTutor ? (
+                            <>
+                              <button
+                                type="button"
+                                onClick={handleUpdateTutor}
+                                disabled={isUpdatingTutor}
+                                className="flex-1 bg-brand-600 hover:bg-brand-700 text-white font-medium py-2 px-4 rounded-md disabled:opacity-50"
+                              >
+                                {isUpdatingTutor ? 'Saving...' : 'Update Tutor'}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={cancelEditTutor}
+                                disabled={isUpdatingTutor}
+                                className="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-800 font-medium py-2 px-4 rounded-md"
+                              >
+                                Cancel
+                              </button>
+                            </>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={handleCreateTutor}
+                              disabled={isCreatingTutor}
+                              className="w-full bg-brand-600 hover:bg-brand-700 text-white font-medium py-2 px-4 rounded-md disabled:opacity-50"
+                            >
+                              {isCreatingTutor ? 'Creating...' : 'Create Tutor'}
+                            </button>
+                          )}
                         </div>
                       </div>
                     </div>

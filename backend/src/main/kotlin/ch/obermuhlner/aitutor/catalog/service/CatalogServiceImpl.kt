@@ -3,6 +3,7 @@ package ch.obermuhlner.aitutor.catalog.service
 import ch.obermuhlner.aitutor.catalog.domain.CourseTemplateEntity
 import ch.obermuhlner.aitutor.catalog.domain.TutorProfileEntity
 import ch.obermuhlner.aitutor.catalog.dto.CreateTutorRequest
+import ch.obermuhlner.aitutor.catalog.dto.UpdateTutorRequest
 import ch.obermuhlner.aitutor.catalog.repository.CourseTemplateRepository
 import ch.obermuhlner.aitutor.catalog.repository.TutorProfileRepository
 import ch.obermuhlner.aitutor.core.model.CEFRLevel
@@ -160,5 +161,54 @@ class CatalogServiceImpl(
         val saved = tutorProfileRepository.save(tutor)
         logger.info("Created tutor with ID: ${saved.id}, isGlobal: $isGlobal")
         return saved
+    }
+
+    override fun updateTutor(tutorId: UUID, request: UpdateTutorRequest, userId: UUID, isAdmin: Boolean): TutorProfileEntity? {
+        logger.info("Updating tutor: $tutorId for user $userId, isAdmin: $isAdmin")
+
+        val existingTutor = tutorProfileRepository.findById(tutorId).orElse(null) ?: return null
+
+        // Check authorization - users can only update their own tutors unless they're admin
+        if (!isAdmin && existingTutor.createdByUserId != userId) {
+            logger.warn("User $userId attempted to update tutor $tutorId they don't own")
+            return null
+        }
+
+        // Only update fields that are provided in the request
+        if (request.name != null) existingTutor.name = request.name
+        if (request.emoji != null) existingTutor.emoji = request.emoji
+        if (request.personaEnglish != null) existingTutor.personaEnglish = request.personaEnglish
+        if (request.domainEnglish != null) existingTutor.domainEnglish = request.domainEnglish
+        if (request.descriptionEnglish != null) existingTutor.descriptionEnglish = request.descriptionEnglish
+
+        // Update multilingual JSON fields if persona/description/domain are updated
+        if (request.personaEnglish != null) {
+            existingTutor.personaJson = objectMapper.writeValueAsString(mapOf<String, String>("en" to request.personaEnglish))
+        }
+        if (request.domainEnglish != null) {
+            existingTutor.domainJson = objectMapper.writeValueAsString(mapOf<String, String>("en" to request.domainEnglish))
+        }
+        if (request.descriptionEnglish != null) {
+            existingTutor.descriptionJson = objectMapper.writeValueAsString(mapOf<String, String>("en" to request.descriptionEnglish))
+        }
+        if (request.culturalBackground != null) {
+            existingTutor.culturalBackgroundJson = objectMapper.writeValueAsString(mapOf<String, String>("en" to request.culturalBackground))
+        } else if (request.culturalBackground === null) {
+            // If culturalBackground is explicitly null in the request, clear it
+            existingTutor.culturalBackgroundJson = null
+        }
+
+        if (request.location != null) existingTutor.location = request.location
+        if (request.age != null) existingTutor.age = request.age
+        if (request.gender != null) existingTutor.gender = request.gender
+        if (request.personality != null) existingTutor.personality = request.personality
+        if (request.teachingStyle != null) existingTutor.teachingStyle = request.teachingStyle
+        if (request.targetLanguageCode != null) existingTutor.targetLanguageCode = request.targetLanguageCode
+        if (request.isActive != null) existingTutor.isActive = request.isActive
+        if (request.displayOrder != null) existingTutor.displayOrder = request.displayOrder
+
+        val updatedTutor = tutorProfileRepository.save(existingTutor)
+        logger.info("Updated tutor with ID: ${updatedTutor.id}")
+        return updatedTutor
     }
 }

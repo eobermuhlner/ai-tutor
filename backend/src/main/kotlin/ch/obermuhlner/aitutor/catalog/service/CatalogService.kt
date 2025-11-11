@@ -3,6 +3,7 @@ package ch.obermuhlner.aitutor.catalog.service
 import ch.obermuhlner.aitutor.catalog.domain.CourseTemplateEntity
 import ch.obermuhlner.aitutor.catalog.domain.TutorProfileEntity
 import ch.obermuhlner.aitutor.catalog.dto.CreateTutorRequest
+import ch.obermuhlner.aitutor.catalog.dto.UpdateTutorRequest
 import ch.obermuhlner.aitutor.core.model.CEFRLevel
 import ch.obermuhlner.aitutor.core.model.catalog.CourseCategory
 import ch.obermuhlner.aitutor.core.model.catalog.LanguageMetadata
@@ -26,4 +27,5 @@ interface CatalogService {
 
     // Tutor management
     fun createTutor(request: CreateTutorRequest, creatorUserId: UUID, isAdminRequest: Boolean = false): TutorProfileEntity
+    fun updateTutor(tutorId: UUID, request: UpdateTutorRequest, userId: UUID, isAdmin: Boolean): TutorProfileEntity?
 }
