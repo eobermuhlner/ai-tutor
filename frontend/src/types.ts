@@ -28,11 +28,14 @@ export enum MessageRole {
 }
 
 export enum CourseCategory {
-  GENERAL = 'GENERAL',
-  BUSINESS = 'BUSINESS',
-  TRAVEL = 'TRAVEL',
-  ACADEMIC = 'ACADEMIC',
-  EXAM_PREP = 'EXAM_PREP',
+  General = 'General',
+  Business = 'Business',
+  Travel = 'Travel',
+  Academic = 'Academic',
+  ExamPrep = 'ExamPrep',
+  Conversational = 'Conversational',
+  Grammar = 'Grammar',
+  Hobby = 'Hobby',
 }
 
 export enum Difficulty {
@@ -198,6 +201,7 @@ export interface Course {
   userLevel?: CEFRLevel;
   estimatedWeeks: number | null;
   displayOrder: number;
+  isDraft?: boolean;
 }
 
 export interface CourseDetail extends Course {

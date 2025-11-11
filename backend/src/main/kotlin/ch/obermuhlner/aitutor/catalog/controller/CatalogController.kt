@@ -68,9 +68,25 @@ class CatalogController(
     @GetMapping("/languages/{languageCode}/courses")
     fun listCourses(
         @PathVariable languageCode: String,
-        @RequestParam(required = false, defaultValue = "en") locale: String
+        @RequestParam(required = false, defaultValue = "en") locale: String,
+        @RequestParam(required = false, defaultValue = "false") includeDrafts: Boolean
     ): List<CourseResponse> {
-        return catalogService.getCoursesForLanguage(languageCode).map { course ->
+        val isEditorOrAdmin = try {
+            authorizationService.isEditorOrAdmin()
+        } catch (e: Exception) {
+            false // If user is not authenticated or has no special roles, they're not an editor/admin
+        }
+        
+        val courses = if (includeDrafts && isEditorOrAdmin) {
+            // Only editors/admins can see drafts when explicitly requested
+            catalogService.getCoursesForLanguage(languageCode)
+        } else {
+            // Everyone else only sees published courses (non-draft)
+            catalogService.getCoursesForLanguage(languageCode)
+                .filter { !it.isDraft }
+        }
+        
+        return courses.map { course ->
             CourseResponse(
                 id = course.id,
                 languageCode = course.languageCode,
@@ -92,6 +108,18 @@ class CatalogController(
         @RequestParam(required = false, defaultValue = "en") locale: String
     ): CourseDetailResponse? {
         val course = catalogService.getCourseById(courseId) ?: return null
+        
+        // Check if user can access this course (editors/admins can access drafts, others only published)
+        val isEditorOrAdmin = try {
+            authorizationService.isEditorOrAdmin()
+        } catch (e: Exception) {
+            false // If user is not authenticated or has no special roles
+        }
+        
+        if (course.isDraft && !isEditorOrAdmin) {
+            return null // Non-editor users cannot access draft courses
+        }
+        
         // Get current user for tutor visibility filtering (null if not authenticated)
         val userId = try { authorizationService.getCurrentUserId() } catch (e: Exception) { null }
         val suggestedTutors = catalogService.getTutorsForCourse(courseId, userId).map { tutor ->

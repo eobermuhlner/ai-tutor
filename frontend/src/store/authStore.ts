@@ -6,15 +6,27 @@ import type { User } from '../types';
 interface AuthState {
   user: User | null;
   isLoading: boolean;
+  isEditor: boolean;
+  canManageCourses: boolean;
   login: (email: string, password: string) => Promise<User>;
   logout: () => Promise<void>;
   loadUser: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   isLoading: true,
+
+  get isEditor() {
+    const state = get();
+    return state.user?.roles.includes('EDITOR') || false;
+  },
+
+  get canManageCourses() {
+    const state = get();
+    return (state.user?.roles.includes('EDITOR') || state.user?.roles.includes('ADMIN')) || false;
+  },
 
   login: async (email: string, password: string) => {
     const { accessToken, refreshToken, user } = await authApi.login(

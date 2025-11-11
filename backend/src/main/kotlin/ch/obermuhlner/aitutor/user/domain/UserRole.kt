@@ -2,5 +2,6 @@ package ch.obermuhlner.aitutor.user.domain
 
 enum class UserRole {
     USER,   // Normal user - can access own data
-    ADMIN   // Administrator - can manage users
+    ADMIN,  // Administrator - can manage users
+    EDITOR  // Editor - can create and manage courses and tutors
 }

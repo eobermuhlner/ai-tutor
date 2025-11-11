@@ -47,14 +47,14 @@ class AdminUserInitializer(
                 passwordHash = adminPassword,  // Will be hashed by UserService
                 firstName = "System",
                 lastName = "Administrator",
-                roles = mutableSetOf(UserRole.USER, UserRole.ADMIN),
+                roles = mutableSetOf(UserRole.USER, UserRole.ADMIN, UserRole.EDITOR),
                 enabled = true,
                 emailVerified = true
             )
 
             userService.createUser(adminUser)
             logger.info("✓ Admin user '{}' created successfully with email '{}'", adminUsername, adminEmail)
-            logger.info("✓ Admin roles: [USER, ADMIN]")
+            logger.info("✓ Admin roles: [USER, ADMIN, EDITOR]")
         } catch (e: Exception) {
             logger.error("Failed to create admin user: {}", e.message, e)
         }
