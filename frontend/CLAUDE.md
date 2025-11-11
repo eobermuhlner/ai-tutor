@@ -183,6 +183,32 @@ import type { CEFRLevel } from '../../types';  // ERROR!
 
 ## Development Guidelines
 
+### Module Import and Export Guidelines
+
+**CRITICAL**: Always verify module exports and imports to avoid syntax errors during development.
+
+When modifying React components or modules:
+
+1. **Check existing exports before modifying:**
+   - Verify that components have proper `export default` statements
+   - Check that named exports match expected import statements
+   - Ensure export structure matches import patterns in dependent files
+
+2. **Follow import conventions:**
+   - Use correct import syntax: `import ComponentName from './path/to/Component'`
+   - For named exports: `import { ComponentName } from './path/to/Component'`
+   - Avoid modifying export structure unless absolutely necessary
+
+3. **Verify dependent files:**
+   - Check files that import the module you're modifying
+   - Look for import statements that might break with your changes
+   - Ensure import/export consistency across the codebase
+
+4. **Test imports after modifications:**
+   - Run the development server after making changes
+   - Watch for syntax errors in the console
+   - If errors occur, check module export/import patterns immediately
+
 ### Preserving Existing Functionality
 
 **CRITICAL**: Never remove or break existing features without explicit user approval.

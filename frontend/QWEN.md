@@ -45,3 +45,12 @@ This project uses `verbatimModuleSyntax: true`, requiring strict separation betw
 
 ## Development Guidelines
 **CRITICAL**: Never remove or break existing features without explicit user approval. Preserve existing UI/UX patterns, add functionality alongside existing features, and maintain visual consistency.
+
+### Module Import and Export Guidelines
+**CRITICAL**: Always verify module exports and imports to avoid syntax errors during development.
+
+When modifying React components or modules:
+1. Check existing exports before modifying - verify components have proper `export default` statements
+2. Follow import conventions - use correct import syntax and match export structure
+3. Verify dependent files - check files that import the module you're modifying
+4. Test imports after modifications - watch for syntax errors in the console
