@@ -11,6 +11,7 @@ import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import Select from '../components/ui/Select';
 import MultilingualTextArea from '../components/ui/MultilingualTextArea';
+import TagInput from '../components/ui/TagInput';
 import { Tabs, TabsList, TabsTrigger } from '../components/ui/Tabs';
 import LessonEditor from '../components/course/LessonEditor';
 
@@ -28,7 +29,7 @@ interface FormData {
   learningGoalsJson: string;
   // Step 3: Settings
   estimatedWeeks: number | null;
-  tagsJson: string;
+  tags: string[];
   suggestedTutorIdsJson: string;
   defaultPhase: string;
 }
@@ -64,7 +65,7 @@ export default function CourseEditorPage() {
     targetAudienceJson: '{"en":"Course target audience"}',
     learningGoalsJson: '{"en":["Goal 1","Goal 2"]}',
     estimatedWeeks: null,
-    tagsJson: '["tag1","tag2"]',
+    tags: ['tag1', 'tag2'],
     suggestedTutorIdsJson: '[]',
     defaultPhase: 'AUTO',
   });
@@ -89,6 +90,19 @@ export default function CourseEditorPage() {
           const courseData = await getCourse(courseId);
           setIsCreating(false);
           
+          // Parse tags from JSON string to array
+          let tagsArray: string[] = [];
+          try {
+            if (courseData.tagsJson) {
+              const parsedTags = JSON.parse(courseData.tagsJson);
+              if (Array.isArray(parsedTags)) {
+                tagsArray = parsedTags.filter(tag => typeof tag === 'string').map(tag => tag.trim()).filter(tag => tag);
+              }
+            }
+          } catch {
+            tagsArray = [];
+          }
+
           setFormData({
             languageCode: courseData.languageCode,
             nameJson: courseData.nameJson,
@@ -100,7 +114,7 @@ export default function CourseEditorPage() {
             targetAudienceJson: courseData.targetAudienceJson,
             learningGoalsJson: courseData.learningGoalsJson,
             estimatedWeeks: courseData.estimatedWeeks ?? null,
-            tagsJson: courseData.tagsJson || '[]',
+            tags: tagsArray,
             suggestedTutorIdsJson: courseData.suggestedTutorIdsJson || '[]',
             defaultPhase: courseData.defaultPhase,
           });
@@ -134,7 +148,7 @@ export default function CourseEditorPage() {
     loadInitialData();
   }, [courseId]); // Run once when component mounts, but re-run if courseId changes
 
-  const handleInputChange = (field: keyof FormData, value: string | number | null) => {
+  const handleInputChange = (field: keyof FormData, value: string | number | null | string[]) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -171,9 +185,11 @@ export default function CourseEditorPage() {
     setError(null);
     
     try {
+      // Convert tags array to JSON string for the backend
       // Update the suggestedTutorIdsJson with selected tutors
       const updatedFormData = {
         ...formData,
+        tagsJson: JSON.stringify(formData.tags),
         suggestedTutorIdsJson: JSON.stringify(selectedTutors),
       };
 
@@ -520,16 +536,16 @@ export default function CourseEditorPage() {
 
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
-                Tags (JSON Array)
+                Tags
               </label>
-              <Input
-                value={formData.tagsJson}
-                onChange={(e) => handleInputChange('tagsJson', e.target.value)}
-                placeholder='["tag1", "tag2"]'
+              <TagInput
+                value={formData.tags}
+                onChange={(tags) => handleInputChange('tags', tags)}
+                placeholder="Add a tag..."
                 disabled={loading}
               />
               <p className="mt-1 text-sm text-slate-500">
-                JSON array of tags for categorization
+                Add tags to categorize your course
               </p>
             </div>
 
@@ -635,7 +651,7 @@ export default function CourseEditorPage() {
                   <div>{formData.defaultPhase}</div>
                   
                   <div className="text-slate-500">Tags:</div>
-                  <div>{formData.tagsJson}</div>
+                  <div>{formData.tags.length > 0 ? formData.tags.join(', ') : 'None'}</div>
                 </div>
               </div>
 
