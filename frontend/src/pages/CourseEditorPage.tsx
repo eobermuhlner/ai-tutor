@@ -3,13 +3,16 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Save, CheckCircle, AlertCircle } from 'lucide-react';
 import { getLanguages, getTutors } from '../api/catalog';
 import { createCourse, updateCourse, getCourse } from '../api/courseManagement';
+import { getLessons } from '../api/lessonManagement';
 import { useAuthStore } from '../store/authStore';
 import type { Language, Tutor } from '../types';
+import type { LessonResponse } from '../api/lessonManagement';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import Select from '../components/ui/Select';
 import MultilingualTextArea from '../components/ui/MultilingualTextArea';
 import { Tabs, TabsList, TabsTrigger } from '../components/ui/Tabs';
+import LessonEditor from '../components/course/LessonEditor';
 
 interface FormData {
   // Step 1: Basic Info
@@ -34,6 +37,7 @@ const STEPS = [
   { id: 'basic', label: 'Basic Info', icon: '📝' },
   { id: 'levels', label: 'Levels & Goals', icon: '🎯' },
   { id: 'settings', label: 'Settings', icon: '⚙️' },
+  { id: 'lessons', label: 'Lessons', icon: '📚' },
   { id: 'review', label: 'Review', icon: '✅' },
 ];
 
@@ -66,6 +70,7 @@ export default function CourseEditorPage() {
   });
 
   const [selectedTutors, setSelectedTutors] = useState<string[]>([]);
+  const [lessons, setLessons] = useState<LessonResponse[]>([]);
 
   useEffect(() => {
     loadInitialData();
@@ -109,6 +114,15 @@ export default function CourseEditorPage() {
           setSelectedTutors(tutorIds);
         } catch {
           setSelectedTutors([]);
+        }
+        
+        // Load existing lessons for the course
+        try {
+          const courseLessons = await getLessons(courseId);
+          setLessons(courseLessons);
+        } catch (err) {
+          console.error('Failed to load lessons:', err);
+          // Don't set an error state for lessons as it's not critical for course editing
         }
       }
       setInitialDataLoaded(true);
@@ -175,6 +189,12 @@ export default function CourseEditorPage() {
         // For now, just navigate to management page, publishing will be handled separately
       }
 
+      // After course is saved/updated, also save lessons if needed
+      if (result.id) {
+        // For now, just navigate - lesson saving would happen separately
+        // In a real implementation, you'd save the lessons to the backend
+      }
+
       navigate('/courses/manage');
     } catch (err) {
       console.error('Failed to save course:', err);
@@ -208,6 +228,8 @@ export default function CourseEditorPage() {
                formData.targetAudienceJson;
       case 2: // Settings
         return true; // All fields are optional in settings
+      case 3: // Lessons
+        return true; // All fields are optional in lessons (lessons step is informational)
       default:
         return true;
     }
@@ -545,6 +567,21 @@ export default function CourseEditorPage() {
         )}
 
         {step === 3 && (
+          <div className="space-y-6">
+            <h2 className="text-xl font-semibold text-slate-900">Course Lessons</h2>
+            <p className="text-slate-600">Create and manage the lessons for your course.</p>
+            
+            <div className="bg-slate-50 border border-slate-200 rounded-lg p-6">
+              <LessonEditor 
+                courseId={courseId || ''} 
+                lessons={lessons} 
+                onLessonsChange={setLessons} 
+              />
+            </div>
+          </div>
+        )}
+
+        {step === 4 && (
           <div className="space-y-6">
             <h2 className="text-xl font-semibold text-slate-900">Review & Save</h2>
             <p className="text-slate-600">Review all course details before saving.</p>
