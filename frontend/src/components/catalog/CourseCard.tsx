@@ -15,11 +15,14 @@ export default function CourseCard({ course, onClick, language }: CourseCardProp
   };
 
   const categoryColors = {
-    GENERAL: 'bg-gradient-to-r from-blue-500 to-cyan-600 text-white',
-    BUSINESS: 'bg-gradient-to-r from-purple-500 to-violet-600 text-white',
-    TRAVEL: 'bg-gradient-to-r from-pink-500 to-rose-600 text-white',
-    ACADEMIC: 'bg-gradient-to-r from-indigo-500 to-blue-600 text-white',
-    EXAM_PREP: 'bg-gradient-to-r from-orange-500 to-amber-600 text-white',
+    General: 'bg-gradient-to-r from-blue-500 to-cyan-600 text-white',
+    Business: 'bg-gradient-to-r from-purple-500 to-violet-600 text-white',
+    Travel: 'bg-gradient-to-r from-pink-500 to-rose-600 text-white',
+    Academic: 'bg-gradient-to-r from-indigo-500 to-blue-600 text-white',
+    ExamPrep: 'bg-gradient-to-r from-orange-500 to-amber-600 text-white',
+    Conversational: 'bg-gradient-to-r from-green-500 to-emerald-600 text-white',
+    Grammar: 'bg-gradient-to-r from-amber-500 to-yellow-600 text-white',
+    Hobby: 'bg-gradient-to-r from-purple-500 to-fuchsia-600 text-white',
   };
 
   return (

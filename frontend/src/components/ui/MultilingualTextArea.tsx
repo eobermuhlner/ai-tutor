@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
 import Textarea from './Textarea';
 
@@ -32,11 +32,11 @@ const MultilingualTextArea = ({
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   // Fixed global list of available languages for UI
-  const availableLanguages = [
+  const availableLanguages = useMemo(() => [
     { code: 'en', name: 'English', flag: '🇺🇸' },
     { code: 'de', name: 'German', flag: '🇩🇪' },
     { code: 'es', name: 'Spanish', flag: '🇪🇸' },
-  ];
+  ], []);
 
   // Calculate dropdown position when dropdown opens
   useEffect(() => {
@@ -132,16 +132,7 @@ const MultilingualTextArea = ({
         setActiveTab(firstLang.code);
       }
     }
-  }, [value]);
-
-  // Update JSON value when tabs change
-  const updateJsonValue = () => {
-    const obj: Record<string, string> = {};
-    tabs.forEach(tab => {
-      obj[tab.code] = tab.content;
-    });
-    onChange(JSON.stringify(obj));
-  };
+  }, [value, availableLanguages]);
 
   const handleContentChange = (content: string) => {
     if (!activeTab) return;

@@ -100,11 +100,14 @@ export default function CourseDetailPage() {
   }
 
   const categoryColors = {
-    GENERAL: 'bg-blue-100 text-blue-800',
-    BUSINESS: 'bg-purple-100 text-purple-800',
-    TRAVEL: 'bg-pink-100 text-pink-800',
-    ACADEMIC: 'bg-indigo-100 text-indigo-800',
-    EXAM_PREP: 'bg-orange-100 text-orange-800',
+    General: 'bg-blue-100 text-blue-800',
+    Business: 'bg-purple-100 text-purple-800',
+    Travel: 'bg-pink-100 text-pink-800',
+    Academic: 'bg-indigo-100 text-indigo-800',
+    ExamPrep: 'bg-orange-100 text-orange-800',
+    Conversational: 'bg-green-100 text-green-800',
+    Grammar: 'bg-amber-100 text-amber-800',
+    Hobby: 'bg-purple-100 text-purple-800',
   };
 
   const currentLanguage = languages.find((lang) => lang.code === course.languageCode);

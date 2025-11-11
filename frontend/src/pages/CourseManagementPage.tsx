@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Edit, Trash2, Eye, EyeOff, CheckCircle, XCircle } from 'lucide-react';
-import { getAllCourses, deleteCourse, publishCourse, unpublishCourse } from '../api/courseManagement';
+import { getAllCourses, deleteCourse, publishCourse, unpublishCourse, type CourseResponse } from '../api/courseManagement';
 import { useAuthStore } from '../store/authStore';
 import { format } from 'date-fns';
 import Button from '../components/ui/Button';
@@ -9,19 +9,20 @@ import { Dialog, DialogActions, DialogContent, DialogTitle } from '../components
 import Tooltip from '../components/ui/Tooltip';
 import Layout from '../components/layout/Layout';
 import { getLanguages } from '../api/catalog';
+import type { Language } from '../types';
 
 export default function CourseManagementPage() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
-  const [courses, setCourses] = useState<any[]>([]);
-  const [allLanguages, setAllLanguages] = useState<any[]>([]);
+  const [courses, setCourses] = useState<CourseResponse[]>([]);
+  const [allLanguages, setAllLanguages] = useState<Language[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
   // Language code to display mapping
   const getLanguageDisplayParts = (languageCode: string): { emoji: string; text: string } => {
-    const language = allLanguages.find((lang: any) => lang.code === languageCode);
+    const language = allLanguages.find((lang) => lang.code === languageCode);
     if (language) {
       return { emoji: language.flagEmoji, text: language.nativeName };
     }

@@ -26,11 +26,11 @@ export default function FilterBar({
 
   const categories: (CourseCategory | undefined)[] = [
     undefined,
-    CourseCategory.GENERAL,
-    CourseCategory.BUSINESS,
-    CourseCategory.TRAVEL,
-    CourseCategory.ACADEMIC,
-    CourseCategory.EXAM_PREP,
+    CourseCategory.General,
+    CourseCategory.Business,
+    CourseCategory.Travel,
+    CourseCategory.Academic,
+    CourseCategory.ExamPrep,
   ];
 
   return (

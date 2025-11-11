@@ -9,28 +9,47 @@ import {
 import Button from '../ui/Button';
 import Input from '../ui/Input';
 import Textarea from '../ui/Textarea';
-import Select from '../ui/Select';
-
 interface LessonEditorProps {
   courseId: string;
   lessons: LessonResponse[];
   onLessonsChange: (lessons: LessonResponse[]) => void;
-  isEditing?: boolean;
-  setIsEditing?: (isEditing: boolean) => void;
 }
 
-interface InternalLesson extends LessonResponse {
+interface InternalLesson {
+  id: string;
+  courseId: string;
+  lessonId: string;
+  title: string;
+  content: string;
+  displayOrder: number;
+  minimumDays?: number | null;
+  requiredTurns?: number | null;
+  createdAt: string;
+  updatedAt: string;
   isEditing?: boolean;
+}
+
+// For temporary lessons that don't exist on the backend yet
+interface TemporaryLesson {
+  id: string;
+  courseId: string;
+  lessonId: string;
+  title: string;
+  content: string;
+  displayOrder: number;
+  minimumDays?: number | null;
+  requiredTurns?: number | null;
+  createdAt: string;
+  updatedAt: string;
+  isEditing: boolean;
 }
 
 const LessonEditor: React.FC<LessonEditorProps> = ({ 
   courseId, 
   lessons, 
   onLessonsChange, 
-  isEditing = false,
-  setIsEditing
 }) => {
-  const [internalLessons, setInternalLessons] = useState<InternalLesson[]>([]);
+  const [internalLessons, setInternalLessons] = useState<Array<InternalLesson | TemporaryLesson>>([]);
   const [activeLessonId, setActiveLessonId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   
@@ -42,20 +61,23 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
   const handleAddLesson = async () => {
     // For new courses without a courseId yet, create a temporary lesson
     if (!courseId) {
-      const tempLesson: InternalLesson = {
+      const tempLesson: TemporaryLesson = {
         id: `temp-${Date.now()}`,
+        courseId: courseId || '', // Use actual courseId or empty string
         lessonId: `week-${internalLessons.length + 1}-new-topic`,
         title: 'New Lesson',
         content: `# New Lesson\n\nThis is a new lesson. Add your content here.`,
         displayOrder: internalLessons.length,
         minimumDays: 1,
         requiredTurns: 5,
+        createdAt: new Date().toISOString(), // Set current date for temporary lesson
+        updatedAt: new Date().toISOString(),
         isEditing: true
       };
       
       setInternalLessons([...internalLessons, tempLesson]);
       setActiveLessonId(tempLesson.id);
-      onLessonsChange([...lessons, tempLesson]);
+      // Don't update parent with temporary lessons - only send real lessons
       return;
     }
 
@@ -94,7 +116,10 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
       if (activeLessonId === lessonId) {
         setActiveLessonId(updatedLessons.length > 0 ? updatedLessons[0].id : null);
       }
-      onLessonsChange(updatedLessons);
+      // Only update parent if we're dealing with real lessons
+      if (!lessonId.startsWith('temp-')) {
+        onLessonsChange(updatedLessons.filter(lesson => !lesson.id.startsWith('temp-')));
+      }
       return;
     }
     
@@ -106,7 +131,10 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
       if (activeLessonId === lessonId) {
         setActiveLessonId(updatedLessons.length > 0 ? updatedLessons[0].id : null);
       }
-      onLessonsChange(updatedLessons);
+      // Only update parent if we're dealing with real lessons
+      if (!lessonId.startsWith('temp-')) {
+        onLessonsChange(updatedLessons.filter(lesson => !lesson.id.startsWith('temp-')));
+      }
     } catch (error) {
       console.error('Failed to delete lesson:', error);
       // TODO: Show error to user
@@ -130,16 +158,16 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
 
     // If it's a temporary lesson (new course) and no courseId available yet, just update the local state
     if (lessonToSave.id.startsWith('temp-') && !courseId) {
-      setInternalLessons(internalLessons.map(lesson => 
+      const newInternalLessons = internalLessons.map(lesson => 
         lesson.id === lessonId 
           ? { ...lesson, isEditing: false } 
           : lesson
-      ));
-      onLessonsChange(internalLessons.map(lesson => 
-        lesson.id === lessonId 
-          ? { ...lesson, isEditing: false } 
-          : lesson
-      ));
+      );
+      setInternalLessons(newInternalLessons);
+      // For temporary lessons, don't update the parent
+      if (!lessonId.startsWith('temp-')) {
+        onLessonsChange(newInternalLessons.filter(lesson => !lesson.id.startsWith('temp-')));
+      }
       return;
     }
     
@@ -156,16 +184,13 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
     try {
       setLoading(true);
       const updatedLesson = await updateLesson(courseId, lessonToSave.lessonId, lessonRequest);
-      setInternalLessons(internalLessons.map(lesson => 
+      const newInternalLessons = internalLessons.map(lesson => 
         lesson.id === lessonId 
           ? { ...updatedLesson, isEditing: false } 
           : lesson
-      ));
-      onLessonsChange(internalLessons.map(lesson => 
-        lesson.id === lessonId 
-          ? updatedLesson 
-          : lesson
-      ));
+      );
+      setInternalLessons(newInternalLessons);
+      onLessonsChange(newInternalLessons.filter(lesson => !lesson.id.startsWith('temp-')));
     } catch (error) {
       console.error('Failed to update lesson:', error);
       // TODO: Show error to user
@@ -182,27 +207,12 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
     ));
   };
 
-  const handleFieldChange = (lessonId: string, field: keyof InternalLesson, value: any) => {
+  const handleFieldChange = (lessonId: string, field: keyof InternalLesson, value: string | number | null) => {
     setInternalLessons(internalLessons.map(lesson => 
       lesson.id === lessonId 
         ? { ...lesson, [field]: value } 
         : lesson
     ));
-  };
-
-  const moveLesson = (fromIndex: number, toIndex: number) => {
-    const newLessons = [...internalLessons];
-    const [movedItem] = newLessons.splice(fromIndex, 1);
-    newLessons.splice(toIndex, 0, movedItem);
-    
-    // Update displayOrder
-    const reorderedLessons = newLessons.map((lesson, index) => ({
-      ...lesson,
-      displayOrder: index
-    }));
-    
-    setInternalLessons(reorderedLessons);
-    onLessonsChange(reorderedLessons);
   };
 
   return (

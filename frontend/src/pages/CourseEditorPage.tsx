@@ -6,7 +6,6 @@ import { createCourse, updateCourse, getCourse } from '../api/courseManagement';
 import { getLessons } from '../api/lessonManagement';
 import { useAuthStore } from '../store/authStore';
 import type { Language, Tutor } from '../types';
-import { CourseCategory } from '../types';
 import type { LessonResponse } from '../api/lessonManagement';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
@@ -74,68 +73,68 @@ export default function CourseEditorPage() {
   const [lessons, setLessons] = useState<LessonResponse[]>([]);
 
   useEffect(() => {
-    loadInitialData();
-  }, []);
+    const loadInitialData = async () => {
+      try {
+        setLoading(true);
+        const [langs, tutorsData] = await Promise.all([
+          getLanguages('en'),
+          getTutors('en', 'en') // For now, using 'en' as placeholder
+        ]);
+        
+        setLanguages(langs);
+        setTutors(tutorsData);
 
-  const loadInitialData = async () => {
-    try {
-      setLoading(true);
-      const [langs, tutorsData] = await Promise.all([
-        getLanguages('en'),
-        getTutors('en', 'en') // For now, using 'en' as placeholder
-      ]);
-      
-      setLanguages(langs);
-      setTutors(tutorsData);
-
-      if (courseId) {
-        // Load existing course data for editing
-        const courseData = await getCourse(courseId);
-        setIsCreating(false);
-        
-        setFormData({
-          languageCode: courseData.languageCode,
-          nameJson: courseData.nameJson,
-          shortDescriptionJson: courseData.shortDescriptionJson,
-          descriptionJson: courseData.descriptionJson,
-          category: courseData.category,
-          startingLevel: courseData.startingLevel,
-          targetLevel: courseData.targetLevel,
-          targetAudienceJson: courseData.targetAudienceJson,
-          learningGoalsJson: courseData.learningGoalsJson,
-          estimatedWeeks: courseData.estimatedWeeks ?? null,
-          tagsJson: courseData.tagsJson || '[]',
-          suggestedTutorIdsJson: courseData.suggestedTutorIdsJson || '[]',
-          defaultPhase: courseData.defaultPhase,
-        });
-        
-        // Parse selected tutors from JSON
-        try {
-          const tutorIds = JSON.parse(courseData.suggestedTutorIdsJson || '[]');
-          setSelectedTutors(tutorIds);
-        } catch {
-          setSelectedTutors([]);
+        if (courseId) {
+          // Load existing course data for editing
+          const courseData = await getCourse(courseId);
+          setIsCreating(false);
+          
+          setFormData({
+            languageCode: courseData.languageCode,
+            nameJson: courseData.nameJson,
+            shortDescriptionJson: courseData.shortDescriptionJson,
+            descriptionJson: courseData.descriptionJson,
+            category: courseData.category,
+            startingLevel: courseData.startingLevel,
+            targetLevel: courseData.targetLevel,
+            targetAudienceJson: courseData.targetAudienceJson,
+            learningGoalsJson: courseData.learningGoalsJson,
+            estimatedWeeks: courseData.estimatedWeeks ?? null,
+            tagsJson: courseData.tagsJson || '[]',
+            suggestedTutorIdsJson: courseData.suggestedTutorIdsJson || '[]',
+            defaultPhase: courseData.defaultPhase,
+          });
+          
+          // Parse selected tutors from JSON
+          try {
+            const tutorIds = JSON.parse(courseData.suggestedTutorIdsJson || '[]');
+            setSelectedTutors(tutorIds);
+          } catch {
+            setSelectedTutors([]);
+          }
+          
+          // Load existing lessons for the course
+          try {
+            const courseLessons = await getLessons(courseId);
+            setLessons(courseLessons);
+          } catch (err) {
+            console.error('Failed to load lessons:', err);
+            // Don't set an error state for lessons as it's not critical for course editing
+          }
         }
-        
-        // Load existing lessons for the course
-        try {
-          const courseLessons = await getLessons(courseId);
-          setLessons(courseLessons);
-        } catch (err) {
-          console.error('Failed to load lessons:', err);
-          // Don't set an error state for lessons as it's not critical for course editing
-        }
+        setInitialDataLoaded(true);
+      } catch (err) {
+        console.error('Failed to load initial data:', err);
+        setError('Failed to load initial data. Please try again.');
+      } finally {
+        setLoading(false);
       }
-      setInitialDataLoaded(true);
-    } catch (err) {
-      console.error('Failed to load initial data:', err);
-      setError('Failed to load initial data. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
-  const handleInputChange = (field: keyof FormData, value: any) => {
+    loadInitialData();
+  }, [courseId]); // Run once when component mounts, but re-run if courseId changes
+
+  const handleInputChange = (field: keyof FormData, value: string | number | null) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
