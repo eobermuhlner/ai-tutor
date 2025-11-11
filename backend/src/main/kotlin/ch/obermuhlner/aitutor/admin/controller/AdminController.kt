@@ -310,6 +310,36 @@ class AdminController(
     }
 
     /**
+     * Unlock a user account by clearing failed login attempts and temporary locks.
+     * Only accessible by admins.
+     *
+     * @param userId The user ID to unlock
+     * @return Success message
+     */
+    @PostMapping("/users/{userId}/unlock")
+    fun unlockUser(@PathVariable userId: UUID): ResponseEntity<Map<String, String>> {
+        if (!authorizationService.isAdmin()) {
+            throw InsufficientPermissionsException("Admin role required")
+        }
+
+        logger.info("Admin unlocking user: $userId")
+
+        val user = userRepository.findById(userId).orElseThrow {
+            RuntimeException("User not found: $userId")
+        }
+
+        // Clear failed login attempts and temporary lock
+        user.failedLoginAttempts = 0
+        user.lastFailedLoginAt = null
+        user.lockedUntil = null
+        userRepository.save(user)
+
+        logger.info("User account unlocked: ${user.username}")
+
+        return ResponseEntity.ok(mapOf("message" to "User account unlocked successfully"))
+    }
+
+    /**
      * Convert UserEntity to UserResponse.
      */
     private fun toUserResponse(user: ch.obermuhlner.aitutor.user.domain.UserEntity): UserResponse {

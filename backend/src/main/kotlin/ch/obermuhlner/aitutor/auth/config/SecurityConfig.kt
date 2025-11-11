@@ -1,5 +1,6 @@
 package ch.obermuhlner.aitutor.auth.config
 
+import ch.obermuhlner.aitutor.auth.filter.AuthRateLimitFilter
 import ch.obermuhlner.aitutor.auth.filter.JwtAuthenticationFilter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -22,6 +23,7 @@ import org.springframework.web.cors.CorsConfigurationSource
 @EnableMethodSecurity
 class SecurityConfig(
     private val jwtAuthenticationFilter: JwtAuthenticationFilter,
+    private val authRateLimitFilter: AuthRateLimitFilter,
     private val corsConfigurationSource: CorsConfigurationSource,
     private val env: Environment
 ) {
@@ -45,7 +47,10 @@ class SecurityConfig(
                     .requestMatchers(
                         "/api/v1/auth/register",
                         "/api/v1/auth/login",
-                        "/api/v1/auth/refresh"
+                        "/api/v1/auth/refresh",
+                        "/api/v1/auth/password/forgot",
+                        "/api/v1/auth/password/reset",
+                        "/api/v1/auth/verify-email"
                     ).permitAll()
 
                     // Stripe webhook endpoint (validated via signature)
@@ -81,6 +86,9 @@ class SecurityConfig(
                     // Everything else denied by default
                     .anyRequest().denyAll()
             }
+
+            // Add rate limit filter before JWT filter
+            .addFilterBefore(authRateLimitFilter, UsernamePasswordAuthenticationFilter::class.java)
 
             // Add JWT filter ahead of UsernamePasswordAuthenticationFilter
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)

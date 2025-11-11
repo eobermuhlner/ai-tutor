@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Locked</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+    <div style="background-color: #fee2e2; border-radius: 10px; padding: 30px; margin-bottom: 20px; border-left: 4px solid #ef4444;">
+        <h1 style="color: #dc2626; margin-top: 0;">🔒 Account Locked - Security Alert</h1>
+
+        <p>Hello <strong th:text="${username}">User</strong>,</p>
+
+        <p>Your AI Tutor account has been temporarily locked due to multiple failed login attempts.</p>
+
+        <div style="background-color: #fecaca; padding: 15px; border-radius: 5px; margin: 20px 0;">
+            <p style="margin: 0;"><strong>Your account will automatically unlock at:</strong></p>
+            <p style="font-size: 18px; font-weight: bold; color: #dc2626; margin: 10px 0;" th:text="${unlockTime}">unlock time</p>
+        </div>
+
+        <h3 style="color: #dc2626;">What happened?</h3>
+        <p>Someone attempted to log in to your account multiple times with an incorrect password. This security measure protects your account from unauthorized access.</p>
+
+        <h3 style="color: #dc2626;">What should you do?</h3>
+        <ul>
+            <li>If this was you, please wait for the automatic unlock and try again</li>
+            <li>If this wasn't you, someone may be trying to access your account - consider changing your password after the lockout period</li>
+            <li>Make sure you're using a strong, unique password</li>
+        </ul>
+
+        <p style="background-color: #f3f4f6; padding: 15px; border-radius: 5px; margin-top: 20px;">
+            <strong>Need help?</strong> If you continue to have issues logging in, please contact our support team.
+        </p>
+    </div>
+
+    <div style="text-align: center; color: #6b7280; font-size: 12px;">
+        <p>AI Tutor - Your Personal Language Learning Assistant</p>
+        <p>This is an automated security alert.</p>
+    </div>
+</body>
+</html>

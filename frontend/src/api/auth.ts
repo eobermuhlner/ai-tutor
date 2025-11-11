@@ -93,3 +93,37 @@ export async function updatePronunciationPreference(pronunciationPreference: str
   });
   return response.data;
 }
+
+// Email verification
+export async function sendVerificationEmail(): Promise<{ message: string }> {
+  const response = await apiClient.post<{ message: string }>('/auth/verify-email/send');
+  return response.data;
+}
+
+export async function resendVerificationEmail(): Promise<{ message: string }> {
+  const response = await apiClient.post<{ message: string }>('/auth/verify-email/resend');
+  return response.data;
+}
+
+export async function verifyEmail(token: string): Promise<{ message: string }> {
+  const response = await apiClient.post<{ message: string }>('/auth/verify-email', {
+    token,
+  });
+  return response.data;
+}
+
+// Password reset
+export async function forgotPassword(email: string): Promise<{ message: string }> {
+  const response = await apiClient.post<{ message: string }>('/auth/password/forgot', {
+    email,
+  });
+  return response.data;
+}
+
+export async function resetPassword(token: string, newPassword: string): Promise<{ message: string }> {
+  const response = await apiClient.post<{ message: string }>('/auth/password/reset', {
+    token,
+    newPassword,
+  });
+  return response.data;
+}

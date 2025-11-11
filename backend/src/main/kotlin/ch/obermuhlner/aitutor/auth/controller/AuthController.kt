@@ -127,4 +127,48 @@ class AuthController(
         val response = authService.updatePronunciationPreference(userId, request.pronunciationPreference)
         return ResponseEntity.ok(response)
     }
+
+    @PostMapping("/verify-email/send")
+    @Operation(summary = "Send email verification", description = "Sends a verification email to the authenticated user's email address")
+    fun sendVerificationEmail(): ResponseEntity<Map<String, String>> {
+        val userId = authorizationService.getCurrentUserId()
+        authService.sendVerificationEmail(userId)
+        return ResponseEntity.ok(mapOf("message" to "Verification email sent"))
+    }
+
+    @PostMapping("/verify-email/resend")
+    @Operation(summary = "Resend email verification", description = "Resends a verification email (invalidates previous tokens)")
+    fun resendVerificationEmail(): ResponseEntity<Map<String, String>> {
+        val userId = authorizationService.getCurrentUserId()
+        authService.resendVerificationEmail(userId)
+        return ResponseEntity.ok(mapOf("message" to "Verification email resent"))
+    }
+
+    @PostMapping("/verify-email")
+    @Operation(summary = "Verify email", description = "Verifies user's email address using the token from the verification email")
+    fun verifyEmail(
+        @RequestBody request: VerifyEmailRequest
+    ): ResponseEntity<Map<String, String>> {
+        authService.verifyEmail(request)
+        return ResponseEntity.ok(mapOf("message" to "Email verified successfully"))
+    }
+
+    @PostMapping("/password/forgot")
+    @Operation(summary = "Forgot password", description = "Sends a password reset email to the user's email address")
+    fun forgotPassword(
+        @RequestBody request: ForgotPasswordRequest
+    ): ResponseEntity<Map<String, String>> {
+        authService.forgotPassword(request)
+        // Always return success to avoid revealing if email exists
+        return ResponseEntity.ok(mapOf("message" to "If the email exists, a password reset link has been sent"))
+    }
+
+    @PostMapping("/password/reset")
+    @Operation(summary = "Reset password", description = "Resets the user's password using the token from the reset email")
+    fun resetPassword(
+        @RequestBody request: ResetPasswordRequest
+    ): ResponseEntity<Map<String, String>> {
+        authService.resetPassword(request)
+        return ResponseEntity.ok(mapOf("message" to "Password reset successfully"))
+    }
 }

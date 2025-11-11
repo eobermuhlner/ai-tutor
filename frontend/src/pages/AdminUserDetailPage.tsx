@@ -10,6 +10,7 @@ import {
   updateUserSubscriptionPlan,
   forceLogoutUser,
   resetUserPassword,
+  unlockUser,
 } from '../api/admin';
 import {
   User as UserIcon,
@@ -47,6 +48,7 @@ export default function AdminUserDetailPage() {
   // Modal state
   const [showForceLogoutModal, setShowForceLogoutModal] = useState(false);
   const [showResetPasswordModal, setShowResetPasswordModal] = useState(false);
+  const [showUnlockModal, setShowUnlockModal] = useState(false);
 
   useEffect(() => {
     if (!userId) {
@@ -187,6 +189,22 @@ export default function AdminUserDetailPage() {
     } catch (error) {
       console.error('Error resetting password:', error);
       toast.error('Failed to reset password');
+    }
+  };
+
+  const handleUnlock = async () => {
+    if (!userId) return;
+
+    try {
+      const result = await unlockUser(userId);
+      toast.success(result.message);
+      setShowUnlockModal(false);
+      // Refresh user data to show updated lock status
+      const updatedUser = await getUser(userId);
+      setUser(updatedUser);
+    } catch (error) {
+      console.error('Error unlocking user:', error);
+      toast.error('Failed to unlock user');
     }
   };
 
@@ -409,6 +427,14 @@ export default function AdminUserDetailPage() {
                 </Button>
                 <Button
                   variant="outline"
+                  onClick={() => setShowUnlockModal(true)}
+                  className="w-full"
+                >
+                  <Unlock className="w-4 h-4 mr-2" />
+                  Unlock Account (Clear Failed Attempts)
+                </Button>
+                <Button
+                  variant="outline"
                   onClick={() => setShowResetPasswordModal(true)}
                   className="w-full"
                 >
@@ -523,6 +549,39 @@ export default function AdminUserDetailPage() {
                   className="flex-1"
                 >
                   Send Reset Email
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Unlock Account Modal */}
+        {showUnlockModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-2xl p-6 max-w-md w-full mx-4">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+                  <Unlock className="w-6 h-6 text-green-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-slate-900">Unlock Account?</h3>
+              </div>
+              <p className="text-sm text-slate-600 mb-6">
+                This will clear all failed login attempts and remove any temporary lock for{' '}
+                <strong>{user.username}</strong>. The user will be able to log in immediately.
+              </p>
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowUnlockModal(false)}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleUnlock}
+                  className="flex-1"
+                >
+                  Unlock Account
                 </Button>
               </div>
             </div>
