@@ -5,7 +5,7 @@ import { getLanguages, getTutors, createCustomTutor, updateCustomTutor } from '.
 import { createCourse, updateCourse, getCourse } from '../api/courseManagement';
 import { getLessons } from '../api/lessonManagement';
 import { useAuthStore } from '../store/authStore';
-import { TutorPersonality, TeachingStyle, TutorGender } from '../types';
+import { TutorPersonality, TeachingStyle, TutorGender, ConversationPhase } from '../types';
 import type { Language, Tutor } from '../types';
 import type { LessonResponse } from '../api/lessonManagement';
 import Button from '../components/ui/Button';
@@ -32,7 +32,7 @@ interface FormData {
   estimatedWeeks: number | null;
   tags: string[];
   suggestedTutorIdsJson: string;
-  defaultPhase: string;
+  defaultPhase: ConversationPhase;
 }
 
 const STEPS = [
@@ -69,7 +69,7 @@ export default function CourseEditorPage() {
     estimatedWeeks: null,
     tags: ['tag1', 'tag2'],
     suggestedTutorIdsJson: '[]',
-    defaultPhase: 'AUTO',
+    defaultPhase: ConversationPhase.AUTO,
   });
 
   const [selectedTutors, setSelectedTutors] = useState<string[]>([]);
@@ -294,7 +294,7 @@ export default function CourseEditorPage() {
     loadInitialData();
   }, [courseId]); // Run once when component mounts, but re-run if courseId changes
 
-  const handleInputChange = (field: keyof FormData, value: string | number | null | string[]) => {
+  const handleInputChange = (field: keyof FormData, value: string | number | null | string[] | ConversationPhase) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -814,12 +814,12 @@ export default function CourseEditorPage() {
                 </label>
                 <Select
                   value={formData.defaultPhase}
-                  onChange={(value) => handleInputChange('defaultPhase', value)}
+                  onChange={(value) => handleInputChange('defaultPhase', value as ConversationPhase)}
                   options={[
-                    { value: 'FREE', label: 'Free' },
-                    { value: 'CORRECTION', label: 'Correction' },
-                    { value: 'DRILL', label: 'Drill' },
-                    { value: 'AUTO', label: 'Auto' },
+                    { value: ConversationPhase.FREE, label: 'Free' },
+                    { value: ConversationPhase.CORRECTION, label: 'Correction' },
+                    { value: ConversationPhase.DRILL, label: 'Drill' },
+                    { value: ConversationPhase.AUTO, label: 'Auto' },
                   ]}
                   disabled={loading}
                 />

@@ -1,4 +1,26 @@
 import apiClient from './client';
+import { ConversationPhase } from '../types';
+
+// Helper functions to convert between frontend and backend ConversationPhase formats
+function frontendToBackendPhase(frontendPhase: ConversationPhase): string {
+  const phaseMap: Record<ConversationPhase, string> = {
+    [ConversationPhase.FREE]: 'Free',
+    [ConversationPhase.CORRECTION]: 'Correction',
+    [ConversationPhase.DRILL]: 'Drill',
+    [ConversationPhase.AUTO]: 'Auto',
+  };
+  return phaseMap[frontendPhase];
+}
+
+function backendToFrontendPhase(backendPhase: string): ConversationPhase {
+  const phaseMap: Record<string, ConversationPhase> = {
+    'Free': ConversationPhase.FREE,
+    'Correction': ConversationPhase.CORRECTION,
+    'Drill': ConversationPhase.DRILL,
+    'Auto': ConversationPhase.AUTO,
+  };
+  return phaseMap[backendPhase] || ConversationPhase.FREE;
+}
 
 // Course management API functions
 
@@ -13,7 +35,7 @@ export interface CreateCourseRequest {
   targetLevel: string; // CEFRLevel
   estimatedWeeks?: number | null;
   suggestedTutorIdsJson?: string | null;
-  defaultPhase: string; // ConversationPhase
+  defaultPhase: ConversationPhase | string; // Frontend enum or backend string
   topicSequenceJson?: string | null;
   learningGoalsJson: string;
   tagsJson?: string | null;
@@ -29,7 +51,7 @@ export interface UpdateCourseRequest {
   targetLevel?: string; // CEFRLevel
   estimatedWeeks?: number | null;
   suggestedTutorIdsJson?: string | null;
-  defaultPhase?: string; // ConversationPhase
+  defaultPhase?: ConversationPhase | string; // Frontend enum or backend string
   topicSequenceJson?: string | null;
   learningGoalsJson?: string;
   tagsJson?: string | null;
@@ -47,7 +69,7 @@ export interface CourseResponse {
   targetLevel: string; // CEFRLevel
   estimatedWeeks?: number | null;
   suggestedTutorIdsJson?: string | null;
-  defaultPhase: string; // ConversationPhase
+  defaultPhase: ConversationPhase; // Frontend enum type after conversion
   topicSequenceJson?: string | null;
   learningGoalsJson: string;
   isActive: boolean;
@@ -69,13 +91,43 @@ export async function getAllCourses(includeDrafts: boolean = false): Promise<Cou
 }
 
 export async function createCourse(request: CreateCourseRequest): Promise<CourseResponse> {
-  const response = await apiClient.post<CourseResponse>('/courses', request);
-  return response.data;
+  // Convert defaultPhase to backend format before sending if it's a frontend enum value
+  let backendPhase = request.defaultPhase;
+  if (Object.values(ConversationPhase).includes(request.defaultPhase as ConversationPhase)) {
+    // It's a frontend enum value, convert to backend format
+    backendPhase = frontendToBackendPhase(request.defaultPhase as ConversationPhase);
+  }
+  // If it's already a string, assume it's in backend format
+  
+  const requestWithConvertedPhase = {
+    ...request,
+    defaultPhase: backendPhase,
+  };
+  
+  const response = await apiClient.post<CourseResponse>('/courses', requestWithConvertedPhase);
+  // Convert the response back to frontend format
+  const responseData = response.data;
+  responseData.defaultPhase = backendToFrontendPhase(responseData.defaultPhase);
+  return responseData;
 }
 
 export async function updateCourse(courseId: string, request: UpdateCourseRequest): Promise<CourseResponse> {
-  const response = await apiClient.put<CourseResponse>(`/courses/${courseId}`, request);
-  return response.data;
+  // Convert defaultPhase to backend format before sending, if it exists
+  const requestWithConvertedPhase: UpdateCourseRequest = { ...request };
+  if (request.defaultPhase !== undefined) {
+    // Check if it's a frontend enum value
+    if (Object.values(ConversationPhase).includes(request.defaultPhase as ConversationPhase)) {
+      // It's a frontend enum value, convert to backend format
+      requestWithConvertedPhase.defaultPhase = frontendToBackendPhase(request.defaultPhase as ConversationPhase);
+    }
+    // If it's already in string format, assume it's already in backend format
+  }
+  
+  const response = await apiClient.put<CourseResponse>(`/courses/${courseId}`, requestWithConvertedPhase);
+  // Convert the response back to frontend format
+  const responseData = response.data;
+  responseData.defaultPhase = backendToFrontendPhase(responseData.defaultPhase);
+  return responseData;
 }
 
 export async function publishCourse(courseId: string): Promise<CourseResponse> {
@@ -90,7 +142,10 @@ export async function unpublishCourse(courseId: string): Promise<CourseResponse>
 
 export async function getCourse(courseId: string): Promise<CourseResponse> {
   const response = await apiClient.get<CourseResponse>(`/courses/${courseId}`);
-  return response.data;
+  const responseData = response.data;
+  // Convert defaultPhase from backend format to frontend format
+  responseData.defaultPhase = backendToFrontendPhase(responseData.defaultPhase);
+  return responseData;
 }
 
 export async function deleteCourse(courseId: string): Promise<void> {
