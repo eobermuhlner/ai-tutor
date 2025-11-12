@@ -64,6 +64,7 @@ export default function Header() {
   const editorNavItems = (isEditor || isAdmin)
     ? [
         { label: 'Courses', path: '/courses/manage' },
+        { label: 'Languages', path: '/languages/manage' },
       ]
     : [];
 

@@ -1,10 +1,12 @@
 package ch.obermuhlner.aitutor.catalog.service
 
 import ch.obermuhlner.aitutor.catalog.domain.CourseTemplateEntity
+import ch.obermuhlner.aitutor.catalog.domain.LanguageEntity
 import ch.obermuhlner.aitutor.catalog.domain.TutorProfileEntity
 import ch.obermuhlner.aitutor.catalog.dto.CreateTutorRequest
 import ch.obermuhlner.aitutor.catalog.dto.UpdateTutorRequest
 import ch.obermuhlner.aitutor.catalog.repository.CourseTemplateRepository
+import ch.obermuhlner.aitutor.catalog.repository.LanguageRepository
 import ch.obermuhlner.aitutor.catalog.repository.TutorProfileRepository
 import ch.obermuhlner.aitutor.core.model.CEFRLevel
 import ch.obermuhlner.aitutor.core.model.catalog.CourseCategory
@@ -19,17 +21,23 @@ import org.springframework.stereotype.Service
 class CatalogServiceImpl(
     private val tutorProfileRepository: TutorProfileRepository,
     private val courseTemplateRepository: CourseTemplateRepository,
-    private val supportedLanguages: Map<String, LanguageMetadata>,
+    private val languageRepository: LanguageRepository,
     private val objectMapper: ObjectMapper
 ) : CatalogService {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     override fun getAvailableLanguages(): List<LanguageMetadata> {
-        return supportedLanguages.values.toList()
+        val languages = languageRepository.findByIsActiveTrue()
+        return languages.map { toLanguageMetadata(it) }
     }
 
     override fun getLanguageByCode(code: String): LanguageMetadata? {
-        return supportedLanguages[code]
+        val language = languageRepository.findById(code).orElse(null)
+        return if (language != null && language.isActive) {
+            toLanguageMetadata(language)
+        } else {
+            null
+        }
     }
 
     override fun getCoursesForLanguage(languageCode: String, userLevel: CEFRLevel?): List<CourseTemplateEntity> {
@@ -193,8 +201,8 @@ class CatalogServiceImpl(
         }
         if (request.culturalBackground != null) {
             existingTutor.culturalBackgroundJson = objectMapper.writeValueAsString(mapOf<String, String>("en" to request.culturalBackground))
-        } else if (request.culturalBackground === null) {
-            // If culturalBackground is explicitly null in the request, clear it
+        } else {
+            // If culturalBackground is null in the request, clear it
             existingTutor.culturalBackgroundJson = null
         }
 
@@ -210,5 +218,16 @@ class CatalogServiceImpl(
         val updatedTutor = tutorProfileRepository.save(existingTutor)
         logger.info("Updated tutor with ID: ${updatedTutor.id}")
         return updatedTutor
+    }
+
+    private fun toLanguageMetadata(language: LanguageEntity): LanguageMetadata {
+        return LanguageMetadata(
+            code = language.code,
+            nameJson = language.nameJson,
+            flagEmoji = language.flagEmoji,
+            nativeName = language.nativeName,
+            difficulty = language.difficulty,
+            descriptionJson = language.descriptionJson
+        )
     }
 }

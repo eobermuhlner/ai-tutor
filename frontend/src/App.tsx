@@ -27,6 +27,8 @@ import ErrorPatternsPage from './pages/ErrorPatternsPage';
 import SubscriptionPage from './pages/SubscriptionPage';
 import CourseManagementPage from './pages/CourseManagementPage';
 import CourseEditorPage from './pages/CourseEditorPage';
+import LanguageManagementPage from './pages/LanguageManagementPage';
+import LanguageEditorPage from './pages/LanguageEditorPage';
 import ErrorBoundary from './components/ui/ErrorBoundary';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -192,6 +194,30 @@ function App() {
               element={
                 <ProtectedRoute>
                   <CourseEditorPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/languages/manage"
+              element={
+                <ProtectedRoute>
+                  <LanguageManagementPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/languages/edit/:code"
+              element={
+                <ProtectedRoute>
+                  <LanguageEditorPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/languages/create"
+              element={
+                <ProtectedRoute>
+                  <LanguageEditorPage />
                 </ProtectedRoute>
               }
             />

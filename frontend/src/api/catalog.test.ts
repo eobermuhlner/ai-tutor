@@ -54,7 +54,7 @@ describe('catalog API module', () => {
           name: 'English',
           flagEmoji: '🇺🇸',
           nativeName: 'English',
-          difficulty: 'BEGINNER' as Difficulty,
+          difficulty: 'Easy' as Difficulty,
           description: 'English language',
           courseCount: 3,
         }
@@ -78,7 +78,7 @@ describe('catalog API module', () => {
           name: 'Spanish',
           flagEmoji: '🇪🇸',
           nativeName: 'Español',
-          difficulty: 'BEGINNER' as Difficulty,
+          difficulty: 'Easy' as Difficulty,
           description: 'Spanish language',
           courseCount: 2,
         }
@@ -111,7 +111,7 @@ describe('catalog API module', () => {
           targetLevel: 'A1' as CEFRLevel,
           estimatedWeeks: 10,
           displayOrder: 1,
-          difficulty: 'BEGINNER' as Difficulty,
+          difficulty: 'Easy' as Difficulty,
           userLevel: 'A1' as CEFRLevel,
         }
       ];
@@ -145,7 +145,7 @@ describe('catalog API module', () => {
           targetLevel: 'A2' as CEFRLevel,
           estimatedWeeks: 5,
           displayOrder: 1,
-          difficulty: 'INTERMEDIATE' as Difficulty,
+          difficulty: 'Medium' as Difficulty,
           userLevel: 'A1' as CEFRLevel,
         }
       ];

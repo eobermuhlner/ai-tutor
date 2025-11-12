@@ -9,9 +9,9 @@ interface CourseCardProps {
 
 export default function CourseCard({ course, onClick, language }: CourseCardProps) {
   const difficultyColors = {
-    BEGINNER: 'bg-gradient-to-r from-emerald-500 to-green-600 text-white',
-    INTERMEDIATE: 'bg-gradient-to-r from-amber-500 to-orange-600 text-white',
-    ADVANCED: 'bg-gradient-to-r from-red-500 to-rose-600 text-white',
+    Easy: 'bg-gradient-to-r from-emerald-500 to-green-600 text-white',
+    Medium: 'bg-gradient-to-r from-amber-500 to-orange-600 text-white',
+    Hard: 'bg-gradient-to-r from-red-500 to-rose-600 text-white',
   };
 
   const categoryColors = {

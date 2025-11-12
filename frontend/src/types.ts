@@ -39,9 +39,9 @@ export enum CourseCategory {
 }
 
 export enum Difficulty {
-  BEGINNER = 'BEGINNER',
-  INTERMEDIATE = 'INTERMEDIATE',
-  ADVANCED = 'ADVANCED',
+  Easy = 'Easy',
+  Medium = 'Medium',
+  Hard = 'Hard',
 }
 
 export enum TutorPersonality {
@@ -185,6 +185,10 @@ export interface Language {
   difficulty: Difficulty;
   description: string;
   courseCount: number;
+  isActive?: boolean; // Optional for backward compatibility
+  displayOrder?: number; // Optional display order for sorting
+  nameJson?: string;  // JSON map: {"en": "Spanish", "es": "Español", ...}
+  descriptionJson?: string; // JSON map: {"en": "Spanish description", ...}
 }
 
 export interface Course {
