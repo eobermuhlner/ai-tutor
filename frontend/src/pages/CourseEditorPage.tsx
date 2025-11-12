@@ -157,7 +157,7 @@ export default function CourseEditorPage() {
       
       loadTutorsForLanguage();
     }
-  }, [formData.languageCode, courseId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [formData.languageCode, courseId]);
   const [isCreatingTutor, setIsCreatingTutor] = useState(false);
   const [isUpdatingTutor, setIsUpdatingTutor] = useState(false);
 
