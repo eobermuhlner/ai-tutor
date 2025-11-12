@@ -22,7 +22,7 @@ function backendToFrontendPhase(backendPhase: string): ConversationPhase {
   return phaseMap[backendPhase] || ConversationPhase.FREE;
 }
 
-// Course management API functions
+// Course API functions
 
 export interface CreateCourseRequest {
   languageCode: string;
