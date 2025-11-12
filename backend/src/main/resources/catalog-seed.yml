@@ -1,0 +1,2034 @@
+version: "1.0"
+
+tutorArchetypes:
+  - id: encouraging-general
+    emoji: "👩‍🏫"
+    personaEnglish: patient coach
+    domainEnglish: general conversation, grammar, typography
+    descriptionTemplateEnglish: "Patient teacher {culturalNotes} who loves helping beginners feel confident"
+    personality: Encouraging
+    teachingStyle: Guided
+    displayOrder: 0
+    voiceId: Warm
+  - id: strict-academic
+    emoji: "🎓"
+    personaEnglish: strict academic
+    domainEnglish: grammar, literature, formal writing
+    descriptionTemplateEnglish: "Academic expert {culturalNotes} with high standards"
+    personality: Strict
+    teachingStyle: Directive
+    displayOrder: 1
+    voiceId: Authoritative
+  - id: casual-friend
+    emoji: "😊"
+    personaEnglish: casual friend
+    domainEnglish: everyday conversation, slang, culture
+    descriptionTemplateEnglish: "Friendly person {culturalNotes} who makes learning fun and relaxed"
+    personality: Casual
+    teachingStyle: Reactive
+    displayOrder: 2
+    voiceId: Friendly
+  - id: academic-professor
+    emoji: "👨‍🏫"
+    personaEnglish: academic professor
+    domainEnglish: linguistics, literature, formal grammar
+    descriptionTemplateEnglish: "Professor {culturalNotes} with expertise in linguistics and literature"
+    personality: Academic
+    teachingStyle: Guided
+    displayOrder: 0
+    voiceId: Professional
+  - id: de-swiss-german-specialist
+    emoji: "🏔️"
+    personaEnglish: Swiss High German specialist
+    domainEnglish: Swiss Standard German (Schweizer Hochdeutsch), Swiss orthography (ss instead of ß), Swiss vocabulary, Swiss culture
+    descriptionTemplateEnglish: "Native Swiss tutor {culturalNotes} who teaches Swiss Standard German with proper Swiss orthography and vocabulary differences"
+    personality: Casual
+    teachingStyle: Guided
+    displayOrder: 0
+    voiceId: Calm
+  - id: jp-romaji-specialist
+    emoji: "🌏"
+    personaEnglish: romaji specialist
+    domainEnglish: Japanese using only romaji (Latin alphabet), pronunciation, basic conversation
+    descriptionTemplateEnglish: "Friendly tutor {culturalNotes} who teaches Japanese entirely in romaji for those not ready for hiragana/katakana/kanji"
+    personality: Casual
+    teachingStyle: Guided
+    displayOrder: 2
+    voiceId: Friendly
+  - id: jp-hiragana-bridge
+    emoji: "🌸"
+    personaEnglish: hiragana bridge tutor
+    domainEnglish: accepting romaji input as correct, responding in hiragana and optionally in romaji, never uses kanji, gradual script transition
+    descriptionTemplateEnglish: "Patient tutor {culturalNotes} who accepts your romaji and responds in hiragana to help you learn the script naturally"
+    personality: Encouraging
+    teachingStyle: Guided
+    displayOrder: 3
+    voiceId: Warm
+  - id: ko-romanization-specialist
+    emoji: "🌏"
+    personaEnglish: Korean romanization specialist
+    domainEnglish: Korean using only romanization (Latin alphabet), pronunciation, basic conversation
+    descriptionTemplateEnglish: "Friendly tutor {culturalNotes} who teaches Korean entirely in romanization for learners not yet ready for Hangul"
+    personality: Casual
+    teachingStyle: Guided
+    displayOrder: 2
+    voiceId: Friendly
+  - id: ko-hangul-bridge
+    emoji: "🪶"
+    personaEnglish: Hangul bridge tutor
+    domainEnglish: accepting romanized Korean input as correct, responding in Hangul and optionally in romanization, never uses Hanja, gradual script transition
+    descriptionTemplateEnglish: "Patient tutor {culturalNotes} who accepts your romanized Korean and responds in Hangul to help you learn the script naturally"
+    personality: Encouraging
+    teachingStyle: Guided
+    displayOrder: 3
+    voiceId: Warm
+  - id: ru-romanization-specialist
+    emoji: "🌏"
+    personaEnglish: Russian romanization specialist
+    domainEnglish: Russian taught entirely in Latin transliteration, pronunciation, and simple conversation
+    descriptionTemplateEnglish: "Friendly tutor {culturalNotes} who teaches Russian entirely in romanized form for learners not yet ready for Cyrillic"
+    personality: Casual
+    teachingStyle: Guided
+    displayOrder: 2
+    voiceId: Friendly
+  - id: ru-cyrillic-bridge
+    emoji: "🔠"
+    personaEnglish: Cyrillic bridge tutor
+    domainEnglish: accepting romanized Russian input, responding in Cyrillic and optionally romanization, gradual alphabet transition
+    descriptionTemplateEnglish: "Patient tutor {culturalNotes} who accepts romanized Russian and responds in Cyrillic to help you learn the alphabet naturally"
+    personality: Encouraging
+    teachingStyle: Guided
+    displayOrder: 3
+    voiceId: Warm
+  - id: zh-romanization-specialist
+    emoji: "🌏"
+    personaEnglish: Pinyin specialist
+    domainEnglish: Mandarin Chinese taught entirely with pinyin and tone explanations
+    descriptionTemplateEnglish: "Friendly tutor {culturalNotes} who teaches Mandarin using only pinyin for beginners not ready for Chinese characters"
+    personality: Casual
+    teachingStyle: Guided
+    displayOrder: 2
+    voiceId: Friendly
+  - id: zh-character-bridge
+    emoji: "🈶"
+    personaEnglish: Character bridge tutor
+    domainEnglish: accepting pinyin input, responding in characters and pinyin, gradual transition to Hanzi literacy
+    descriptionTemplateEnglish: "Patient tutor {culturalNotes} who accepts pinyin and responds in both Chinese characters and pinyin to ease the transition to Hanzi"
+    personality: Encouraging
+    teachingStyle: Guided
+    displayOrder: 3
+    voiceId: Warm
+
+languages:
+  - code: es-ES
+    name:
+      en: "Spanish (Spain)"
+      es: "Español (España)"
+      de: "Spanisch (Spanien)"
+      fr: "Espagnol (Espagne)"
+      it: "Spagnolo (Spagna)"
+    flagEmoji: "🇪🇸"
+    nativeName: "Español (España)"
+    difficulty: Easy
+    description:
+      en: "Castilian Spanish from Spain with vosotros form"
+      es: "Español castellano de España con forma vosotros"
+  - code: it-IT
+    name:
+      en: "Italian (Italy)"
+      es: "Italiano (Italia)"
+      de: "Italienisch (Italien)"
+      fr: "Italien (Italie)"
+      it: "Italiano (Italia)"
+    flagEmoji: "🇮🇹"
+    nativeName: "Italiano (Italia)"
+    difficulty: Easy
+    description:
+      en: "Standard Italian from Italy"
+      it: "Italiano standard dell'Italia"
+  - code: fr-FR
+    name:
+      en: "French (France)"
+      es: "Francés (Francia)"
+      de: "Französisch (Frankreich)"
+      fr: "Français (France)"
+    flagEmoji: "🇫🇷"
+    nativeName: "Français (France)"
+    difficulty: Medium
+    description:
+      en: "Standard French from France"
+      fr: "Français standard de France"
+  - code: de-DE
+    name:
+      en: "German (Germany)"
+      es: "Alemán (Alemania)"
+      de: "Deutsch (Deutschland)"
+      fr: "Allemand (Allemagne)"
+    flagEmoji: "🇩🇪"
+    nativeName: "Deutsch (Deutschland)"
+    difficulty: Medium
+    description:
+      en: "Standard German from Germany with precise grammar rules"
+      de: "Standarddeutsch aus Deutschland mit präzisen Grammatikregeln"
+  - code: de-CH
+    name:
+      en: "German (Switzerland)"
+      es: "Alemán (Suiza)"
+      de: "Deutsch (Schweiz)"
+      fr: "Allemand (Suisse)"
+    flagEmoji: "🇨🇭"
+    nativeName: "Deutsch (Schweiz)"
+    difficulty: Medium
+    description:
+      en: "Swiss Standard German (Schweizer Hochdeutsch) with Swiss orthography (ss instead of ß) and vocabulary"
+      de: "Schweizer Hochdeutsch mit Schweizer Rechtschreibung (ss statt ß) und Wortschatz"
+  - code: ja-JP
+    name:
+      en: "Japanese (Japan)"
+      es: "Japonés (Japón)"
+      de: "Japanisch (Japan)"
+      fr: "Japonais (Japon)"
+      ja: "日本語（日本）"
+    flagEmoji: "🇯🇵"
+    nativeName: "日本語（日本）"
+    difficulty: Hard
+    description:
+      en: "Standard Japanese from Japan with three writing systems"
+      ja: "日本の標準的な日本語、三つの文字体系"
+  - code: zh-CN
+    name:
+      en: "Chinese (Mandarin, China)"
+      es: "Chino mandarín (China)"
+      de: "Chinesisch (Mandarin, China)"
+      fr: "Chinois (mandarin, Chine)"
+      zh: "中文（普通话，中国）"
+    flagEmoji: "🇨🇳"
+    nativeName: "中文（普通话，中国）"
+    difficulty: Hard
+    description:
+      en: "Standard Mandarin Chinese from mainland China with simplified characters and tone system"
+      zh: "中国大陆的标准普通话，使用简体字和声调体系"
+  - code: zh-TW
+    name:
+      en: "Chinese (Mandarin, Taiwan)"
+      es: "Chino mandarín (Taiwán)"
+      de: "Chinesisch (Mandarin, Taiwan)"
+      fr: "Chinois (mandarin, Taïwan)"
+      zh: "中文（普通話，台灣）"
+    flagEmoji: "🇹🇼"
+    nativeName: "中文（普通話，台灣）"
+    difficulty: Hard
+    description:
+      en: "Standard Mandarin from Taiwan with traditional characters and regional vocabulary"
+      zh: "台灣的標準普通話，使用繁體字和本地詞彙"
+  - code: zh-HK
+    name:
+      en: "Chinese (Cantonese, Hong Kong)"
+      es: "Chino cantonés (Hong Kong)"
+      de: "Kantonesisch (Hongkong)"
+      fr: "Chinois cantonais (Hong Kong)"
+      zh: "中文（粵語，香港）"
+    flagEmoji: "🇭🇰"
+    nativeName: "中文（粵語，香港）"
+    difficulty: Hard
+    description:
+      en: "Cantonese from Hong Kong with traditional characters and six-tone system"
+      zh: "香港的粵語，使用繁體字和六聲調系統"
+  - code: ko-KR
+    name:
+      en: "Korean (South Korea)"
+      es: "Coreano (Corea del Sur)"
+      de: "Koreanisch (Südkorea)"
+      fr: "Coréen (Corée du Sud)"
+      ko: "한국어 (대한민국)"
+    flagEmoji: "🇰🇷"
+    nativeName: "한국어 (대한민국)"
+    difficulty: Hard
+    description:
+      en: "Standard Korean from South Korea with Hangul script and honorific system"
+      ko: "한국의 표준 한국어, 한글 문자와 존댓말 체계"
+  - code: ru-RU
+    name:
+      en: "Russian (Russia)"
+      es: "Ruso (Rusia)"
+      de: "Russisch (Russland)"
+      fr: "Russe (Russie)"
+      ru: "Русский (Россия)"
+    flagEmoji: "🇷🇺"
+    nativeName: "Русский (Россия)"
+    difficulty: Hard
+    description:
+      en: "Standard Russian from Russia with Cyrillic script and case system"
+      ru: "Стандартный русский из России с кириллицей и падежной системой"
+  - code: pt-BR
+    name:
+      en: "Portuguese (Brazil)"
+      es: "Portugués (Brasil)"
+      de: "Portugiesisch (Brasilien)"
+      fr: "Portugais (Brésil)"
+      pt: "Português (Brasil)"
+    flagEmoji: "🇧🇷"
+    nativeName: "Português (Brasil)"
+    difficulty: Medium
+    description:
+      en: "Brazilian Portuguese with characteristic vocabulary"
+      pt: "Português brasileiro com vocabulário característico"
+  - code: pt-PT
+    name:
+      en: "Portuguese (Portugal)"
+      es: "Portugués (Portugal)"
+      de: "Portugiesisch (Portugal)"
+      fr: "Portugais (Portugal)"
+      pt: "Português (Portugal)"
+    flagEmoji: "🇵🇹"
+    nativeName: "Português (Portugal)"
+    difficulty: Medium
+    description:
+      en: "European Portuguese with formal register"
+      pt: "Português europeu com registo formal"
+  - code: en-US
+    name:
+      en: "English (US)"
+      es: "Inglés (Estados Unidos)"
+      de: "Englisch (USA)"
+      fr: "Anglais (États-Unis)"
+    flagEmoji: "🇺🇸"
+    nativeName: "English (US)"
+    difficulty: Easy
+    description:
+      en: "American English with standard spelling"
+      es: "Inglés americano con ortografía estándar"
+  - code: en-GB
+    name:
+      en: "English (UK)"
+      es: "Inglés (Reino Unido)"
+      de: "Englisch (Großbritannien)"
+      fr: "Anglais (Royaume-Uni)"
+    flagEmoji: "🇬🇧"
+    nativeName: "English (UK)"
+    difficulty: Easy
+    description:
+      en: "British English with UK spelling"
+      es: "Inglés británico con ortografía británica"
+  - code: mul-ipa
+    name:
+      en: "International Phonetic Alphabet"
+      es: "Alfabeto Fonético Internacional"
+      de: "Internationales Phonetisches Alphabet"
+      fr: "Alphabet Phonétique International"
+      it: "Alfabeto Fonetico Internazionale"
+      ja: "国際音声記号"
+      zh: "国际音标"
+    flagEmoji: "🌍"
+    nativeName: "IPA"
+    difficulty: Medium
+    description:
+      en: "Universal phonetic notation system for representing speech sounds across all human languages"
+      es: "Sistema universal de notación fonética para representar sonidos del habla en todos los idiomas humanos"
+      de: "Universelles phonetisches Notationssystem zur Darstellung von Sprachlauten in allen menschlichen Sprachen"
+      fr: "Système universel de notation phonétique pour représenter les sons de la parole dans toutes les langues humaines"
+
+tutors:
+  # Spanish (Spain) tutors
+  - name: María
+    targetLanguage: es-ES
+    archetypeId: encouraging-general
+    culturalNotes: from Madrid
+    location: Madrid, Spain
+    gender: Female
+    age: 30
+  - name: Professor Rodríguez
+    targetLanguage: es-ES
+    archetypeId: strict-academic
+    culturalNotes: in Spanish grammar and literature
+    location: Madrid, Spain
+    gender: Male
+    age: 40
+  - name: Carlos
+    targetLanguage: es-ES
+    archetypeId: casual-friend
+    culturalNotes: from Barcelona
+    location: Barcelona, Spain
+    gender: Male
+    age: 20
+  - name: Laura
+    targetLanguage: es-ES
+    archetypeId: casual-friend
+    culturalNotes: from Valencia
+    location: Valencia, Spain
+    gender: Female
+    age: 20
+
+  # Italian (Italy) tutors
+  - name: Sofia
+    targetLanguage: it-IT
+    archetypeId: encouraging-general
+    culturalNotes: from Rome who makes learning Italian enjoyable
+    location: Rome, Italy
+    gender: Female
+    age: 30
+  - name: Professor Bianchi
+    targetLanguage: it-IT
+    archetypeId: strict-academic
+    culturalNotes: from Rome who teaches Italian grammar and literature
+    location: Rome, Italy
+    gender: Male
+    age: 40
+  - name: Marco
+    targetLanguage: it-IT
+    archetypeId: casual-friend
+    culturalNotes: from Florence who teaches through culture and art
+    location: Florence, Italy
+    gender: Male
+    age: 30
+  - name: Giulia
+    targetLanguage: it-IT
+    archetypeId: casual-friend
+    culturalNotes: from Milan who loves sharing Italian culture
+    location: Milan, Italy
+    gender: Female
+    age: 20
+
+  # French (France) tutors
+  - name: François
+    targetLanguage: fr-FR
+    archetypeId: academic-professor
+    culturalNotes: Parisian professor
+    location: Paris, France
+    gender: Male
+    age: 30
+  - name: Céline
+    targetLanguage: fr-FR
+    archetypeId: casual-friend
+    culturalNotes: from Lyon
+    location: Lyon, France
+    gender: Female
+    age: 30
+
+  # German (Germany) tutors
+  - name: Herr Schmidt
+    targetLanguage: de-DE
+    archetypeId: strict-academic
+    culturalNotes: from Berlin who focuses on proper form
+    location: Berlin, Germany
+    gender: Male
+    age: 40
+  - name: Anna
+    targetLanguage: de-DE
+    archetypeId: casual-friend
+    culturalNotes: from Munich
+    location: Munich, Germany
+    gender: Female
+    age: 30
+
+  # German (Switzerland) tutors
+  - name: Hans
+    targetLanguage: de-CH
+    archetypeId: de-swiss-german-specialist
+    culturalNotes: from Zürich
+    location: Zürich, Switzerland
+    gender: Male
+    age: 30
+
+  # Japanese (Japan) tutors
+  - name: Yuki (ゆき)
+    targetLanguage: ja-JP
+    archetypeId: encouraging-general
+    culturalNotes: from Tokyo who specializes in helping beginners
+    location: Tokyo, Japan
+    gender: Female
+    age: 30
+  - name: Tanaka-sensei (田中先生)
+    targetLanguage: ja-JP
+    archetypeId: strict-academic
+    culturalNotes: focused on proper form and cultural etiquette
+    location: Tokyo, Japan
+    gender: Male
+    age: 40
+  - name: Kenji (けんじ)
+    targetLanguage: ja-JP
+    archetypeId: jp-romaji-specialist
+    culturalNotes: from Tokyo
+    location: Tokyo, Japan
+    gender: Male
+    age: 20
+  - name: Sakura (さくら)
+    targetLanguage: ja-JP
+    archetypeId: jp-hiragana-bridge
+    culturalNotes: who helps transition from romaji to hiragana
+    gender: Female
+    age: 20
+
+  # Chinese (Mandarin, China) tutors
+  - name: Li Mei (李美)
+    targetLanguage: zh-CN
+    archetypeId: encouraging-general
+    culturalNotes: from Beijing who makes learning Mandarin enjoyable and clear
+    location: Beijing, China
+    gender: Female
+    age: 30
+  - name: Zhang Laoshi (张老师)
+    targetLanguage: zh-CN
+    archetypeId: strict-academic
+    culturalNotes: focused on pronunciation accuracy and proper tone usage
+    location: Beijing, China
+    gender: Male
+    age: 40
+  - name: Chen (陈)
+    targetLanguage: zh-CN
+    archetypeId: zh-romanization-specialist
+    culturalNotes: from Shanghai who teaches entirely in pinyin for beginners not yet ready for Chinese characters
+    location: Shanghai, China
+    gender: Male
+    age: 30
+  - name: Hua (华)
+    targetLanguage: zh-CN
+    archetypeId: zh-character-bridge
+    culturalNotes: who accepts pinyin input and responds in both characters and pinyin to help learners transition to Hanzi
+    location: Shanghai, China
+    gender: Female
+    age: 20
+
+  # Chinese (Mandarin, Taiwan) tutors
+  - name: Lin Mei (林美)
+    targetLanguage: zh-TW
+    archetypeId: encouraging-general
+    culturalNotes: from Taipei who makes learning Mandarin with traditional characters enjoyable and clear
+    location: Taipei, Taiwan
+    gender: Female
+    age: 30
+  - name: Wang Laoshi (王老師)
+    targetLanguage: zh-TW
+    archetypeId: strict-academic
+    culturalNotes: focused on pronunciation and cultural expressions used in Taiwan
+    location: Taipei, Taiwan
+    gender: Male
+    age: 30
+
+  # Chinese (Cantonese, Hong Kong) tutors
+  - name: Mei-ling (美玲)
+    targetLanguage: zh-HK
+    archetypeId: encouraging-general
+    culturalNotes: from Hong Kong who helps learners master conversational Cantonese
+    location: Hong Kong, China
+    gender: Female
+    age: 30
+  - name: Chan Laoshi (陳老師)
+    targetLanguage: zh-HK
+    archetypeId: strict-academic
+    culturalNotes: focused on tone precision and character comprehension
+    location: Hong Kong, China
+    gender: Male
+    age: 40
+
+  # Korean (South Korea) tutors
+  - name: Ji-won (지원)
+    targetLanguage: ko-KR
+    archetypeId: encouraging-general
+    culturalNotes: from Seoul who makes learning Korean enjoyable and accessible
+    location: Seoul, South Korea
+    gender: Female
+    age: 30
+  - name: Kim Seonsaengnim (김선생님)
+    targetLanguage: ko-KR
+    archetypeId: strict-academic
+    culturalNotes: expert in Korean grammar and formal speech levels
+    location: Seoul, South Korea
+    gender: Male
+    age: 40
+  - name: Min-ho (민호)
+    targetLanguage: ko-KR
+    archetypeId: casual-friend
+    culturalNotes: from Busan who teaches through K-pop and modern culture
+    location: Busan, South Korea
+    gender: Male
+    age: 30
+  - name: Soo-jin (수진)
+    targetLanguage: ko-KR
+    archetypeId: casual-friend
+    culturalNotes: from Seoul who loves sharing Korean culture and food
+    location: Seoul, South Korea
+    gender: Female
+    age: 20
+  - name: Hye-jin (혜진)
+    targetLanguage: ko-KR
+    archetypeId: ko-romanization-specialist
+    culturalNotes: who teaches entirely in romanization for learners not yet ready for Hangul
+    location: Incheon, South Korea
+    gender: Female
+    age: 30
+  - name: Dae-hyun (대현)
+    targetLanguage: ko-KR
+    archetypeId: ko-hangul-bridge
+    culturalNotes: who accepts romanized input and responds in Hangul to ease the script transition
+    location: Incheon, South Korea
+    gender: Male
+    age: 20
+
+  # Russian (Russia) tutors
+  - name: Natasha (Наташа)
+    targetLanguage: ru-RU
+    archetypeId: encouraging-general
+    culturalNotes: from Moscow who specializes in helping beginners with Cyrillic
+    location: Moscow, Russia
+    gender: Female
+    age: 30
+  - name: Dmitri Petrovich (Дмитрий Петрович)
+    targetLanguage: ru-RU
+    archetypeId: strict-academic
+    culturalNotes: focused on proper grammar and the six-case system
+    location: Moscow, Russia
+    gender: Male
+    age: 30
+  - name: Mikhail (Михаил)
+    targetLanguage: ru-RU
+    archetypeId: casual-friend
+    culturalNotes: from Saint Petersburg
+    location: Saint Petersburg, Russia
+    gender: Male
+    age: 20
+  - name: Irina (Ирина)
+    targetLanguage: ru-RU
+    archetypeId: ru-romanization-specialist
+    culturalNotes: who teaches Russian entirely in romanized form for learners not yet ready for Cyrillic
+    location: Saint Petersburg, Russia
+    gender: Female
+    age: 20
+  - name: Alexei (Алексей)
+    targetLanguage: ru-RU
+    archetypeId: ru-cyrillic-bridge
+    culturalNotes: who accepts romanized Russian and responds in Cyrillic to ease the alphabet transition
+    location: Kazan, Russia
+    gender: Male
+    age: 30
+
+  # Portuguese (Brazil) tutors
+  - name: Camila
+    targetLanguage: pt-BR
+    archetypeId: encouraging-general
+    culturalNotes: from São Paulo who loves sharing Brazilian culture and language
+    location: São Paulo, Brazil
+    gender: Female
+    age: 30
+  - name: Lucas
+    targetLanguage: pt-BR
+    archetypeId: casual-friend
+    culturalNotes: from Rio who teaches through culture, music, and everyday conversations
+    location: Rio de Janeiro, Brazil
+    gender: Male
+    age: 30
+  - name: Professor Silva
+    targetLanguage: pt-BR
+    archetypeId: strict-academic
+    culturalNotes: in Brazilian Portuguese grammar and literature
+    location: Brasília, Brazil
+    gender: Female
+    age: 40
+
+  # Portuguese (Portugal) tutors
+  - name: Sofia
+    targetLanguage: pt-PT
+    archetypeId: encouraging-general
+    culturalNotes: from Lisbon who helps learners master European Portuguese
+    location: Lisbon, Portugal
+    gender: Female
+    age: 30
+  - name: João
+    targetLanguage: pt-PT
+    archetypeId: casual-friend
+    culturalNotes: from Porto
+    location: Porto, Portugal
+    gender: Male
+    age: 30
+  - name: Professor Oliveira
+    targetLanguage: pt-PT
+    archetypeId: strict-academic
+    culturalNotes: focused on proper European Portuguese grammar and formal register
+    location: Lisbon, Portugal
+    gender: Male
+    age: 40
+
+  # English (US) tutors
+  - name: Sarah
+    targetLanguage: en-US
+    archetypeId: encouraging-general
+    culturalNotes: from New York who specializes in helping beginners feel confident
+    location: New York, USA
+    gender: Female
+    age: 30
+  - name: Mike
+    targetLanguage: en-US
+    archetypeId: casual-friend
+    culturalNotes: from California who makes learning fun and relaxed
+    location: San Francisco, USA
+    gender: Male
+    age: 30
+  - name: Professor Johnson
+    targetLanguage: en-US
+    archetypeId: strict-academic
+    culturalNotes: from Boston with expertise in American English grammar and literature
+    location: Boston, USA
+    gender: Female
+    age: 40
+  - name: Emily
+    targetLanguage: en-US
+    archetypeId: casual-friend
+    culturalNotes: from Texas
+    location: Texas, USA
+    gender: Female
+    age: 20
+
+  # English (UK) tutors
+  - name: Emma
+    targetLanguage: en-GB
+    archetypeId: encouraging-general
+    culturalNotes: from London who helps learners master British English
+    location: London, UK
+    gender: Female
+    age: 30
+  - name: James
+    targetLanguage: en-GB
+    archetypeId: casual-friend
+    culturalNotes: from Manchester
+    location: Manchester, UK
+    gender: Male
+    age: 30
+  - name: Professor Williams
+    targetLanguage: en-GB
+    archetypeId: strict-academic
+    culturalNotes: from Oxford with expertise in British English grammar and literature
+    location: London, UK
+    gender: Male
+    age: 40
+
+  # IPA tutors
+  - name: Dr. Phonetics
+    targetLanguage: mul-ipa
+    archetypeId: strict-academic
+    culturalNotes: linguistics expert specializing in articulatory phonetics and IPA notation
+    location: International
+    gender: Neutral
+    age: 35
+
+courses:
+  # Spanish (Spain) courses
+  - languageCode: es-ES
+    name:
+      en: Conversational Spanish
+    shortDescription:
+      en: Master everyday conversations at your own pace
+    description:
+      en: Learn to communicate naturally in Spanish through practical conversations covering greetings, daily routines, opinions, and more
+    category: Conversational
+    targetAudience:
+      en: Anyone wanting to speak Spanish naturally
+    startingLevel: None
+    targetLevel: C1
+    learningGoals:
+      en:
+        - Greet people and introduce yourself
+        - Talk about daily routines and activities
+        - Describe people, places, and things
+        - Order food and shop for items
+        - Express opinions and feelings
+    displayOrder: 1
+  - languageCode: es-ES
+    name:
+      en: Spanish for Travelers
+    shortDescription:
+      en: Essential phrases for tourists and travelers
+    description:
+      en: Quick-start Spanish course focusing on practical phrases you'll need for travel
+    category: Travel
+    targetAudience:
+      en: Travelers planning a trip to Spanish-speaking countries
+    startingLevel: None
+    targetLevel: A2
+    estimatedWeeks: 6
+    learningGoals:
+      en:
+        - Navigate airports and transportation
+        - Check into hotels and accommodations
+        - Order food at restaurants
+        - Ask for directions and help
+        - Handle emergencies
+    displayOrder: 2
+  - languageCode: es-ES
+    name:
+      en: Free Conversation
+    shortDescription:
+      en: Practice Spanish naturally without structured lessons
+    description:
+      en: Open-ended conversation practice in Spanish. No fixed curriculum - just natural dialogue adapted to your level and interests
+    category: General
+    targetAudience:
+      en: Learners who want unstructured conversation practice
+    startingLevel: None
+    targetLevel: C2
+    requiresCurriculum: false
+    learningGoals:
+      en:
+        - Practice natural conversation
+        - Improve fluency and spontaneity
+        - Discuss topics of personal interest
+        - Receive real-time corrections
+    displayOrder: 0
+
+  # Italian (Italy) courses
+  - languageCode: it-IT
+    name:
+      en: Conversational Italian
+    shortDescription:
+      en: Master everyday conversations at your own pace
+    description:
+      en: Learn to communicate naturally in Italian through practical conversations covering greetings, daily routines, opinions, and Italian culture
+    category: Conversational
+    targetAudience:
+      en: Anyone wanting to speak Italian naturally
+    startingLevel: None
+    targetLevel: C1
+    learningGoals:
+      en:
+        - Greet people and introduce yourself
+        - Talk about daily routines and activities
+        - Describe people, places, and things
+        - Order food at restaurants
+        - Express opinions and feelings
+    displayOrder: 1
+  - languageCode: it-IT
+    name:
+      en: Italian for Travelers
+    shortDescription:
+      en: Essential phrases for tourists visiting Italy
+    description:
+      en: Quick-start Italian course focusing on practical phrases you'll need for travel in Italy
+    category: Travel
+    targetAudience:
+      en: Travelers planning a trip to Italy
+    startingLevel: None
+    targetLevel: A2
+    estimatedWeeks: 6
+    learningGoals:
+      en:
+        - Navigate airports and transportation
+        - Check into hotels and accommodations
+        - Order food at Italian restaurants
+        - Ask for directions and help
+        - Handle basic situations
+    displayOrder: 2
+  - languageCode: it-IT
+    name:
+      en: Italian Grammar Fundamentals
+    shortDescription:
+      en: Build a strong foundation in Italian grammar
+    description:
+      en: Comprehensive beginner to intermediate Italian course covering grammar, verb conjugations, and conversation
+    category: General
+    targetAudience:
+      en: New Italian learners wanting a structured approach
+    startingLevel: None
+    targetLevel: B1
+    estimatedWeeks: 12
+    learningGoals:
+      en:
+        - Master Italian verb conjugations
+        - Build essential vocabulary
+        - Form correct sentences
+        - Understand Italian culture
+    displayOrder: 3
+  - languageCode: it-IT
+    name:
+      en: Free Conversation
+    shortDescription:
+      en: Practice Italian naturally without structured lessons
+    description:
+      en: Open-ended conversation practice in Italian. No fixed curriculum - just natural dialogue adapted to your level and interests
+    category: General
+    targetAudience:
+      en: Learners who want unstructured conversation practice
+    startingLevel: None
+    targetLevel: C2
+    requiresCurriculum: false
+    learningGoals:
+      en:
+        - Practice natural conversation
+        - Improve fluency and spontaneity
+        - Discuss topics of personal interest
+        - Receive real-time corrections
+    displayOrder: 0
+
+  # French (France) courses
+  - languageCode: fr-FR
+    name:
+      en: Conversational French
+    shortDescription:
+      en: Develop fluency in everyday French
+    description:
+      en: Practice natural French conversation skills from basic to intermediate level
+    category: Conversational
+    targetAudience:
+      en: Learners wanting to speak French confidently
+    startingLevel: None
+    targetLevel: B2
+    learningGoals:
+      en:
+        - Engage in everyday conversations
+        - Use common idiomatic expressions
+        - Discuss various topics naturally
+        - Understand French culture
+    displayOrder: 1
+  - languageCode: fr-FR
+    name:
+      en: French for Travelers
+    shortDescription:
+      en: Essential phrases for tourists visiting France
+    description:
+      en: Quick-start French course focusing on practical phrases you'll need for travel in France
+    category: Travel
+    targetAudience:
+      en: Travelers planning a trip to France
+    startingLevel: None
+    targetLevel: A2
+    estimatedWeeks: 6
+    learningGoals:
+      en:
+        - Navigate airports and transportation
+        - Check into hotels and accommodations
+        - Order food at restaurants
+        - Ask for directions and help
+        - Handle basic situations
+    displayOrder: 2
+  - languageCode: fr-FR
+    name:
+      en: French Grammar Fundamentals
+    shortDescription:
+      en: Build a strong foundation in French grammar
+    description:
+      en: Comprehensive beginner to intermediate French course covering grammar, verb conjugations, and conversation
+    category: General
+    targetAudience:
+      en: New French learners wanting a structured approach
+    startingLevel: None
+    targetLevel: B1
+    estimatedWeeks: 12
+    learningGoals:
+      en:
+        - Master French verb conjugations
+        - Build essential vocabulary
+        - Form correct sentences
+        - Understand French culture
+    displayOrder: 3
+  - languageCode: fr-FR
+    name:
+      en: Free Conversation
+    shortDescription:
+      en: Practice French naturally without structured lessons
+    description:
+      en: Open-ended conversation practice in French. No fixed curriculum - just natural dialogue adapted to your level and interests
+    category: General
+    targetAudience:
+      en: Learners who want unstructured conversation practice
+    startingLevel: None
+    targetLevel: C2
+    requiresCurriculum: false
+    learningGoals:
+      en:
+        - Practice natural conversation
+        - Improve fluency and spontaneity
+        - Discuss topics of personal interest
+        - Receive real-time corrections
+    displayOrder: 0
+
+  # German (Germany) courses
+  - languageCode: de-DE
+    name:
+      en: Conversational German
+    shortDescription:
+      en: Build a strong foundation in German
+    description:
+      en: Comprehensive beginner to intermediate German course covering grammar and conversation
+    category: General
+    targetAudience:
+      en: New German learners wanting a structured approach
+    startingLevel: None
+    targetLevel: B1
+    estimatedWeeks: 12
+    learningGoals:
+      en:
+        - Master German cases and grammar
+        - Build essential vocabulary
+        - Form correct sentences
+        - Understand German culture
+    displayOrder: 1
+  - languageCode: de-DE
+    name:
+      en: German for Travelers
+    shortDescription:
+      en: Essential phrases for tourists visiting Germany
+    description:
+      en: Quick-start German course focusing on practical phrases you'll need for travel in Germany
+    category: Travel
+    targetAudience:
+      en: Travelers planning a trip to Germany
+    startingLevel: None
+    targetLevel: A2
+    estimatedWeeks: 6
+    learningGoals:
+      en:
+        - Navigate airports and transportation
+        - Check into hotels and accommodations
+        - Order food at restaurants
+        - Ask for directions and help
+        - Handle basic situations
+    displayOrder: 2
+  - languageCode: de-DE
+    name:
+      en: German Grammar Fundamentals
+    shortDescription:
+      en: Build a strong foundation in German grammar
+    description:
+      en: Comprehensive beginner to intermediate German course covering grammar, cases, and verb conjugations
+    category: General
+    targetAudience:
+      en: New German learners wanting a structured approach
+    startingLevel: None
+    targetLevel: B1
+    estimatedWeeks: 12
+    learningGoals:
+      en:
+        - Master German cases (Nominativ, Akkusativ, Dativ, Genitiv)
+        - Build essential vocabulary
+        - Form correct sentences
+        - Understand German culture
+    displayOrder: 3
+  - languageCode: de-DE
+    name:
+      en: Free Conversation
+    shortDescription:
+      en: Practice German naturally without structured lessons
+    description:
+      en: Open-ended conversation practice in German. No fixed curriculum - just natural dialogue adapted to your level and interests
+    category: General
+    targetAudience:
+      en: Learners who want unstructured conversation practice
+    startingLevel: None
+    targetLevel: C2
+    requiresCurriculum: false
+    learningGoals:
+      en:
+        - Practice natural conversation
+        - Improve fluency and spontaneity
+        - Discuss topics of personal interest
+        - Receive real-time corrections
+    displayOrder: 0
+
+  # German (Switzerland) courses
+  - languageCode: de-CH
+    name:
+      en: Swiss German Essentials
+    shortDescription:
+      en: Master Swiss Standard German with proper orthography
+    description:
+      en: Learn Swiss Standard German (Schweizer Hochdeutsch) with correct Swiss orthography (ss instead of ß) and vocabulary differences
+    category: General
+    targetAudience:
+      en: Learners wanting to communicate in Switzerland
+    startingLevel: None
+    targetLevel: B1
+    estimatedWeeks: 12
+    learningGoals:
+      en:
+        - Master Swiss orthography (ss vs ß)
+        - Learn Swiss-specific vocabulary
+        - Understand Swiss cultural context
+        - Build essential grammar foundation
+    displayOrder: 1
+  - languageCode: de-CH
+    name:
+      en: Swiss German Conversation
+    shortDescription:
+      en: Speak Swiss Standard German naturally
+    description:
+      en: Practice natural Swiss Standard German conversation with focus on Swiss expressions and cultural understanding
+    category: Conversational
+    targetAudience:
+      en: Anyone wanting to speak Swiss German confidently
+    startingLevel: None
+    targetLevel: B2
+    learningGoals:
+      en:
+        - Engage in everyday Swiss conversations
+        - Use Swiss-specific expressions
+        - Understand Swiss culture and customs
+        - Navigate Swiss social situations
+    displayOrder: 2
+  - languageCode: de-CH
+    name:
+      en: Free Conversation
+    shortDescription:
+      en: Practice Swiss German naturally without structured lessons
+    description:
+      en: Open-ended conversation practice in Swiss Standard German. No fixed curriculum - just natural dialogue adapted to your level and interests
+    category: General
+    targetAudience:
+      en: Learners who want unstructured conversation practice
+    startingLevel: None
+    targetLevel: C2
+    requiresCurriculum: false
+    learningGoals:
+      en:
+        - Practice natural conversation
+        - Improve fluency and spontaneity
+        - Discuss topics of personal interest
+        - Receive real-time corrections
+    displayOrder: 0
+
+  # Japanese (Japan) courses
+  - languageCode: ja-JP
+    name:
+      en: Japanese Hiragana and Katakana
+    shortDescription:
+      en: Master the two basic Japanese scripts from zero
+    description:
+      en: Learn hiragana and katakana from scratch with focused practice and minimal vocabulary
+    category: General
+    targetAudience:
+      en: Complete beginners to Japanese who want to start with the scripts
+    startingLevel: None
+    targetLevel: A1
+    estimatedWeeks: 4
+    learningGoals:
+      en:
+        - Master all hiragana characters
+        - Master all katakana characters
+        - Convert between romaji and kana
+        - Read basic words and practice pronunciation
+    displayOrder: 1
+  - languageCode: ja-JP
+    name:
+      en: Japanese for Beginners
+    shortDescription:
+      en: Start your Japanese journey from zero
+    description:
+      en: Learn hiragana, katakana, and basic Japanese conversation step by step
+    category: General
+    targetAudience:
+      en: Complete beginners to Japanese
+    startingLevel: None
+    targetLevel: A2
+    estimatedWeeks: 16
+    learningGoals:
+      en:
+        - Master hiragana and katakana
+        - Learn basic kanji
+        - Understand Japanese sentence structure
+        - Practice polite conversation
+    displayOrder: 2
+  - languageCode: ja-JP
+    name:
+      en: Japanese for Travelers
+    shortDescription:
+      en: Essential phrases for tourists visiting Japan
+    description:
+      en: Quick-start Japanese course focusing on practical phrases you'll need for travel in Japan
+    category: Travel
+    targetAudience:
+      en: Travelers planning a trip to Japan
+    startingLevel: None
+    targetLevel: A2
+    estimatedWeeks: 6
+    learningGoals:
+      en:
+        - Navigate airports and transportation
+        - Check into hotels and accommodations
+        - Order food at restaurants
+        - Ask for directions and help
+        - Handle basic situations
+    displayOrder: 3
+  - languageCode: ja-JP
+    name:
+      en: Japanese Grammar Fundamentals
+    shortDescription:
+      en: Build a strong foundation in Japanese grammar
+    description:
+      en: Comprehensive beginner to intermediate Japanese course covering grammar, particles, and sentence structure
+    category: General
+    targetAudience:
+      en: Serious learners wanting structured grammar training
+    startingLevel: None
+    targetLevel: B1
+    estimatedWeeks: 14
+    learningGoals:
+      en:
+        - Master Japanese particles (は, が, を, に, で, etc.)
+        - Learn verb conjugation patterns
+        - Understand sentence structure (SOV)
+        - Build essential vocabulary
+    displayOrder: 4
+  - languageCode: ja-JP
+    name:
+      en: Japanese Kanji N5
+    shortDescription:
+      en: Master the 2,136 basic Japanese characters (Jōyō kanji) for beginners
+    description:
+      en: Learn all 2,136 Jōyō kanji characters at N5 level with vocabulary, stroke order, and practical usage
+    category: General
+    targetAudience:
+      en: Beginners wanting to master Japanese characters from zero
+    startingLevel: None
+    targetLevel: A1
+    estimatedWeeks: 10
+    learningGoals:
+      en:
+        - Master 2,136 basic kanji characters (N5 level)
+        - Learn correct stroke order and formation
+        - Use kanji in common vocabulary and phrases
+        - Build reading foundation for Japanese text
+    displayOrder: 5
+  - languageCode: ja-JP
+    name:
+      en: Japanese for Manga Fans
+    shortDescription:
+      en: Learn Japanese through popular manga and anime
+    description:
+      en: A beginner-friendly Japanese course that teaches vocabulary, expressions, and cultural context found in Japanese manga and anime. Perfect for fans who want to read manga in the original language and understand character dialogues naturally.
+    category: Conversational
+    targetAudience:
+      en: Manga and anime enthusiasts
+    startingLevel: None
+    targetLevel: A2
+    estimatedWeeks: 8
+    learningGoals:
+      en:
+        - Learn hiragana, katakana, and basic kanji for reading Japanese manga
+        - Understand common dialogue patterns used in comics and anime
+        - Pick up everyday and emotional expressions used by characters
+        - Gain insight into Japanese culture and humor found in manga
+        - Build vocabulary for storytelling and fantasy settings
+    displayOrder: 4
+  - languageCode: ja-JP
+    name:
+      en: Free Conversation
+    shortDescription:
+      en: Practice Japanese naturally without structured lessons
+    description:
+      en: Open-ended conversation practice in Japanese. No fixed curriculum - just natural dialogue adapted to your level and interests
+    category: General
+    targetAudience:
+      en: Learners who want unstructured conversation practice
+    startingLevel: None
+    targetLevel: C2
+    requiresCurriculum: false
+    learningGoals:
+      en:
+        - Practice natural conversation
+        - Improve fluency and spontaneity
+        - Discuss topics of personal interest
+        - Receive real-time corrections
+    displayOrder: 0
+
+  # Chinese (Mandarin, China) courses
+  - languageCode: zh-CN
+    name:
+      en: Mandarin Pinyin Starter
+    shortDescription:
+      en: Build tones and pinyin fundamentals from zero
+    description:
+      en: Master Mandarin's four tones and pinyin spelling rules through focused listening, speaking, and minimal pairs so you can pronounce and understand clearly before characters
+    category: General
+    targetAudience:
+      en: Absolute beginners who want a pronunciation-first start
+    startingLevel: None
+    targetLevel: A1
+    estimatedWeeks: 6
+    learningGoals:
+      en:
+        - Hear and produce the four tones plus neutral tone
+        - Read and type all pinyin initials and finals
+        - Use tone pairs and minimal pairs accurately
+        - Hold short self-introductions using pinyin only
+    displayOrder: 1
+  - languageCode: zh-CN
+    name:
+      en: Conversational Mandarin (Simplified)
+    shortDescription:
+      en: Speak natural Mandarin for daily life
+    description:
+      en: Practical conversation training with simplified characters and pinyin support, covering greetings, routines, opinions, and common scenarios
+    category: Conversational
+    targetAudience:
+      en: Learners who want everyday fluency with Mainland usage
+    startingLevel: None
+    targetLevel: B2
+    estimatedWeeks: 16
+    learningGoals:
+      en:
+        - Handle greetings, introductions, and daily routines
+        - Shop, order food, and ask for help
+        - Discuss preferences and make simple plans
+        - Navigate transportation and simple services
+        - Build core vocabulary with simplified characters
+    displayOrder: 2
+  - languageCode: zh-CN
+    name:
+      en: Mandarin Character Bridge (Simplified)
+    shortDescription:
+      en: Transition from pinyin to simplified Hanzi
+    description:
+      en: Step-by-step literacy course introducing high-frequency simplified characters with mnemonic strategies and graded reading
+    category: General
+    targetAudience:
+      en: Pinyin users ready to read simplified characters
+    startingLevel: None
+    targetLevel: A2
+    estimatedWeeks: 12
+    learningGoals:
+      en:
+        - Learn 300–400 high-frequency simplified characters
+        - Recognize common radicals and components
+        - Read graded dialogues with pinyin support
+        - Write essential characters with stroke order
+    displayOrder: 3
+  - languageCode: zh-CN
+    name:
+      en: Mandarin for Travelers (Mainland)
+    shortDescription:
+      en: Essential phrases with simplified characters
+    description:
+      en: Quick-start travel Mandarin focusing on transport, hotels, food, payments, and basic emergencies in Mainland China
+    category: Travel
+    targetAudience:
+      en: Travelers visiting Mainland Chinese cities
+    startingLevel: None
+    targetLevel: A2
+    estimatedWeeks: 6
+    learningGoals:
+      en:
+        - Buy tickets and ask for directions
+        - Check in at hotels and handle reservations
+        - Order food, pay, and handle dietary needs
+        - Manage simple problems and emergencies
+    displayOrder: 4
+  - languageCode: zh-CN
+    name:
+      en: Free Conversation
+    shortDescription:
+      en: Practice Mandarin naturally without structured lessons
+    description:
+      en: Open-ended conversation practice in Mandarin Chinese (Simplified). No fixed curriculum - just natural dialogue adapted to your level and interests
+    category: General
+    targetAudience:
+      en: Learners who want unstructured conversation practice
+    startingLevel: None
+    targetLevel: C2
+    requiresCurriculum: false
+    learningGoals:
+      en:
+        - Practice natural conversation
+        - Improve fluency and spontaneity
+        - Discuss topics of personal interest
+        - Receive real-time corrections
+    displayOrder: 0
+
+  # Chinese (Mandarin, Taiwan) courses
+  - languageCode: zh-TW
+    name:
+      en: Conversational Mandarin (Taiwan)
+    shortDescription:
+      en: Speak naturally with Taiwanese usage
+    description:
+      en: Everyday conversation with traditional characters and Taiwan vocabulary; optional zhuyin support for reading and pronunciation
+    category: Conversational
+    targetAudience:
+      en: Learners focusing on Taiwanese Mandarin and culture
+    startingLevel: None
+    targetLevel: B2
+    estimatedWeeks: 16
+    learningGoals:
+      en:
+        - Manage daily conversations with polite particles
+        - Use Taiwan-preferred vocabulary and expressions
+        - Order food, shop, and ask for directions
+        - Read common signs in traditional characters
+    displayOrder: 1
+  - languageCode: zh-TW
+    name:
+      en: Mandarin Character Bridge (Traditional)
+    shortDescription:
+      en: Transition to traditional characters with confidence
+    description:
+      en: Literacy course introducing high-frequency traditional characters using radicals, components, and short graded readings; optional zhuyin support
+    category: General
+    targetAudience:
+      en: Learners moving from pinyin/romanization to traditional characters
+    startingLevel: None
+    targetLevel: A2
+    estimatedWeeks: 12
+    learningGoals:
+      en:
+        - Learn 300–400 high-frequency traditional characters
+        - Recognize radicals and phonetic hints
+        - Read short dialogues without full pinyin dependence
+        - Write essential characters with correct stroke order
+    displayOrder: 2
+  - languageCode: zh-TW
+    name:
+      en: Mandarin for Travelers (Taiwan)
+    shortDescription:
+      en: Travel essentials with traditional characters
+    description:
+      en: Practical phrases for transport, food, lodging, and simple emergencies in Taiwan's contexts
+    category: Travel
+    targetAudience:
+      en: Tourists visiting Taiwan
+    startingLevel: None
+    targetLevel: A2
+    estimatedWeeks: 6
+    learningGoals:
+      en:
+        - Navigate MRT/bus and purchase tickets
+        - Order at restaurants and night markets
+        - Handle accommodations and simple issues
+        - Ask for help politely using local norms
+    displayOrder: 2
+  - languageCode: zh-TW
+    name:
+      en: Free Conversation
+    shortDescription:
+      en: Practice Taiwanese Mandarin naturally without structured lessons
+    description:
+      en: Open-ended conversation practice in Taiwanese Mandarin (Traditional). No fixed curriculum - just natural dialogue adapted to your level and interests
+    category: General
+    targetAudience:
+      en: Learners who want unstructured conversation practice
+    startingLevel: None
+    targetLevel: C2
+    requiresCurriculum: false
+    learningGoals:
+      en:
+        - Practice natural conversation
+        - Improve fluency and spontaneity
+        - Discuss topics of personal interest
+        - Receive real-time corrections
+    displayOrder: 0
+
+  # Chinese (Cantonese, Hong Kong) courses
+  - languageCode: zh-HK
+    name:
+      en: Cantonese Conversation (Hong Kong)
+    shortDescription:
+      en: Master everyday Cantonese with tones
+    description:
+      en: Tone-focused conversational course using Hong Kong Cantonese; supports Jyutping in responses while accepting any romanization
+    category: Conversational
+    targetAudience:
+      en: Learners who want real-life Cantonese for Hong Kong
+    startingLevel: None
+    targetLevel: B2
+    estimatedWeeks: 16
+    learningGoals:
+      en:
+        - Control six tones and common tone sandhi patterns
+        - Handle greetings, shopping, transport, and dining
+        - Use common particles for natural speech (e.g., laa, aa)
+        - Build core vocabulary with traditional characters
+    displayOrder: 1
+  - languageCode: zh-HK
+    name:
+      en: Cantonese Character Bridge (Traditional)
+    shortDescription:
+      en: Read and write essential traditional characters
+    description:
+      en: High-frequency characters and colloquial Cantonese forms with graded dialogues; Jyutping support for pronunciation
+    category: General
+    targetAudience:
+      en: Cantonese learners transitioning to reading in Hong Kong
+    startingLevel: None
+    targetLevel: A2
+    estimatedWeeks: 12
+    learningGoals:
+      en:
+        - Learn 300+ common traditional characters and colloquial forms
+        - Map characters to Jyutping reliably
+        - Read short messages, menus, and signs
+        - Write key characters with correct stroke order
+    displayOrder: 2
+  - languageCode: zh-HK
+    name:
+      en: Cantonese for Travelers (Hong Kong)
+    shortDescription:
+      en: Essential phrases for visiting Hong Kong
+    description:
+      en: Survival Cantonese for transport, dining, shopping, payments, and quick help in Hong Kong settings
+    category: Travel
+    targetAudience:
+      en: Short-term visitors to Hong Kong
+    startingLevel: None
+    targetLevel: A2
+    estimatedWeeks: 6
+    learningGoals:
+      en:
+        - Ask for and understand directions
+        - Order food and drinks confidently
+        - Handle Octopus card and payments
+        - Manage simple problems and emergencies
+    displayOrder: 3
+  - languageCode: zh-HK
+    name:
+      en: Free Conversation
+    shortDescription:
+      en: Practice Cantonese naturally without structured lessons
+    description:
+      en: Open-ended conversation practice in Cantonese (Traditional). No fixed curriculum - just natural dialogue adapted to your level and interests
+    category: General
+    targetAudience:
+      en: Learners who want unstructured conversation practice
+    startingLevel: None
+    targetLevel: C2
+    requiresCurriculum: false
+    learningGoals:
+      en:
+        - Practice natural conversation
+        - Improve fluency and spontaneity
+        - Discuss topics of personal interest
+        - Receive real-time corrections
+    displayOrder: 0
+
+  # Korean (South Korea) courses
+  - languageCode: ko-KR
+    name:
+      en: Conversational Korean
+    shortDescription:
+      en: Master everyday Korean conversations
+    description:
+      en: Learn to communicate naturally in Korean through practical conversations covering greetings, daily routines, honorifics, and Korean culture
+    category: Conversational
+    targetAudience:
+      en: Anyone wanting to speak Korean naturally
+    startingLevel: None
+    targetLevel: B2
+    learningGoals:
+      en:
+        - Greet people and introduce yourself
+        - Master Hangul reading and writing
+        - Use appropriate honorific levels
+        - Talk about daily routines and activities
+        - Understand Korean culture and customs
+    displayOrder: 1
+  - languageCode: ko-KR
+    name:
+      en: Korean for K-pop and K-drama fans
+    shortDescription:
+      en: Learn Korean through modern pop culture
+    description:
+      en: Quick-start Korean course focusing on practical phrases from K-pop, K-dramas, and modern Korean culture
+    category: Conversational
+    targetAudience:
+      en: K-pop and K-drama enthusiasts
+    startingLevel: None
+    targetLevel: A2
+    estimatedWeeks: 8
+    learningGoals:
+      en:
+        - Understand common phrases from K-dramas
+        - Learn Hangul for reading song lyrics
+        - Master everyday conversational Korean
+        - Understand Korean slang and expressions
+        - Connect with Korean pop culture
+    displayOrder: 2
+  - languageCode: ko-KR
+    name:
+      en: Korean for Manhwa and Webtoon Fans
+    shortDescription:
+      en: Learn Korean through popular manhwa and webtoons
+    description:
+      en: A beginner-friendly Korean course that teaches vocabulary, expressions, and cultural context found in Korean manhwa and webtoons. Perfect for fans who want to read comics in the original language and understand character dialogues naturally.
+    category: Conversational
+    targetAudience:
+      en: Manhwa and webtoon enthusiasts
+    startingLevel: None
+    targetLevel: A2
+    estimatedWeeks: 8
+    learningGoals:
+      en:
+        - Learn Hangul for reading Korean webtoons and manhwa
+        - Understand common dialogue patterns used in comics
+        - Pick up everyday and emotional expressions used by characters
+        - Gain insight into Korean culture and humor found in manhwa
+        - Build vocabulary for storytelling and fantasy settings
+    displayOrder: 3
+  - languageCode: ko-KR
+    name:
+      en: Korean Hangul and Pronunciation
+    shortDescription:
+      en: Master the Korean writing system from zero
+    description:
+      en: Learn Hangul from scratch with focused practice and minimal vocabulary
+    category: General
+    targetAudience:
+      en: Complete beginners to Korean who want to start with the writing system
+    startingLevel: None
+    targetLevel: A1
+    estimatedWeeks: 4
+    learningGoals:
+      en:
+        - Master all Hangul characters
+        - Understand syllable block formation
+        - Convert between romanization and Hangul
+        - Read basic words and practice pronunciation
+    displayOrder: 1
+  - languageCode: ko-KR
+    name:
+      en: Korean Grammar Fundamentals
+    shortDescription:
+      en: Build a strong foundation in Korean grammar
+    description:
+      en: Comprehensive beginner to intermediate Korean course covering grammar, verb conjugations, honorifics, and sentence structure
+    category: General
+    targetAudience:
+      en: Serious learners wanting structured grammar training
+    startingLevel: None
+    targetLevel: B1
+    estimatedWeeks: 14
+    learningGoals:
+      en:
+        - Master Korean sentence structure (SOV)
+        - Learn verb conjugation patterns
+        - Understand honorific speech levels
+        - Build essential vocabulary
+        - Form correct sentences
+    displayOrder: 2
+  - languageCode: ko-KR
+    name:
+      en: Free Conversation
+    shortDescription:
+      en: Practice Korean naturally without structured lessons
+    description:
+      en: Open-ended conversation practice in Korean. No fixed curriculum - just natural dialogue adapted to your level and interests
+    category: General
+    targetAudience:
+      en: Learners who want unstructured conversation practice
+    startingLevel: None
+    targetLevel: C2
+    requiresCurriculum: false
+    learningGoals:
+      en:
+        - Practice natural conversation
+        - Improve fluency and spontaneity
+        - Discuss topics of personal interest
+        - Receive real-time corrections
+    displayOrder: 0
+
+  # Russian (Russia) courses
+  - languageCode: ru-RU
+    name:
+      en: Russian Conversation
+    shortDescription:
+      en: Develop fluency in everyday Russian
+    description:
+      en: Practice natural Russian conversation skills while mastering Cyrillic and basic grammar
+    category: Conversational
+    targetAudience:
+      en: Learners wanting to speak Russian confidently
+    startingLevel: None
+    targetLevel: B2
+    learningGoals:
+      en:
+        - Master Cyrillic alphabet and reading
+        - Engage in everyday conversations
+        - Use common expressions naturally
+        - Understand Russian culture
+    displayOrder: 1
+  - languageCode: ru-RU
+    name:
+      en: Russian Grammar Fundamentals
+    shortDescription:
+      en: Master the Russian case system
+    description:
+      en: Comprehensive course covering Russian grammar including the six-case system and verb aspects
+    category: General
+    targetAudience:
+      en: Serious learners wanting structured grammar training
+    startingLevel: None
+    targetLevel: B1
+    estimatedWeeks: 14
+    learningGoals:
+      en:
+        - Master the six Russian cases
+        - Understand verb aspects (perfective/imperfective)
+        - Build essential vocabulary
+        - Form correct sentences
+    displayOrder: 2
+  - languageCode: ru-RU
+    name:
+      en: Free Conversation
+    shortDescription:
+      en: Practice Russian naturally without structured lessons
+    description:
+      en: Open-ended conversation practice in Russian. No fixed curriculum - just natural dialogue adapted to your level and interests
+    category: General
+    targetAudience:
+      en: Learners who want unstructured conversation practice
+    startingLevel: None
+    targetLevel: C2
+    requiresCurriculum: false
+    learningGoals:
+      en:
+        - Practice natural conversation
+        - Improve fluency and spontaneity
+        - Discuss topics of personal interest
+        - Receive real-time corrections
+    displayOrder: 0
+
+  # Portuguese (Brazil) courses
+  - languageCode: pt-BR
+    name:
+      en: Brazilian Portuguese Conversation
+    shortDescription:
+      en: Speak Brazilian Portuguese naturally
+    description:
+      en: Learn to communicate naturally in Brazilian Portuguese through practical conversations and cultural immersion
+    category: Conversational
+    targetAudience:
+      en: Anyone wanting to speak Brazilian Portuguese
+    startingLevel: None
+    targetLevel: B2
+    learningGoals:
+      en:
+        - Engage in everyday conversations
+        - Understand Brazilian slang and expressions
+        - Discuss culture, music, and daily life
+        - Build practical vocabulary
+    displayOrder: 1
+  - languageCode: pt-BR
+    name:
+      en: Brazilian Portuguese for Travelers
+    shortDescription:
+      en: Essential phrases for visiting Brazil
+    description:
+      en: Quick-start course focusing on practical phrases for traveling in Brazil
+    category: Travel
+    targetAudience:
+      en: Travelers planning a trip to Brazil
+    startingLevel: None
+    targetLevel: A2
+    estimatedWeeks: 6
+    learningGoals:
+      en:
+        - Navigate airports and transportation
+        - Order food at restaurants
+        - Ask for directions and help
+        - Understand Brazilian customs
+        - Handle basic situations
+    displayOrder: 2
+  - languageCode: pt-BR
+    name:
+      en: Free Conversation
+    shortDescription:
+      en: Practice Brazilian Portuguese naturally without structured lessons
+    description:
+      en: Open-ended conversation practice in Brazilian Portuguese. No fixed curriculum - just natural dialogue adapted to your level and interests
+    category: General
+    targetAudience:
+      en: Learners who want unstructured conversation practice
+    startingLevel: None
+    targetLevel: C2
+    requiresCurriculum: false
+    learningGoals:
+      en:
+        - Practice natural conversation
+        - Improve fluency and spontaneity
+        - Discuss topics of personal interest
+        - Receive real-time corrections
+    displayOrder: 0
+
+  # Portuguese (Portugal) courses
+  - languageCode: pt-PT
+    name:
+      en: European Portuguese Essentials
+    shortDescription:
+      en: Build a strong foundation in European Portuguese
+    description:
+      en: Comprehensive beginner to intermediate European Portuguese course covering grammar and conversation
+    category: General
+    targetAudience:
+      en: New learners of European Portuguese
+    startingLevel: None
+    targetLevel: B1
+    estimatedWeeks: 12
+    learningGoals:
+      en:
+        - Learn essential grammar structures
+        - Build practical vocabulary
+        - Understand formal and informal registers
+        - Engage in everyday conversations
+    displayOrder: 1
+  - languageCode: pt-PT
+    name:
+      en: Portuguese Conversation
+    shortDescription:
+      en: Speak European Portuguese confidently
+    description:
+      en: Practice natural European Portuguese conversation skills and cultural understanding
+    category: Conversational
+    targetAudience:
+      en: Learners wanting conversational fluency
+    startingLevel: None
+    targetLevel: B2
+    learningGoals:
+      en:
+        - Engage in everyday conversations
+        - Understand Portuguese culture
+        - Use idiomatic expressions
+        - Discuss various topics naturally
+    displayOrder: 2
+  - languageCode: pt-PT
+    name:
+      en: Free Conversation
+    shortDescription:
+      en: Practice European Portuguese naturally without structured lessons
+    description:
+      en: Open-ended conversation practice in European Portuguese. No fixed curriculum - just natural dialogue adapted to your level and interests
+    category: General
+    targetAudience:
+      en: Learners who want unstructured conversation practice
+    startingLevel: None
+    targetLevel: C2
+    requiresCurriculum: false
+    learningGoals:
+      en:
+        - Practice natural conversation
+        - Improve fluency and spontaneity
+        - Discuss topics of personal interest
+        - Receive real-time corrections
+    displayOrder: 0
+
+  # English (US) courses
+  - languageCode: en-US
+    name:
+      en: Conversational American English
+    shortDescription:
+      en: Master everyday American English conversations
+    description:
+      en: Learn to communicate naturally in American English through practical conversations covering greetings, daily routines, opinions, and more
+    category: Conversational
+    targetAudience:
+      en: Anyone wanting to speak American English naturally
+    startingLevel: None
+    targetLevel: C1
+    learningGoals:
+      en:
+        - Greet people and introduce yourself
+        - Talk about daily routines and activities
+        - Describe people, places, and things
+        - Order food and shop for items
+        - Express opinions and feelings
+    displayOrder: 1
+  - languageCode: en-US
+    name:
+      en: American English for Travelers
+    shortDescription:
+      en: Essential phrases for tourists visiting the US
+    description:
+      en: Quick-start American English course focusing on practical phrases you'll need for travel
+    category: Travel
+    targetAudience:
+      en: Travelers planning a trip to the United States
+    startingLevel: None
+    targetLevel: A2
+    estimatedWeeks: 6
+    learningGoals:
+      en:
+        - Navigate airports and transportation
+        - Check into hotels and accommodations
+        - Order food at restaurants
+        - Ask for directions and help
+        - Handle emergencies
+    displayOrder: 2
+  - languageCode: en-US
+    name:
+      en: American English Grammar
+    shortDescription:
+      en: Build a strong foundation in American English grammar
+    description:
+      en: Comprehensive beginner to intermediate American English course covering grammar and usage
+    category: General
+    targetAudience:
+      en: New English learners wanting a structured approach
+    startingLevel: None
+    targetLevel: B1
+    estimatedWeeks: 12
+    learningGoals:
+      en:
+        - Master verb tenses and aspects
+        - Build essential vocabulary
+        - Form correct sentences
+        - Understand American culture
+    displayOrder: 3
+  - languageCode: en-US
+    name:
+      en: Free Conversation
+    shortDescription:
+      en: Practice American English naturally without structured lessons
+    description:
+      en: Open-ended conversation practice in American English. No fixed curriculum - just natural dialogue adapted to your level and interests
+    category: General
+    targetAudience:
+      en: Learners who want unstructured conversation practice
+    startingLevel: None
+    targetLevel: C2
+    requiresCurriculum: false
+    learningGoals:
+      en:
+        - Practice natural conversation
+        - Improve fluency and spontaneity
+        - Discuss topics of personal interest
+        - Receive real-time corrections
+    displayOrder: 0
+
+  # English (UK) courses
+  - languageCode: en-GB
+    name:
+      en: Conversational British English
+    shortDescription:
+      en: Master everyday British English conversations
+    description:
+      en: Learn to communicate naturally in British English through practical conversations covering greetings, daily routines, opinions, and more
+    category: Conversational
+    targetAudience:
+      en: Anyone wanting to speak British English naturally
+    startingLevel: None
+    targetLevel: C1
+    learningGoals:
+      en:
+        - Greet people and introduce yourself
+        - Talk about daily routines and activities
+        - Describe people, places, and things
+        - Order food and shop for items
+        - Express opinions and feelings
+    displayOrder: 1
+  - languageCode: en-GB
+    name:
+      en: British English for Travelers
+    shortDescription:
+      en: Essential phrases for tourists visiting the UK
+    description:
+      en: Quick-start British English course focusing on practical phrases you'll need for travel
+    category: Travel
+    targetAudience:
+      en: Travelers planning a trip to the United Kingdom
+    startingLevel: None
+    targetLevel: A2
+    estimatedWeeks: 6
+    learningGoals:
+      en:
+        - Navigate airports and transportation
+        - Check into hotels and accommodations
+        - Order food at restaurants
+        - Ask for directions and help
+        - Handle emergencies
+    displayOrder: 2
+  - languageCode: en-GB
+    name:
+      en: British English Grammar
+    shortDescription:
+      en: Build a strong foundation in British English grammar
+    description:
+      en: Comprehensive beginner to intermediate British English course covering grammar and usage
+    category: General
+    targetAudience:
+      en: New English learners wanting a structured approach
+    startingLevel: None
+    targetLevel: B1
+    estimatedWeeks: 12
+    learningGoals:
+      en:
+        - Master verb tenses and aspects
+        - Build essential vocabulary
+        - Form correct sentences
+        - Understand British culture
+    displayOrder: 3
+  - languageCode: en-GB
+    name:
+      en: Free Conversation
+    shortDescription:
+      en: Practice British English naturally without structured lessons
+    description:
+      en: Open-ended conversation practice in British English. No fixed curriculum - just natural dialogue adapted to your level and interests
+    category: General
+    targetAudience:
+      en: Learners who want unstructured conversation practice
+    startingLevel: None
+    targetLevel: C2
+    requiresCurriculum: false
+    learningGoals:
+      en:
+        - Practice natural conversation
+        - Improve fluency and spontaneity
+        - Discuss topics of personal interest
+        - Receive real-time corrections
+    displayOrder: 0
+
+  # IPA courses
+  - languageCode: mul-ipa
+    name:
+      en: IPA Grammar Fundamentals
+    shortDescription:
+      en: Master phonetic symbols and articulatory principles
+    description:
+      en: Systematic study of the International Phonetic Alphabet covering vowels, consonants, diacritics, and suprasegmentals with articulatory phonetics
+    category: Grammar
+    targetAudience:
+      en: Language learners, teachers, linguists, and anyone needing to read phonetic transcriptions
+    startingLevel: None
+    targetLevel: B2
+    estimatedWeeks: 6
+    learningGoals:
+      en:
+        - Recognize and produce all cardinal vowels using the IPA vowel chart
+        - Identify consonants by place and manner of articulation
+        - Read complete IPA transcriptions with diacritics
+        - Understand stress, tone, and length markings
+        - Apply IPA knowledge to dictionary pronunciations
+    displayOrder: 1
+  - languageCode: mul-ipa
+    name:
+      en: Conversational IPA
+    shortDescription:
+      en: Learn to read IPA through practical pronunciation practice
+    description:
+      en: Practical approach to reading IPA transcriptions focusing on common sounds in European languages and real-world dictionary entries
+    category: Conversational
+    targetAudience:
+      en: Language learners who want to decode pronunciation guides in dictionaries and textbooks
+    startingLevel: None
+    targetLevel: B2
+    estimatedWeeks: 6
+    learningGoals:
+      en:
+        - Read simple IPA transcriptions of familiar words
+        - Decode European language pronunciation patterns
+        - Recognize vowel and consonant variations across languages
+        - Apply IPA knowledge to learn new language sounds
+        - Use dictionary pronunciation guides effectively
+    displayOrder: 2
+  - languageCode: mul-ipa
+    name:
+      en: Free Conversation
+    shortDescription:
+      en: Practice IPA naturally without structured lessons
+    description:
+      en: Open-ended practice with the International Phonetic Alphabet. No fixed curriculum - just natural dialogue adapted to your level and interests
+    category: General
+    targetAudience:
+      en: Learners who want unstructured IPA practice
+    startingLevel: None
+    targetLevel: C2
+    requiresCurriculum: false
+    learningGoals:
+      en:
+        - Practice phonetic transcription
+        - Improve accuracy and speed
+        - Discuss various phonetic topics
+        - Receive real-time corrections
+    displayOrder: 0
