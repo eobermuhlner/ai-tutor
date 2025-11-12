@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect, DragEvent, ChangeEvent } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import type { DragEvent, ChangeEvent } from 'react';
 import { Upload, X, FileText, AlertCircle, CheckCircle } from 'lucide-react';
 import Button from './Button';
 

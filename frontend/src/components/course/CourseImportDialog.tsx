@@ -252,13 +252,13 @@ export default function CourseImportDialog({
               <Select
                 label="Language"
                 value={metadata.languageCode}
-                onChange={(e) => setMetadata({ ...metadata, languageCode: e.target.value })}
+                onChange={(value) => setMetadata({ ...metadata, languageCode: value })}
                 required
                 disabled={isImporting}
               >
                 {languages.map(lang => (
                   <option key={lang.code} value={lang.code}>
-                    {lang.nameEnglish}
+                    {lang.name}
                   </option>
                 ))}
               </Select>
@@ -266,7 +266,7 @@ export default function CourseImportDialog({
               <Select
                 label="Category"
                 value={metadata.category}
-                onChange={(e) => setMetadata({ ...metadata, category: e.target.value })}
+                onChange={(value) => setMetadata({ ...metadata, category: value })}
                 disabled={isImporting}
               >
                 {CATEGORIES.map(cat => (
@@ -279,7 +279,7 @@ export default function CourseImportDialog({
               <Select
                 label="Starting Level"
                 value={metadata.startingLevel}
-                onChange={(e) => setMetadata({ ...metadata, startingLevel: e.target.value })}
+                onChange={(value) => setMetadata({ ...metadata, startingLevel: value })}
                 disabled={isImporting}
               >
                 {CEFR_LEVELS.map(level => (
@@ -292,7 +292,7 @@ export default function CourseImportDialog({
               <Select
                 label="Target Level"
                 value={metadata.targetLevel}
-                onChange={(e) => setMetadata({ ...metadata, targetLevel: e.target.value })}
+                onChange={(value) => setMetadata({ ...metadata, targetLevel: value })}
                 disabled={isImporting}
               >
                 {CEFR_LEVELS.map(level => (

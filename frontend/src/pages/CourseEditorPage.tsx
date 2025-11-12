@@ -292,7 +292,8 @@ export default function CourseEditorPage() {
     };
 
     loadInitialData();
-  }, [courseId]); // Run once when component mounts, but re-run if courseId changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [courseId]); // Run once when component mounts, but re-run if courseId changes. formData.languageCode is used for initial default only and should not trigger re-initialization
 
   const handleInputChange = (field: keyof FormData, value: string | number | null | string[] | ConversationPhase) => {
     setFormData(prev => ({
