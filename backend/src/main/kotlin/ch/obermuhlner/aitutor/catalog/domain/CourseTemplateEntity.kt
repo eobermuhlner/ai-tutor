@@ -1,5 +1,6 @@
 package ch.obermuhlner.aitutor.catalog.domain
 
+import ch.obermuhlner.aitutor.catalog.domain.SourceType
 import ch.obermuhlner.aitutor.core.model.CEFRLevel
 import ch.obermuhlner.aitutor.core.model.catalog.CourseCategory
 import ch.obermuhlner.aitutor.tutor.domain.ConversationPhase
@@ -91,5 +92,9 @@ class CourseTemplateEntity(
     var lastEditedBy: UUID? = null,
 
     @Column(name = "version", nullable = false, columnDefinition = "integer default 1")
-    var version: Int = 1
+    var version: Int = 1,
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "source_type", nullable = false, length = 16)
+    var sourceType: SourceType = SourceType.CREATED
 )

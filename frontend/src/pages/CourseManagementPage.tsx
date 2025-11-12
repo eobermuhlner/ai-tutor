@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Edit, Trash2, Eye, EyeOff, CheckCircle, XCircle } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye, EyeOff, CheckCircle, XCircle, Upload } from 'lucide-react';
 import { getAllCourses, deleteCourse, publishCourse, unpublishCourse, type CourseResponse } from '../api/courseManagement';
 import { useAuthStore } from '../store/authStore';
 import { format } from 'date-fns';
@@ -8,6 +8,7 @@ import Button from '../components/ui/Button';
 import { Dialog, DialogActions, DialogContent, DialogTitle } from '../components/ui/Dialog';
 import Tooltip from '../components/ui/Tooltip';
 import Layout from '../components/layout/Layout';
+import CourseImportDialog from '../components/course/CourseImportDialog';
 import { getLanguages } from '../api/catalog';
 import type { Language } from '../types';
 
@@ -19,6 +20,12 @@ export default function CourseManagementPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [showImportDialog, setShowImportDialog] = useState(false);
+  const [isDraggingOverButton, setIsDraggingOverButton] = useState(false);
+  const [droppedFiles, setDroppedFiles] = useState<{ curriculum: File | null; lessons: File[] }>({
+    curriculum: null,
+    lessons: []
+  });
 
   // Language code to display mapping
   const getLanguageDisplayParts = (languageCode: string): { emoji: string; text: string } => {
@@ -142,13 +149,48 @@ export default function CourseManagementPage() {
   const handleUnpublishCourse = async (courseId: string) => {
     try {
       const updatedCourse = await unpublishCourse(courseId);
-      setCourses(courses.map(course => 
+      setCourses(courses.map(course =>
         course.id === courseId ? updatedCourse : course
       ));
     } catch (err) {
       console.error('Failed to unpublish course:', err);
       setError('Failed to unpublish course. Please try again.');
     }
+  };
+
+  const handleImportButtonDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingOverButton(true);
+  };
+
+  const handleImportButtonDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingOverButton(false);
+  };
+
+  const handleImportButtonDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingOverButton(false);
+
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length === 0) return;
+
+    // Separate curriculum.yml from lesson .md files
+    const curriculumFile = files.find(f =>
+      f.name === 'curriculum.yml' || f.name === 'curriculum.yaml'
+    );
+    const lessonFiles = files.filter(f => f.name.endsWith('.md'));
+
+    setDroppedFiles({
+      curriculum: curriculumFile || null,
+      lessons: lessonFiles
+    });
+
+    // Open the dialog
+    setShowImportDialog(true);
   };
 
   const getStatusBadge = (isDraft: boolean) => {
@@ -194,13 +236,33 @@ export default function CourseManagementPage() {
             Manage your courses, lessons, and curriculum. Draft courses are only visible to editors.
           </p>
         </div>
-        <Button 
-          onClick={() => navigate('/courses/create')}
-          className="flex items-center gap-2"
-        >
-          <Plus className="w-5 h-5" />
-          Create New Course
-        </Button>
+        <div className="flex items-center gap-3">
+          <div
+            onDragOver={handleImportButtonDragOver}
+            onDragLeave={handleImportButtonDragLeave}
+            onDrop={handleImportButtonDrop}
+          >
+            <Button
+              variant="secondary"
+              onClick={() => setShowImportDialog(true)}
+              className={`flex items-center gap-2 transition-all ${
+                isDraggingOverButton
+                  ? 'ring-2 ring-brand-500 ring-offset-2 bg-brand-50 border-brand-500'
+                  : ''
+              }`}
+            >
+              <Upload className="w-5 h-5" />
+              {isDraggingOverButton ? 'Drop files here' : 'Import Course'}
+            </Button>
+          </div>
+          <Button
+            onClick={() => navigate('/courses/create')}
+            className="flex items-center gap-2"
+          >
+            <Plus className="w-5 h-5" />
+            Create New Course
+          </Button>
+        </div>
       </div>
 
       {error && (
@@ -434,14 +496,14 @@ export default function CourseManagementPage() {
             Are you sure you want to delete this course? This action cannot be undone.
           </p>
           <DialogActions>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => setShowConfirmDialog(false)}
             >
               Cancel
             </Button>
-            <Button 
-              variant="danger" 
+            <Button
+              variant="danger"
               onClick={handleDeleteCourse}
             >
               Delete
@@ -449,6 +511,23 @@ export default function CourseManagementPage() {
           </DialogActions>
         </DialogContent>
       </Dialog>
+
+      {/* Course Import Dialog */}
+      <CourseImportDialog
+        isOpen={showImportDialog}
+        onClose={() => {
+          setShowImportDialog(false);
+          setDroppedFiles({ curriculum: null, lessons: [] });
+        }}
+        onSuccess={(result) => {
+          // Refresh courses list
+          getAllCourses(true).then(setCourses);
+          // Navigate to the newly imported course
+          navigate(`/courses/edit/${result.courseId}`);
+        }}
+        initialCurriculumFile={droppedFiles.curriculum}
+        initialLessonFiles={droppedFiles.lessons}
+      />
     </div>
     </Layout>
   );

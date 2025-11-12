@@ -114,3 +114,21 @@ data class CurriculumResponse(
     val createdAt: Instant,
     val updatedAt: Instant
 )
+
+// Course Import DTOs
+data class CourseImportRequest(
+    val languageCode: String,
+    val courseName: String,
+    val courseDescription: String = "Imported course",
+    val category: CourseCategory = CourseCategory.Conversational,
+    val startingLevel: CEFRLevel = CEFRLevel.A1,
+    val targetLevel: CEFRLevel = CEFRLevel.B2
+)
+
+data class CourseImportResponse(
+    val courseId: UUID,
+    val courseName: String,
+    val lessonsImported: Int,
+    val errors: List<String> = emptyList(),
+    val success: Boolean
+)

@@ -8,7 +8,9 @@ import java.util.UUID
 @Repository
 interface LessonContentRepository : JpaRepository<LessonContentEntity, UUID> {
     fun findByCourseId(courseId: UUID): List<LessonContentEntity>
+    fun findByCourseIdOrderByDisplayOrder(courseId: UUID): List<LessonContentEntity>
     fun findByCourseIdAndLessonId(courseId: UUID, lessonId: String): LessonContentEntity?
     fun deleteByCourseId(courseId: UUID)
     fun existsByCourseIdAndLessonId(courseId: UUID, lessonId: String): Boolean
+    fun countByCourseId(courseId: UUID): Long
 }

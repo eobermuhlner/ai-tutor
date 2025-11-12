@@ -151,3 +151,138 @@ export async function getCourse(courseId: string): Promise<CourseResponse> {
 export async function deleteCourse(courseId: string): Promise<void> {
   await apiClient.delete(`/courses/${courseId}`);
 }
+
+// Course import types and functions
+
+export interface CourseImportRequest {
+  languageCode: string;
+  courseName: string;
+  courseDescription?: string;
+  category?: string; // CourseCategory
+  startingLevel?: string; // CEFRLevel
+  targetLevel?: string; // CEFRLevel
+}
+
+export interface CourseImportResponse {
+  courseId: string;
+  courseName: string;
+  lessonsImported: number;
+  errors: string[];
+  success: boolean;
+}
+
+/**
+ * Import complete course from curriculum.yml and lesson markdown files.
+ *
+ * @param curriculumFile - curriculum.yml file
+ * @param lessonFiles - Array of .md lesson files
+ * @param metadata - Course metadata (language, name, description, etc.)
+ * @returns Import result with course ID and status
+ */
+export async function importCourseFromFiles(
+  curriculumFile: File,
+  lessonFiles: File[],
+  metadata: CourseImportRequest
+): Promise<CourseImportResponse> {
+  const formData = new FormData();
+
+  // Add curriculum file
+  formData.append('curriculumFile', curriculumFile);
+
+  // Add lesson files
+  lessonFiles.forEach(file => {
+    formData.append('lessonFiles', file);
+  });
+
+  // Add metadata fields
+  formData.append('languageCode', metadata.languageCode);
+  formData.append('courseName', metadata.courseName);
+  if (metadata.courseDescription) {
+    formData.append('courseDescription', metadata.courseDescription);
+  }
+  if (metadata.category) {
+    formData.append('category', metadata.category);
+  }
+  if (metadata.startingLevel) {
+    formData.append('startingLevel', metadata.startingLevel);
+  }
+  if (metadata.targetLevel) {
+    formData.append('targetLevel', metadata.targetLevel);
+  }
+
+  const response = await apiClient.post<CourseImportResponse>(
+    '/courses/import/file',
+    formData,
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    }
+  );
+
+  return response.data;
+}
+
+/**
+ * Import lessons to existing course from markdown files.
+ *
+ * @param courseId - Existing course ID
+ * @param lessonFiles - Array of .md lesson files
+ * @returns Import result with number of lessons imported
+ */
+export async function importLessonsToExistingCourse(
+  courseId: string,
+  lessonFiles: File[]
+): Promise<{ courseId: string; lessonsImported: number; errors: string[]; success: boolean }> {
+  const formData = new FormData();
+
+  lessonFiles.forEach(file => {
+    formData.append('lessonFiles', file);
+  });
+
+  const response = await apiClient.post(
+    `/courses/${courseId}/lessons/file`,
+    formData,
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    }
+  );
+
+  return response.data;
+}
+
+/**
+ * Validate import files without actually importing.
+ *
+ * @param curriculumFile - curriculum.yml file (optional)
+ * @param lessonFiles - Array of .md lesson files
+ * @returns Validation result with errors
+ */
+export async function validateImportFiles(
+  curriculumFile: File | null,
+  lessonFiles: File[]
+): Promise<{ valid: boolean; errors: string[] }> {
+  const formData = new FormData();
+
+  if (curriculumFile) {
+    formData.append('curriculumFile', curriculumFile);
+  }
+
+  lessonFiles.forEach(file => {
+    formData.append('lessonFiles', file);
+  });
+
+  const response = await apiClient.post<{ valid: boolean; errors: string[] }>(
+    '/courses/import/validate',
+    formData,
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    }
+  );
+
+  return response.data;
+}

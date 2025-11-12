@@ -1,5 +1,6 @@
 package ch.obermuhlner.aitutor.catalog.domain
 
+import ch.obermuhlner.aitutor.catalog.domain.SourceType
 import ch.obermuhlner.aitutor.core.model.catalog.TutorGender
 import ch.obermuhlner.aitutor.core.model.catalog.TutorPersonality
 import ch.obermuhlner.aitutor.core.model.catalog.TutorVoice
@@ -94,5 +95,9 @@ class TutorProfileEntity(
 
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
-    var updatedAt: Instant? = null
+    var updatedAt: Instant? = null,
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "source_type", nullable = false, length = 16)
+    var sourceType: SourceType = SourceType.CREATED
 )

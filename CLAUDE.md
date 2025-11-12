@@ -175,6 +175,101 @@ See **CLAUDE_COURSE.md** for comprehensive guidelines on:
 
 Quick command: `/course:write-lesson` for guided lesson creation.
 
+## Course Import & Migration
+
+The system now supports uploading courses via REST API, replacing the legacy file-based seeding approach.
+
+**📖 For detailed migration instructions, see [COURSE_MIGRATION_GUIDE.md](COURSE_MIGRATION_GUIDE.md)**
+
+### Quick Migration Options
+
+**Option 1: Automatic Migration (Recommended)**
+```bash
+# Migrate all course-content/ files to database in one command
+./gradlew :backend:migrateCoursesFromFiles
+```
+
+**Option 2: Extract & Upload via API**
+```bash
+# Step 1: Extract files to external directory
+./gradlew :backend:extractCourseFiles
+
+# Step 2: Upload individual courses via REST API
+./upload-course-example.sh course-content-extracted/de-conversational-german YOUR_TOKEN
+```
+
+**Option 3: Upload via UI**
+- Navigate to Course Management page
+- Click "Import Course" button
+- Upload curriculum.yml + lesson .md files
+- Review and publish
+
+**After migration:**
+- Lessons load from database automatically
+- File-based fallback still works for backwards compatibility
+- To disable startup seeding, set `ai-tutor.catalog.useSeeding=false` in `application.yml`
+
+### Importing Courses via API
+
+**Endpoints:**
+```bash
+# Import complete course (curriculum.yml + lesson .md files)
+POST /api/v1/courses/import/file
+Content-Type: multipart/form-data
+Body:
+  - curriculumFile: curriculum.yml
+  - lessonFiles: [lesson-01.md, lesson-02.md, ...]
+  - languageCode: de
+  - courseName: Conversational German
+  - category: Conversational (optional)
+  - startingLevel: A1 (optional)
+  - targetLevel: B2 (optional)
+
+# Add lessons to existing course
+POST /api/v1/courses/{courseId}/lessons/import/file
+Content-Type: multipart/form-data
+Body:
+  - lessonFiles: [lesson-03.md, lesson-04.md, ...]
+
+# Validate files before importing
+POST /api/v1/courses/import/validate
+Content-Type: multipart/form-data
+Body:
+  - curriculumFile: curriculum.yml (optional)
+  - lessonFiles: [*.md files]
+```
+
+**Requires:** EDITOR or ADMIN role
+
+### Importing via UI
+
+The Course Management page now has an **"Import Course"** button:
+
+1. Click "Import Course" in Course Management
+2. Fill in course metadata (name, language, category, levels)
+3. Upload `curriculum.yml` file (required)
+4. Upload lesson `.md` files (required, multiple files)
+5. Optionally validate files before importing
+6. Click "Import Course"
+7. Imported course opens in editor as draft
+8. Review and publish when ready
+
+**Features:**
+- Drag-and-drop file upload
+- Real-time validation
+- Error reporting with detailed messages
+- Progress indicators
+- Automatic navigation to newly imported course
+
+### Source Type Tracking
+
+All courses and tutors now track their origin via `sourceType`:
+- **SEEDED**: Legacy data from startup seeding (to be phased out)
+- **UPLOADED**: Imported via file upload API
+- **CREATED**: Created directly through UI/API
+
+This enables audit trails and helps identify migration status.
+
 ## Testing
 
 ### Backend Tests

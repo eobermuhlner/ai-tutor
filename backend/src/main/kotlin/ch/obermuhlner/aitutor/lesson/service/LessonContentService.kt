@@ -1,11 +1,14 @@
 package ch.obermuhlner.aitutor.lesson.service
 
 import ch.obermuhlner.aitutor.catalog.repository.CourseTemplateRepository
+import ch.obermuhlner.aitutor.catalog.repository.CurriculumRuleRepository
 import ch.obermuhlner.aitutor.catalog.repository.LessonContentRepository
 import ch.obermuhlner.aitutor.core.model.CEFRLevel
 import ch.obermuhlner.aitutor.lesson.domain.CourseCurriculum
 import ch.obermuhlner.aitutor.lesson.domain.GrammarPoint
 import ch.obermuhlner.aitutor.lesson.domain.LessonContent
+import ch.obermuhlner.aitutor.lesson.domain.LessonMetadata
+import ch.obermuhlner.aitutor.lesson.domain.ProgressionMode
 import ch.obermuhlner.aitutor.lesson.domain.Scenario
 import ch.obermuhlner.aitutor.lesson.domain.VocabEntry
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -22,7 +25,8 @@ import org.springframework.stereotype.Service
 class LessonContentService(
     private val objectMapper: ObjectMapper,
     private val lessonContentRepository: LessonContentRepository,
-    private val courseTemplateRepository: CourseTemplateRepository
+    private val courseTemplateRepository: CourseTemplateRepository,
+    private val curriculumRuleRepository: CurriculumRuleRepository
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
     private val lessonCache = ConcurrentHashMap<String, LessonContent>()
@@ -298,7 +302,21 @@ class LessonContentService(
         val cached = curriculumCache[courseId]
         if (cached != null) return cached
 
-        // Load from file
+        // Try to load from database first (if courseId is a UUID)
+        if (isValidUUID(courseId)) {
+            try {
+                val courseUuid = UUID.fromString(courseId)
+                val curriculumFromDb = loadCurriculumFromDatabase(courseUuid)
+                if (curriculumFromDb != null) {
+                    curriculumCache[courseId] = curriculumFromDb
+                    return curriculumFromDb
+                }
+            } catch (e: Exception) {
+                logger.warn("Failed to load curriculum from database for course $courseId", e)
+            }
+        }
+
+        // Fall back to file system
         val loaded = try {
             val resource = ClassPathResource("course-content/$courseId/curriculum.yml")
             if (!resource.exists()) {
@@ -316,5 +334,46 @@ class LessonContentService(
             curriculumCache[courseId] = loaded
         }
         return loaded
+    }
+
+    /**
+     * Load curriculum from database entities.
+     * Reconstructs CourseCurriculum from CurriculumRuleEntity and LessonContentEntity.
+     */
+    private fun loadCurriculumFromDatabase(courseId: UUID): CourseCurriculum? {
+        // Get curriculum rules
+        val curriculumRule = curriculumRuleRepository.findByCourseId(courseId) ?: return null
+
+        // Get all lessons for this course, ordered by displayOrder
+        val lessons = lessonContentRepository.findByCourseIdOrderByDisplayOrder(courseId)
+        if (lessons.isEmpty()) {
+            logger.warn("No lessons found in database for course $courseId")
+            return null
+        }
+
+        // Convert to LessonMetadata
+        val lessonMetadata = lessons.map { lesson ->
+            LessonMetadata(
+                id = lesson.lessonId,
+                file = "${lesson.lessonId}.md",  // Synthetic file name for compatibility
+                minimumDays = lesson.minimumDays ?: 7,
+                requiredTurns = lesson.requiredTurns ?: 20
+            )
+        }
+
+        // Convert progression mode
+        val progressionMode = when (curriculumRule.progressionMode) {
+            "TIME_BASED" -> ProgressionMode.TIME_BASED
+            "COMPLETION_BASED" -> ProgressionMode.COMPLETION_BASED
+            else -> ProgressionMode.TIME_BASED
+        }
+
+        logger.debug("Loaded curriculum from database for course $courseId with ${lessonMetadata.size} lessons")
+
+        return CourseCurriculum(
+            courseId = courseId.toString(),
+            progressionMode = progressionMode,
+            lessons = lessonMetadata
+        )
     }
 }

@@ -147,3 +147,23 @@ task runTestHarness(type: JavaExec) {
     // Ensure OPENAI_API_KEY is available
     environment 'OPENAI_API_KEY', System.getenv('OPENAI_API_KEY')
 }
+
+// Task for migrating course-content files to database
+task migrateCoursesFromFiles(type: JavaExec) {
+    group = 'migration'
+    description = 'Migrate course-content files (curriculum.yml + lessons) to database'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'ch.obermuhlner.aitutor.migration.CourseMigrationMainKt'
+
+    // Use H2 database for migration (same as dev/default profile)
+    systemProperty 'spring.profiles.active', 'dev'
+    systemProperty 'spring.main.banner-mode', 'off'
+
+    doFirst {
+        println "Starting course migration from file system to database..."
+        println "This is a one-time operation. Run again to update/add new courses."
+    }
+}
+
+// Include external task file for extracting courses
+apply from: 'extract-courses.gradle'

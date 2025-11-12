@@ -2,6 +2,7 @@ package ch.obermuhlner.aitutor.catalog.service
 
 import ch.obermuhlner.aitutor.catalog.config.CatalogProperties
 import ch.obermuhlner.aitutor.catalog.domain.CourseTemplateEntity
+import ch.obermuhlner.aitutor.catalog.domain.SourceType
 import ch.obermuhlner.aitutor.catalog.domain.TutorProfileEntity
 import ch.obermuhlner.aitutor.catalog.repository.CourseTemplateRepository
 import ch.obermuhlner.aitutor.catalog.repository.TutorProfileRepository
@@ -117,7 +118,8 @@ class SeedDataService(
                     isActive = true,
                     displayOrder = variant.displayOrderOverride ?: archetype.displayOrder,
                     isGlobal = true,  // Seed tutors are global (visible to all users)
-                    createdByUserId = null  // No specific owner for seed tutors
+                    createdByUserId = null,  // No specific owner for seed tutors
+                    sourceType = SourceType.SEEDED  // Mark as seeded from configuration
                 )
             }
         }
@@ -148,7 +150,8 @@ class SeedDataService(
                 learningGoalsJson = """{"en": ${objectMapper.writeValueAsString(config.learningGoalsEnglish)}}""",
                 isActive = true,
                 displayOrder = config.displayOrder,
-                tagsJson = null
+                tagsJson = null,
+                sourceType = SourceType.SEEDED  // Mark as seeded from configuration
             )
         }
 

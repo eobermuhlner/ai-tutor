@@ -1,8 +1,6 @@
 ---
 lessonId: week-01-greetings
-title: Saud
-
-ações e Expressões Básicas
+title: Saudações e Expressões Básicas
 weekNumber: 1
 estimatedDuration: 1 week
 focusAreas:
