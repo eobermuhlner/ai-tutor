@@ -25,10 +25,9 @@ import AdminUserDetailPage from './pages/AdminUserDetailPage';
 import CreateCustomTutorPage from './pages/CreateCustomTutorPage';
 import ErrorPatternsPage from './pages/ErrorPatternsPage';
 import SubscriptionPage from './pages/SubscriptionPage';
-import CourseManagementPage from './pages/CourseManagementPage';
 import CourseEditorPage from './pages/CourseEditorPage';
-import LanguageManagementPage from './pages/LanguageManagementPage';
 import LanguageEditorPage from './pages/LanguageEditorPage';
+import ContentManagementPage from './pages/ContentManagementPage';
 import ErrorBoundary from './components/ui/ErrorBoundary';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -173,14 +172,27 @@ function App() {
               }
             />
             
+            {/* Content Management (unified page) */}
             <Route
-              path="/courses/manage"
+              path="/content"
               element={
                 <ProtectedRoute>
-                  <CourseManagementPage />
+                  <ContentManagementPage />
                 </ProtectedRoute>
               }
             />
+
+            {/* Backward compatibility redirects */}
+            <Route
+              path="/courses/manage"
+              element={<Navigate to="/content?tab=courses" replace />}
+            />
+            <Route
+              path="/languages/manage"
+              element={<Navigate to="/content?tab=languages" replace />}
+            />
+
+            {/* Course and Language editors (still separate) */}
             <Route
               path="/courses/create"
               element={
@@ -194,14 +206,6 @@ function App() {
               element={
                 <ProtectedRoute>
                   <CourseEditorPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/languages/manage"
-              element={
-                <ProtectedRoute>
-                  <LanguageManagementPage />
                 </ProtectedRoute>
               }
             />

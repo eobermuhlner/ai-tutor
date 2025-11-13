@@ -463,3 +463,18 @@ export type InitiateMessageContext = 'welcome' | 'reengage';
 export interface InitiateTutorMessageRequest {
   context: InitiateMessageContext;
 }
+
+// Catalog import types
+export interface CatalogImportResponse {
+  languagesImported: number;
+  tutorsImported: number;
+  coursesImported: number;
+  lessonsImported: number;
+  errors: string[];
+  success: boolean;
+}
+
+export interface CatalogValidationResponse {
+  valid: boolean;
+  errors: string[];
+}

@@ -1,5 +1,5 @@
 import apiClient from './client';
-import type { Language, Course, CourseDetail, Tutor, TutorDetail, CreateTutorRequest } from '../types';
+import type { Language, Course, CourseDetail, Tutor, TutorDetail, CreateTutorRequest, CatalogImportResponse, CatalogValidationResponse } from '../types';
 
 export async function getLanguages(
   locale: string = 'en'
@@ -146,4 +146,56 @@ export async function getTutorImagePreview(
     });
     return null;
   }
+}
+
+/**
+ * Import a complete catalog (languages, tutors, courses) from a catalog.yml file.
+ * Requires ADMIN role.
+ */
+export async function importCatalog(
+  catalogFile: File,
+  lessonFiles: File[] = []
+): Promise<CatalogImportResponse> {
+  const formData = new FormData();
+  formData.append('catalogFile', catalogFile);
+  lessonFiles.forEach(file => {
+    formData.append('lessonFiles', file);
+  });
+
+  const response = await apiClient.post<CatalogImportResponse>(
+    '/catalog/import',
+    formData,
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    }
+  );
+  return response.data;
+}
+
+/**
+ * Validate a catalog file before importing.
+ * Requires ADMIN role.
+ */
+export async function validateCatalog(
+  catalogFile: File,
+  lessonFiles: File[] = []
+): Promise<CatalogValidationResponse> {
+  const formData = new FormData();
+  formData.append('catalogFile', catalogFile);
+  lessonFiles.forEach(file => {
+    formData.append('lessonFiles', file);
+  });
+
+  const response = await apiClient.post<CatalogValidationResponse>(
+    '/catalog/import/validate',
+    formData,
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    }
+  );
+  return response.data;
 }
