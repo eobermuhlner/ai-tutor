@@ -19,6 +19,7 @@ ai-tutor/
 - **Backend**: See `backend/CLAUDE.md` for backend-specific documentation
 - **Frontend**: See `frontend/CLAUDE.md` for frontend-specific documentation
 - **Course Writing**: See `CLAUDE_COURSE.md` for lesson authoring guidelines
+- **Catalog Import**: See `CATALOG_IMPORT_FORMAT.md` for unified import format specification
 
 ## Quick Start
 
@@ -175,11 +176,12 @@ See **CLAUDE_COURSE.md** for comprehensive guidelines on:
 
 Quick command: `/course:write-lesson` for guided lesson creation.
 
-## Course Import & Migration
+## Catalog Import & Migration
 
-The system now supports uploading courses via REST API, replacing the legacy file-based seeding approach.
+The system supports importing languages, tutors, and courses via a unified YAML format. This replaces the legacy file-based seeding approach.
 
-**📖 For detailed migration instructions, see [COURSE_MIGRATION_GUIDE.md](COURSE_MIGRATION_GUIDE.md)**
+**📖 For complete format specification, see [CATALOG_IMPORT_FORMAT.md](CATALOG_IMPORT_FORMAT.md)**
+**📖 For migration instructions, see [COURSE_MIGRATION_GUIDE.md](COURSE_MIGRATION_GUIDE.md)**
 
 ### Quick Migration Options
 
@@ -209,7 +211,89 @@ The system now supports uploading courses via REST API, replacing the legacy fil
 - File-based fallback still works for backwards compatibility
 - To disable startup seeding, set `ai-tutor.catalog.useSeeding=false` in `application.yml`
 
-### Importing Courses via API
+### Unified Catalog Import (New Format)
+
+Import languages, tutors, and courses together using the unified YAML format.
+
+**Format structure:**
+```yaml
+version: "1.0"
+
+tutorArchetypes:  # Optional: Reusable tutor templates
+  - id: encouraging-general
+    # ...
+
+languages:  # Optional: Language definitions
+  - code: de-DE
+    name:
+      en: German (Germany)
+      de: Deutsch (Deutschland)
+    # ...
+
+tutors:  # Optional: Tutor profiles
+  - name: Anna
+    targetLanguage: de-DE
+    archetypeId: encouraging-general  # OR direct definition
+    # ...
+
+courses:  # Optional: Course definitions
+  - languageCode: de-DE
+    name:
+      en: Conversational German
+    curriculum:  # Optional: Embedded curriculum
+      lessons:
+        - id: lesson-01
+          content: "..." # OR file: lesson-01.md
+```
+
+**REST API Endpoints:**
+```bash
+# Import complete catalog (languages + tutors + courses)
+POST /api/v1/catalog/import
+Content-Type: multipart/form-data
+Body:
+  - catalogFile: catalog.yml (required)
+  - lessonFiles: [*.md files] (optional, for file-referenced lessons)
+Requires: ADMIN role
+
+Response:
+{
+  "languagesImported": 17,
+  "tutorsImported": 72,
+  "coursesImported": 127,
+  "lessonsImported": 450,
+  "errors": [],
+  "success": true
+}
+
+# Import only languages
+POST /api/v1/languages/import
+Content-Type: multipart/form-data
+Body:
+  - catalogFile: catalog.yml (containing languages section)
+Requires: ADMIN role
+
+# Validate catalog before importing
+POST /api/v1/catalog/import/validate
+Content-Type: multipart/form-data
+Body:
+  - catalogFile: catalog.yml
+  - lessonFiles: [*.md files] (optional)
+```
+
+**Seeding on startup:**
+- Place `catalog-seed.yml` in `backend/src/main/resources/`
+- System tries `catalog-seed.yml` first, falls back to legacy `application-seed.yml`
+- Auto-loads on first startup when database is empty
+
+**Key benefits:**
+- Single-file catalog definition
+- Import all entity types together or separately
+- Multilingual support throughout
+- Optional tutor archetypes for DRY principle
+- Flexible lesson content (embedded or file-referenced)
+
+### Importing Individual Courses via API (Legacy Format)
 
 **Endpoints:**
 ```bash
@@ -439,6 +523,8 @@ When refactoring or adding features:
 - **Backend API**: `backend/CLAUDE.md` - Full backend documentation
 - **Frontend Guide**: `frontend/CLAUDE.md` - Frontend development guidelines
 - **Course Writing**: `CLAUDE_COURSE.md` - Lesson authoring standards
+- **Catalog Import**: `CATALOG_IMPORT_FORMAT.md` - Unified import format specification
+- **Migration Guide**: `COURSE_MIGRATION_GUIDE.md` - Course migration instructions
 - **README**: `README.md` - User-facing documentation
 - **OpenAPI Docs**: `http://localhost:8080/swagger-ui.html` (when backend running)
 

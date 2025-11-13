@@ -62,7 +62,8 @@ class CatalogController(
                 nativeName = lang.nativeName,
                 difficulty = lang.difficulty,
                 description = descMap[locale] ?: descMap["en"] ?: "",
-                courseCount = catalogService.getCoursesForLanguage(lang.code).size
+                courseCount = catalogService.getCoursesForLanguage(lang.code).size,
+                isActive = true  // All languages returned here are active (already filtered by service)
             )
         }
     }

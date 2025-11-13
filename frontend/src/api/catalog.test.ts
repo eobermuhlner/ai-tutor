@@ -57,6 +57,7 @@ describe('catalog API module', () => {
           difficulty: 'Easy' as Difficulty,
           description: 'English language',
           courseCount: 3,
+          isActive: true,
         }
       ];
       
@@ -81,6 +82,7 @@ describe('catalog API module', () => {
           difficulty: 'Easy' as Difficulty,
           description: 'Spanish language',
           courseCount: 2,
+          isActive: true,
         }
       ];
       

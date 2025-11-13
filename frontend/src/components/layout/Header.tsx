@@ -10,6 +10,7 @@ export default function Header() {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [isDraggingOverContentLink, setIsDraggingOverContentLink] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const userButtonRef = useRef<HTMLDivElement>(null);
 
@@ -63,14 +64,46 @@ export default function Header() {
 
   const editorNavItems = (isEditor || isAdmin)
     ? [
-        { label: 'Courses', path: '/courses/manage' },
-        { label: 'Languages', path: '/languages/manage' },
+        { label: 'Content Management', path: '/content' },
       ]
     : [];
 
   const handleNavClick = (path: string) => {
     navigate(path);
     setMobileMenuOpen(false);
+  };
+
+  const handleContentLinkDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingOverContentLink(true);
+  };
+
+  const handleContentLinkDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingOverContentLink(false);
+  };
+
+  const handleContentLinkDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingOverContentLink(false);
+
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length === 0) return;
+
+    // Check if any catalog.yml file is present
+    const hasCatalogFile = files.some(f =>
+      f.name.endsWith('.yml') || f.name.endsWith('.yaml')
+    );
+
+    if (hasCatalogFile) {
+      // Navigate to Content Management with upload tab
+      navigate('/content?tab=upload');
+      // Note: The actual file drop handling will be done by the CatalogUploadPanel
+      // This just navigates to the right place
+    }
   };
 
   return (
@@ -101,13 +134,23 @@ export default function Header() {
                 <>
                   <div className="h-6 w-px bg-slate-300 mx-2"></div>
                   {editorNavItems.map((item) => (
-                    <button
+                    <div
                       key={item.path}
-                      onClick={() => navigate(item.path)}
-                      className="px-4 py-2 text-sm font-medium text-blue-700 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-all duration-200"
+                      onDragOver={handleContentLinkDragOver}
+                      onDragLeave={handleContentLinkDragLeave}
+                      onDrop={handleContentLinkDrop}
                     >
-                      {item.label}
-                    </button>
+                      <button
+                        onClick={() => navigate(item.path)}
+                        className={`px-4 py-2 text-sm font-medium text-blue-700 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-all duration-200 ${
+                          isDraggingOverContentLink
+                            ? 'ring-2 ring-blue-500 ring-offset-2 bg-blue-100'
+                            : ''
+                        }`}
+                      >
+                        {isDraggingOverContentLink ? 'Drop catalog here' : item.label}
+                      </button>
+                    </div>
                   ))}
                 </>
               )}

@@ -185,7 +185,7 @@ export interface Language {
   difficulty: Difficulty;
   description: string;
   courseCount: number;
-  isActive?: boolean; // Optional for backward compatibility
+  isActive: boolean; // Visibility control for catalog
   displayOrder?: number; // Optional display order for sorting
   nameJson?: string;  // JSON map: {"en": "Spanish", "es": "Español", ...}
   descriptionJson?: string; // JSON map: {"en": "Spanish description", ...}
@@ -462,4 +462,19 @@ export type InitiateMessageContext = 'welcome' | 'reengage';
 
 export interface InitiateTutorMessageRequest {
   context: InitiateMessageContext;
+}
+
+// Catalog import types
+export interface CatalogImportResponse {
+  languagesImported: number;
+  tutorsImported: number;
+  coursesImported: number;
+  lessonsImported: number;
+  errors: string[];
+  success: boolean;
+}
+
+export interface CatalogValidationResponse {
+  valid: boolean;
+  errors: string[];
 }

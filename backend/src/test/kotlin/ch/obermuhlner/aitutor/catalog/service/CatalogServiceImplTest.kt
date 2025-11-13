@@ -1,13 +1,14 @@
 package ch.obermuhlner.aitutor.catalog.service
 
 import ch.obermuhlner.aitutor.catalog.domain.CourseTemplateEntity
+import ch.obermuhlner.aitutor.catalog.domain.LanguageEntity
 import ch.obermuhlner.aitutor.catalog.domain.TutorProfileEntity
 import ch.obermuhlner.aitutor.catalog.repository.CourseTemplateRepository
+import ch.obermuhlner.aitutor.catalog.repository.LanguageRepository
 import ch.obermuhlner.aitutor.catalog.repository.TutorProfileRepository
 import ch.obermuhlner.aitutor.core.model.CEFRLevel
 import ch.obermuhlner.aitutor.core.model.catalog.CourseCategory
 import ch.obermuhlner.aitutor.core.model.catalog.Difficulty
-import ch.obermuhlner.aitutor.core.model.catalog.LanguageMetadata
 import ch.obermuhlner.aitutor.core.model.catalog.TutorPersonality
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.mockk.every
@@ -25,50 +26,62 @@ class CatalogServiceImplTest {
 
     private val tutorRepository = mockk<TutorProfileRepository>()
     private val courseRepository = mockk<CourseTemplateRepository>()
-    private val supportedLanguages = mapOf(
-        "en" to LanguageMetadata(
-            code = "en",
-            nameJson = """{"en": "English"}""",
-            flagEmoji = "🇬🇧",
-            nativeName = "English",
-            difficulty = Difficulty.Easy,
-            descriptionJson = """{"en": "English"}"""
-        ),
-        "es" to LanguageMetadata(
-            code = "es",
-            nameJson = """{"en": "Spanish", "es": "Español"}""",
-            flagEmoji = "🇪🇸",
-            nativeName = "Español",
-            difficulty = Difficulty.Easy,
-            descriptionJson = """{"en": "Spanish"}"""
-        )
+    private val languageRepository = mockk<LanguageRepository>()
+    private val englishLanguage = LanguageEntity(
+        code = "en",
+        nameJson = """{"en": "English"}""",
+        flagEmoji = "🇬🇧",
+        nativeName = "English",
+        difficulty = Difficulty.Easy,
+        descriptionJson = """{"en": "English"}""",
+        isActive = true,
+        displayOrder = 0
+    )
+    private val spanishLanguage = LanguageEntity(
+        code = "es",
+        nameJson = """{"en": "Spanish", "es": "Español"}""",
+        flagEmoji = "🇪🇸",
+        nativeName = "Español",
+        difficulty = Difficulty.Easy,
+        descriptionJson = """{"en": "Spanish"}""",
+        isActive = true,
+        displayOrder = 1
     )
     private val objectMapper = ObjectMapper()
-    private val service = CatalogServiceImpl(tutorRepository, courseRepository, supportedLanguages, objectMapper)
+    private val service = CatalogServiceImpl(tutorRepository, courseRepository, languageRepository, objectMapper)
 
     @Test
     fun `getAvailableLanguages should return all supported languages`() {
+        every { languageRepository.findByIsActiveTrue() } returns listOf(englishLanguage, spanishLanguage)
+
         val result = service.getAvailableLanguages()
 
         assertEquals(2, result.size)
         assertTrue(result.any { it.code == "en" })
         assertTrue(result.any { it.code == "es" })
+        verify { languageRepository.findByIsActiveTrue() }
     }
 
     @Test
     fun `getLanguageByCode should return language metadata`() {
+        every { languageRepository.findById("es") } returns Optional.of(spanishLanguage)
+
         val result = service.getLanguageByCode("es")
 
         assertNotNull(result)
         assertEquals("es", result?.code)
         assertEquals("Español", result?.nativeName)
+        verify { languageRepository.findById("es") }
     }
 
     @Test
     fun `getLanguageByCode should return null for unknown code`() {
+        every { languageRepository.findById("fr") } returns Optional.empty()
+
         val result = service.getLanguageByCode("fr")
 
         assertNull(result)
+        verify { languageRepository.findById("fr") }
     }
 
     @Test

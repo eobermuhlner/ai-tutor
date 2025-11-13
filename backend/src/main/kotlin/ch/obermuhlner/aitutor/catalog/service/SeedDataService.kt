@@ -2,29 +2,41 @@ package ch.obermuhlner.aitutor.catalog.service
 
 import ch.obermuhlner.aitutor.catalog.config.CatalogProperties
 import ch.obermuhlner.aitutor.catalog.domain.CourseTemplateEntity
+import ch.obermuhlner.aitutor.catalog.domain.CurriculumRuleEntity
 import ch.obermuhlner.aitutor.catalog.domain.SourceType
 import ch.obermuhlner.aitutor.catalog.domain.TutorProfileEntity
 import ch.obermuhlner.aitutor.catalog.repository.CourseTemplateRepository
+import ch.obermuhlner.aitutor.catalog.repository.CurriculumRuleRepository
+import ch.obermuhlner.aitutor.catalog.repository.LanguageRepository
+import ch.obermuhlner.aitutor.catalog.repository.LessonContentRepository
 import ch.obermuhlner.aitutor.catalog.repository.TutorProfileRepository
 import ch.obermuhlner.aitutor.tutor.domain.ConversationPhase
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.annotation.PostConstruct
 import org.slf4j.LoggerFactory
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Profile
 import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
+import java.time.Instant
 
 @Component
 @Profile("dev", "default")  // Only run in dev mode
 class SeedDataService(
     private val tutorProfileRepository: TutorProfileRepository,
     private val courseTemplateRepository: CourseTemplateRepository,
+    private val languageRepository: LanguageRepository,
+    private val lessonContentRepository: LessonContentRepository,
+    private val curriculumRuleRepository: CurriculumRuleRepository,
     private val catalogProperties: CatalogProperties,
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
+    private val unifiedCatalogImportService: UnifiedCatalogImportService
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @PostConstruct
+    @Transactional
     fun seedData() {
         // Only seed if database is empty
         if (tutorProfileRepository.count() > 0) {
@@ -32,7 +44,96 @@ class SeedDataService(
             return
         }
 
-        logger.debug("Seeding catalog data from configuration...")
+        logger.info("Seeding catalog data...")
+
+        // Try to load unified catalog format first (catalog-seed.yml)
+        val catalogResource = ClassPathResource("catalog-seed.yml")
+        if (catalogResource.exists()) {
+            logger.info("Loading seed data from unified catalog format: catalog-seed.yml")
+            seedFromUnifiedFormat(catalogResource)
+        } else {
+            // Fallback to legacy format (application-seed.yml via CatalogProperties)
+            logger.info("catalog-seed.yml not found, falling back to legacy application-seed.yml format")
+            seedFromLegacyFormat()
+        }
+    }
+
+    /**
+     * Seed from unified catalog format (catalog-seed.yml).
+     */
+    private fun seedFromUnifiedFormat(catalogResource: ClassPathResource) {
+        try {
+            val catalog = catalogResource.inputStream.use { inputStream ->
+                unifiedCatalogImportService.parseCatalogFromString(
+                    inputStream.bufferedReader().readText()
+                )
+            }
+
+            logger.info("Parsed unified catalog: ${catalog.languages.size} languages, " +
+                    "${catalog.tutors.size} tutors, ${catalog.courses.size} courses")
+
+            // Import all entities
+            val result = unifiedCatalogImportService.importCatalog(
+                catalogFile = object : org.springframework.web.multipart.MultipartFile {
+                    override fun getName() = "catalog-seed.yml"
+                    override fun getOriginalFilename() = "catalog-seed.yml"
+                    override fun getContentType() = "application/x-yaml"
+                    override fun isEmpty() = false
+                    override fun getSize() = catalogResource.contentLength()
+                    override fun getBytes() = catalogResource.inputStream.readAllBytes()
+                    override fun getInputStream() = catalogResource.inputStream
+                    override fun transferTo(dest: java.io.File) = throw UnsupportedOperationException()
+                    override fun transferTo(dest: java.nio.file.Path) = throw UnsupportedOperationException()
+                },
+                lessonFiles = emptyList(),  // Lessons loaded from filesystem
+                sourceType = SourceType.SEEDED
+            )
+
+            // Save all entities
+            result.languages.forEach { language ->
+                languageRepository.save(language)
+            }
+            tutorProfileRepository.saveAll(result.tutors)
+            courseTemplateRepository.saveAll(result.courses)
+            lessonContentRepository.saveAll(result.lessons)
+
+            // Create curriculum rules
+            val coursesWithLessons = result.lessons.groupBy { it.courseId }
+            coursesWithLessons.forEach { (courseId, lessons) ->
+                val hasTimeBased = lessons.any { lesson ->
+                    val minDays = lesson.minimumDays
+                    minDays != null && minDays > 0
+                }
+                val rule = CurriculumRuleEntity(
+                    courseId = courseId,
+                    progressionMode = if (hasTimeBased) "TIME_BASED" else "LINEAR",
+                    allowSkipping = false,
+                    requireCompletion = true,
+                    createdAt = Instant.now(),
+                    updatedAt = Instant.now()
+                )
+                curriculumRuleRepository.save(rule)
+            }
+
+            logger.info("Seeded from unified format: ${result.languages.size} languages, " +
+                    "${result.tutors.size} tutors, ${result.courses.size} courses, " +
+                    "${result.lessons.size} lessons")
+
+            if (result.errors.isNotEmpty()) {
+                logger.warn("Seed import completed with ${result.errors.size} errors:")
+                result.errors.forEach { logger.warn("  - $it") }
+            }
+        } catch (e: Exception) {
+            logger.error("Failed to seed from unified format, falling back to legacy format", e)
+            seedFromLegacyFormat()
+        }
+    }
+
+    /**
+     * Seed from legacy format (application-seed.yml via CatalogProperties).
+     */
+    private fun seedFromLegacyFormat() {
+        logger.info("Seeding catalog data from legacy configuration...")
 
         // Validate curriculum files exist before seeding
         validateCurriculumFiles()
@@ -40,7 +141,7 @@ class SeedDataService(
         val tutors = seedTutors()
         val courses = seedCourses(tutors)
 
-        logger.info("Seeded ${tutors.size} tutors and ${courses.size} courses")
+        logger.info("Seeded ${tutors.size} tutors and ${courses.size} courses from legacy format")
     }
 
     private fun validateCurriculumFiles() {
@@ -151,6 +252,8 @@ class SeedDataService(
                 isActive = true,
                 displayOrder = config.displayOrder,
                 tagsJson = null,
+                isDraft = false,  // Seed data is published
+                publishedAt = Instant.now(),
                 sourceType = SourceType.SEEDED  // Mark as seeded from configuration
             )
         }

@@ -132,3 +132,13 @@ data class CourseImportResponse(
     val errors: List<String> = emptyList(),
     val success: Boolean
 )
+
+// Unified Catalog Import DTOs
+data class CatalogImportResponse(
+    val languagesImported: Int,
+    val tutorsImported: Int,
+    val coursesImported: Int,
+    val lessonsImported: Int,
+    val errors: List<String> = emptyList(),
+    val success: Boolean
+)
