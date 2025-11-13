@@ -252,6 +252,8 @@ class SeedDataService(
                 isActive = true,
                 displayOrder = config.displayOrder,
                 tagsJson = null,
+                isDraft = false,  // Seed data is published
+                publishedAt = Instant.now(),
                 sourceType = SourceType.SEEDED  // Mark as seeded from configuration
             )
         }

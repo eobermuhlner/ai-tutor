@@ -281,6 +281,10 @@ class UnifiedCatalogImportService(
                 } ?: emptyList()
 
                 // Create course entity
+                // Seed data should be published immediately, uploads start as drafts
+                val isDraft = sourceType != SourceType.SEEDED
+                val publishedAt = if (isDraft) null else Instant.now()
+
                 val courseEntity = CourseTemplateEntity(
                     languageCode = course.languageCode,
                     nameJson = objectMapper.writeValueAsString(course.name),
@@ -299,7 +303,8 @@ class UnifiedCatalogImportService(
                     tagsJson = course.tags?.let { objectMapper.writeValueAsString(it) },
                     isActive = true,
                     displayOrder = course.displayOrder,
-                    isDraft = true,  // Imported courses start as drafts
+                    isDraft = isDraft,
+                    publishedAt = publishedAt,
                     sourceType = sourceType
                 )
 
