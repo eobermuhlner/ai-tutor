@@ -130,6 +130,7 @@ languages:
     flagEmoji: "🇪🇸"
     nativeName: "Español (España)"
     difficulty: Easy
+    isActive: true
     description:
       en: "Castilian Spanish from Spain with vosotros form"
       es: "Español castellano de España con forma vosotros"
@@ -143,6 +144,7 @@ languages:
     flagEmoji: "🇮🇹"
     nativeName: "Italiano (Italia)"
     difficulty: Easy
+    isActive: true
     description:
       en: "Standard Italian from Italy"
       it: "Italiano standard dell'Italia"
@@ -155,6 +157,7 @@ languages:
     flagEmoji: "🇫🇷"
     nativeName: "Français (France)"
     difficulty: Medium
+    isActive: true
     description:
       en: "Standard French from France"
       fr: "Français standard de France"
@@ -167,6 +170,7 @@ languages:
     flagEmoji: "🇩🇪"
     nativeName: "Deutsch (Deutschland)"
     difficulty: Medium
+    isActive: true
     description:
       en: "Standard German from Germany with precise grammar rules"
       de: "Standarddeutsch aus Deutschland mit präzisen Grammatikregeln"
@@ -179,6 +183,7 @@ languages:
     flagEmoji: "🇨🇭"
     nativeName: "Deutsch (Schweiz)"
     difficulty: Medium
+    isActive: true
     description:
       en: "Swiss Standard German (Schweizer Hochdeutsch) with Swiss orthography (ss instead of ß) and vocabulary"
       de: "Schweizer Hochdeutsch mit Schweizer Rechtschreibung (ss statt ß) und Wortschatz"
@@ -192,6 +197,7 @@ languages:
     flagEmoji: "🇯🇵"
     nativeName: "日本語（日本）"
     difficulty: Hard
+    isActive: true
     description:
       en: "Standard Japanese from Japan with three writing systems"
       ja: "日本の標準的な日本語、三つの文字体系"
@@ -205,6 +211,7 @@ languages:
     flagEmoji: "🇨🇳"
     nativeName: "中文（普通话，中国）"
     difficulty: Hard
+    isActive: true
     description:
       en: "Standard Mandarin Chinese from mainland China with simplified characters and tone system"
       zh: "中国大陆的标准普通话，使用简体字和声调体系"
@@ -218,6 +225,7 @@ languages:
     flagEmoji: "🇹🇼"
     nativeName: "中文（普通話，台灣）"
     difficulty: Hard
+    isActive: true
     description:
       en: "Standard Mandarin from Taiwan with traditional characters and regional vocabulary"
       zh: "台灣的標準普通話，使用繁體字和本地詞彙"
@@ -231,6 +239,7 @@ languages:
     flagEmoji: "🇭🇰"
     nativeName: "中文（粵語，香港）"
     difficulty: Hard
+    isActive: true
     description:
       en: "Cantonese from Hong Kong with traditional characters and six-tone system"
       zh: "香港的粵語，使用繁體字和六聲調系統"
@@ -244,6 +253,7 @@ languages:
     flagEmoji: "🇰🇷"
     nativeName: "한국어 (대한민국)"
     difficulty: Hard
+    isActive: true
     description:
       en: "Standard Korean from South Korea with Hangul script and honorific system"
       ko: "한국의 표준 한국어, 한글 문자와 존댓말 체계"
@@ -257,6 +267,7 @@ languages:
     flagEmoji: "🇷🇺"
     nativeName: "Русский (Россия)"
     difficulty: Hard
+    isActive: true
     description:
       en: "Standard Russian from Russia with Cyrillic script and case system"
       ru: "Стандартный русский из России с кириллицей и падежной системой"
@@ -270,6 +281,7 @@ languages:
     flagEmoji: "🇧🇷"
     nativeName: "Português (Brasil)"
     difficulty: Medium
+    isActive: true
     description:
       en: "Brazilian Portuguese with characteristic vocabulary"
       pt: "Português brasileiro com vocabulário característico"
@@ -283,6 +295,7 @@ languages:
     flagEmoji: "🇵🇹"
     nativeName: "Português (Portugal)"
     difficulty: Medium
+    isActive: true
     description:
       en: "European Portuguese with formal register"
       pt: "Português europeu com registo formal"
@@ -295,6 +308,7 @@ languages:
     flagEmoji: "🇺🇸"
     nativeName: "English (US)"
     difficulty: Easy
+    isActive: true
     description:
       en: "American English with standard spelling"
       es: "Inglés americano con ortografía estándar"
@@ -307,6 +321,7 @@ languages:
     flagEmoji: "🇬🇧"
     nativeName: "English (UK)"
     difficulty: Easy
+    isActive: true
     description:
       en: "British English with UK spelling"
       es: "Inglés británico con ortografía británica"
@@ -322,6 +337,7 @@ languages:
     flagEmoji: "🌍"
     nativeName: "IPA"
     difficulty: Medium
+    isActive: true
     description:
       en: "Universal phonetic notation system for representing speech sounds across all human languages"
       es: "Sistema universal de notación fonética para representar sonidos del habla en todos los idiomas humanos"

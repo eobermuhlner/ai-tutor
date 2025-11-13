@@ -9,5 +9,6 @@ data class LanguageResponse(
     val nativeName: String,
     val difficulty: Difficulty,
     val description: String,    // Localized
-    val courseCount: Int = 0    // Populated by controller
+    val courseCount: Int = 0,   // Populated by controller
+    val isActive: Boolean       // Visibility control for catalog
 )

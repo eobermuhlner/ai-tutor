@@ -178,7 +178,8 @@ class LanguageController(
             nativeName = language.nativeName,
             difficulty = language.difficulty,
             description = descMap["en"] ?: "", // Default to English description
-            courseCount = 0 // This would need to be calculated from courses
+            courseCount = 0, // This would need to be calculated from courses
+            isActive = language.isActive
         )
     }
 }

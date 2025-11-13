@@ -185,7 +185,7 @@ export interface Language {
   difficulty: Difficulty;
   description: string;
   courseCount: number;
-  isActive?: boolean; // Optional for backward compatibility
+  isActive: boolean; // Visibility control for catalog
   displayOrder?: number; // Optional display order for sorting
   nameJson?: string;  // JSON map: {"en": "Spanish", "es": "Español", ...}
   descriptionJson?: string; // JSON map: {"en": "Spanish description", ...}
