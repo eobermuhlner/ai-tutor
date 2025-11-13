@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 
 @Component
-@Profile("dev", "default")  // Only run in dev mode
+@ConditionalOnProperty(name = ["ai-tutor.catalog.use-seeding"], havingValue = "true", matchIfMissing = true)
 class SeedDataService(
     private val tutorProfileRepository: TutorProfileRepository,
     private val courseTemplateRepository: CourseTemplateRepository,

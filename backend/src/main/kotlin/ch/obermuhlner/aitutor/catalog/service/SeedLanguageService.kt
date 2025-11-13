@@ -5,12 +5,12 @@ import ch.obermuhlner.aitutor.catalog.domain.LanguageEntity
 import ch.obermuhlner.aitutor.catalog.repository.LanguageRepository
 import jakarta.annotation.PostConstruct
 import org.slf4j.LoggerFactory
-import org.springframework.context.annotation.Profile
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
 import java.time.Instant
 
 @Component
-@Profile("dev", "default")  // Only run in dev mode
+@ConditionalOnProperty(name = ["ai-tutor.catalog.use-seeding"], havingValue = "true", matchIfMissing = true)
 class SeedLanguageService(
     private val languageRepository: LanguageRepository,
     private val catalogProperties: CatalogProperties
