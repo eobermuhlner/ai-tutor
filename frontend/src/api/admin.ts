@@ -67,3 +67,8 @@ export async function resetUserPassword(userId: string): Promise<{ message: stri
   const response = await apiClient.post<{ message: string }>(`/admin/users/${userId}/reset-password`);
   return response.data;
 }
+
+export async function unlockUser(userId: string): Promise<{ message: string }> {
+  const response = await apiClient.post<{ message: string }>(`/admin/users/${userId}/unlock`);
+  return response.data;
+}

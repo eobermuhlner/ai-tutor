@@ -3,11 +3,14 @@ package ch.obermuhlner.aitutor.auth.service
 import ch.obermuhlner.aitutor.auth.config.JwtProperties
 import ch.obermuhlner.aitutor.auth.dto.ChangeEmailRequest
 import ch.obermuhlner.aitutor.auth.dto.ChangePasswordRequest
+import ch.obermuhlner.aitutor.auth.dto.ForgotPasswordRequest
 import ch.obermuhlner.aitutor.auth.dto.LoginRequest
 import ch.obermuhlner.aitutor.auth.dto.LoginResponse
 import ch.obermuhlner.aitutor.auth.dto.RefreshTokenRequest
 import ch.obermuhlner.aitutor.auth.dto.RegisterRequest
+import ch.obermuhlner.aitutor.auth.dto.ResetPasswordRequest
 import ch.obermuhlner.aitutor.auth.dto.UserResponse
+import ch.obermuhlner.aitutor.auth.dto.VerifyEmailRequest
 import ch.obermuhlner.aitutor.auth.exception.AccountDisabledException
 import ch.obermuhlner.aitutor.auth.exception.AccountLockedException
 import ch.obermuhlner.aitutor.auth.exception.DuplicateEmailException
@@ -17,13 +20,22 @@ import ch.obermuhlner.aitutor.auth.exception.InvalidCredentialsException
 import ch.obermuhlner.aitutor.auth.exception.InvalidTokenException
 import ch.obermuhlner.aitutor.auth.exception.UserNotFoundException
 import ch.obermuhlner.aitutor.auth.exception.WeakPasswordException
+import ch.obermuhlner.aitutor.auth.domain.EmailVerificationTokenEntity
+import ch.obermuhlner.aitutor.auth.domain.PasswordResetTokenEntity
+import ch.obermuhlner.aitutor.auth.repository.EmailVerificationTokenRepository
+import ch.obermuhlner.aitutor.auth.repository.PasswordResetTokenRepository
+import ch.obermuhlner.aitutor.email.config.EmailProperties
+import ch.obermuhlner.aitutor.email.service.EmailService
 import ch.obermuhlner.aitutor.user.domain.PronunciationPreference
 import ch.obermuhlner.aitutor.user.domain.RefreshTokenEntity
 import ch.obermuhlner.aitutor.user.domain.UserEntity
 import ch.obermuhlner.aitutor.user.domain.UserRole
 import ch.obermuhlner.aitutor.user.repository.RefreshTokenRepository
 import ch.obermuhlner.aitutor.user.service.UserService
+import java.security.SecureRandom
+import java.time.Duration
 import java.time.Instant
+import java.util.Base64
 import java.util.UUID
 import org.slf4j.LoggerFactory
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -37,9 +49,14 @@ class AuthService(
     private val jwtTokenService: JwtTokenService,
     private val refreshTokenRepository: RefreshTokenRepository,
     private val passwordEncoder: PasswordEncoder,
-    private val jwtProperties: JwtProperties
+    private val jwtProperties: JwtProperties,
+    private val emailService: EmailService,
+    private val emailProperties: EmailProperties,
+    private val emailVerificationTokenRepository: EmailVerificationTokenRepository,
+    private val passwordResetTokenRepository: PasswordResetTokenRepository
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
+    private val secureRandom = SecureRandom()
 
     fun register(request: RegisterRequest): UserResponse {
         logger.info("Registration attempt for username: ${request.username}, email: ${request.email}")
@@ -94,15 +111,47 @@ class AuthService(
             logger.warn("Login failed: account disabled for user '${user.username}'")
             throw AccountDisabledException()
         }
+
+        // Check if account is temporarily locked due to failed attempts
+        if (user.lockedUntil != null && user.lockedUntil!!.isAfter(Instant.now())) {
+            logger.warn("Login failed: account temporarily locked until ${user.lockedUntil} for user '${user.username}'")
+            throw AccountLockedException("Account is temporarily locked. Please try again later or contact support.")
+        }
+
+        // Check permanent lock status
         if (user.locked) {
-            logger.warn("Login failed: account locked for user '${user.username}'")
-            throw AccountLockedException()
+            logger.warn("Login failed: account permanently locked for user '${user.username}'")
+            throw AccountLockedException("Account is locked. Please contact support.")
         }
 
         // Verify password
         if (user.passwordHash == null || !passwordEncoder.matches(request.password, user.passwordHash)) {
-            logger.warn("Login failed: invalid password for user '${user.username}'")
+            // Track failed login attempt
+            user.failedLoginAttempts++
+            user.lastFailedLoginAt = Instant.now()
+
+            // Auto-lock account after 5 failed attempts
+            if (user.failedLoginAttempts >= 5) {
+                user.lockedUntil = Instant.now().plus(Duration.ofMinutes(30))
+                userService.updateUser(user)
+                logger.warn("Account auto-locked for 30 minutes due to ${user.failedLoginAttempts} failed attempts: ${user.username}")
+
+                // Send lockout notification email
+                emailService.sendAccountLockedEmail(user.email, user.username, user.lockedUntil.toString())
+
+                throw AccountLockedException("Account has been locked for 30 minutes due to too many failed login attempts.")
+            }
+
+            userService.updateUser(user)
+            logger.warn("Login failed: invalid password for user '${user.username}' (attempt ${user.failedLoginAttempts}/5)")
             throw InvalidCredentialsException()
+        }
+
+        // Reset failed login attempts on successful login
+        if (user.failedLoginAttempts > 0) {
+            user.failedLoginAttempts = 0
+            user.lastFailedLoginAt = null
+            user.lockedUntil = null
         }
 
         // Generate tokens
@@ -224,6 +273,9 @@ class AuthService(
         tokens.forEach { it.revoked = true }
         refreshTokenRepository.saveAll(tokens)
 
+        // Send password changed notification email
+        emailService.sendPasswordChangedEmail(user.email, user.username)
+
         logger.info("Password changed successfully for user: ${user.username}")
     }
 
@@ -282,6 +334,161 @@ class AuthService(
         logger.info("Pronunciation preference updated to ${pronunciationPreference} for user: ${updatedUser.username}")
 
         return toUserResponse(updatedUser)
+    }
+
+    fun sendVerificationEmail(userId: UUID) {
+        logger.info("Sending verification email for user: $userId")
+
+        val user = userService.findById(userId)
+            ?: throw UserNotFoundException("User not found: $userId")
+
+        if (user.emailVerified) {
+            logger.warn("Email already verified for user: ${user.username}")
+            throw IllegalStateException("Email is already verified")
+        }
+
+        // Generate verification token
+        val token = generateSecureToken()
+        val expiresAt = Instant.now().plus(Duration.ofHours(emailProperties.verificationTokenExpirationHours.toLong()))
+
+        val tokenEntity = EmailVerificationTokenEntity(
+            token = token,
+            userId = userId,
+            expiresAt = expiresAt
+        )
+        emailVerificationTokenRepository.save(tokenEntity)
+
+        // Send verification email
+        emailService.sendVerificationEmail(user.email, user.username, token)
+
+        logger.info("Verification email sent to ${user.email} for user: ${user.username}")
+    }
+
+    fun verifyEmail(request: VerifyEmailRequest) {
+        logger.info("Email verification attempt with token")
+
+        val tokenEntity = emailVerificationTokenRepository.findByToken(request.token)
+            ?: run {
+                logger.warn("Email verification failed: token not found")
+                throw InvalidTokenException("Invalid verification token")
+            }
+
+        if (!tokenEntity.isValid()) {
+            logger.warn("Email verification failed: token is expired or already used")
+            throw InvalidTokenException("Verification token is expired or already used")
+        }
+
+        // Mark token as used
+        tokenEntity.usedAt = Instant.now()
+        emailVerificationTokenRepository.save(tokenEntity)
+
+        // Mark user email as verified
+        val user = userService.findById(tokenEntity.userId)
+            ?: throw UserNotFoundException("User not found: ${tokenEntity.userId}")
+
+        user.emailVerified = true
+        userService.updateUser(user)
+
+        logger.info("Email verified successfully for user: ${user.username}")
+    }
+
+    fun resendVerificationEmail(userId: UUID) {
+        logger.info("Resending verification email for user: $userId")
+
+        val user = userService.findById(userId)
+            ?: throw UserNotFoundException("User not found: $userId")
+
+        if (user.emailVerified) {
+            logger.warn("Email already verified for user: ${user.username}")
+            throw IllegalStateException("Email is already verified")
+        }
+
+        // Invalidate any existing unused tokens for this user
+        val existingTokens = emailVerificationTokenRepository.findByUserId(userId)
+        existingTokens.filter { it.usedAt == null }.forEach {
+            it.usedAt = Instant.now() // Mark as used to invalidate
+        }
+        emailVerificationTokenRepository.saveAll(existingTokens)
+
+        // Send new verification email
+        sendVerificationEmail(userId)
+    }
+
+    fun forgotPassword(request: ForgotPasswordRequest) {
+        logger.info("Password reset request for email: ${request.email}")
+
+        val user = userService.findByEmail(request.email)
+        if (user == null) {
+            // Don't reveal whether email exists - just log and return silently
+            logger.warn("Password reset requested for non-existent email: ${request.email}")
+            return
+        }
+
+        // Generate password reset token
+        val token = generateSecureToken()
+        val expiresAt = Instant.now().plus(Duration.ofHours(emailProperties.passwordResetTokenExpirationHours.toLong()))
+
+        val tokenEntity = PasswordResetTokenEntity(
+            token = token,
+            userId = user.id,
+            expiresAt = expiresAt
+        )
+        passwordResetTokenRepository.save(tokenEntity)
+
+        // Send password reset email
+        emailService.sendPasswordResetEmail(user.email, user.username, token)
+
+        logger.info("Password reset email sent to ${user.email} for user: ${user.username}")
+    }
+
+    fun resetPassword(request: ResetPasswordRequest) {
+        logger.info("Password reset attempt with token")
+
+        val tokenEntity = passwordResetTokenRepository.findByToken(request.token)
+            ?: run {
+                logger.warn("Password reset failed: token not found")
+                throw InvalidTokenException("Invalid password reset token")
+            }
+
+        if (!tokenEntity.isValid()) {
+            logger.warn("Password reset failed: token is expired or already used")
+            throw InvalidTokenException("Password reset token is expired or already used")
+        }
+
+        // Validate new password
+        validatePassword(request.newPassword)
+
+        // Mark token as used
+        tokenEntity.usedAt = Instant.now()
+        passwordResetTokenRepository.save(tokenEntity)
+
+        // Update password
+        val user = userService.findById(tokenEntity.userId)
+            ?: throw UserNotFoundException("User not found: ${tokenEntity.userId}")
+
+        userService.updatePassword(user.id, request.newPassword)
+
+        // Reset failed login attempts
+        user.failedLoginAttempts = 0
+        user.lastFailedLoginAt = null
+        user.lockedUntil = null
+        userService.updateUser(user)
+
+        // Revoke all refresh tokens (force re-login)
+        val tokens = refreshTokenRepository.findAllByUserId(user.id)
+        tokens.forEach { it.revoked = true }
+        refreshTokenRepository.saveAll(tokens)
+
+        // Send password changed notification
+        emailService.sendPasswordChangedEmail(user.email, user.username)
+
+        logger.info("Password reset successfully for user: ${user.username}")
+    }
+
+    private fun generateSecureToken(): String {
+        val bytes = ByteArray(32)
+        secureRandom.nextBytes(bytes)
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes)
     }
 
     private fun validateUsername(username: String) {

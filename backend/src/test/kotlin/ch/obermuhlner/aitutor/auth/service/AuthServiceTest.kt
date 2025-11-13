@@ -14,6 +14,10 @@ import ch.obermuhlner.aitutor.auth.exception.InvalidCredentialsException
 import ch.obermuhlner.aitutor.auth.exception.InvalidTokenException
 import ch.obermuhlner.aitutor.auth.exception.UserNotFoundException
 import ch.obermuhlner.aitutor.auth.exception.WeakPasswordException
+import ch.obermuhlner.aitutor.auth.repository.EmailVerificationTokenRepository
+import ch.obermuhlner.aitutor.auth.repository.PasswordResetTokenRepository
+import ch.obermuhlner.aitutor.email.config.EmailProperties
+import ch.obermuhlner.aitutor.email.service.EmailService
 import ch.obermuhlner.aitutor.user.domain.AuthProvider
 import ch.obermuhlner.aitutor.user.domain.RefreshTokenEntity
 import ch.obermuhlner.aitutor.user.domain.UserEntity
@@ -43,6 +47,10 @@ class AuthServiceTest {
     private lateinit var refreshTokenRepository: RefreshTokenRepository
     private lateinit var passwordEncoder: PasswordEncoder
     private lateinit var jwtProperties: JwtProperties
+    private lateinit var emailService: EmailService
+    private lateinit var emailProperties: EmailProperties
+    private lateinit var emailVerificationTokenRepository: EmailVerificationTokenRepository
+    private lateinit var passwordResetTokenRepository: PasswordResetTokenRepository
 
     @BeforeEach
     fun setUp() {
@@ -50,10 +58,20 @@ class AuthServiceTest {
         jwtTokenService = mockk()
         refreshTokenRepository = mockk()
         passwordEncoder = mockk()
+        emailService = mockk(relaxed = true)  // relaxed for async methods
+        emailVerificationTokenRepository = mockk()
+        passwordResetTokenRepository = mockk()
         jwtProperties = JwtProperties(
             secret = "test-secret",
             expirationMs = 3600000,
             refreshExpirationMs = 2592000000
+        )
+        emailProperties = EmailProperties(
+            from = "test@example.com",
+            fromName = "Test",
+            baseUrl = "http://localhost",
+            verificationTokenExpirationHours = 24,
+            passwordResetTokenExpirationHours = 1
         )
 
         authService = AuthService(
@@ -61,7 +79,11 @@ class AuthServiceTest {
             jwtTokenService,
             refreshTokenRepository,
             passwordEncoder,
-            jwtProperties
+            jwtProperties,
+            emailService,
+            emailProperties,
+            emailVerificationTokenRepository,
+            passwordResetTokenRepository
         )
     }
 

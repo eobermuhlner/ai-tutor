@@ -14,6 +14,23 @@ spring:
       dev-stripe: dev,h2-file,ai-openai,prompts-large,stripe
       test: test,h2-mem,ai-dummy,prompts-small
 
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+    test-connection: false  # Don't fail startup if email not configured
+
 management:
   endpoints:
     web:
@@ -64,6 +81,19 @@ app:
     username: ${DEMO_USERNAME:demo}
     password: ${DEMO_PASSWORD:demo}
     email: ${DEMO_EMAIL:demo@localhost}
+  email:
+    from: ${EMAIL_FROM:noreply@ai-tutor.local}
+    from-name: ${EMAIL_FROM_NAME:AI Tutor}
+    base-url: ${APP_BASE_URL:http://localhost:5173}  # Frontend URL for links in emails
+    verification-token-expiration-hours: 24
+    password-reset-token-expiration-hours: 1
+  rate-limit:
+    auth:
+      # Rate limit for auth endpoints (login, register, password reset, etc.)
+      # Prevents brute-force attacks by limiting requests per IP address
+      capacity: ${AUTH_RATE_LIMIT_CAPACITY:10}  # Max requests
+      refill-tokens: ${AUTH_RATE_LIMIT_REFILL:10}  # Tokens added per refill period
+      refill-period-minutes: ${AUTH_RATE_LIMIT_REFILL_PERIOD:1}  # Refill period in minutes
 
 cors:
   allowed-origins: []         # leave empty here; set per env/profile

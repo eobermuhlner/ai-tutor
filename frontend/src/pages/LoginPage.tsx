@@ -111,16 +111,23 @@ export default function LoginPage() {
             disabled={isLoading}
           />
 
-          <Input
-            id="password"
-            type="password"
-            label="Password"
-            placeholder="Enter your password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            error={errors.password}
-            disabled={isLoading}
-          />
+          <div>
+            <Input
+              id="password"
+              type="password"
+              label="Password"
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              error={errors.password}
+              disabled={isLoading}
+            />
+            <div className="mt-2 text-right">
+              <Link to="/forgot-password" className="text-sm text-brand-600 hover:text-brand-700 transition-colors">
+                Forgot password?
+              </Link>
+            </div>
+          </div>
 
           <Button
             type="submit"

@@ -91,6 +91,16 @@ class UserEntity(
     @Column(name = "deleted_at", nullable = true)
     var deletedAt: Instant? = null,
 
+    // Failed login tracking fields
+    @Column(name = "failed_login_attempts", nullable = false)
+    var failedLoginAttempts: Int = 0,
+
+    @Column(name = "last_failed_login_at", nullable = true)
+    var lastFailedLoginAt: Instant? = null,
+
+    @Column(name = "locked_until", nullable = true)
+    var lockedUntil: Instant? = null,
+
     // API Key fields for BYOK (Bring Your Own Key) - generic provider-agnostic fields
     @Column(name = "api_key_encrypted", nullable = true, length = 512)
     var apiKeyEncrypted: String? = null,
