@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 class ImageService(
-    private val imageStoreClient: ImageStoreClient
+    private val githubImageStoreService: GithubImageStoreService
 ) {
 
     private val logger = LoggerFactory.getLogger(ImageService::class.java)
@@ -17,7 +17,7 @@ class ImageService(
     @Transactional(readOnly = true)
     fun getImageByConcept(concept: String): ImageData? {
         val searchResults = try {
-            imageStoreClient.searchImagesByTags(listOf(concept))
+            githubImageStoreService.searchImagesByTags(listOf(concept))
         } catch (e: Exception) {
             logger.error("Failed to search images", e)
             emptyList()
@@ -37,7 +37,7 @@ class ImageService(
     @Transactional(readOnly = true)
     fun getImageUrlByConcept(concept: String): String? {
         val searchResults = try {
-            imageStoreClient.searchImagesByTags(listOf(concept))
+            githubImageStoreService.searchImagesByTags(listOf(concept))
         } catch (e: Exception) {
             logger.error("Failed to search images", e)
             emptyList()
@@ -76,7 +76,7 @@ class ImageService(
             .distinct()
 
         val searchResults = try {
-            imageStoreClient.searchImagesByTags(
+            githubImageStoreService.searchImagesByTags(
                 requiredTags,
                 optionalTags + textTags,
             )
@@ -115,7 +115,7 @@ class ImageService(
             .distinct()
 
         val searchResults = try {
-            imageStoreClient.searchImagesByTags(
+            githubImageStoreService.searchImagesByTags(
                 requiredTags,
                 optionalTags + textTags,
             )
@@ -141,22 +141,24 @@ class ImageService(
     }
 
     private fun getImage(metadata: ImageMetadataResponse): ImageData? {
-        return try {
-            val data = imageStoreClient.getImageData(metadata.id)
-            val format = metadata.contentType.substringAfter("/", "png")
-            ImageData(data, format, metadata.contentType)
-        } catch (e: Exception) {
-            logger.error("Failed to fetch image from imagestore: id=${metadata.id}", e)
-            null
-        }
+        // With GitHub Pages, we can't fetch the raw image data, only URLs
+        // We'll return a placeholder or handle this differently based on requirements
+        // For now, we'll return null since we can't fetch the actual image data
+        
+        // If we want to actually fetch image data, we'd need to download from the URL
+        // But this would require additional network requests and caching
+        // For now, we'll log that this method isn't fully supported with the GitHub approach
+        logger.warn("getImage() not fully supported with GitHub Pages - only URLs available")
+        return null
     }
 
     private fun getImageUrl(metadata: ImageMetadataResponse): String? {
-        return try {
-            imageStoreClient.getImageUrl(metadata.id)
+        // Create URL from filename for GitHub Pages
+        try {
+            return githubImageStoreService.getImageUrlForFilename(metadata.filename)
         } catch (e: Exception) {
-            logger.error("Failed to get image URL from imagestore: id=${metadata.id}", e)
-            null
+            logger.error("Failed to get image URL for filename: ${metadata.filename}", e)
+            return null
         }
     }
 

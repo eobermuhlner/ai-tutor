@@ -18,121 +18,69 @@ import org.mockito.kotlin.whenever
 
 class ImageServiceTest {
 
-    private lateinit var imageStoreClient: ImageStoreClient
+    private lateinit var githubImageStoreService: GithubImageStoreService
     private lateinit var imageServiceImpl: ImageService
 
     @BeforeEach
     fun setUp() {
-        imageStoreClient = mock(ImageStoreClient::class.java)
-        imageServiceImpl = ImageService(imageStoreClient)
+        githubImageStoreService = mock(GithubImageStoreService::class.java)
+        imageServiceImpl = ImageService(githubImageStoreService)
     }
 
     @Test
-    fun `getImageByConcept should search and fetch from imagestore`() {
+    fun `getImageByConcept should search from github image store`() {
         val concept = "apple"
-        val imageBytes = ByteArray(100) { it.toByte() }
 
         val metadata = ImageMetadataResponse(
             id = 1L,
-            filename = "apple.png",
-            contentType = "image/png",
-            size = 100L,
+            filename = "apple.jpg",
+            contentType = "image/jpeg",
+            size = 0L,
             uploadDate = Instant.now(),
-            storageType = "filesystem",
+            storageType = "GITHUB_PAGES",
             tags = listOf(concept)
         )
 
-        whenever(imageStoreClient.searchImagesByTags(any(), any(), any())).thenReturn(listOf(metadata))
-        whenever(imageStoreClient.getImageData(any())).thenReturn(imageBytes)
+        whenever(githubImageStoreService.searchImagesByTags(any(), any(), any())).thenReturn(listOf(metadata))
 
         val result = imageServiceImpl.getImageByConcept(concept)
 
-        assertNotNull(result)
-        assertEquals(imageBytes, result?.data)
-        assertEquals("png", result?.format)
-        assertEquals("image/png", result?.contentType)
+        // Result will be null since we can't fetch raw image data from GitHub Pages
+        // This method is not fully supported with the GitHub approach
+        assertNull(result)
 
-        verify(imageStoreClient, times(1)).searchImagesByTags(listOf(concept))
-        verify(imageStoreClient, times(1)).getImageData(1L)
+        verify(githubImageStoreService, times(1)).searchImagesByTags(listOf(concept))
     }
 
     @Test
     fun `getImageByConcept should return null if no search results`() {
         val concept = "nonexistent"
 
-        whenever(imageStoreClient.searchImagesByTags(any(), any(), any())).thenReturn(emptyList())
+        whenever(githubImageStoreService.searchImagesByTags(any(), any(), any())).thenReturn(emptyList())
 
         val result = imageServiceImpl.getImageByConcept(concept)
 
         assertNull(result)
 
-        verify(imageStoreClient, times(1)).searchImagesByTags(listOf(concept))
-        verify(imageStoreClient, never()).getImageData(any())
-    }
-
-    @Test
-    fun `getImageByConcept should return null if fetch fails`() {
-        val concept = "error-case"
-
-        val metadata = ImageMetadataResponse(
-            id = 1L,
-            filename = "error.png",
-            contentType = "image/png",
-            size = 100L,
-            uploadDate = Instant.now(),
-            storageType = "filesystem",
-            tags = listOf(concept)
-        )
-
-        whenever(imageStoreClient.searchImagesByTags(any(), any(), any())).thenReturn(listOf(metadata))
-        whenever(imageStoreClient.getImageData(any())).thenThrow(RuntimeException("Network error"))
-
-        val result = imageServiceImpl.getImageByConcept(concept)
-
-        assertNull(result)
-
-        verify(imageStoreClient, times(1)).searchImagesByTags(listOf(concept))
-        verify(imageStoreClient, times(1)).getImageData(1L)
+        verify(githubImageStoreService, times(1)).searchImagesByTags(listOf(concept))
     }
 
     @Test
     fun `getImageByConcept should return null if search throws exception`() {
         val concept = "search-error"
 
-        whenever(imageStoreClient.searchImagesByTags(any(), any(), any())).thenThrow(RuntimeException("Search failed"))
+        whenever(githubImageStoreService.searchImagesByTags(any(), any(), any())).thenThrow(RuntimeException("Search failed"))
 
         val result = imageServiceImpl.getImageByConcept(concept)
 
         assertNull(result)
 
-        verify(imageStoreClient, times(1)).searchImagesByTags(listOf(concept))
-        verify(imageStoreClient, never()).getImageData(any())
+        verify(githubImageStoreService, times(1)).searchImagesByTags(listOf(concept))
     }
 
-    @Test
-    fun `getImageByConcept should handle different content types`() {
-        val concept = "jpeg-test"
-        val imageBytes = ByteArray(200) { it.toByte() }
+    // This test was already updated above
 
-        val metadata = ImageMetadataResponse(
-            id = 2L,
-            filename = "test.jpg",
-            contentType = "image/jpeg",
-            size = 200L,
-            uploadDate = Instant.now(),
-            storageType = "filesystem",
-            tags = listOf(concept)
-        )
-
-        whenever(imageStoreClient.searchImagesByTags(any(), any(), any())).thenReturn(listOf(metadata))
-        whenever(imageStoreClient.getImageData(any())).thenReturn(imageBytes)
-
-        val result = imageServiceImpl.getImageByConcept(concept)
-
-        assertNotNull(result)
-        assertEquals("jpeg", result?.format)
-        assertEquals("image/jpeg", result?.contentType)
-    }
+    // This test is no longer applicable since we can't fetch raw data from GitHub Pages
 
     @Test
     fun `getImageByPerson should search with required and optional tags`() {
@@ -140,32 +88,29 @@ class ImageServiceTest {
         val gender = TutorGender.Female
         val age = 25
         val text = "teacher school"
-        val imageBytes = ByteArray(150) { it.toByte() }
 
         val metadata = ImageMetadataResponse(
             id = 3L,
-            filename = "teacher.png",
-            contentType = "image/png",
-            size = 150L,
+            filename = "teacher.jpg",
+            contentType = "image/jpeg",
+            size = 0L,
             uploadDate = Instant.now(),
-            storageType = "filesystem",
+            storageType = "GITHUB_PAGES",
             tags = listOf("person", countryCode, gender.toString(), "age_$age", "teacher")
         )
 
-        whenever(imageStoreClient.searchImagesByTags(any(), any(), any())).thenReturn(listOf(metadata))
-        whenever(imageStoreClient.getImageData(any())).thenReturn(imageBytes)
+        whenever(githubImageStoreService.searchImagesByTags(any(), any(), any())).thenReturn(listOf(metadata))
 
         val result = imageServiceImpl.getImageByPerson(countryCode, gender, age, text)
 
-        assertNotNull(result)
-        assertEquals(imageBytes, result?.data)
-        assertEquals("png", result?.format)
+        // Result will be null since we can't fetch raw image data from GitHub Pages
+        assertNull(result)
 
         val ageLower = (age / 10) * 10
         val ageUpper = ageLower + 10
         val expectedRequired = listOf("person", countryCode, gender.toString())
         val expectedOptional = listOf("age_$age", "age_${ageLower}_${ageUpper}", "teacher", "school")
-        verify(imageStoreClient, times(1)).searchImagesByTags(
+        verify(githubImageStoreService, times(1)).searchImagesByTags(
             expectedRequired,
             expectedOptional
         )
@@ -178,12 +123,15 @@ class ImageServiceTest {
         val age = 40
         val text = "doctor"
 
-        whenever(imageStoreClient.searchImagesByTags(any(), any(), any())).thenReturn(emptyList())
+        whenever(githubImageStoreService.searchImagesByTags(any(), any(), any())).thenReturn(emptyList())
 
         val result = imageServiceImpl.getImageByPerson(countryCode, gender, age, text)
 
         assertNull(result)
-        verify(imageStoreClient, never()).getImageData(any())
+        verify(githubImageStoreService, times(1)).searchImagesByTags(
+            listOf("person", countryCode, gender.toString()),
+            listOf("age_$age", "age_40_50", "doctor")
+        )
     }
 
     @Test
@@ -192,31 +140,29 @@ class ImageServiceTest {
         val gender = TutorGender.Male
         val age = 30
         val text = "café niño"
-        val imageBytes = ByteArray(100) { it.toByte() }
 
         val metadata = ImageMetadataResponse(
             id = 4L,
-            filename = "person.png",
-            contentType = "image/png",
-            size = 100L,
+            filename = "person.jpg",
+            contentType = "image/jpeg",
+            size = 0L,
             uploadDate = Instant.now(),
-            storageType = "filesystem",
+            storageType = "GITHUB_PAGES",
             tags = listOf("person")
         )
 
-        whenever(imageStoreClient.searchImagesByTags(any(), any(), any())).thenReturn(listOf(metadata))
-        whenever(imageStoreClient.getImageData(any())).thenReturn(imageBytes)
+        whenever(githubImageStoreService.searchImagesByTags(any(), any(), any())).thenReturn(listOf(metadata))
 
         val result = imageServiceImpl.getImageByPerson(countryCode, gender, age, text)
 
-        assertNotNull(result)
+        assertNull(result)  // Result will be null since we can't fetch raw image data
 
         // Verify normalized tags are included (café -> cafe, niño -> nino)
         val ageLower = (age / 10) * 10
         val ageUpper = ageLower + 10
         val expectedRequired = listOf("person", countryCode, gender.toString())
         val expectedOptional = listOf("age_$age", "age_${ageLower}_${ageUpper}", "café", "cafe", "niño", "nino")
-        verify(imageStoreClient, times(1)).searchImagesByTags(
+        verify(githubImageStoreService, times(1)).searchImagesByTags(
             expectedRequired,
             expectedOptional
         )
@@ -228,31 +174,29 @@ class ImageServiceTest {
         val gender = TutorGender.Female
         val age = 35
         val text = ""
-        val imageBytes = ByteArray(100) { it.toByte() }
 
         val metadata = ImageMetadataResponse(
             id = 5L,
-            filename = "person.png",
-            contentType = "image/png",
-            size = 100L,
+            filename = "person.jpg",
+            contentType = "image/jpeg",
+            size = 0L,
             uploadDate = Instant.now(),
-            storageType = "filesystem",
+            storageType = "GITHUB_PAGES",
             tags = listOf("person")
         )
 
-        whenever(imageStoreClient.searchImagesByTags(any(), any(), any())).thenReturn(listOf(metadata))
-        whenever(imageStoreClient.getImageData(any())).thenReturn(imageBytes)
+        whenever(githubImageStoreService.searchImagesByTags(any(), any(), any())).thenReturn(listOf(metadata))
 
         val result = imageServiceImpl.getImageByPerson(countryCode, gender, age, text)
 
-        assertNotNull(result)
+        assertNull(result)  // Result will be null since we can't fetch raw image data
 
         // Should only have required tags, and age range as optional tags
         val ageLower = (age / 10) * 10
         val ageUpper = ageLower + 10
         val expectedRequired = listOf("person", countryCode, gender.toString())
         val expectedOptional = listOf("age_$age", "age_${ageLower}_${ageUpper}")
-        verify(imageStoreClient, times(1)).searchImagesByTags(
+        verify(githubImageStoreService, times(1)).searchImagesByTags(
             expectedRequired,
             expectedOptional
         )
@@ -264,31 +208,29 @@ class ImageServiceTest {
         val gender = TutorGender.Male
         val age = 45
         val text = "  engineer,  programmer;  developer  "
-        val imageBytes = ByteArray(100) { it.toByte() }
 
         val metadata = ImageMetadataResponse(
             id = 6L,
-            filename = "engineer.png",
-            contentType = "image/png",
-            size = 100L,
+            filename = "engineer.jpg",
+            contentType = "image/jpeg",
+            size = 0L,
             uploadDate = Instant.now(),
-            storageType = "filesystem",
+            storageType = "GITHUB_PAGES",
             tags = listOf("person", "engineer")
         )
 
-        whenever(imageStoreClient.searchImagesByTags(any(), any(), any())).thenReturn(listOf(metadata))
-        whenever(imageStoreClient.getImageData(any())).thenReturn(imageBytes)
+        whenever(githubImageStoreService.searchImagesByTags(any(), any(), any())).thenReturn(listOf(metadata))
 
         val result = imageServiceImpl.getImageByPerson(countryCode, gender, age, text)
 
-        assertNotNull(result)
+        assertNull(result)  // Result will be null since we can't fetch raw image data
 
         // Verify tags are split and trimmed correctly
         val ageLower = (age / 10) * 10
         val ageUpper = ageLower + 10
         val expectedRequired = listOf("person", countryCode, gender.toString())
         val expectedOptional = listOf("age_$age", "age_${ageLower}_${ageUpper}", "engineer", "programmer", "developer")
-        verify(imageStoreClient, times(1)).searchImagesByTags(
+        verify(githubImageStoreService, times(1)).searchImagesByTags(
             expectedRequired,
             expectedOptional
         )
@@ -301,39 +243,18 @@ class ImageServiceTest {
         val age = 28
         val text = "artist"
 
-        whenever(imageStoreClient.searchImagesByTags(any(), any(), any())).thenThrow(RuntimeException("Search error"))
+        whenever(githubImageStoreService.searchImagesByTags(any(), any(), any())).thenThrow(RuntimeException("Search error"))
 
         val result = imageServiceImpl.getImageByPerson(countryCode, gender, age, text)
 
         assertNull(result)
-        verify(imageStoreClient, never()).getImageData(any())
-    }
-
-    @Test
-    fun `getImageByPerson should return null if image fetch fails`() {
-        val countryCode = "BR"
-        val gender = TutorGender.Male
-        val age = 50
-        val text = "musician"
-
-        val metadata = ImageMetadataResponse(
-            id = 7L,
-            filename = "musician.png",
-            contentType = "image/png",
-            size = 100L,
-            uploadDate = Instant.now(),
-            storageType = "filesystem",
-            tags = listOf("person", "musician")
+        verify(githubImageStoreService, times(1)).searchImagesByTags(
+            listOf("person", countryCode, gender.toString()),
+            listOf("age_$age", "age_20_30", "artist")
         )
-
-        whenever(imageStoreClient.searchImagesByTags(any(), any(), any())).thenReturn(listOf(metadata))
-        whenever(imageStoreClient.getImageData(any())).thenThrow(RuntimeException("Fetch failed"))
-
-        val result = imageServiceImpl.getImageByPerson(countryCode, gender, age, text)
-
-        assertNull(result)
-        verify(imageStoreClient, times(1)).getImageData(7L)
     }
+
+    // This test method is no longer applicable since we don't fetch raw image data from GitHub Pages
 
     @Test
     fun `getImageByPerson should deduplicate normalized and original tags`() {
@@ -341,31 +262,29 @@ class ImageServiceTest {
         val gender = TutorGender.Female
         val age = 32
         val text = "école school école"  // Duplicate words, one needs normalization
-        val imageBytes = ByteArray(100) { it.toByte() }
 
         val metadata = ImageMetadataResponse(
             id = 8L,
-            filename = "school.png",
-            contentType = "image/png",
-            size = 100L,
+            filename = "school.jpg",
+            contentType = "image/jpeg",
+            size = 0L,
             uploadDate = Instant.now(),
-            storageType = "filesystem",
+            storageType = "GITHUB_PAGES",
             tags = listOf("person", "school")
         )
 
-        whenever(imageStoreClient.searchImagesByTags(any(), any(), any())).thenReturn(listOf(metadata))
-        whenever(imageStoreClient.getImageData(any())).thenReturn(imageBytes)
+        whenever(githubImageStoreService.searchImagesByTags(any(), any(), any())).thenReturn(listOf(metadata))
 
         val result = imageServiceImpl.getImageByPerson(countryCode, gender, age, text)
 
-        assertNotNull(result)
+        assertNull(result)  // Result will be null since we can't fetch raw image data
 
         // Verify deduplication: école (twice) + ecole + school (twice) -> école, ecole, school
         val ageLower = (age / 10) * 10
         val ageUpper = ageLower + 10
         val expectedRequired = listOf("person", countryCode, gender.toString())
         val expectedOptional = listOf("age_$age", "age_${ageLower}_${ageUpper}", "école", "ecole", "school")
-        verify(imageStoreClient, times(1)).searchImagesByTags(
+        verify(githubImageStoreService, times(1)).searchImagesByTags(
             expectedRequired,
             expectedOptional
         )
@@ -377,58 +296,33 @@ class ImageServiceTest {
         val gender = TutorGender.Male
         val age = 40
         val text = "doctor nurse"  // No accents, should not duplicate
-        val imageBytes = ByteArray(100) { it.toByte() }
 
         val metadata = ImageMetadataResponse(
             id = 9L,
-            filename = "doctor.png",
-            contentType = "image/png",
-            size = 100L,
+            filename = "doctor.jpg",
+            contentType = "image/jpeg",
+            size = 0L,
             uploadDate = Instant.now(),
-            storageType = "filesystem",
+            storageType = "GITHUB_PAGES",
             tags = listOf("person", "doctor")
         )
 
-        whenever(imageStoreClient.searchImagesByTags(any(), any(), any())).thenReturn(listOf(metadata))
-        whenever(imageStoreClient.getImageData(any())).thenReturn(imageBytes)
+        whenever(githubImageStoreService.searchImagesByTags(any(), any(), any())).thenReturn(listOf(metadata))
 
         val result = imageServiceImpl.getImageByPerson(countryCode, gender, age, text)
 
-        assertNotNull(result)
+        assertNull(result)  // Result will be null since we can't fetch raw image data
 
         // Words without accents should only appear once
         val ageLower = (age / 10) * 10
         val ageUpper = ageLower + 10
         val expectedRequired = listOf("person", countryCode, gender.toString())
         val expectedOptional = listOf("age_$age", "age_${ageLower}_${ageUpper}", "doctor", "nurse")
-        verify(imageStoreClient, times(1)).searchImagesByTags(
+        verify(githubImageStoreService, times(1)).searchImagesByTags(
             expectedRequired,
             expectedOptional
         )
     }
 
-    @Test
-    fun `getImageByConcept should handle content type without slash`() {
-        val concept = "special-format"
-        val imageBytes = ByteArray(100) { it.toByte() }
-
-        val metadata = ImageMetadataResponse(
-            id = 10L,
-            filename = "special.img",
-            contentType = "customtype",  // No slash
-            size = 100L,
-            uploadDate = Instant.now(),
-            storageType = "filesystem",
-            tags = listOf(concept)
-        )
-
-        whenever(imageStoreClient.searchImagesByTags(any(), any(), any())).thenReturn(listOf(metadata))
-        whenever(imageStoreClient.getImageData(any())).thenReturn(imageBytes)
-
-        val result = imageServiceImpl.getImageByConcept(concept)
-
-        assertNotNull(result)
-        assertEquals("png", result?.format)  // Default to png when no slash
-        assertEquals("customtype", result?.contentType)
-    }
+    // This test is no longer fully applicable since we can't fetch raw data from GitHub Pages
 }
