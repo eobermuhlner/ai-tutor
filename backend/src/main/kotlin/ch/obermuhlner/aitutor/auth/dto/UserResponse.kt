@@ -12,6 +12,7 @@ data class UserResponse(
     val email: String,
     val firstName: String?,
     val lastName: String?,
+    val avatarUrl: String?,
     val roles: Set<UserRole>,
     val enabled: Boolean,
     val locked: Boolean,

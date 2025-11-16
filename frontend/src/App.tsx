@@ -12,6 +12,7 @@ import { TTSProvider } from './contexts/TTSContext';
 import Spinner from './components/ui/Spinner';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import OAuth2CallbackPage from './pages/OAuth2CallbackPage';
 import LanguageCatalogPage from './pages/LanguageCatalogPage';
 import CourseCatalogPage from './pages/CourseCatalogPage';
 import CourseDetailPage from './pages/CourseDetailPage';
@@ -65,6 +66,7 @@ function App() {
           <Routes>
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/auth/callback" element={<OAuth2CallbackPage />} />
 
             <Route
               path="/languages"
