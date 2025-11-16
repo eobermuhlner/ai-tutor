@@ -161,31 +161,8 @@ export default function RegisterPage() {
           variant="outline"
           className="w-full mb-4 flex items-center justify-center gap-3 bg-white hover:bg-slate-50 border border-slate-300"
           onClick={() => {
-            // Extract base URL without /api/v1 suffix for OAuth2 endpoints
-            let baseUrl;
-            if (import.meta.env.VITE_API_BASE_URL) {
-              // Remove /api/v1 suffix if present to get the base server URL
-              baseUrl = import.meta.env.VITE_API_BASE_URL.replace(/\/api\/v1$/, '');
-            } else {
-              // Use the same protocol as the current page (HTTP or HTTPS) to avoid mixed content errors
-              const currentProtocol = window.location.protocol;
-              const currentHost = window.location.host;
-              baseUrl = `${currentProtocol}//${currentHost}`;
-            }
-            
-            // Ensure OAuth2 URLs always use the same protocol as the current page to avoid mixed content
-            const currentProtocol = window.location.protocol;
-            // Parse the base URL and replace its protocol with the current page's protocol
-            try {
-              const urlObject = new URL(baseUrl);
-              urlObject.protocol = currentProtocol;
-              baseUrl = urlObject.toString().slice(0, -1); // Remove trailing slash added by URL.toString()
-            } catch {
-              // If URL parsing fails, fallback to protocol replacement approach
-              baseUrl = baseUrl.replace(/^https?:\/\//, `${currentProtocol}//`);
-            }
-            
-            window.location.href = `${baseUrl}/oauth2/authorization/google`;
+            // Use relative URL to avoid mixed content issues - automatically uses current page's protocol
+            window.location.href = '/oauth2/authorization/google';
           }}
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
