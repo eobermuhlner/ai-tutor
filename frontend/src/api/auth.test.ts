@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { 
+import {
   register,
   login,
   refreshToken,
@@ -43,6 +43,7 @@ describe('auth API module', () => {
         email: 'test@example.com',
         firstName: null,
         lastName: null,
+        avatarUrl: null,
         roles: [],
         enabled: true,
         locked: false,
@@ -52,11 +53,11 @@ describe('auth API module', () => {
         subscriptionPlan: 'FREE',
         pronunciationPreference: 'NONE' as PronunciationPreference,
       };
-      
+
       mockPost.mockResolvedValue({ data: mockUser });
-      
+
       const result = await register('testuser', 'test@example.com', 'password123');
-      
+
       expect(mockPost).toHaveBeenCalledWith('/auth/register', {
         username: 'testuser',
         email: 'test@example.com',
@@ -79,6 +80,7 @@ describe('auth API module', () => {
           email: 'test@example.com',
           firstName: null,
           lastName: null,
+          avatarUrl: null,
           roles: [],
           enabled: true,
           locked: false,
@@ -89,11 +91,11 @@ describe('auth API module', () => {
           pronunciationPreference: 'NONE' as PronunciationPreference,
         }
       };
-      
+
       mockPost.mockResolvedValue({ data: loginResponse });
-      
+
       const result = await login('test@example.com', 'password123');
-      
+
       expect(mockPost).toHaveBeenCalledWith('/auth/login', {
         username: 'test@example.com', // Backend expects 'username' field (can be username or email)
         password: 'password123',
@@ -115,6 +117,7 @@ describe('auth API module', () => {
           email: 'test@example.com',
           firstName: null,
           lastName: null,
+          avatarUrl: null,
           roles: [],
           enabled: true,
           locked: false,
@@ -125,11 +128,11 @@ describe('auth API module', () => {
           pronunciationPreference: 'NONE' as PronunciationPreference,
         }
       };
-      
+
       mockPost.mockResolvedValue({ data: refreshResponse });
-      
+
       const result = await refreshToken('old-refresh-token');
-      
+
       expect(mockPost).toHaveBeenCalledWith('/auth/refresh', {
         refreshToken: 'old-refresh-token',
       });
@@ -145,6 +148,7 @@ describe('auth API module', () => {
         email: 'test@example.com',
         firstName: null,
         lastName: null,
+        avatarUrl: null,
         roles: [],
         enabled: true,
         locked: false,
@@ -154,11 +158,11 @@ describe('auth API module', () => {
         subscriptionPlan: 'FREE',
         pronunciationPreference: 'NONE' as PronunciationPreference,
       };
-      
+
       mockGet.mockResolvedValue({ data: mockUser });
-      
+
       const result = await getMe();
-      
+
       expect(mockGet).toHaveBeenCalledWith('/auth/me');
       expect(result).toEqual(mockUser);
     });
@@ -167,9 +171,9 @@ describe('auth API module', () => {
   describe('logout', () => {
     it('should logout the user', async () => {
       mockPost.mockResolvedValue({});
-      
+
       await logout();
-      
+
       expect(mockPost).toHaveBeenCalledWith('/auth/logout');
     });
   });
@@ -177,9 +181,9 @@ describe('auth API module', () => {
   describe('changePassword', () => {
     it('should change user password', async () => {
       mockPost.mockResolvedValue({});
-      
+
       await changePassword('current-password', 'new-password');
-      
+
       expect(mockPost).toHaveBeenCalledWith('/auth/password', {
         currentPassword: 'current-password',
         newPassword: 'new-password',
@@ -195,6 +199,7 @@ describe('auth API module', () => {
         email: 'newemail@example.com',
         firstName: null,
         lastName: null,
+        avatarUrl: null,
         roles: [],
         enabled: true,
         locked: false,
@@ -204,11 +209,11 @@ describe('auth API module', () => {
         subscriptionPlan: 'FREE',
         pronunciationPreference: 'NONE' as PronunciationPreference,
       };
-      
+
       mockPost.mockResolvedValue({ data: mockUser });
-      
+
       const result = await changeEmail('newemail@example.com');
-      
+
       expect(mockPost).toHaveBeenCalledWith('/auth/email', {
         newEmail: 'newemail@example.com',
       });
