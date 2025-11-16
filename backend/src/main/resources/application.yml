@@ -5,34 +5,14 @@ spring:
   profiles:
     active: dev-ollama
     group:
-      prod: prod,h2-file,ai-openai,prompts-large,stripe
-      dev-openai: dev,h2-file,ai-openai,prompts-large
-      dev-azure-openai: dev,h2-file,ai-azure-openai,prompts-large
-      dev-anthropic: dev,h2-file,ai-anthropic,prompts-large
-      dev-ollama: dev,h2-file,ai-ollama,prompts-small
-      dev-dummy: dev,h2-mem,ai-dummy,prompts-small
-      dev-stripe: dev,h2-file,ai-openai,prompts-large,stripe
+      prod: prod,h2-file,ai-openai,prompts-large,stripe,oauth2
+      dev-openai: dev,h2-file,ai-openai,prompts-large,oauth2
+      dev-azure-openai: dev,h2-file,ai-azure-openai,prompts-large,oauth2
+      dev-anthropic: dev,h2-file,ai-anthropic,prompts-large,oauth2
+      dev-ollama: dev,h2-file,ai-ollama,prompts-small,oauth2
+      dev-dummy: dev,h2-mem,ai-dummy,prompts-small,oauth2
+      dev-stripe: dev,h2-file,ai-openai,prompts-large,stripe,oauth2
       test: test,h2-mem,ai-dummy,prompts-small
-
-  security:
-    oauth2:
-      client:
-        registration:
-          google:
-            client-id: ${GOOGLE_CLIENT_ID:}
-            client-secret: ${GOOGLE_CLIENT_SECRET:}
-            scope:
-              - openid
-              - profile
-              - email
-            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
-            client-name: Google
-        provider:
-          google:
-            authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
-            token-uri: https://oauth2.googleapis.com/token
-            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
-            user-name-attribute: sub
 
 management:
   endpoints:
