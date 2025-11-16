@@ -1,3 +1,14 @@
+server:
+  # Trust proxy headers for HTTPS behind reverse proxy
+  # Required for OAuth2 to generate correct redirect URIs with HTTPS scheme
+  tomcat:
+    remoteip:
+      remote-ip-header: x-forwarded-for
+      protocol-header: x-forwarded-proto
+      protocol-header-https-value: https
+      host-header: x-forwarded-host
+      port-header: x-forwarded-port
+
 cors:
   # Prefer exact origins; if you truly need subdomains, use allowed-origin-patterns
   allowed-origins: ${CORS_ALLOWED_ORIGINS}

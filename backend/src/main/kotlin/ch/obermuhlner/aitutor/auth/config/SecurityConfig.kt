@@ -92,11 +92,25 @@ class SecurityConfig(
                     .anyRequest().denyAll()
             }
 
-            // OAuth2 login configuration
+            // OAuth2 login configuration - only apply to non-API endpoints
             .oauth2Login { oauth2 ->
                 oauth2
+                    .loginProcessingUrl("/login/oauth2/code/*") // Handle OAuth2 callbacks
                     .successHandler(oAuth2SuccessHandler)
                     .failureHandler(oAuth2FailureHandler)
+            }
+
+            // Configure unauthorized requests for API endpoints to return 401 instead of redirecting to OAuth2
+            .exceptionHandling { exceptions ->
+                exceptions
+                    .defaultAuthenticationEntryPointFor(
+                        org.springframework.security.web.authentication.HttpStatusEntryPoint(
+                            org.springframework.http.HttpStatus.UNAUTHORIZED
+                        ),
+                        org.springframework.security.web.util.matcher.RequestMatcher { request ->
+                            request.requestURI.startsWith("/api/v1/")
+                        }
+                    )
             }
 
             // Add JWT filter ahead of UsernamePasswordAuthenticationFilter
