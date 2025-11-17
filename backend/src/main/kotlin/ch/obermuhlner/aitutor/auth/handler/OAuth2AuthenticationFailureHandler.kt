@@ -11,7 +11,7 @@ import org.springframework.web.util.UriComponentsBuilder
 
 @Component
 class OAuth2AuthenticationFailureHandler(
-    @Value("\${auth.oauth2.redirect-base-url:http://localhost:5173}")
+    @Value("\${app.oauth2.redirect-base-url:http://localhost:5173}")
     private val frontendRedirectUrl: String
 ) : SimpleUrlAuthenticationFailureHandler() {
 

@@ -29,8 +29,7 @@
       "Bash(npm run build:*)",
       "Bash(npx tsc:*)",
       "Bash(npm run lint)",
-      "Bash(npm test)",
-      "Bash(find:*)"
+      "Bash(npm test)"
     ],
     "deny": [],
     "ask": []
