@@ -22,7 +22,7 @@ import java.time.Instant
 import java.util.UUID
 
 @WebMvcTest(SummaryController::class)
-@Import(ch.obermuhlner.aitutor.auth.config.TestSecurityConfig::class)
+@Import(ch.obermuhlner.aitutor.auth.config.SecurityConfig::class)
 class SummaryControllerTest {
 
     @Autowired

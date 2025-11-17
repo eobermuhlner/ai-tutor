@@ -23,7 +23,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 
 @WebMvcTest(AssessmentController::class)
-@Import(ch.obermuhlner.aitutor.auth.config.TestSecurityConfig::class)
+@Import(ch.obermuhlner.aitutor.auth.config.SecurityConfig::class)
 class AssessmentControllerTest {
 
     @Autowired

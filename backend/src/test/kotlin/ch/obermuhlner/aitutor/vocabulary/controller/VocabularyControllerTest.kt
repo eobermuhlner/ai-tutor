@@ -28,7 +28,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @WebMvcTest(controllers = [VocabularyController::class])
 @AutoConfigureJsonTesters
-@Import(ch.obermuhlner.aitutor.auth.config.TestSecurityConfig::class)
+@Import(ch.obermuhlner.aitutor.auth.config.SecurityConfig::class)
 class VocabularyControllerTest {
 
     @Autowired

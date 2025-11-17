@@ -40,8 +40,6 @@ spring:
         speech: none  # Disable TTS in tests
 
 ai-tutor:
-  catalog:
-    use-seeding: false  # Disable seeding in tests to prevent conflicts
   audio:
     enabled: false  # Disable audio in tests
 

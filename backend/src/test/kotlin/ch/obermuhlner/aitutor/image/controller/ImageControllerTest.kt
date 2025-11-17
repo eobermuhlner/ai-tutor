@@ -22,7 +22,7 @@ import java.util.Optional
 import java.util.UUID
 
 @WebMvcTest(controllers = [ImageController::class])
-@Import(ch.obermuhlner.aitutor.auth.config.TestSecurityConfig::class)
+@Import(ch.obermuhlner.aitutor.auth.config.SecurityConfig::class)
 class ImageControllerTest {
 
     @Autowired

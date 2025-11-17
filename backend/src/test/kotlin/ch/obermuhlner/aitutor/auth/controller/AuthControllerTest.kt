@@ -32,7 +32,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @WebMvcTest(AuthController::class)
 @Import(
-    ch.obermuhlner.aitutor.auth.config.TestSecurityConfig::class,
+    ch.obermuhlner.aitutor.auth.config.SecurityConfig::class,
     ch.obermuhlner.aitutor.auth.service.JwtTokenService::class,
     ch.obermuhlner.aitutor.user.service.CustomUserDetailsService::class
 )

@@ -18,11 +18,9 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 
-@SpringBootTest(
-    properties = ["ai-tutor.catalog.use-seeding=false"]
-)
+@SpringBootTest
 @ActiveProfiles("test")
-@org.springframework.test.annotation.DirtiesContext(classMode = org.springframework.test.annotation.DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@Import(TestConfig::class)
 class SeedDataServiceTest {
 
     @Autowired
@@ -58,71 +56,18 @@ class SeedDataServiceTest {
         tutorProfileRepository.deleteAll()
         languageRepository.deleteAll()
 
-        // Manually seed test data instead of using SeedDataService (since it's disabled by use-seeding=false)
-        seedTestData()
-    }
-
-    private fun seedTestData() {
-        // Create and save test data manually for the tests
-        // This replicates what SeedDataService does but without the conditional bean issue
-        
-        // Add a test language
-        val testLanguage = ch.obermuhlner.aitutor.catalog.domain.LanguageEntity(
-            code = "es-ES",
-            nameJson = """{"en": "Spanish (Spain)", "es": "Español (España)"}""",
-            flagEmoji = "🇪🇸",
-            nativeName = "Español (España)",
-            difficulty = ch.obermuhlner.aitutor.core.model.catalog.Difficulty.Easy,
-            descriptionJson = """{"en": "Spanish language", "es": "Idioma español"}""",
-            isActive = true,
-            displayOrder = 0
+        // Manually seed data for testing
+        val seedDataService = SeedDataService(
+            tutorProfileRepository,
+            courseTemplateRepository,
+            languageRepository,
+            lessonContentRepository,
+            curriculumRuleRepository,
+            catalogProperties,
+            objectMapper,
+            unifiedCatalogImportService
         )
-        languageRepository.save(testLanguage)
-        
-        // Add a test tutor
-        val testTutor = ch.obermuhlner.aitutor.catalog.domain.TutorProfileEntity(
-            name = "María",
-            emoji = "👩",
-            personaEnglish = "patient coach",
-            domainEnglish = "general conversation",
-            descriptionEnglish = "A tutor from Madrid",
-            personaJson = """{"en": "patient coach", "es": "entrenadora paciente"}""",
-            domainJson = """{"en": "general conversation", "es": "conversación general"}""",
-            descriptionJson = """{"en": "A tutor from Madrid", "es": "Una tutora de Madrid"}""",
-            personality = ch.obermuhlner.aitutor.core.model.catalog.TutorPersonality.Encouraging,
-            targetLanguageCode = "es-ES",
-            displayOrder = 1,
-            isActive = true
-        )
-        tutorProfileRepository.save(testTutor)
-        
-        // Add a test course
-        val testCourse = ch.obermuhlner.aitutor.catalog.domain.CourseTemplateEntity(
-            languageCode = "es-ES",
-            nameJson = """{"en": "Conversational Spanish", "es": "Español Conversacional"}""",
-            shortDescriptionJson = """{"en": "Learn to speak Spanish", "es": "Aprende a hablar español"}""",
-            descriptionJson = """{"en": "Learn to have conversations in Spanish", "es": "Aprende a tener conversaciones en español"}""",
-            category = ch.obermuhlner.aitutor.core.model.catalog.CourseCategory.Conversational,
-            targetAudienceJson = """{"en": "Beginners", "es": "Principiantes"}""",
-            startingLevel = ch.obermuhlner.aitutor.core.model.CEFRLevel.A1,
-            targetLevel = ch.obermuhlner.aitutor.core.model.CEFRLevel.A2,
-            learningGoalsJson = """{"en": ["Greet people", "daily routines"], "es": ["Saludar", "rutinas diarias"]}""",
-            displayOrder = 1,
-            isActive = true
-        )
-        courseTemplateRepository.save(testCourse)
-        
-        // Add a test lesson content
-        val testLesson = ch.obermuhlner.aitutor.catalog.domain.LessonContentEntity(
-            courseId = testCourse.id,
-            lessonId = "lesson-01",
-            title = "Greetings",
-            content = "# Lesson 01\n\nHello world content",
-            displayOrder = 0,
-            createdAt = java.time.Instant.now(),
-            updatedAt = java.time.Instant.now()
-        )
-        lessonContentRepository.save(testLesson)
+        seedDataService.seedData()
     }
 
     @Test
