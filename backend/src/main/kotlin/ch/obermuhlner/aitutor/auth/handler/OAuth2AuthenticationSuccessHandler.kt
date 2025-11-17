@@ -25,7 +25,7 @@ class OAuth2AuthenticationSuccessHandler(
     private val userRepository: UserRepository,
     private val jwtTokenService: JwtTokenService,
     private val refreshTokenRepository: RefreshTokenRepository,
-    @Value("\${app.oauth2.redirect-base-url:http://localhost:5173}")
+    @Value("\${auth.oauth2.redirect-base-url:http://localhost:5173}")
     private val frontendRedirectUrl: String
 ) : SimpleUrlAuthenticationSuccessHandler() {
 

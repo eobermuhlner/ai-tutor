@@ -1,0 +1,13 @@
+# Cron job configuration for AI Tutor maintenance tasks
+
+# Daily backup at 2:00 AM
+0 2 * * * /opt/ai-tutor/scripts/backup.sh
+
+# Weekly maintenance on Sundays at 3:00 AM
+0 3 * * 0 /opt/ai-tutor/scripts/maintenance.sh
+
+# Daily disk space check at 11:00 PM
+0 23 * * * /opt/ai-tutor/scripts/check-disk-space.sh
+
+# Weekly SSL certificate check on Wednesdays at 4:00 AM
+0 4 * * 3 /opt/ai-tutor/scripts/check-ssl.sh
