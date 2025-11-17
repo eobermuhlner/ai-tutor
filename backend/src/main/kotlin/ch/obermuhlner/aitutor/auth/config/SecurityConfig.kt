@@ -1,8 +1,6 @@
 package ch.obermuhlner.aitutor.auth.config
 
 import ch.obermuhlner.aitutor.auth.filter.JwtAuthenticationFilter
-import ch.obermuhlner.aitutor.auth.handler.OAuth2AuthenticationFailureHandler
-import ch.obermuhlner.aitutor.auth.handler.OAuth2AuthenticationSuccessHandler
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.env.Environment
@@ -25,9 +23,7 @@ import org.springframework.web.cors.CorsConfigurationSource
 class SecurityConfig(
     private val jwtAuthenticationFilter: JwtAuthenticationFilter,
     private val corsConfigurationSource: CorsConfigurationSource,
-    private val env: Environment,
-    private val oAuth2SuccessHandler: OAuth2AuthenticationSuccessHandler,
-    private val oAuth2FailureHandler: OAuth2AuthenticationFailureHandler
+    private val env: Environment
 ) {
 
     @Bean
@@ -50,12 +46,6 @@ class SecurityConfig(
                         "/api/v1/auth/register",
                         "/api/v1/auth/login",
                         "/api/v1/auth/refresh"
-                    ).permitAll()
-
-                    // OAuth2 endpoints (Google login)
-                    .requestMatchers(
-                        "/oauth2/**",
-                        "/login/oauth2/**"
                     ).permitAll()
 
                     // Stripe webhook endpoint (validated via signature)
@@ -90,13 +80,6 @@ class SecurityConfig(
 
                     // Everything else denied by default
                     .anyRequest().denyAll()
-            }
-
-            // OAuth2 login configuration
-            .oauth2Login { oauth2 ->
-                oauth2
-                    .successHandler(oAuth2SuccessHandler)
-                    .failureHandler(oAuth2FailureHandler)
             }
 
             // Add JWT filter ahead of UsernamePasswordAuthenticationFilter

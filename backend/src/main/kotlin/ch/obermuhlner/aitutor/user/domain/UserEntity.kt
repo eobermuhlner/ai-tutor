@@ -45,9 +45,6 @@ class UserEntity(
     @Column(name = "last_name", nullable = true, length = 64)
     var lastName: String? = null,
 
-    @Column(name = "avatar_url", nullable = true, length = 2048)
-    var avatarUrl: String? = null,
-
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
         name = "user_roles",

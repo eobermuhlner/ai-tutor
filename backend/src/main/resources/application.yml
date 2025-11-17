@@ -14,26 +14,6 @@ spring:
       dev-stripe: dev,h2-file,ai-openai,prompts-large,stripe
       test: test,h2-mem,ai-dummy,prompts-small
 
-  security:
-    oauth2:
-      client:
-        registration:
-          google:
-            client-id: ${GOOGLE_CLIENT_ID:}
-            client-secret: ${GOOGLE_CLIENT_SECRET:}
-            scope:
-              - openid
-              - profile
-              - email
-            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
-            client-name: Google
-        provider:
-          google:
-            authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
-            token-uri: https://oauth2.googleapis.com/token
-            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
-            user-name-attribute: sub
-
 management:
   endpoints:
     web:
@@ -84,8 +64,6 @@ app:
     username: ${DEMO_USERNAME:demo}
     password: ${DEMO_PASSWORD:demo}
     email: ${DEMO_EMAIL:demo@localhost}
-  oauth2:
-    redirect-base-url: ${OAUTH2_REDIRECT_BASE_URL:http://localhost:5173}
 
 cors:
   allowed-origins: []         # leave empty here; set per env/profile

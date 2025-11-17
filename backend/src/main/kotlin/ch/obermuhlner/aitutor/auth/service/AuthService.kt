@@ -331,7 +331,6 @@ class AuthService(
             email = user.email,
             firstName = user.firstName,
             lastName = user.lastName,
-            avatarUrl = user.avatarUrl,
             roles = user.roles,
             enabled = user.enabled,
             locked = user.locked,
