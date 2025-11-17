@@ -105,10 +105,7 @@ export default function LoginPage() {
           variant="outline"
           className="w-full mb-4 flex items-center justify-center gap-3 bg-white hover:bg-slate-50 border border-slate-300"
           onClick={() => {
-            // Use the same protocol as the current page (HTTP or HTTPS) to avoid mixed content errors
-            const currentProtocol = window.location.protocol;
-            const currentHost = window.location.host;
-            const baseUrl = import.meta.env.VITE_API_BASE_URL || `${currentProtocol}//${currentHost}`;
+            const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
             window.location.href = `${baseUrl}/oauth2/authorization/google`;
           }}
         >
