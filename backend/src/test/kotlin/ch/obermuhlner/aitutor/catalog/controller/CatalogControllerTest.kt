@@ -29,7 +29,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @WebMvcTest(controllers = [CatalogController::class])
 @AutoConfigureJsonTesters
-@Import(ch.obermuhlner.aitutor.auth.config.SecurityConfig::class)
+@Import(ch.obermuhlner.aitutor.auth.config.TestSecurityConfig::class)
 class CatalogControllerTest {
 
     @Autowired

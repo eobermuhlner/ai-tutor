@@ -20,7 +20,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 
 @WebMvcTest(ErrorAnalyticsController::class)
-@Import(ch.obermuhlner.aitutor.auth.config.SecurityConfig::class)
+@Import(ch.obermuhlner.aitutor.auth.config.TestSecurityConfig::class)
 class ErrorAnalyticsControllerTest {
 
     @Autowired
