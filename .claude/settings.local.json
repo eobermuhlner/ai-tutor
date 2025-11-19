@@ -29,7 +29,14 @@
       "Bash(npm run build:*)",
       "Bash(npx tsc:*)",
       "Bash(npm run lint)",
-      "Bash(npm test)"
+      "Bash(npm test)",
+      "Bash(docker run:*)",
+      "Bash(docker create:*)",
+      "Bash(docker cp:*)",
+      "Bash(unzip:*)",
+      "Bash(docker build:*)",
+      "Bash(docker logs:*)",
+      "Bash(bash:*)"
     ],
     "deny": [],
     "ask": []
