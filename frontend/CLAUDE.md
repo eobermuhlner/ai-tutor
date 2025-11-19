@@ -32,6 +32,11 @@ npm run preview  # Preview production build
   - Default test credentials: username `demo`, password `demo`
   - Backend provides REST API at `/api/v1/*`
   - Check if port 8080 is responding before assuming the backend needs to be started
+  - **Custom port**: If backend runs on a different port (e.g., 8081), set the environment variable:
+    ```bash
+    VITE_API_TARGET=http://localhost:8081 npm run dev
+    ```
+    Or create `frontend/.env.local` with `VITE_API_TARGET=http://localhost:8081`
 
 ## Project Structure
 
