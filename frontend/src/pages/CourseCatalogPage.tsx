@@ -6,9 +6,10 @@ import FilterBar from '../components/catalog/FilterBar';
 import Spinner from '../components/ui/Spinner';
 import EmptyState from '../components/ui/EmptyState';
 import { getCourses, getLanguages } from '../api/catalog';
-import { formatLanguageDisplay, getLanguageAriaLabel } from '../utils/languageDisplay';
+import { getLanguageAriaLabel } from '../utils/languageDisplay';
 import type { Course, CEFRLevel, CourseCategory, Language } from '../types';
 import toast from 'react-hot-toast';
+import FlagIcon from '../components/ui/FlagIcon';
 
 export default function CourseCatalogPage() {
   const { code } = useParams<{ code: string }>();
@@ -55,8 +56,8 @@ export default function CourseCatalogPage() {
     displayText = 'Loading...';
     languageAriaLabel = 'Loading';
   } else if (currentLanguage) {
-    // Language found - show with flag emoji
-    displayText = `${formatLanguageDisplay(currentLanguage)} Courses`;
+    // Language found
+    displayText = `${currentLanguage.nativeName} Courses`;
     languageAriaLabel = getLanguageAriaLabel(currentLanguage);
   } else {
     // Languages loaded but current not found - fallback
@@ -72,7 +73,8 @@ export default function CourseCatalogPage() {
     <Layout>
       <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-bold text-slate-900" aria-label={`Courses for ${languageAriaLabel}`}>
+          <h1 className="flex items-center gap-2 text-4xl font-bold text-slate-900" aria-label={`Courses for ${languageAriaLabel}`}>
+            {currentLanguage && <FlagIcon languageCode={currentLanguage.code} size={1.5} />}
             {displayText}
           </h1>
           <p className="mt-2 text-slate-600">

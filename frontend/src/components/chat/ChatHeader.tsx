@@ -4,7 +4,7 @@ import SkillBreakdownBadge from '../assessment/SkillBreakdownBadge';
 import EditableTopic from './EditableTopic';
 import Button from '../ui/Button';
 import { useChatSession } from '../../contexts/ChatSessionContext';
-import { formatCompactLanguageDisplay } from '../../utils/languageDisplay';
+import FlagIcon from '../ui/FlagIcon';
 
 export default function ChatHeader() {
   const navigate = useNavigate();
@@ -21,9 +21,6 @@ export default function ChatHeader() {
   } = useChatSession();
 
   const currentLanguage = languages.find((lang) => lang.code === targetLanguageCode);
-  const languageDisplay = currentLanguage
-    ? formatCompactLanguageDisplay(currentLanguage)
-    : (targetLanguageCode ? targetLanguageCode.toUpperCase() : '');
 
   return (
     <div className="relative z-20 flex items-center justify-between border-b border-slate-200 bg-white/90 backdrop-blur-sm px-6 py-4">
@@ -46,10 +43,11 @@ export default function ChatHeader() {
           )}
           <div>
             <div className="flex items-center gap-3">
-              {languageDisplay && (
+              {currentLanguage && (
                 <>
-                  <span className="text-sm font-medium text-slate-600">
-                    {languageDisplay}
+                  <span className="inline-flex items-center gap-1 text-sm font-medium text-slate-600">
+                    <FlagIcon languageCode={currentLanguage.code} size={1} />
+                    {currentLanguage.nativeName.split('(')[0].trim()}
                   </span>
                   <span className="text-slate-300">•</span>
                 </>

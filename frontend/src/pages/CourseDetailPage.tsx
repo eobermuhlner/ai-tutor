@@ -7,9 +7,10 @@ import TutorCard from '../components/catalog/TutorCard';
 import { getCourse, getLanguages } from '../api/catalog';
 import { createSessionFromCourse } from '../api/chat';
 import { useAuthStore } from '../store/authStore';
-import { formatLanguageDisplay, getLanguageAriaLabel } from '../utils/languageDisplay';
+import { getLanguageAriaLabel } from '../utils/languageDisplay';
 import type { CourseDetail, Language } from '../types';
 import toast from 'react-hot-toast';
+import FlagIcon from '../components/ui/FlagIcon';
 
 export default function CourseDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -111,9 +112,6 @@ export default function CourseDetailPage() {
   };
 
   const currentLanguage = languages.find((lang) => lang.code === course.languageCode);
-  const languageDisplay = currentLanguage
-    ? formatLanguageDisplay(currentLanguage)
-    : course.languageCode.toUpperCase();
   const languageAriaLabel = currentLanguage
     ? getLanguageAriaLabel(currentLanguage)
     : course.languageCode;
@@ -131,8 +129,9 @@ export default function CourseDetailPage() {
         <div className="rounded-lg border border-gray-200 bg-white p-8 shadow-sm">
           <div className="mb-6">
             <div className="mb-3 flex items-center gap-2">
-              <span className="inline-flex items-center rounded-full bg-brand-100 px-4 py-1.5 text-sm font-semibold text-brand-700" aria-label={languageAriaLabel}>
-                {languageDisplay}
+              <span className="inline-flex items-center gap-1 rounded-full bg-brand-100 px-4 py-1.5 text-sm font-semibold text-brand-700" aria-label={languageAriaLabel}>
+                {currentLanguage && <FlagIcon languageCode={currentLanguage.code} size={1} />}
+                {currentLanguage ? currentLanguage.nativeName : course.languageCode.toUpperCase()}
               </span>
               {course.isDraft && (
                 <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-800">
@@ -226,7 +225,7 @@ export default function CourseDetailPage() {
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900">Create Custom Tutor</h3>
-                      <p className="text-sm text-gray-600">Design your own personalized tutor for the {currentLanguage ? formatLanguageDisplay(currentLanguage) : course.languageCode} course</p>
+                      <p className="text-sm text-gray-600">Design your own personalized tutor for the {currentLanguage ? currentLanguage.nativeName : course.languageCode} course</p>
                     </div>
                   </div>
                 </button>

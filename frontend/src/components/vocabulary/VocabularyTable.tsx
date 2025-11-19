@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Volume2, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { formatCompactLanguageDisplay } from '../../utils/languageDisplay';
+import FlagIcon from '../ui/FlagIcon';
 import type { VocabularyItem, Language } from '../../types';
 import { useTTS } from '../../contexts/TTSContext';
 
@@ -24,9 +24,8 @@ export default function VocabularyTable({
   const [playingItemId, setPlayingItemId] = useState<string | null>(null);
   const { available: ttsAvailable, playText } = useTTS();
 
-  const getLanguageDisplay = (code: string) => {
-    const language = languages.find((lang) => lang.code === code);
-    return language ? formatCompactLanguageDisplay(language) : code.toUpperCase();
+  const getLanguage = (code: string) => {
+    return languages.find((lang) => lang.code === code);
   };
 
   const handleSort = (field: SortField) => {
@@ -278,8 +277,15 @@ export default function VocabularyTable({
                 </div>
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
-                <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                  {getLanguageDisplay(item.lang)}
+                <span className="px-2 inline-flex items-center gap-1 text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                  {getLanguage(item.lang) ? (
+                    <>
+                      <FlagIcon languageCode={item.lang} size={0.9} />
+                      {getLanguage(item.lang)!.nativeName.split('(')[0].trim()}
+                    </>
+                  ) : (
+                    item.lang.toUpperCase()
+                  )}
                 </span>
               </td>
               <td className="px-6 py-4 whitespace-nowrap">

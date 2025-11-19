@@ -3,8 +3,9 @@ import { Star, Trash2, Edit2 } from 'lucide-react';
 import { CEFRLevel } from '../../types';
 import type { LanguageProficiency, Language } from '../../types';
 import Button from '../ui/Button';
+import FlagIcon from '../ui/FlagIcon';
 import { getLanguages } from '../../api/catalog';
-import { formatLanguageDisplay, getLanguageAriaLabel } from '../../utils/languageDisplay';
+import { getLanguageAriaLabel } from '../../utils/languageDisplay';
 
 interface LanguageProficiencyListProps {
   proficiencies: LanguageProficiency[];
@@ -38,11 +39,6 @@ export default function LanguageProficiencyList({
 
   const getLanguage = (code: string) => {
     return languages.find((lang) => lang.code === code);
-  };
-
-  const getLanguageDisplay = (code: string) => {
-    const language = getLanguage(code);
-    return language ? formatLanguageDisplay(language) : code;
   };
 
   const getLanguageLabel = (code: string) => {
@@ -80,8 +76,9 @@ export default function LanguageProficiencyList({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-medium text-gray-900">
-                  {getLanguageDisplay(proficiency.languageCode)}
+                <h3 className="font-medium text-gray-900 inline-flex items-center gap-1.5">
+                  <FlagIcon languageCode={proficiency.languageCode} size={1.2} />
+                  {getLanguage(proficiency.languageCode)?.nativeName.split('(')[0].trim() || proficiency.languageCode}
                 </h3>
                 {proficiency.isPrimary && (
                   <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">

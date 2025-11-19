@@ -269,7 +269,7 @@ export default function CreateCustomTutorPage() {
               >
                 {languages.map((lang) => (
                   <option key={lang.code} value={lang.code}>
-                    {lang.flagEmoji} {lang.name}
+                    {lang.name}
                   </option>
                 ))}
               </select>

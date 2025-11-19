@@ -1,5 +1,5 @@
-import { formatCompactLanguageDisplay } from '../../utils/languageDisplay';
 import type { Course, Language } from '../../types';
+import FlagIcon from '../ui/FlagIcon';
 
 interface CourseCardProps {
   course: Course;
@@ -47,8 +47,9 @@ export default function CourseCard({ course, onClick, language }: CourseCardProp
 
       <div className="mt-auto flex flex-wrap gap-2">
         {language && (
-          <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
-            {formatCompactLanguageDisplay(language)}
+          <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+            <FlagIcon languageCode={language.code} size={1} />
+            {language.nativeName.split('(')[0].trim()}
           </span>
         )}
         {course.difficulty && (

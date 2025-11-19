@@ -5,6 +5,7 @@ import type { LanguageProficiency, Language } from '../../types';
 import { getLanguageProficiencies } from '../../api/userLanguages';
 import { getLanguages } from '../../api/catalog';
 import Tooltip from '../ui/Tooltip';
+import FlagIcon from '../ui/FlagIcon';
 
 // Map CEFR levels to numeric values for sorting (higher is more proficient)
 const cefrLevelValues: Record<CEFRLevel, number> = {
@@ -17,10 +18,10 @@ const cefrLevelValues: Record<CEFRLevel, number> = {
   [CEFRLevel.None]: 0,
 };
 
-// Function to get a language's flag emoji by code
-function getLanguageFlag(languageCode: string, languages: Language[]): string {
+// Function to get a language's name by code
+function getLanguageName(languageCode: string, languages: Language[]): string {
   const language = languages.find(lang => lang.code === languageCode);
-  return language ? language.flagEmoji : '🌐';
+  return language ? language.name : languageCode.toUpperCase();
 }
 
 interface LanguageIconsProps {
@@ -83,22 +84,20 @@ export default function LanguageIcons({ userId }: LanguageIconsProps) {
   return (
     <div className="flex items-center gap-1 ml-3">
       {sortedProficiencies.map((proficiency) => (
-        <Tooltip 
+        <Tooltip
           key={proficiency.languageCode}
-          title={`${getLanguageFlag(proficiency.languageCode, languages)} ${languages.find(l => l.code === proficiency.languageCode)?.name || proficiency.languageCode.toUpperCase()} - ${proficiency.isNative ? 'Native Speaker' : `${proficiency.cefrLevel || 'No Level'} Proficiency`}`}
+          title={`${getLanguageName(proficiency.languageCode, languages)} - ${proficiency.isNative ? 'Native Speaker' : `${proficiency.cefrLevel || 'No Level'} Proficiency`}`}
           position="bottom"
         >
-          <div 
-            className={`relative flex items-center justify-center w-6 h-6 rounded-full text-xs cursor-pointer ${
-              proficiency.isPrimary 
-                ? 'ring-2 ring-blue-500 ring-offset-1' 
+          <div
+            className={`relative flex items-center justify-center w-6 h-6 rounded-full overflow-hidden cursor-pointer ${
+              proficiency.isPrimary
+                ? 'ring-2 ring-blue-500 ring-offset-1'
                 : 'ring-1 ring-slate-300'
             }`}
             onClick={() => navigate('/profile#language-proficiencies')}
           >
-            <span className="leading-none">
-              {getLanguageFlag(proficiency.languageCode, languages)}
-            </span>
+            <FlagIcon languageCode={proficiency.languageCode} size={1.2} />
             {proficiency.isPrimary && (
               <span className="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 rounded-full border border-white"></span>
             )}

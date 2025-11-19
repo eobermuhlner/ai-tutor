@@ -221,7 +221,7 @@ export default function RegisterPage() {
               <option value="">Select your native language...</option>
               {COMMON_LANGUAGES.map((lang) => (
                 <option key={lang.code} value={lang.code}>
-                  {lang.flagEmoji} {lang.name}
+                  {lang.name}
                 </option>
               ))}
             </select>

@@ -9,6 +9,7 @@ import Tooltip from '../ui/Tooltip';
 import CourseImportDialog from './CourseImportDialog';
 import { getLanguages } from '../../api/catalog';
 import type { Language } from '../../types';
+import FlagIcon from '../ui/FlagIcon';
 
 export default function CoursesPanel() {
   const navigate = useNavigate();
@@ -47,58 +48,58 @@ export default function CoursesPanel() {
     }
   };
 
-  const getLanguageDisplayParts = (languageCode: string): { emoji: string; text: string } => {
+  const getLanguageDisplayText = (languageCode: string): string => {
     const language = allLanguages.find((lang) => lang.code === languageCode);
     if (language) {
-      return { emoji: language.flagEmoji, text: language.nativeName };
+      return language.nativeName;
     }
 
-    const languageMap: Record<string, { nativeName: string; flag: string }> = {
-      'en': { nativeName: 'English', flag: '🇺🇸' },
-      'es': { nativeName: 'Español', flag: '🇪🇸' },
-      'fr': { nativeName: 'Français', flag: '🇫🇷' },
-      'de': { nativeName: 'Deutsch', flag: '🇩🇪' },
-      'ja': { nativeName: '日本語', flag: '🇯🇵' },
-      'it': { nativeName: 'Italiano', flag: '🇮🇹' },
-      'pt': { nativeName: 'Português', flag: '🇵🇹' },
-      'ru': { nativeName: 'Русский', flag: '🇷🇺' },
-      'zh': { nativeName: '中文', flag: '🇨🇳' },
-      'ko': { nativeName: '한국어', flag: '🇰🇷' },
-      'ar': { nativeName: 'العربية', flag: '🇸🇦' },
-      'hi': { nativeName: 'हिन्दी', flag: '🇮🇳' },
-      'nl': { nativeName: 'Nederlands', flag: '🇳🇱' },
-      'sv': { nativeName: 'Svenska', flag: '🇸🇪' },
-      'da': { nativeName: 'Dansk', flag: '🇩🇰' },
-      'no': { nativeName: 'Norsk', flag: '🇳🇴' },
-      'fi': { nativeName: 'Suomi', flag: '🇫🇮' },
-      'pl': { nativeName: 'Polski', flag: '🇵🇱' },
-      'tr': { nativeName: 'Türkçe', flag: '🇹🇷' },
-      'he': { nativeName: 'עברית', flag: '🇮🇱' },
-      'cs': { nativeName: 'Čeština', flag: '🇨🇿' },
-      'el': { nativeName: 'Ελληνικά', flag: '🇬🇷' },
-      'ro': { nativeName: 'Română', flag: '🇷🇴' },
-      'hu': { nativeName: 'Magyar', flag: '🇭🇺' },
-      'th': { nativeName: 'ไทย', flag: '🇹🇭' },
-      'id': { nativeName: 'Bahasa Indonesia', flag: '🇮🇩' },
-      'vi': { nativeName: 'Tiếng Việt', flag: '🇻🇳' },
+    const languageMap: Record<string, string> = {
+      'en': 'English',
+      'es': 'Español',
+      'fr': 'Français',
+      'de': 'Deutsch',
+      'ja': '日本語',
+      'it': 'Italiano',
+      'pt': 'Português',
+      'ru': 'Русский',
+      'zh': '中文',
+      'ko': '한국어',
+      'ar': 'العربية',
+      'hi': 'हिन्दी',
+      'nl': 'Nederlands',
+      'sv': 'Svenska',
+      'da': 'Dansk',
+      'no': 'Norsk',
+      'fi': 'Suomi',
+      'pl': 'Polski',
+      'tr': 'Türkçe',
+      'he': 'עברית',
+      'cs': 'Čeština',
+      'el': 'Ελληνικά',
+      'ro': 'Română',
+      'hu': 'Magyar',
+      'th': 'ไทย',
+      'id': 'Bahasa Indonesia',
+      'vi': 'Tiếng Việt',
     };
 
-    const lang = languageMap[languageCode];
-    if (lang) {
-      return { emoji: lang.flag, text: lang.nativeName };
+    const nativeName = languageMap[languageCode];
+    if (nativeName) {
+      return nativeName;
     }
 
     const baseCode = languageCode.split('-')[0];
-    const baseLang = languageMap[baseCode];
-    if (baseLang) {
+    const baseName = languageMap[baseCode];
+    if (baseName) {
       const region = languageCode.split('-')[1];
       if (region) {
-        return { emoji: baseLang.flag, text: `${baseLang.nativeName} (${region})` };
+        return `${baseName} (${region})`;
       }
-      return { emoji: baseLang.flag, text: baseLang.nativeName };
+      return baseName;
     }
 
-    return { emoji: '🌐', text: languageCode.toUpperCase() };
+    return languageCode.toUpperCase();
   };
 
   const getLocalizedName = (nameJson: string): string => {
@@ -287,15 +288,8 @@ export default function CoursesPanel() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-2">
-                        {(() => {
-                          const langParts = getLanguageDisplayParts(course.languageCode);
-                          return (
-                            <>
-                              <span className="text-lg">{langParts.emoji}</span>
-                              <span className="text-sm text-slate-900">{langParts.text}</span>
-                            </>
-                          );
-                        })()}
+                        <FlagIcon languageCode={course.languageCode} size={1.5} />
+                        <span className="text-sm text-slate-900">{getLanguageDisplayText(course.languageCode)}</span>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -375,15 +369,10 @@ export default function CoursesPanel() {
                 </div>
 
                 <div className="mt-3 flex items-center gap-2">
-                  {(() => {
-                    const langParts = getLanguageDisplayParts(course.languageCode);
-                    return (
-                      <div className="flex items-center gap-1">
-                        <span className="text-base">{langParts.emoji}</span>
-                        <span className="text-sm text-slate-600">{langParts.text}</span>
-                      </div>
-                    );
-                  })()}
+                  <div className="flex items-center gap-1">
+                    <FlagIcon languageCode={course.languageCode} size={1.25} />
+                    <span className="text-sm text-slate-600">{getLanguageDisplayText(course.languageCode)}</span>
+                  </div>
                 </div>
 
                 <div className="mt-3 text-sm text-slate-500">

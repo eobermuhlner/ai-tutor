@@ -11,7 +11,8 @@ import { getActiveSessions, deleteSession, getSession } from '../api/chat';
 import { getLanguages } from '../api/catalog';
 import { getLanguageProficiencies } from '../api/userLanguages';
 import { useAuthStore } from '../store/authStore';
-import { formatCompactLanguageDisplay, getLanguageAriaLabel } from '../utils/languageDisplay';
+import FlagIcon from '../components/ui/FlagIcon';
+import { getLanguageAriaLabel } from '../utils/languageDisplay';
 import type { Session, Language, LanguageProficiency } from '../types';
 
 export default function SessionListPage() {
@@ -78,11 +79,6 @@ export default function SessionListPage() {
 
   const getLanguage = (code: string) => {
     return languages.find((lang) => lang.code === code);
-  };
-
-  const getLanguageDisplay = (code: string) => {
-    const language = getLanguage(code);
-    return language ? formatCompactLanguageDisplay(language) : code.toUpperCase();
   };
 
   const getLanguageLabel = (code: string) => {
@@ -158,8 +154,15 @@ export default function SessionListPage() {
                   <h2 className="text-xl font-semibold text-slate-900">
                     {session.courseName}
                   </h2>
-                  <p className="text-sm text-slate-600 mt-1" aria-label={getLanguageLabel(session.targetLanguageCode)}>
-                    {getLanguageDisplay(session.targetLanguageCode)} · {session.userLevel}
+                  <p className="text-sm text-slate-600 mt-1 inline-flex items-center gap-1" aria-label={getLanguageLabel(session.targetLanguageCode)}>
+                    {getLanguage(session.targetLanguageCode) && (
+                      <>
+                        <FlagIcon languageCode={session.targetLanguageCode} size={1} />
+                        {getLanguage(session.targetLanguageCode)!.nativeName.split('(')[0].trim()}
+                        <span className="mx-1">·</span>
+                      </>
+                    )}
+                    {session.userLevel}
                   </p>
                 </div>
               </div>

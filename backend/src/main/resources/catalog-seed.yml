@@ -771,6 +771,31 @@ courses:
     displayOrder: 2
   - languageCode: es-ES
     name:
+      en: Spanish Travel Scenarios
+    shortDescription:
+      en: 20 realistic travel situations from airport to making friends
+    description:
+      en: Comprehensive travel course covering 20 common scenarios travelers encounter in Spain - from essential survival (airport, hotel, restaurant) to cultural immersion (nightlife, socializing, apartment rental)
+    category: Travel
+    targetAudience:
+      en: Travelers planning extended stays in Spain or seeking deeper cultural engagement
+    startingLevel: None
+    targetLevel: A2
+    estimatedWeeks: 20
+    learningGoals:
+      en:
+        - Navigate all major travel scenarios (airport, train, bus, taxi)
+        - Handle accommodations (hotels, hostels, apartments)
+        - Communicate in dining and shopping situations
+        - Manage health needs (pharmacy, medical)
+        - Enjoy cultural activities (museums, beaches, nightlife)
+        - Rent cars and use services (laundry, haircuts, post office)
+        - Book tours and activities
+        - Make friends and socialize with locals
+        - Handle emergencies and unexpected situations
+    displayOrder: 3
+  - languageCode: es-ES
+    name:
       en: Free Conversation
     shortDescription:
       en: Practice Spanish naturally without structured lessons

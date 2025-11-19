@@ -6,6 +6,7 @@ import Button from '../ui/Button';
 import { Dialog, DialogActions, DialogContent, DialogTitle } from '../ui/Dialog';
 import Tooltip from '../ui/Tooltip';
 import { Difficulty, type Language } from '../../types';
+import FlagIcon from '../ui/FlagIcon';
 
 export default function LanguagesPanel() {
   const navigate = useNavigate();
@@ -162,7 +163,9 @@ export default function LanguagesPanel() {
                   <tr key={language.code} className="hover:bg-slate-50 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
-                        <span className="text-lg mr-2">{language.flagEmoji}</span>
+                        <div className="text-lg mr-2">
+                          <FlagIcon languageCode={language.code} size={1.5} />
+                        </div>
                         <div>
                           <div className="text-sm font-medium text-slate-900">{language.name}</div>
                           <div className="text-xs text-slate-500">{language.code.toUpperCase()}</div>
@@ -246,7 +249,7 @@ export default function LanguagesPanel() {
                 <div className="flex justify-between items-start">
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-lg">{language.flagEmoji}</span>
+                      <FlagIcon languageCode={language.code} size={1.5} />
                       <h3 className="font-medium text-slate-900">{language.name}</h3>
                     </div>
                     <p className="text-sm text-slate-900 mt-1">

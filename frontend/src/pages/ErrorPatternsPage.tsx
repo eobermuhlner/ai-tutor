@@ -6,7 +6,6 @@ import ErrorHistoryWidget from '../components/analytics/ErrorHistoryWidget';
 import Spinner from '../components/ui/Spinner';
 import { getErrorPatterns } from '../api/analytics';
 import { getLanguages } from '../api/catalog';
-import { formatCompactLanguageDisplay } from '../utils/languageDisplay';
 import type { ErrorPattern, Language } from '../types';
 
 export default function ErrorPatternsPage() {
@@ -98,7 +97,7 @@ export default function ErrorPatternsPage() {
               >
                 {languages.map((lang) => (
                   <option key={lang.code} value={lang.code}>
-                    {formatCompactLanguageDisplay(lang)}
+                    {lang.nativeName} - {lang.name}
                   </option>
                 ))}
               </select>

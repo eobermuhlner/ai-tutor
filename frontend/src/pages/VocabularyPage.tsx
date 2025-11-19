@@ -6,7 +6,6 @@ import VocabularyDetail from '../components/vocabulary/VocabularyDetail';
 import Spinner from '../components/ui/Spinner';
 import * as vocabularyApi from '../api/vocabulary';
 import { getLanguages } from '../api/catalog';
-import { formatLanguageDisplay } from '../utils/languageDisplay';
 import type { VocabularyItem, VocabularyContext, Language } from '../types';
 import toast from 'react-hot-toast';
 
@@ -167,7 +166,7 @@ export default function VocabularyPage() {
                 <option value="">All Languages</option>
                 {availableLanguages.map((lang) => (
                   <option key={lang.code} value={lang.code}>
-                    {formatLanguageDisplay(lang)}
+                    {lang.nativeName} - {lang.name}
                   </option>
                 ))}
               </select>

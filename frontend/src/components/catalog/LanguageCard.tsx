@@ -1,5 +1,6 @@
 import type { Language } from '../../types';
 import { getLanguageAriaLabel } from '../../utils/languageDisplay';
+import FlagIcon from '../ui/FlagIcon';
 
 interface LanguageCardProps {
   language: Language;
@@ -14,7 +15,7 @@ export default function LanguageCard({ language, onClick }: LanguageCardProps) {
       aria-label={getLanguageAriaLabel(language)}
     >
       <div className="mb-4 flex h-16 w-16 items-center justify-center text-5xl">
-        {language.flagEmoji}
+        <FlagIcon languageCode={language.code} size={3.5} ariaLabel={language.nativeName} />
       </div>
       <h3 className="text-lg font-semibold text-slate-900 group-hover:text-brand-600 transition-colors">
         {language.nativeName}

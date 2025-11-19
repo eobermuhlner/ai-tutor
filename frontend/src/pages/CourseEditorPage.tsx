@@ -643,7 +643,7 @@ export default function CourseEditorPage() {
                   onChange={(value) => handleLanguageChangeByValue(value)}
                   options={languages.map(lang => ({
                     value: lang.code,
-                    label: `${lang.name} ${lang.flagEmoji}`
+                    label: lang.name
                   }))}
                   disabled={loading}
                 />
@@ -1001,7 +1001,7 @@ export default function CourseEditorPage() {
                           >
                             {languages.map((lang) => (
                               <option key={lang.code} value={lang.code}>
-                                {lang.flagEmoji} {lang.name}
+                                {lang.name}
                               </option>
                             ))}
                           </select>
