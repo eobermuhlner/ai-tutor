@@ -1,5 +1,9 @@
 name: Deploy to Production
 
+permissions:
+  contents: read
+  packages: write
+
 on:
   release:
     types: [published]
