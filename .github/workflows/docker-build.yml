@@ -116,7 +116,6 @@ jobs:
             BUILD_DATE=${{ github.event.repository.updated_at }}
             VCS_REF=${{ github.sha }}
             VERSION=${{ inputs.environment }}
-            VITE_API_URL=${{ inputs.environment == 'production' && 'https://ai-tutor.obermuhlner.ch/api/v1' || 'http://localhost:8080/api/v1' }}
 
   summary:
     name: Build Summary

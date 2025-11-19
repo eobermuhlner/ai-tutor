@@ -1,8 +1,8 @@
 import { ConversationPhase, MessageRole } from '../types';
 import type { Message, Correction, WordCard, CharacterCard, ErrorType, ErrorSeverity } from '../types';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'http://localhost:8080';
-const BASE_URL = API_BASE_URL;
+// Use relative path for image URLs (same-origin through nginx reverse proxy)
+const BASE_URL = '';
 
 /**
  * Backend response formats
