@@ -1,0 +1,116 @@
+name: Deploy to Test
+
+on:
+  push:
+    branches:
+      - master
+
+env:
+  REGISTRY: ghcr.io
+  BACKEND_IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/ai-tutor-backend
+  FRONTEND_IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/ai-tutor-frontend
+
+jobs:
+  deploy-test:
+    name: Deploy to Test Environment
+    runs-on: ubuntu-latest
+    environment: test
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build and push Docker images for test
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./backend/Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ${{ env.BACKEND_IMAGE_NAME }}:test
+            ${{ env.BACKEND_IMAGE_NAME }}:test-${{ github.sha }}
+          labels: |
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.source=${{ github.event.repository.html_url }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            BUILD_DATE=${{ github.event.repository.updated_at }}
+            VCS_REF=${{ github.sha }}
+            VERSION=test
+
+      - name: Build and push frontend Docker image for test
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ${{ env.FRONTEND_IMAGE_NAME }}:test
+            ${{ env.FRONTEND_IMAGE_NAME }}:test-${{ github.sha }}
+          labels: |
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.source=${{ github.event.repository.html_url }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            BUILD_DATE=${{ github.event.repository.updated_at }}
+            VCS_REF=${{ github.sha }}
+            VERSION=test
+            VITE_API_URL=http://localhost:5100/api/v1
+
+      - name: Deploy to test server via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            # Create/update test directory
+            mkdir -p ~/test
+            cd ~/test
+            
+            # Copy deployment files if they don't exist
+            if [ ! -f docker-compose.yml ]; then
+              curl -s -o docker-compose.yml https://raw.githubusercontent.com/${{ github.repository }}/master/deployment/docker-compose.yml
+            fi
+            if [ ! -f nginx.conf ]; then
+              curl -s -o nginx.conf https://raw.githubusercontent.com/${{ github.repository }}/master/deployment/nginx.conf
+            fi
+            
+            # Create .env file for test environment
+            cat > .env << 'EOL'
+            GITHUB_USERNAME=${{ github.repository_owner }}
+            IMAGE_TAG=test
+            UID=1000
+            GID=1000
+            BACKEND_PORT=5100
+            FRONTEND_PORT=5101
+            BACKEND_URL=http://localhost:5100/api/v1
+            FRONTEND_URL=https://ai-tutor-test.obermuhlner.ch
+            JWT_SECRET=${{ secrets.JWT_SECRET_TEST }}
+            OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
+            ADMIN_USERNAME=${{ secrets.ADMIN_USERNAME }}
+            ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}
+            DEMO_USERNAME=${{ secrets.DEMO_USERNAME }}
+            DEMO_PASSWORD=${{ secrets.DEMO_PASSWORD }}
+            EOL
+            
+            # Pull and start containers
+            docker compose pull
+            docker compose up -d --force-recreate
+            
+            # Wait for services to be healthy
+            sleep 30
+            
+            # Check if services are running
+            if docker compose ps | grep -E "(backend|frontend).*healthy"; then
+              echo "Deployment to test successful!"
+            else
+              echo "Some services are not healthy"
+              docker compose ps
+              exit 1
+            fi

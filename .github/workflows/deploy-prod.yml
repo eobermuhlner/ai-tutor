@@ -1,0 +1,119 @@
+name: Deploy to Production
+
+on:
+  release:
+    types: [published]
+
+env:
+  REGISTRY: ghcr.io
+  BACKEND_IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/ai-tutor-backend
+  FRONTEND_IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/ai-tutor-frontend
+
+jobs:
+  deploy-prod:
+    name: Deploy to Production Environment
+    runs-on: ubuntu-latest
+    environment: prod
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build and push Docker images for production
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./backend/Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ${{ env.BACKEND_IMAGE_NAME }}:latest
+            ${{ env.BACKEND_IMAGE_NAME }}:prod-${{ github.sha }}
+            ${{ env.BACKEND_IMAGE_NAME }}:${{ github.event.release.tag_name }}
+          labels: |
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.source=${{ github.event.repository.html_url }}
+            org.opencontainers.image.version=${{ github.event.release.tag_name }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            BUILD_DATE=${{ github.event.repository.updated_at }}
+            VCS_REF=${{ github.sha }}
+            VERSION=${{ github.event.release.tag_name }}
+
+      - name: Build and push frontend Docker image for production
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ${{ env.FRONTEND_IMAGE_NAME }}:latest
+            ${{ env.FRONTEND_IMAGE_NAME }}:prod-${{ github.sha }}
+            ${{ env.FRONTEND_IMAGE_NAME }}:${{ github.event.release.tag_name }}
+          labels: |
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.source=${{ github.event.repository.html_url }}
+            org.opencontainers.image.version=${{ github.event.release.tag_name }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            BUILD_DATE=${{ github.event.repository.updated_at }}
+            VCS_REF=${{ github.sha }}
+            VERSION=${{ github.event.release.tag_name }}
+            VITE_API_URL=https://ai-tutor.obermuhlner.ch/api/v1
+
+      - name: Deploy to production server via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            # Create/update prod directory
+            mkdir -p ~/prod
+            cd ~/prod
+            
+            # Copy deployment files if they don't exist
+            if [ ! -f docker-compose.yml ]; then
+              curl -s -o docker-compose.yml https://raw.githubusercontent.com/${{ github.repository }}/master/deployment/docker-compose.yml
+            fi
+            if [ ! -f nginx.conf ]; then
+              curl -s -o nginx.conf https://raw.githubusercontent.com/${{ github.repository }}/master/deployment/nginx.conf
+            fi
+            
+            # Create .env file for production environment
+            cat > .env << 'EOL'
+            GITHUB_USERNAME=${{ github.repository_owner }}
+            IMAGE_TAG=latest
+            UID=1000
+            GID=1000
+            BACKEND_PORT=5000
+            FRONTEND_PORT=5001
+            BACKEND_URL=http://localhost:5000/api/v1
+            FRONTEND_URL=https://ai-tutor.obermuhlner.ch
+            JWT_SECRET=${{ secrets.JWT_SECRET_PROD }}
+            OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
+            ADMIN_USERNAME=${{ secrets.ADMIN_USERNAME }}
+            ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}
+            DEMO_USERNAME=${{ secrets.DEMO_USERNAME }}
+            DEMO_PASSWORD=${{ secrets.DEMO_PASSWORD }}
+            EOL
+            
+            # Pull and start containers
+            docker compose pull
+            docker compose up -d --force-recreate
+            
+            # Wait for services to be healthy
+            sleep 30
+            
+            # Check if services are running
+            if docker compose ps | grep -E "(backend|frontend).*healthy"; then
+              echo "Production deployment successful!"
+            else
+              echo "Some services are not healthy"
+              docker compose ps
+              exit 1
+            fi
