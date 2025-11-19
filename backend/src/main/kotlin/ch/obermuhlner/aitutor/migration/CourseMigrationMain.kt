@@ -82,7 +82,9 @@ class CourseMigrationApplication {
             curriculumFiles.forEach { curriculumResource ->
                 try {
                     // Extract course slug from path: course-content/de-conversational-german/curriculum.yml
-                    val pathParts = curriculumResource.uri.path.split("/")
+                    // For JAR resources, uri.path is null, so we use uri.toString() instead
+                    val uriString = curriculumResource.uri.toString()
+                    val pathParts = uriString.split("/")
                     val courseSlug = pathParts[pathParts.indexOf("course-content") + 1]
 
                     logger.info("-".repeat(80))
