@@ -329,28 +329,60 @@ Add status badges to your README.md:
 1. Verify course-content volume mount in docker-compose.yml
 2. Check file permissions in mounted volume
 
+## Deployment Workflows
+
+The project now includes automated deployment workflows:
+
+1. **Test Environment Deployment** (`.github/workflows/deploy-test.yml`)
+   - Trigger: Push/merge to `master` branch
+   - Target: Test environment at `ai-tutor-test.obermuhlner.ch`
+   - Directory: `~/test` on deployment server
+   - Images: Tagged with `:test` suffix
+
+2. **Production Environment Deployment** (`.github/workflows/deploy-prod.yml`)
+   - Trigger: Release creation (tag pattern like `v*`)
+   - Target: Production environment at `ai-tutor.obermuhlner.ch`
+   - Directory: `~/prod` on deployment server
+   - Images: Tagged with `:latest` and version tag
+
+### Required GitHub Secrets for Deployment
+
+Configure these secrets in your GitHub repository settings:
+
+- **`SSH_PRIVATE_KEY`**: Private SSH key for server access
+- **`DEPLOY_HOST`**: Hostname of the deployment server
+- **`DEPLOY_USER`**: SSH username for the deployment server
+- **`JWT_SECRET_TEST`**: JWT secret for test environment
+- **`JWT_SECRET_PROD`**: JWT secret for production environment
+- **`OPENAI_API_KEY`**: OpenAI API key for runtime
+- **`ADMIN_USERNAME`**: Admin username (optional)
+- **`ADMIN_PASSWORD`**: Admin password (optional)
+- **`DEMO_USERNAME`**: Demo username (optional)
+- **`DEMO_PASSWORD`**: Demo password (optional)
+
+### Required GitHub Environments
+
+- **`test`**: For test environment deployment
+- **`prod`**: For production environment deployment
+
 ## Future Enhancements
 
 Potential additions to the CI/CD pipeline:
 
-1. **Automated Deployment**
-   - Deploy to staging on merge to `develop`
-   - Deploy to production on release tags
-
-2. **Integration Tests**
+1. **Integration Tests**
    - Run pedagogical test harness in CI
    - Add Cypress/Playwright E2E tests
 
-3. **Security Scanning**
+2. **Security Scanning**
    - Add Trivy for container vulnerability scanning
    - Add Snyk for dependency scanning
    - Add SonarQube for code quality
 
-4. **Performance Testing**
+3. **Performance Testing**
    - Lighthouse CI for frontend performance
    - Load testing for backend API
 
-5. **Deployment Workflows**
+4. **Additional Deployment Options**
    - AWS ECS/Fargate deployment
    - Azure App Service deployment
    - Kubernetes manifests
