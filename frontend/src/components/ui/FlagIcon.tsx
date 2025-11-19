@@ -55,12 +55,22 @@ export default function FlagIcon({
   if (lowerCaseCode.includes('ipa')) {
     // For IPA (International Phonetic Alphabet), use a globe icon
     return (
-      <div className={className} style={{ fontSize: `${size}em` }}>
+      <div
+        className={`inline-flex items-center justify-center border border-gray-300 ${className}`}
+        style={{
+          fontSize: `${size}em`,
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: size <= 1 ? '16px' : size <= 1.5 ? '20px' : '32px',
+          height: size <= 1 ? '12px' : size <= 1.5 ? '15px' : '24px' // Maintain rectangular aspect ratio
+        }}
+      >
         <Globe
           aria-label={ariaLabel || 'International Phonetic Alphabet symbol'}
           style={{
-            width: size <= 1 ? '16px' : size <= 1.5 ? '20px' : '32px',
-            height: size <= 1 ? '16px' : size <= 1.5 ? '20px' : '32px'
+            width: size <= 1 ? '10px' : size <= 1.5 ? '13px' : '20px',
+            height: size <= 1 ? '10px' : size <= 1.5 ? '13px' : '20px'
           }}
         />
       </div>
@@ -89,14 +99,43 @@ export default function FlagIcon({
     flagSize = 'l'; // Large
   }
 
+  // Map sizes to rectangular dimensions based on flagpack's actual aspect ratios
+  let containerWidth, containerHeight;
+  switch(flagSize) {
+    case 's':
+      containerWidth = '16px';
+      containerHeight = '12px'; // 4:3 ratio for small
+      break;
+    case 'm':
+      containerWidth = '20px';
+      containerHeight = '15px'; // 4:3 ratio for medium
+      break;
+    case 'l':
+    default:
+      containerWidth = '32px';
+      containerHeight = '24px'; // 4:3 ratio for large
+      break;
+  }
+
   return (
-    <Flag
-      code={countryCode as any} // Bypass TypeScript error for Flags type
-      size={flagSize}
-      className={className}
-      hasBorder={false}
-      hasDropShadow={false}
-      aria-label={ariaLabel || `Flag for ${languageCode}`}
-    />
+    <div
+      className={`inline-flex items-center justify-center border border-gray-300 ${className}`}
+      style={{
+        fontSize: `${size}em`,
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: containerWidth,
+        height: containerHeight
+      }}
+    >
+      <Flag
+        code={countryCode as any} // Bypass TypeScript error for Flags type
+        size={flagSize}
+        hasBorder={false}
+        hasDropShadow={false}
+        aria-label={ariaLabel || `Flag for ${languageCode}`}
+      />
+    </div>
   );
 }
