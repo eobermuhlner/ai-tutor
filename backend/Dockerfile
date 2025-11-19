@@ -11,6 +11,7 @@ COPY gradlew .
 COPY gradle gradle/
 COPY build.gradle .
 COPY settings.gradle .
+COPY gradle.properties .
 
 # Copy backend source
 COPY backend/build.gradle backend/
