@@ -36,7 +36,8 @@
       "Bash(unzip:*)",
       "Bash(docker build:*)",
       "Bash(docker logs:*)",
-      "Bash(bash:*)"
+      "Bash(bash:*)",
+      "Bash(test:*)"
     ],
     "deny": [],
     "ask": []

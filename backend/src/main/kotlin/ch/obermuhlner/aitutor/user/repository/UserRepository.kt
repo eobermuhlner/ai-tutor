@@ -1,5 +1,6 @@
 package ch.obermuhlner.aitutor.user.repository
 
+import ch.obermuhlner.aitutor.user.domain.AuthProvider
 import ch.obermuhlner.aitutor.user.domain.UserEntity
 import java.util.UUID
 import org.springframework.data.jpa.repository.JpaRepository
@@ -11,4 +12,5 @@ interface UserRepository : JpaRepository<UserEntity, UUID> {
     fun findByEmail(email: String): UserEntity?
     fun existsByUsername(username: String): Boolean
     fun existsByEmail(email: String): Boolean
+    fun findByProviderAndProviderId(provider: AuthProvider, providerId: String): UserEntity?
 }

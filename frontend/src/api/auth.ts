@@ -41,6 +41,15 @@ export async function login(
   return response.data;
 }
 
+export async function googleLogin(
+  googleToken: string
+): Promise<LoginResponse> {
+  const response = await apiClient.post<LoginResponse>('/auth/oauth/google', {
+    googleToken,
+  });
+  return response.data;
+}
+
 export async function refreshToken(
   refreshToken: string
 ): Promise<RefreshTokenResponse> {
