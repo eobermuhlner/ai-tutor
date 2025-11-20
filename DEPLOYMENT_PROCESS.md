@@ -1,13 +1,134 @@
-# Production Deployment Process for AI Tutor
+# Deployment Process for AI Tutor
 
 ## Overview
-This document provides a step-by-step guide to deploy the AI Tutor application to a Linux server using Docker Compose with nginx as a reverse proxy and SSL termination.
+
+This document describes how the AI Tutor application is deployed using **GitHub Actions CI/CD** for automated deployments, and provides manual deployment instructions for emergency situations or custom setups.
+
+## Deployment Methods
+
+1. **Automated CI/CD (Primary)**: GitHub Actions automatically builds and deploys on code changes
+2. **Manual Deployment (Fallback)**: Step-by-step instructions for manual deployment when CI/CD is unavailable
+
+---
+
+# Automated Deployment (CI/CD)
+
+The AI Tutor uses GitHub Actions for fully automated CI/CD. See [DEPLOYMENT_CONFIG.md](DEPLOYMENT_CONFIG.md) for complete configuration details.
+
+## Quick Reference
+
+### Test Environment
+- **Trigger**: Automatic on push to `master` branch
+- **Workflow**: `.github/workflows/deploy-test.yml`
+- **URL**: https://ai-tutor-test.obermuhlner.ch
+- **Deployment**: `~/test` directory on server
+- **Ports**: Backend 5100, Frontend 5101
+
+### Production Environment
+- **Trigger**: Automatic on GitHub Release creation
+- **Workflow**: `.github/workflows/deploy-prod.yml`
+- **URL**: https://ai-tutor.obermuhlner.ch
+- **Deployment**: `~/prod` directory on server
+- **Ports**: Backend 5000, Frontend 5001
+
+## How It Works
+
+1. **Developer** pushes code to `master` or creates a release
+2. **GitHub Actions** automatically:
+   - Builds Docker images for backend and frontend
+   - Pushes images to GitHub Container Registry
+   - SSHs into deployment server
+   - Pulls latest images
+   - Recreates containers with new images
+   - Verifies services are healthy
+3. **Server** runs the application with new version
+
+## Deployment Workflow Steps
+
+### Test Deployment (Automatic)
+```yaml
+Trigger: git push origin master
+
+1. Build backend Docker image
+2. Build frontend Docker image (with test API URL)
+3. Push images as :test and :test-{sha}
+4. SSH to server
+5. Update ~/test/.env with test configuration
+6. docker compose pull
+7. docker compose up -d --force-recreate
+8. Verify health checks pass
+```
+
+### Production Deployment (Automatic)
+```yaml
+Trigger: GitHub Release (e.g., v1.0.0)
+
+1. Build backend Docker image
+2. Build frontend Docker image (with prod API URL)
+3. Push images as :latest, :prod-{sha}, :{version}
+4. SSH to server
+5. Update ~/prod/.env with production configuration
+6. docker compose pull
+7. docker compose up -d --force-recreate
+8. Verify health checks pass
+```
+
+## Creating a Production Release
+
+1. **Ensure all tests pass** on master branch
+2. **Create a new release** in GitHub:
+   - Go to Releases → Draft a new release
+   - Create a new tag (e.g., `v1.0.0`)
+   - Add release title and description
+   - Publish release
+3. **GitHub Actions automatically deploys** to production
+4. **Monitor deployment** in Actions tab
+5. **Verify deployment** at production URL
+
+## Monitoring Deployments
+
+### View Deployment Status
+- GitHub → Actions tab
+- Check workflow run logs
+- View environment deployment history
+
+### Check Server Status
+```bash
+ssh user@server
+cd ~/prod  # or ~/test
+docker compose ps
+docker compose logs -f
+```
+
+## Rollback a Failed Deployment
+
+If a deployment fails or causes issues:
+
+```bash
+# SSH into server
+ssh user@server
+cd ~/prod
+
+# Edit .env to use previous version
+nano .env
+# Change: IMAGE_TAG=latest
+# To: IMAGE_TAG=v1.0.0  (previous working version)
+
+# Restart with old version
+docker compose pull
+docker compose up -d --force-recreate
+```
+
+---
+
+# Manual Deployment (Fallback)
+
+Use these instructions when GitHub Actions CI/CD is unavailable or for custom deployment scenarios.
 
 ## Prerequisites
 - Linux server (Ubuntu 20.04 LTS or later recommended)
 - Domain name pointing to the server IP address
-- SSH access to the server
-- Sudo privileges on the server
+- SSH access to the server with sudo privileges
 
 ## System Requirements
 - CPU: 2+ cores
@@ -59,32 +180,46 @@ This document provides a step-by-step guide to deploy the AI Tutor application t
 
 1. Create the application directory structure:
    ```bash
-   sudo mkdir -p /opt/ai-tutor/{data,course-content,ssl,logs}
-   sudo chown -R $USER:$USER /opt/ai-tutor
-   cd /opt/ai-tutor
+   mkdir -p ~/prod/{data,ssl}
+   cd ~/prod
    ```
 
-2. Create the production docker-compose file:
+2. Download the docker-compose configuration:
    ```bash
-   # This file should have been created already as part of this deployment pipeline
-   # If not, create docker-compose.prod.yml with the production configuration
+   curl -O https://raw.githubusercontent.com/your-username/ai-tutor/master/deployment/docker-compose.yml
    ```
 
-3. Create the nginx configuration file:
+3. Download the nginx configuration (for reference):
    ```bash
-   # This file should have been created already as part of this deployment pipeline
-   # If not, create nginx.prod.conf with the SSL termination configuration
+   curl -O https://raw.githubusercontent.com/your-username/ai-tutor/master/deployment/nginx.conf
    ```
+   **Note**: Nginx is configured system-wide in `/etc/nginx/nginx.conf`, not per-deployment.
 
 4. Create the environment configuration file:
    ```bash
    nano .env
    ```
-   
+
    Add the following content, filling in your specific values:
    ```bash
-   # GitHub Container Registry configuration
+   # Container Registry
    GITHUB_USERNAME=your-github-username
+   IMAGE_TAG=latest
+
+   # User/Group IDs (for file permissions)
+   UID=1000
+   GID=1000
+
+   # Port Configuration
+   BACKEND_PORT=5000
+   FRONTEND_PORT=5001
+
+   # API URLs
+   BACKEND_URL=http://localhost:5000/api/v1
+   FRONTEND_URL=https://yourdomain.com
+
+   # Security Configuration
+   JWT_SECRET=your-32-character-jwt-secret-key
 
    # AI Provider Configuration (Choose one or more)
    OPENAI_API_KEY=your-openai-api-key
@@ -92,25 +227,11 @@ This document provides a step-by-step guide to deploy the AI Tutor application t
    # AZURE_OPENAI_ENDPOINT=your-azure-openai-endpoint
    # ANTHROPIC_API_KEY=your-anthropic-key
 
-   # Security Configuration
-   JWT_SECRET=your-32-character-jwt-secret-key
-   ENCRYPTION_KEY=your-32-character-encryption-key
-
    # User Account Configuration
    ADMIN_USERNAME=admin
    ADMIN_PASSWORD=your-secure-admin-password
    DEMO_USERNAME=demo
    DEMO_PASSWORD=your-secure-demo-password
-
-   # Application Configuration
-   DOMAIN_NAME=yourdomain.com
-   FRONTEND_URL=https://yourdomain.com
-   BACKEND_URL=https://yourdomain.com/api/v1
-
-   # CEFR and Summarization Configuration
-   CEFR_LEVEL_MIN_TURNS=3
-   PROGRESSIVE_SUMMARIZATION_ENABLED=true
-   SUMMARIZATION_CHUNK_SIZE=10
    ```
 
 5. Set appropriate permissions for the environment file:
@@ -136,109 +257,72 @@ This document provides a step-by-step guide to deploy the AI Tutor application t
    ```bash
    sudo crontab -e
    ```
-   
+
    Add the following line to renew the certificate automatically:
    ```bash
-   0 12 * * * /usr/bin/certbot renew --quiet
+   0 12 * * * /usr/bin/certbot renew --quiet --post-hook "systemctl reload nginx"
    ```
 
-4. Copy the SSL certificates to the application directory:
+4. Verify certificates exist:
    ```bash
-   sudo cp /etc/letsencrypt/live/yourdomain.com/fullchain.pem /opt/ai-tutor/ssl/
-   sudo cp /etc/letsencrypt/live/yourdomain.com/privkey.pem /opt/ai-tutor/ssl/
+   sudo ls -la /etc/letsencrypt/live/yourdomain.com/
    ```
 
 ### Step 4: Configure Nginx
 
-1. Create the nginx configuration:
+1. Edit the nginx configuration:
    ```bash
    sudo nano /etc/nginx/nginx.conf
    ```
 
-2. Add the content from nginx.prod.conf, updating the server_name to your domain:
-   ```
-   events {
-       worker_connections 1024;
-   }
-
+2. Add a server block for your domain (see `deployment/nginx.conf` for reference):
+   ```nginx
    http {
-       upstream backend {
-           server ai-tutor-backend:8080;
+       upstream aitutor_prod_backend {
+           server 127.0.0.1:5000;
        }
 
-       upstream frontend {
-           server ai-tutor-frontend:80;
+       upstream aitutor_prod_frontend {
+           server 127.0.0.1:5001;
        }
 
-       # SSL Configuration
-       ssl_protocols TLSv1.2 TLSv1.3;
-       ssl_ciphers ECDHE-RSA-AES256-GCM-SHA512:DHE-RSA-AES256-GCM-SHA512:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384;
-       ssl_prefer_server_ciphers off;
-       ssl_session_cache shared:SSL:10m;
-       ssl_session_timeout 10m;
-
-       # Gzip Compression
-       gzip on;
-       gzip_vary on;
-       gzip_min_length 1024;
-       gzip_types text/plain text/css text/xml text/javascript application/x-javascript application/xml+rss application/javascript application/json;
-
-       # Security Headers
-       add_header X-Frame-Options "SAMEORIGIN" always;
-       add_header X-Content-Type-Options "nosniff" always;
-       add_header X-XSS-Protection "1; mode=block" always;
-       add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
-
+       # HTTP → HTTPS redirect
        server {
            listen 80;
            server_name yourdomain.com;
            return 301 https://$server_name$request_uri;
        }
 
+       # HTTPS server
        server {
            listen 443 ssl http2;
            server_name yourdomain.com;
 
            # SSL Certificate
-           ssl_certificate /opt/ai-tutor/ssl/fullchain.pem;
-           ssl_certificate_key /opt/ai-tutor/ssl/privkey.pem;
+           ssl_certificate /etc/letsencrypt/live/yourdomain.com/fullchain.pem;
+           ssl_certificate_key /etc/letsencrypt/live/yourdomain.com/privkey.pem;
 
-           # Frontend - Serve static files and handle SPA routing
-           location / {
-               proxy_pass http://ai-tutor-frontend:80;
-               proxy_set_header Host $host;
-               proxy_set_header X-Real-IP $remote_addr;
-               proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-               proxy_set_header X-Forwarded-Proto $scheme;
-           }
-
-           # API requests - Proxy to backend
+           # API requests
            location /api/v1 {
-               proxy_pass http://ai-tutor-backend:8080;
+               proxy_pass http://aitutor_prod_backend;
                proxy_set_header Host $host;
                proxy_set_header X-Real-IP $remote_addr;
                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
                proxy_set_header X-Forwarded-Proto $scheme;
-               proxy_connect_timeout 60s;
-               proxy_send_timeout 60s;
-               proxy_read_timeout 60s;
            }
 
-           # Health check endpoint
-           location /health {
-               access_log off;
-               return 200 "healthy\n";
-               add_header Content-Type text/plain;
-           }
-
-           # Security - Deny access to sensitive files
-           location ~ /\. {
-               deny all;
+           # Frontend
+           location / {
+               proxy_pass http://aitutor_prod_frontend;
+               proxy_set_header Host $host;
+               proxy_set_header X-Real-IP $remote_addr;
+               proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+               proxy_set_header X-Forwarded-Proto $scheme;
            }
        }
    }
    ```
-   
+
    Replace `yourdomain.com` with your actual domain name.
 
 3. Test the nginx configuration:
@@ -253,26 +337,29 @@ This document provides a step-by-step guide to deploy the AI Tutor application t
 
 ### Step 5: Deploy the Application
 
-1. Pull the latest production images:
+1. Ensure you're in the deployment directory:
    ```bash
-   # Make sure docker-compose.prod.yml points to the correct GitHub Container Registry image names
-   
-   docker compose -f docker-compose.prod.yml pull
+   cd ~/prod
    ```
 
-2. Start the services:
+2. Pull the latest production images:
    ```bash
-   docker compose -f docker-compose.prod.yml up -d
+   docker compose pull
    ```
 
-3. Verify all services are running:
+3. Start the services:
    ```bash
-   docker compose -f docker-compose.prod.yml ps
+   docker compose up -d
    ```
 
-4. Check the application logs:
+4. Verify all services are running:
    ```bash
-   docker compose -f docker-compose.prod.yml logs -f
+   docker compose ps
+   ```
+
+5. Check the application logs:
+   ```bash
+   docker compose logs -f
    ```
 
 ### Step 6: Firewall Configuration
@@ -309,50 +396,52 @@ This document provides a step-by-step guide to deploy the AI Tutor application t
    curl -k https://yourdomain.com/api/v1/actuator/health
    ```
 
-### Step 8: Monitoring Setup
+### Step 8: Monitoring Setup (Optional)
 
 1. Set up basic monitoring:
    ```bash
    # Check if services are running
-   docker compose -f docker-compose.prod.yml ps
-   
+   docker compose ps
+
    # Monitor logs for issues
-   docker compose -f docker-compose.prod.yml logs -f --tail=100
+   docker compose logs -f --tail=100
    ```
 
 2. Create a simple monitoring script:
    ```bash
-   cat > /opt/ai-tutor/monitor.sh << 'EOF'
+   cat > ~/prod/monitor.sh << 'EOF'
    #!/bin/bash
    # Simple monitoring script for AI Tutor
-   
+
+   cd ~/prod
+
    # Check if all containers are running
-   RUNNING_CONTAINERS=$(docker compose -f /opt/ai-tutor/docker-compose.prod.yml ps -q | wc -l)
-   TOTAL_CONTAINERS=$(docker compose -f /opt/ai-tutor/docker-compose.prod.yml config --services | wc -l)
-   
+   RUNNING_CONTAINERS=$(docker compose ps -q | wc -l)
+   TOTAL_CONTAINERS=$(docker compose config --services | wc -l)
+
    if [ "$RUNNING_CONTAINERS" -ne "$TOTAL_CONTAINERS" ]; then
        echo "$(date): Warning! Not all containers are running"
-       docker compose -f /opt/ai-tutor/docker-compose.prod.yml ps
+       docker compose ps
    fi
-   
+
    # Check if the site is responding
    HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://yourdomain.com)
    if [ "$HTTP_CODE" -ne "200" ]; then
        echo "$(date): Warning! Site returned HTTP $HTTP_CODE"
    fi
    EOF
-   
-   chmod +x /opt/ai-tutor/monitor.sh
+
+   chmod +x ~/prod/monitor.sh
    ```
 
 3. Add monitoring to crontab:
    ```bash
    crontab -e
    ```
-   
+
    Add the following line to check every 5 minutes:
    ```bash
-   */5 * * * * /opt/ai-tutor/monitor.sh >> /opt/ai-tutor/logs/monitor.log 2>&1
+   */5 * * * * ~/prod/monitor.sh >> ~/prod/monitor.log 2>&1
    ```
 
 ## Troubleshooting
@@ -365,24 +454,25 @@ This document provides a step-by-step guide to deploy the AI Tutor application t
    - Ensure nginx is configured to use correct certificate paths
 
 2. **Database Connection Issues**
-   - Check the DB container is running: `docker compose -f docker-compose.prod.yml ps`
-   - Verify volume mounts are accessible: `ls -la /opt/ai-tutor/data/`
-   - Check the H2 database logs
+   - Check data directory: `ls -la ~/prod/data/`
+   - Check backend logs for database errors
 
 3. **API Connectivity Issues**
    - Verify CORS settings in the environment file
    - Check nginx proxy configuration
-   - Ensure backend is accessible on port 8080
+   - Ensure backend is accessible on configured port (5000 prod, 5100 test)
 
 4. **Docker Container Failures**
-   - Check container logs: `docker compose -f docker-compose.prod.yml logs <service-name>`
-   - Verify environment variables are correctly set
-   - Ensure sufficient disk space is available
+   - Check container logs: `docker compose logs backend` or `docker compose logs frontend`
+   - Verify environment variables are correctly set in `.env`
+   - Ensure sufficient disk space is available: `df -h`
 
 ### Diagnostic Commands
 
-- Check all services: `docker compose -f docker-compose.prod.yml ps`
-- View application logs: `docker compose -f docker-compose.prod.yml logs -f`
+- Check all services: `docker compose ps`
+- View application logs: `docker compose logs -f`
+- Check backend health: `curl http://localhost:5000/actuator/health`
+- Check frontend health: `curl http://localhost:5001/`
 - Check nginx logs: `sudo tail -f /var/log/nginx/error.log`
 - Check system resources: `df -h && free -h && top`
 
@@ -406,30 +496,43 @@ This document provides a step-by-step guide to deploy the AI Tutor application t
 
 ### Updating Application
 
+**Note**: With automated CI/CD, updates are typically deployed automatically. Use manual update only if needed.
+
 1. **Before Update**
    - Create a backup of data and configurations
-   - Test update procedure in a staging environment
-   - Schedule update during low-traffic periods
+   - Note the current version for rollback if needed
 
 2. **Update Process**
    ```bash
+   cd ~/prod
+
    # Pull new images
-   docker compose -f docker-compose.prod.yml pull
-   
+   docker compose pull
+
    # Stop current services
-   docker compose -f docker-compose.prod.yml down
-   
+   docker compose down
+
    # Start services with new images
-   docker compose -f docker-compose.prod.yml up -d
-   
+   docker compose up -d
+
    # Verify services are running correctly
-   docker compose -f docker-compose.prod.yml ps
+   docker compose ps
+   docker compose logs -f
    ```
 
 3. **Rollback Procedure**
-   - If issues arise, identify the previous stable version
-   - Update docker-compose.prod.yml to use previous image tags
-   - Restart services: `docker compose -f docker-compose.prod.yml up -d`
+   ```bash
+   cd ~/prod
+
+   # Edit .env to use previous version tag
+   nano .env
+   # Change: IMAGE_TAG=latest
+   # To: IMAGE_TAG=v1.0.0  (previous version)
+
+   # Restart with old version
+   docker compose pull
+   docker compose up -d --force-recreate
+   ```
 
 ## Security Best Practices
 
@@ -448,8 +551,32 @@ This document provides a step-by-step guide to deploy the AI Tutor application t
    - Set up alerts for service failures
    - Regularly review access logs
 
-## Conclusion
+## Summary
 
-This deployment process creates a production-ready AI Tutor application with proper security, monitoring, and maintenance procedures. The setup includes SSL termination, a reverse proxy, persistent data storage, and automated certificate renewal.
+### Automated Deployment (Recommended)
 
-Remember to regularly maintain the system, monitor its performance, and follow security best practices to ensure the application continues to run securely and efficiently.
+The AI Tutor project uses GitHub Actions for automated CI/CD:
+
+- **Test deployments**: Automatic on push to `master`
+- **Production deployments**: Automatic on GitHub Release creation
+- **No manual intervention** required for typical deployments
+
+See [DEPLOYMENT_CONFIG.md](DEPLOYMENT_CONFIG.md) for complete CI/CD documentation.
+
+### Manual Deployment (Fallback)
+
+Manual deployment instructions above are provided for:
+- Initial server setup and configuration
+- Emergency situations when CI/CD is unavailable
+- Custom deployment scenarios
+- Understanding the deployment process
+
+### Key Points
+
+- Docker images are built and pushed to GitHub Container Registry
+- Deployment uses Docker Compose with environment-specific `.env` files
+- Nginx handles SSL termination and reverse proxying
+- Health checks verify successful deployment
+- Rollback is simple: change `IMAGE_TAG` in `.env` and restart
+
+For ongoing operations, the automated CI/CD pipeline handles all deployments. Manual procedures are kept for reference and emergency use.
