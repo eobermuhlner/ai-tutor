@@ -90,14 +90,10 @@ jobs:
             # Create/update test directory
             mkdir -p ~/test
             cd ~/test
-            
-            # Copy deployment files if they don't exist
-            if [ ! -f docker-compose.yml ]; then
-              curl -s -o docker-compose.yml https://raw.githubusercontent.com/${{ github.repository }}/master/deployment/docker-compose.yml
-            fi
-            if [ ! -f nginx.conf ]; then
-              curl -s -o nginx.conf https://raw.githubusercontent.com/${{ github.repository }}/master/deployment/nginx.conf
-            fi
+
+            # Always download latest deployment files to ensure configuration is up-to-date
+            curl -s -o docker-compose.yml https://raw.githubusercontent.com/${{ github.repository }}/master/deployment/docker-compose.yml
+            curl -s -o nginx.conf https://raw.githubusercontent.com/${{ github.repository }}/master/deployment/nginx.conf
             
             # Create .env file for test environment
             cat > .env << 'EOL'

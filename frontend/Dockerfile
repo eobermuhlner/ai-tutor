@@ -15,9 +15,12 @@ RUN npm ci
 # Copy source code
 COPY . .
 
-# Build argument for API URL (relative path works through nginx reverse proxy)
+# Build arguments for environment variables
 ARG VITE_API_URL=/api/v1
 ENV VITE_API_URL=${VITE_API_URL}
+
+ARG VITE_GOOGLE_CLIENT_ID
+ENV VITE_GOOGLE_CLIENT_ID=${VITE_GOOGLE_CLIENT_ID}
 
 # Build the application
 RUN npm run build
