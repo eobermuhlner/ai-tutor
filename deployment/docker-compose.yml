@@ -1,7 +1,7 @@
 services:
   backend:
     image: ghcr.io/${GITHUB_USERNAME:-your-username}/ai-tutor-backend:${IMAGE_TAG}
-    container_name: ai-tutor-backend
+    container_name: ai-tutor-backend-${IMAGE_TAG}
     restart: unless-stopped
     ports:
       - "${BACKEND_PORT}:8080"
@@ -52,7 +52,7 @@ services:
 
   frontend:
     image: ghcr.io/${GITHUB_USERNAME:-your-username}/ai-tutor-frontend:${IMAGE_TAG}
-    container_name: ai-tutor-frontend
+    container_name: ai-tutor-frontend-${IMAGE_TAG}
     restart: unless-stopped
     ports:
       - "${FRONTEND_PORT}:80"
