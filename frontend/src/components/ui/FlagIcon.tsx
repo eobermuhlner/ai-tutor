@@ -1,4 +1,4 @@
-import Flag from 'react-flagpack';
+import ReactCountryFlag from 'react-country-flag';
 import { Globe } from 'lucide-react';
 
 interface FlagIconProps {
@@ -54,9 +54,17 @@ export default function FlagIcon({
   const lowerCaseCode = languageCode.toLowerCase();
   if (lowerCaseCode.includes('ipa')) {
     // For IPA (International Phonetic Alphabet), use a globe icon
-    // Calculate the visual dimensions after scaling
-    const baseSize = size <= 1 ? 12 : size <= 1.5 ? 15 : 24;
-    const actualVisualSize = baseSize * size; // Scale relative to 1, not 3.5
+    // Use the same sizing logic as flags for consistency
+    const ipaWidth = size <= 1.5
+      ? (size <= 1 ? 16 : 20)
+      : Math.round((size <= 1 ? 16 : size <= 1.5 ? 20 : 32) * (size / 3.5));
+    const ipaHeight = size <= 1.5
+      ? (size <= 1 ? 12 : 15)
+      : Math.round((size <= 1 ? 12 : size <= 1.5 ? 15 : 24) * (size / 3.5));
+
+    // Calculate container dimensions to match flag containers
+    const ipaContainerWidth = size <= 1.5 ? `${size * 16}px` : `${ipaWidth}px`;
+    const ipaContainerHeight = size <= 1.5 ? `${size * 12}px` : `${ipaHeight}px`;
 
     return (
       <div
@@ -66,14 +74,14 @@ export default function FlagIcon({
           display: 'inline-flex',
           alignItems: 'center',
           justifyContent: 'center',
-          width: `${size * 16}px`,
-          height: `${size * 12}px` // Maintain 4:3 aspect ratio
+          width: ipaContainerWidth,
+          height: ipaContainerHeight
         }}
       >
         <div
           style={{
-            width: `${actualVisualSize}px`,
-            height: `${actualVisualSize}px`,
+            width: `${ipaWidth}px`,
+            height: `${ipaHeight}px`,
             border: '1px solid #d1d5db', // gray-300 equivalent
             display: 'flex',
             alignItems: 'center',
@@ -85,8 +93,8 @@ export default function FlagIcon({
           <Globe
             aria-label={ariaLabel || 'International Phonetic Alphabet symbol'}
             style={{
-              width: `${actualVisualSize * 0.8}px`, // Slightly smaller than container for padding
-              height: `${actualVisualSize * 0.8}px`
+              width: `${ipaWidth * 0.8}px`, // Slightly smaller than container for padding
+              height: `${ipaHeight * 0.8}px`
             }}
           />
         </div>
@@ -95,26 +103,16 @@ export default function FlagIcon({
   }
 
   // For all other language codes, extract country code and use flag
-  let countryCode = extractCountryCode(languageCode);
+  const originalCountryCode = extractCountryCode(languageCode);
 
-  // Handle special country code mappings for react-flagpack
-  // Map standard country codes to special flag variants in flagpack-core
+  // Handle special country code mappings for react-country-flag
   const specialMappings: Record<string, string> = {
     'GB': 'GB-UKM', // United Kingdom (UK Monarchy) - main UK flag
   };
 
   // Apply special mapping if it exists, otherwise use the original code
-  countryCode = specialMappings[countryCode] || countryCode;
-
-  // Map size multiplier to predefined flagpack sizes
-  let flagSize: string = 'm'; // Default to 'm' (lowercase)
-  if (size <= 1) {
-    flagSize = 's'; // Small
-  } else if (size <= 1.5) {
-    flagSize = 'm'; // Medium
-  } else {
-    flagSize = 'l'; // Large
-  }
+  // For react-country-flag, we'll first try the special mapping if it exists
+  const countryCode = specialMappings[originalCountryCode] || originalCountryCode;
 
   // Calculate the base dimensions before scaling
   const baseWidth = size <= 1 ? 16 : size <= 1.5 ? 20 : 32;
@@ -150,6 +148,41 @@ export default function FlagIcon({
     containerHeight = `${scaledHeight}px`;
   }
 
+  // For react-country-flag, we need to extract just the country code part
+  // If special mapping like GB-UKM is used, extract the first two characters as the country code
+  const getFlagCode = (code: string) => {
+    if (code.includes('-') && code.length > 2) {
+      return code.substring(0, 2); // Extract country code part (e.g., "GB" from "GB-UKM")
+    }
+    return code;
+  };
+
+  const flagCode = getFlagCode(countryCode);
+
+  // Calculate flag dimensions based on container size
+  // For smaller sizes (<=1.5), use the direct width/height
+  // For larger sizes, use the scaled dimensions
+  const flagWidth = size <= 1.5
+    ? (size <= 1 ? 16 : 20)
+    : Math.round(baseWidth * scaleAdjustment);
+  const flagHeight = size <= 1.5
+    ? (size <= 1 ? 12 : 15)
+    : Math.round(baseHeight * scaleAdjustment);
+
+  // ReactCountryFlag component with explicit pixel dimensions
+  const FlagComponent = ({ code, width, height }: { code: string; width: number; height: number }) => (
+    <ReactCountryFlag
+      countryCode={code}
+      svg
+      style={{
+        width: `${width}px`,
+        height: `${height}px`,
+        fontSize: `${height}px`, // Helps with emoji fallback sizing
+      }}
+      title={code}
+    />
+  );
+
   return (
     <div
       className={`inline-flex items-center justify-center ${className}`}
@@ -170,25 +203,19 @@ export default function FlagIcon({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            width: size <= 1 ? '16px' : size <= 1.5 ? '20px' : '32px',
-            height: size <= 1 ? '12px' : size <= 1.5 ? '15px' : '24px', // Maintain 4:3 aspect ratio
+            width: `${flagWidth}px`,
+            height: `${flagHeight}px`,
             overflow: 'hidden'
           }}
         >
-          <Flag
-            code={countryCode as any} // Bypass TypeScript error for Flags type
-            size={flagSize}
-            hasBorder={false}
-            hasDropShadow={false}
-            ariaLabel={ariaLabel || `Flag for ${languageCode}`}
-          />
+          <FlagComponent code={flagCode} width={flagWidth} height={flagHeight} />
         </div>
       ) : (
-        // For larger sizes, use the enhanced scaling approach
+        // For larger sizes, use direct sizing without transform scaling
         <div
           style={{
-            width: `${baseWidth * scaleAdjustment}px`,
-            height: `${baseHeight * scaleAdjustment}px`,
+            width: `${flagWidth}px`,
+            height: `${flagHeight}px`,
             border: '1px solid #d1d5db', // gray-300 equivalent
             display: 'flex',
             alignItems: 'center',
@@ -196,20 +223,7 @@ export default function FlagIcon({
             overflow: 'hidden'
           }}
         >
-          <div
-            style={{
-              transform: `scale(${scaleAdjustment})`,
-              transformOrigin: 'center',
-            }}
-          >
-            <Flag
-              code={countryCode as any} // Bypass TypeScript error for Flags type
-              size={flagSize}
-              hasBorder={false}
-              hasDropShadow={false}
-              ariaLabel={ariaLabel || `Flag for ${languageCode}`}
-            />
-          </div>
+          <FlagComponent code={flagCode} width={flagWidth} height={flagHeight} />
         </div>
       )}
     </div>
