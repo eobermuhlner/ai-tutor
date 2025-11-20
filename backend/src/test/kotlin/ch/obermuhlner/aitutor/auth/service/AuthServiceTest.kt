@@ -19,6 +19,7 @@ import ch.obermuhlner.aitutor.user.domain.RefreshTokenEntity
 import ch.obermuhlner.aitutor.user.domain.UserEntity
 import ch.obermuhlner.aitutor.user.domain.UserRole
 import ch.obermuhlner.aitutor.user.repository.RefreshTokenRepository
+import ch.obermuhlner.aitutor.user.repository.UserRepository
 import ch.obermuhlner.aitutor.user.service.UserService
 import io.mockk.Runs
 import io.mockk.every
@@ -39,17 +40,21 @@ class AuthServiceTest {
 
     private lateinit var authService: AuthService
     private lateinit var userService: UserService
+    private lateinit var userRepository: UserRepository
     private lateinit var jwtTokenService: JwtTokenService
     private lateinit var refreshTokenRepository: RefreshTokenRepository
     private lateinit var passwordEncoder: PasswordEncoder
     private lateinit var jwtProperties: JwtProperties
+    private lateinit var googleTokenVerifierService: GoogleTokenVerifierService
 
     @BeforeEach
     fun setUp() {
         userService = mockk()
+        userRepository = mockk()
         jwtTokenService = mockk()
         refreshTokenRepository = mockk()
         passwordEncoder = mockk()
+        googleTokenVerifierService = mockk()
         jwtProperties = JwtProperties(
             secret = "test-secret",
             expirationMs = 3600000,
@@ -58,10 +63,12 @@ class AuthServiceTest {
 
         authService = AuthService(
             userService,
+            userRepository,
             jwtTokenService,
             refreshTokenRepository,
             passwordEncoder,
-            jwtProperties
+            jwtProperties,
+            googleTokenVerifierService
         )
     }
 
