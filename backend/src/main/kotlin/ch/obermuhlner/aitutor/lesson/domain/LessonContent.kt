@@ -10,11 +10,6 @@ data class LessonContent(
     val focusAreas: List<String>,
     val targetCEFR: CEFRLevel,
     val goals: List<String>,
-    val grammarPoints: List<GrammarPoint>,
-    val essentialVocabulary: List<VocabEntry>,
-    val conversationScenarios: List<Scenario>,
-    val practicePatterns: List<String>,
-    val commonMistakes: List<String>,
     val fullMarkdown: String  // Complete markdown for preview
 )
 

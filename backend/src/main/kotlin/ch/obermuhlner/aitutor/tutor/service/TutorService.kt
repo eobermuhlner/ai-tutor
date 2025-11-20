@@ -263,53 +263,13 @@ class TutorService(
         if (lesson.weekNumber != null) {
             append("Week: ${lesson.weekNumber}\n")
         }
-        append("CEFR Level: ${lesson.targetCEFR.name}\n")
-        append("Focus Areas: ${lesson.focusAreas.joinToString(", ")}\n\n")
+        append("CEFR Level: ${lesson.targetCEFR.name}\n\n")
 
-        append("Goals:\n")
-        lesson.goals.forEach { goal ->
-            append("- $goal\n")
-        }
-        append("\n")
+        // Include the full lesson content as provided in the markdown file
+        append(lesson.fullMarkdown)
+        append("\n\n")
 
-        if (lesson.grammarPoints.isNotEmpty()) {
-            append("Grammar Focus:\n")
-            lesson.grammarPoints.forEach { grammar ->
-                append("- ${grammar.title}: ${grammar.rule}\n")
-                if (grammar.examples.isNotEmpty()) {
-                    append("  Examples: ${grammar.examples.joinToString("; ")}\n")
-                }
-            }
-            append("\n")
-        }
-
-        if (lesson.essentialVocabulary.isNotEmpty()) {
-            append("Essential Vocabulary:\n")
-            lesson.essentialVocabulary.take(20).forEach { vocab ->
-                append("- ${vocab.word} (${vocab.translation})\n")
-            }
-            if (lesson.essentialVocabulary.size > 20) {
-                append("... and ${lesson.essentialVocabulary.size - 20} more\n")
-            }
-            append("\n")
-        }
-
-        if (lesson.practicePatterns.isNotEmpty()) {
-            append("Practice Patterns:\n")
-            lesson.practicePatterns.forEach { pattern ->
-                append("- $pattern\n")
-            }
-            append("\n")
-        }
-
-        if (lesson.commonMistakes.isNotEmpty()) {
-            append("Common Mistakes to Watch:\n")
-            lesson.commonMistakes.forEach { mistake ->
-                append("- $mistake\n")
-            }
-            append("\n")
-        }
-
+        // Append the behavioral instructions from lessonPrompt
         append(lessonPrompt)
     }
 

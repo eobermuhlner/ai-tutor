@@ -10,6 +10,7 @@ import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
@@ -71,62 +72,39 @@ class LessonContentServiceTest {
     }
 
     @Test
-    fun `should parse grammar points from markdown`() {
+    fun `should load lesson with valid content`() {
         val lesson = lessonContentService.getLesson("es-conversational-spanish", "week-01-greetings")
 
         assertNotNull(lesson)
-        // Parser currently extracts at least one grammar point
-        assertEquals(true, lesson!!.grammarPoints.isNotEmpty())
-
-        val formalInformal = lesson.grammarPoints.find { it.title.contains("Formal") }
-        assertNotNull(formalInformal)
-        assertEquals(true, formalInformal?.rule?.contains("tú"))
-        assertEquals(true, formalInformal?.examples?.isNotEmpty())
+        assertNotNull(lesson?.fullMarkdown)
+        assertTrue(lesson?.fullMarkdown?.trim()?.isNotEmpty() == true)
     }
 
     @Test
-    @Disabled("TODO: Fix vocabulary parsing - test expects >15 items but parser returns fewer")
-    fun `should parse essential vocabulary from markdown`() {
+    fun `should load lesson with goals`() {
         val lesson = lessonContentService.getLesson("es-conversational-spanish", "week-01-greetings")
 
         assertNotNull(lesson)
-        assertEquals(true, lesson!!.essentialVocabulary.size > 15)
-
-        val hola = lesson.essentialVocabulary.find { it.word == "Hola" }
-        assertNotNull(hola)
-        assertEquals("Hello", hola?.translation)
+        assertNotNull(lesson?.goals)
     }
 
     @Test
-    @Disabled("TODO: Fix scenario parsing - test expects specific scenario but parser returns different structure")
-    fun `should parse conversation scenarios from markdown`() {
+    fun `should load lesson with focus areas`() {
         val lesson = lessonContentService.getLesson("es-conversational-spanish", "week-01-greetings")
 
         assertNotNull(lesson)
-        // Parser currently extracts at least one scenario
-        assertEquals(true, lesson!!.conversationScenarios.isNotEmpty())
-
-        val firstMeeting = lesson.conversationScenarios.find { it.title.contains("First Time") }
-        assertNotNull(firstMeeting)
-        assertEquals(true, firstMeeting?.dialogue?.contains("Buenos días"))
+        assertNotNull(lesson?.focusAreas)
+        assertTrue(lesson?.focusAreas?.size ?: 0 > 0)
     }
 
     @Test
-    fun `should parse practice patterns from markdown`() {
+    fun `should load lesson with proper metadata`() {
         val lesson = lessonContentService.getLesson("es-conversational-spanish", "week-01-greetings")
 
         assertNotNull(lesson)
-        assertEquals(true, lesson!!.practicePatterns.size >= 5)
-        assertEquals(true, lesson.practicePatterns.any { it.contains("tutor") })
-    }
-
-    @Test
-    fun `should parse common mistakes from markdown`() {
-        val lesson = lessonContentService.getLesson("es-conversational-spanish", "week-01-greetings")
-
-        assertNotNull(lesson)
-        assertEquals(5, lesson!!.commonMistakes.size)
-        assertEquals(true, lesson.commonMistakes.any { it.contains("encantado") })
+        assertEquals("week-01-greetings", lesson?.id)
+        assertEquals("Greetings and Basic Expressions", lesson?.title)
+        assertEquals(1, lesson?.weekNumber)
     }
 
     @Test
@@ -194,7 +172,6 @@ class LessonContentServiceTest {
         assertNotNull(lesson)
         // Should not crash even with minimal content
         assertNotNull(lesson?.goals)
-        assertNotNull(lesson?.grammarPoints)
-        assertNotNull(lesson?.essentialVocabulary)
+        assertNotNull(lesson?.fullMarkdown)
     }
 }

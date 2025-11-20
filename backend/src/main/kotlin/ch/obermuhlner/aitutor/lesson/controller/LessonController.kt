@@ -3,11 +3,8 @@ package ch.obermuhlner.aitutor.lesson.controller
 import ch.obermuhlner.aitutor.auth.service.AuthorizationService
 import ch.obermuhlner.aitutor.chat.repository.ChatSessionRepository
 import ch.obermuhlner.aitutor.lesson.dto.CourseCurriculumResponse
-import ch.obermuhlner.aitutor.lesson.dto.GrammarPointResponse
 import ch.obermuhlner.aitutor.lesson.dto.LessonContentResponse
 import ch.obermuhlner.aitutor.lesson.dto.LessonMetadataResponse
-import ch.obermuhlner.aitutor.lesson.dto.ScenarioResponse
-import ch.obermuhlner.aitutor.lesson.dto.VocabEntryResponse
 import ch.obermuhlner.aitutor.lesson.service.LessonContentService
 import ch.obermuhlner.aitutor.lesson.service.LessonProgressionService
 import java.util.UUID
@@ -131,29 +128,6 @@ class LessonController(
             focusAreas = lesson.focusAreas,
             targetCEFR = lesson.targetCEFR,
             goals = lesson.goals,
-            grammarPoints = lesson.grammarPoints.map { grammar ->
-                GrammarPointResponse(
-                    title = grammar.title,
-                    rule = grammar.rule,
-                    examples = grammar.examples,
-                    patterns = grammar.patterns
-                )
-            },
-            essentialVocabulary = lesson.essentialVocabulary.map { vocab ->
-                VocabEntryResponse(
-                    word = vocab.word,
-                    translation = vocab.translation,
-                    contextExample = vocab.contextExample
-                )
-            },
-            conversationScenarios = lesson.conversationScenarios.map { scenario ->
-                ScenarioResponse(
-                    title = scenario.title,
-                    dialogue = scenario.dialogue
-                )
-            },
-            practicePatterns = lesson.practicePatterns,
-            commonMistakes = lesson.commonMistakes,
             fullMarkdown = lesson.fullMarkdown
         )
     }

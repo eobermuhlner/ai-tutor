@@ -87,7 +87,7 @@ class LessonContentService(
         // Extract information from the database entity's markdown content
         // This is similar to the existing parseLesson method but adapted for database content
         val markdown = lessonEntity.content
-        
+
         // Extract YAML frontmatter (between --- delimiters)
         val frontmatterRegex = Regex("""^---\s*\n(.*?)\n---\s*\n""", RegexOption.DOT_MATCHES_ALL)
         val frontmatterMatch = frontmatterRegex.find(markdown)
@@ -111,11 +111,6 @@ class LessonContentService(
 
         // Extract sections using regex
         val goals = extractListSection(contentWithoutFrontmatter, "This Week's Goals")
-        val grammarPoints = extractGrammarPoints(contentWithoutFrontmatter)
-        val vocabulary = extractVocabulary(contentWithoutFrontmatter)
-        val scenarios = extractScenarios(contentWithoutFrontmatter)
-        val practicePatterns = extractListSection(contentWithoutFrontmatter, "Practice Patterns")
-        val commonMistakes = extractListSection(contentWithoutFrontmatter, "Common Mistakes to Watch")
 
         return LessonContent(
             id = lessonEntity.lessonId,
@@ -125,11 +120,6 @@ class LessonContentService(
             focusAreas = (frontmatter["focusAreas"] as? List<*>)?.mapNotNull { it as? String } ?: emptyList(),
             targetCEFR = CEFRLevel.valueOf(frontmatter["targetCEFR"] as? String ?: "A1"),
             goals = goals,
-            grammarPoints = grammarPoints,
-            essentialVocabulary = vocabulary,
-            conversationScenarios = scenarios,
-            practicePatterns = practicePatterns,
-            commonMistakes = commonMistakes,
             fullMarkdown = lessonEntity.content
         )
     }
@@ -168,11 +158,6 @@ class LessonContentService(
 
         // Extract sections using regex
         val goals = extractListSection(contentWithoutFrontmatter, "This Week's Goals")
-        val grammarPoints = extractGrammarPoints(contentWithoutFrontmatter)
-        val vocabulary = extractVocabulary(contentWithoutFrontmatter)
-        val scenarios = extractScenarios(contentWithoutFrontmatter)
-        val practicePatterns = extractListSection(contentWithoutFrontmatter, "Practice Patterns")
-        val commonMistakes = extractListSection(contentWithoutFrontmatter, "Common Mistakes to Watch")
 
         return LessonContent(
             id = frontmatter["lessonId"] as? String ?: lessonId,
@@ -182,11 +167,6 @@ class LessonContentService(
             focusAreas = (frontmatter["focusAreas"] as? List<*>)?.mapNotNull { it as? String } ?: emptyList(),
             targetCEFR = CEFRLevel.valueOf(frontmatter["targetCEFR"] as? String ?: "A1"),
             goals = goals,
-            grammarPoints = grammarPoints,
-            essentialVocabulary = vocabulary,
-            conversationScenarios = scenarios,
-            practicePatterns = practicePatterns,
-            commonMistakes = commonMistakes,
             fullMarkdown = markdown
         )
     }

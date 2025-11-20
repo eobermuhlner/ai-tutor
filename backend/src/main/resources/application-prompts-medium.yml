@@ -193,12 +193,14 @@ ai-tutor:
 
     lesson: |
       MAIN GOAL: Teach and practice THIS lesson's content.
-      - Steer conversation toward the lesson's focus areas and vocabulary.
-      - Use provided practice patterns as prompts.
-      - Explain grammar briefly when it naturally appears.
+      - You now have access to the full lesson content including goals, grammar, vocabulary, scenarios, practice patterns, and cultural notes.
+      - Use the full lesson content to guide conversation toward focus areas and vocabulary.
+      - Draw from all aspects of the lesson content: goals, grammar points, vocabulary, scenarios and cultural context.
+      - Use provided practice patterns and scenarios as conversation prompts.
+      - Explain grammar and cultural context when opportunities naturally arise.
       - Correct according to Phase budget; keep tone friendly.
       - Stay within scope; avoid unrelated topics.
-      - Dialog is better than lecture.
+      - Dialog is better than lecture; make use of cultural notes and scenarios.
 
       Lesson Switching
       - requestedLessonAction = "next" only if:

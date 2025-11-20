@@ -86,11 +86,6 @@ class LessonControllerTest {
             focusAreas = listOf("greetings", "polite expressions"),
             targetCEFR = CEFRLevel.A1,
             goals = listOf("Learn greetings"),
-            grammarPoints = emptyList(),
-            essentialVocabulary = emptyList(),
-            conversationScenarios = emptyList(),
-            practicePatterns = emptyList(),
-            commonMistakes = emptyList(),
             fullMarkdown = "# Greetings"
         )
 
@@ -143,11 +138,6 @@ class LessonControllerTest {
             focusAreas = listOf("greetings"),
             targetCEFR = CEFRLevel.A1,
             goals = emptyList(),
-            grammarPoints = emptyList(),
-            essentialVocabulary = emptyList(),
-            conversationScenarios = emptyList(),
-            practicePatterns = emptyList(),
-            commonMistakes = emptyList(),
             fullMarkdown = "# Greetings"
         )
 
@@ -254,11 +244,6 @@ class LessonControllerTest {
             focusAreas = listOf("introductions"),
             targetCEFR = CEFRLevel.A1,
             goals = emptyList(),
-            grammarPoints = emptyList(),
-            essentialVocabulary = emptyList(),
-            conversationScenarios = emptyList(),
-            practicePatterns = emptyList(),
-            commonMistakes = emptyList(),
             fullMarkdown = "# Introductions"
         )
 

@@ -402,31 +402,9 @@ export interface LessonContent {
   focusAreas: string[];
   targetCEFR: CEFRLevel;
   goals: string[];
-  grammarPoints: GrammarPoint[];
-  essentialVocabulary: VocabEntry[];
-  conversationScenarios: Scenario[];
-  practicePatterns: string[];
-  commonMistakes: string[];
   fullMarkdown: string;
 }
 
-export interface GrammarPoint {
-  title: string;
-  rule: string;
-  examples: string[];
-  patterns: string[];
-}
-
-export interface VocabEntry {
-  word: string;
-  translation: string;
-  contextExample: string | null;
-}
-
-export interface Scenario {
-  title: string;
-  dialogue: string;
-}
 
 // TTS (Text-to-Speech) types
 export enum TTSVoice {
