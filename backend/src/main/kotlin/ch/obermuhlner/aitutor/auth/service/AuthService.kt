@@ -17,11 +17,13 @@ import ch.obermuhlner.aitutor.auth.exception.InvalidCredentialsException
 import ch.obermuhlner.aitutor.auth.exception.InvalidTokenException
 import ch.obermuhlner.aitutor.auth.exception.UserNotFoundException
 import ch.obermuhlner.aitutor.auth.exception.WeakPasswordException
+import ch.obermuhlner.aitutor.user.domain.AuthProvider
 import ch.obermuhlner.aitutor.user.domain.PronunciationPreference
 import ch.obermuhlner.aitutor.user.domain.RefreshTokenEntity
 import ch.obermuhlner.aitutor.user.domain.UserEntity
 import ch.obermuhlner.aitutor.user.domain.UserRole
 import ch.obermuhlner.aitutor.user.repository.RefreshTokenRepository
+import ch.obermuhlner.aitutor.user.repository.UserRepository
 import ch.obermuhlner.aitutor.user.service.UserService
 import java.time.Instant
 import java.util.UUID
@@ -34,10 +36,12 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 class AuthService(
     private val userService: UserService,
+    private val userRepository: UserRepository,
     private val jwtTokenService: JwtTokenService,
     private val refreshTokenRepository: RefreshTokenRepository,
     private val passwordEncoder: PasswordEncoder,
-    private val jwtProperties: JwtProperties
+    private val jwtProperties: JwtProperties,
+    private val googleTokenVerifierService: GoogleTokenVerifierService
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -122,6 +126,106 @@ class AuthService(
         userService.updateUser(user)
 
         logger.info("User logged in successfully: ${user.username} (id: ${user.id})")
+
+        return LoginResponse(
+            accessToken = accessToken,
+            refreshToken = refreshToken,
+            tokenType = "Bearer",
+            expiresIn = jwtProperties.expirationMs / 1000,  // Convert to seconds
+            user = toUserResponse(user)
+        )
+    }
+
+    fun loginWithGoogle(googleToken: String): LoginResponse {
+        logger.debug("Google login attempt")
+
+        // Verify Google ID token and extract user info
+        val googleUserInfo = googleTokenVerifierService.verifyToken(googleToken)
+        logger.info("Verified Google token for email: ${googleUserInfo.email}")
+
+        // Try to find existing user by Google provider ID
+        var user = userRepository.findByProviderAndProviderId(AuthProvider.GOOGLE, googleUserInfo.googleUserId)
+
+        if (user == null) {
+            // User doesn't exist with this Google account
+            // Check if a user with this email already exists (account linking)
+            val existingUserByEmail = userService.findByEmail(googleUserInfo.email)
+
+            if (existingUserByEmail != null) {
+                // Link Google account to existing user
+                logger.info("Linking Google account to existing user: ${existingUserByEmail.username}")
+                existingUserByEmail.provider = AuthProvider.GOOGLE
+                existingUserByEmail.providerId = googleUserInfo.googleUserId
+                existingUserByEmail.emailVerified = googleUserInfo.emailVerified
+
+                // Update name if not set
+                if (existingUserByEmail.firstName == null && googleUserInfo.givenName != null) {
+                    existingUserByEmail.firstName = googleUserInfo.givenName
+                }
+                if (existingUserByEmail.lastName == null && googleUserInfo.familyName != null) {
+                    existingUserByEmail.lastName = googleUserInfo.familyName
+                }
+
+                user = userService.updateUser(existingUserByEmail)
+            } else {
+                // Create new user account from Google profile
+                logger.info("Creating new user from Google account: ${googleUserInfo.email}")
+
+                // Generate a unique username from email
+                val baseUsername = googleUserInfo.email.substringBefore("@").replace(Regex("[^a-zA-Z0-9_-]"), "_")
+                var username = baseUsername
+                var counter = 1
+                while (userService.existsByUsername(username)) {
+                    username = "${baseUsername}_${counter}"
+                    counter++
+                }
+
+                val newUser = UserEntity(
+                    username = username,
+                    email = googleUserInfo.email,
+                    passwordHash = null,  // No password for OAuth users
+                    firstName = googleUserInfo.givenName,
+                    lastName = googleUserInfo.familyName,
+                    roles = mutableSetOf(UserRole.USER),
+                    enabled = true,
+                    emailVerified = googleUserInfo.emailVerified,
+                    provider = AuthProvider.GOOGLE,
+                    providerId = googleUserInfo.googleUserId,
+                    pronunciationPreference = PronunciationPreference.NONE
+                )
+
+                user = userService.createUser(newUser)
+                logger.info("Created new user from Google: ${user.username} (id: ${user.id})")
+            }
+        }
+
+        // Check account status
+        if (!user.enabled) {
+            logger.warn("Google login failed: account disabled for user '${user.username}'")
+            throw AccountDisabledException()
+        }
+        if (user.locked) {
+            logger.warn("Google login failed: account locked for user '${user.username}'")
+            throw AccountLockedException()
+        }
+
+        // Generate tokens
+        val accessToken = jwtTokenService.generateAccessToken(user)
+        val refreshToken = jwtTokenService.generateRefreshToken(user)
+
+        // Save refresh token
+        val refreshTokenEntity = RefreshTokenEntity(
+            userId = user.id,
+            token = refreshToken,
+            expiresAt = jwtTokenService.getExpirationFromToken(refreshToken)
+        )
+        refreshTokenRepository.save(refreshTokenEntity)
+
+        // Update last login time
+        user.lastLoginAt = Instant.now()
+        userService.updateUser(user)
+
+        logger.info("User logged in successfully via Google: ${user.username} (id: ${user.id})")
 
         return LoginResponse(
             accessToken = accessToken,

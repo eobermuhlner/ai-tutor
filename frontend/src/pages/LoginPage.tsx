@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { GoogleLogin } from '@react-oauth/google';
 import { useAuthStore } from '../store/authStore';
 import { addLanguageProficiency } from '../api/userLanguages';
 import { getSessions } from '../api/chat';
@@ -19,7 +20,7 @@ export default function LoginPage() {
 
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { login } = useAuthStore();
+  const { login, googleLogin } = useAuthStore();
 
   const validateForm = (): boolean => {
     const newErrors: { email?: string; password?: string } = {};
@@ -89,6 +90,58 @@ export default function LoginPage() {
     }
   };
 
+  const handleGoogleSuccess = async (credentialResponse: { credential?: string }) => {
+    if (!credentialResponse.credential) {
+      toast.error('Failed to get Google credentials');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const user = await googleLogin(credentialResponse.credential);
+      toast.success('Login successful!');
+
+      // Check if there's a pending native language from registration
+      const pendingLanguage = localStorage.getItem('pendingNativeLanguage');
+      if (pendingLanguage && user) {
+        try {
+          await addLanguageProficiency(
+            user.id,
+            pendingLanguage,
+            LanguageProficiencyType.Native
+          );
+          localStorage.removeItem('pendingNativeLanguage');
+        } catch (langError) {
+          console.error('Failed to set native language:', langError);
+        }
+      }
+
+      // Redirect to intended destination or determine default page
+      const redirect = searchParams.get('redirect');
+      if (redirect) {
+        navigate(decodeURIComponent(redirect));
+      } else {
+        try {
+          const sessions = await getSessions(user.id);
+          navigate(sessions.length > 0 ? '/sessions' : '/languages');
+        } catch (error) {
+          console.error('Failed to fetch sessions:', error);
+          navigate('/sessions');
+        }
+      }
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'Google login failed. Please try again.'
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleError = () => {
+    toast.error('Google login failed. Please try again.');
+  };
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 via-white to-brand-50/30 px-4">
       <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-soft-lg border border-slate-100">
@@ -131,6 +184,24 @@ export default function LoginPage() {
             Sign In
           </Button>
         </form>
+
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-slate-200"></div>
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="bg-white px-4 text-slate-500">OR</span>
+          </div>
+        </div>
+
+        <div className="flex justify-center">
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={handleGoogleError}
+            useOneTap={true}
+            text="signin_with"
+          />
+        </div>
 
         <div className="mt-6 text-center text-sm text-slate-600">
           Don't have an account?{' '}

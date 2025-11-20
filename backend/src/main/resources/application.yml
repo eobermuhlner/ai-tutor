@@ -54,6 +54,11 @@ jwt:
 encryption:
   key: ${ENCRYPTION_KEY:}  # Base64-encoded 32-byte (256-bit) key for API key encryption (generate with: openssl rand -base64 32)
 
+google:
+  oauth:
+    client-id: ${GOOGLE_CLIENT_ID:}
+    client-secret: ${GOOGLE_CLIENT_SECRET:}
+
 app:
   admin:
     username: ${ADMIN_USERNAME:admin}

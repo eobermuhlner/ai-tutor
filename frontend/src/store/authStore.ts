@@ -9,6 +9,7 @@ interface AuthState {
   isEditor: boolean;
   canManageCourses: boolean;
   login: (email: string, password: string) => Promise<User>;
+  googleLogin: (googleToken: string) => Promise<User>;
   logout: () => Promise<void>;
   loadUser: () => Promise<void>;
   refreshUser: () => Promise<void>;
@@ -32,6 +33,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const { accessToken, refreshToken, user } = await authApi.login(
       email,
       password
+    );
+    storage.setTokens(accessToken, refreshToken);
+    set({ user });
+    return user;
+  },
+
+  googleLogin: async (googleToken: string) => {
+    const { accessToken, refreshToken, user } = await authApi.googleLogin(
+      googleToken
     );
     storage.setTokens(accessToken, refreshToken);
     set({ user });

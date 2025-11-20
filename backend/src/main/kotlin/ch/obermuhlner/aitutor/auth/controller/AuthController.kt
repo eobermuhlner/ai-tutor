@@ -31,6 +31,13 @@ class AuthController(
         return ResponseEntity.ok(loginResponse)
     }
 
+    @PostMapping("/oauth/google")
+    @Operation(summary = "Login with Google", description = "Authenticates a user using Google OAuth2 and returns access/refresh tokens")
+    fun loginWithGoogle(@RequestBody request: GoogleLoginRequest): ResponseEntity<LoginResponse> {
+        val loginResponse = authService.loginWithGoogle(request.googleToken)
+        return ResponseEntity.ok(loginResponse)
+    }
+
     @PostMapping("/refresh")
     @Operation(summary = "Refresh access token", description = "Uses a refresh token to get a new access token")
     fun refreshToken(@RequestBody request: RefreshTokenRequest): ResponseEntity<LoginResponse> {
