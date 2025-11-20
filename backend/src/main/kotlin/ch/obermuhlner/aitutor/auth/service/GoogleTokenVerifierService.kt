@@ -48,10 +48,12 @@ class GoogleTokenVerifierService(
      */
     fun verifyToken(idTokenString: String): GoogleUserInfo {
         try {
+            logger.debug("Attempting to verify Google ID token (length: ${idTokenString.length})")
             val idToken: GoogleIdToken? = verifier.verify(idTokenString)
 
             if (idToken == null) {
-                logger.warn("Google ID token verification failed - token is invalid")
+                logger.warn("Google ID token verification failed - token is invalid (returned null)")
+                logger.debug("Token snippet: ${idTokenString.take(50)}...")
                 throw InvalidTokenException("Invalid Google ID token")
             }
 
@@ -80,7 +82,8 @@ class GoogleTokenVerifierService(
         } catch (e: InvalidTokenException) {
             throw e
         } catch (e: Exception) {
-            logger.error("Error verifying Google ID token", e)
+            logger.error("Error verifying Google ID token: ${e.javaClass.simpleName} - ${e.message}", e)
+            logger.debug("Full token that failed: $idTokenString")
             throw InvalidTokenException("Failed to verify Google ID token: ${e.message}")
         }
     }
