@@ -9,24 +9,5 @@ data class LessonContent(
     val estimatedDuration: String?,
     val focusAreas: List<String>,
     val targetCEFR: CEFRLevel,
-    val goals: List<String>,
-    val fullMarkdown: String  // Complete markdown for preview
-)
-
-data class GrammarPoint(
-    val title: String,
-    val rule: String,
-    val examples: List<String>,
-    val patterns: List<String>
-)
-
-data class VocabEntry(
-    val word: String,
-    val translation: String,
-    val contextExample: String? = null
-)
-
-data class Scenario(
-    val title: String,
-    val dialogue: String
+    val fullMarkdown: String
 )

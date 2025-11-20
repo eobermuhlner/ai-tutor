@@ -9,7 +9,6 @@ data class LessonContentResponse(
     val estimatedDuration: String?,
     val focusAreas: List<String>,
     val targetCEFR: CEFRLevel,
-    val goals: List<String>,
     val fullMarkdown: String
 )
 

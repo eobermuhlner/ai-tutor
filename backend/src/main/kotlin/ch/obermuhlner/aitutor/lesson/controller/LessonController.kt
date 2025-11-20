@@ -127,7 +127,6 @@ class LessonController(
             estimatedDuration = lesson.estimatedDuration,
             focusAreas = lesson.focusAreas,
             targetCEFR = lesson.targetCEFR,
-            goals = lesson.goals,
             fullMarkdown = lesson.fullMarkdown
         )
     }

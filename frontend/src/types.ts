@@ -401,7 +401,6 @@ export interface LessonContent {
   estimatedDuration: string | null;
   focusAreas: string[];
   targetCEFR: CEFRLevel;
-  goals: string[];
   fullMarkdown: string;
 }
 

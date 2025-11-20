@@ -85,7 +85,6 @@ class LessonControllerTest {
             estimatedDuration = "1 week",
             focusAreas = listOf("greetings", "polite expressions"),
             targetCEFR = CEFRLevel.A1,
-            goals = listOf("Learn greetings"),
             fullMarkdown = "# Greetings"
         )
 
@@ -137,7 +136,6 @@ class LessonControllerTest {
             estimatedDuration = "1 week",
             focusAreas = listOf("greetings"),
             targetCEFR = CEFRLevel.A1,
-            goals = emptyList(),
             fullMarkdown = "# Greetings"
         )
 
@@ -243,7 +241,6 @@ class LessonControllerTest {
             estimatedDuration = "1 week",
             focusAreas = listOf("introductions"),
             targetCEFR = CEFRLevel.A1,
-            goals = emptyList(),
             fullMarkdown = "# Introductions"
         )
 

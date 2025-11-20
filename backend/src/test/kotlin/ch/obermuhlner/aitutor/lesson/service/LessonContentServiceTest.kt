@@ -63,15 +63,6 @@ class LessonContentServiceTest {
     }
 
     @Test
-    fun `should parse goals from markdown`() {
-        val lesson = lessonContentService.getLesson("es-conversational-spanish", "week-01-greetings")
-
-        assertNotNull(lesson)
-        assertEquals(4, lesson?.goals?.size)
-        assertEquals(true, lesson?.goals?.any { it.contains("greetings") })
-    }
-
-    @Test
     fun `should load lesson with valid content`() {
         val lesson = lessonContentService.getLesson("es-conversational-spanish", "week-01-greetings")
 
@@ -81,15 +72,17 @@ class LessonContentServiceTest {
     }
 
     @Test
-    fun `should load lesson with goals`() {
+    fun `should load lesson with metadata`() {
         val lesson = lessonContentService.getLesson("es-conversational-spanish", "week-01-greetings")
 
         assertNotNull(lesson)
-        assertNotNull(lesson?.goals)
+        assertEquals("week-01-greetings", lesson?.id)
+        assertEquals("Greetings and Basic Expressions", lesson?.title)
+        assertEquals(1, lesson?.weekNumber)
     }
 
     @Test
-    fun `should load lesson with focus areas`() {
+    fun `should load lesson with proper focus areas`() {
         val lesson = lessonContentService.getLesson("es-conversational-spanish", "week-01-greetings")
 
         assertNotNull(lesson)
@@ -171,7 +164,6 @@ class LessonContentServiceTest {
 
         assertNotNull(lesson)
         // Should not crash even with minimal content
-        assertNotNull(lesson?.goals)
         assertNotNull(lesson?.fullMarkdown)
     }
 }
