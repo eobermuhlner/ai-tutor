@@ -4,22 +4,24 @@ An intelligent language learning platform with AI-powered conversational tutorin
 
 ## Project Structure
 
-This is a multi-module Gradle project with separate backend and frontend:
+Multi-module Gradle project with separate backend and frontend:
 
 ```
 ai-tutor/
 ├── backend/           # Spring Boot REST API (Kotlin)
 ├── frontend/          # React web application (TypeScript + Vite)
-├── CLAUDE_COURSE.md   # Course lesson writing guidelines
+├── docs/              # Documentation files
 └── build.gradle       # Root Gradle configuration
 ```
 
-### Module Documentation
+## Documentation Index
 
-- **Backend**: See `backend/CLAUDE.md` for backend-specific documentation
-- **Frontend**: See `frontend/CLAUDE.md` for frontend-specific documentation
-- **Course Writing**: See `CLAUDE_COURSE.md` for lesson authoring guidelines
-- **Catalog Import**: See `CATALOG_IMPORT_FORMAT.md` for unified import format specification
+- **Backend**: `backend/CLAUDE.md` - Backend API, services, and data models
+- **Frontend**: `frontend/CLAUDE.md` - React components and frontend architecture
+- **Course Writing**: `CLAUDE_COURSE.md` - Lesson authoring standards
+- **Catalog Import**: `docs/CATALOG_IMPORT_FORMAT.md` - Unified YAML import format
+- **Migration**: `docs/COURSE_MIGRATION_GUIDE.md` - Course migration instructions
+- **Deployment**: `docs/DEPLOYMENT_*.md` - Deployment and configuration guides
 
 ## Quick Start
 
@@ -57,94 +59,47 @@ npm run build
 **Default ports:**
 - Dev Server: `http://localhost:5173`
 
-## Architecture Overview
+## Technology Stack
 
-### Backend (`backend/`)
-
-**Tech Stack:**
+### Backend
 - Kotlin 1.9.25 + Spring Boot 3.5.6
-- Spring AI 1.0.1 (OpenAI, Azure OpenAI, Ollama)
-- H2 Database (JPA)
-- Gradle build system
+- Spring AI 1.0.1 (OpenAI, Azure OpenAI, Anthropic, Ollama)
+- H2 Database (JPA) + Gradle
 
-**Key Features:**
-- RESTful API (`/api/v1/*`)
-- JWT-based authentication
-- Multi-provider AI integration (OpenAI, Azure OpenAI, Anthropic, Ollama)
-- **Bring Your Own Key (BYOK)**: Users can configure their own LLM API keys
-- Adaptive tutoring with conversation phases (Free/Correction/Drill/Auto)
-- Course-based learning with curriculum validation
+**Core Features:**
+- RESTful API (`/api/v1/*`) with JWT authentication
+- Multi-provider AI integration with optional user API keys (BYOK)
+- Adaptive tutoring phases (Free/Correction/Drill/Auto)
 - Vocabulary tracking and CEFR assessment
 - Progressive message summarization
 
-### Frontend (`frontend/`)
-
-**Tech Stack:**
+### Frontend
 - React 19.1.1 + TypeScript 5.9.3
-- Vite 5.4.20 build tool
-- Tailwind CSS 3.4.18
-- Zustand state management
+- Vite 5.4.20 + Tailwind CSS 3.4.18 + Zustand
 
-**Key Features:**
-- Course catalog browsing
-- Interactive chat interface with real-time error corrections
-- Session management with progress tracking
-- Responsive design with Tailwind CSS
+**Core Features:**
+- Interactive chat with real-time error corrections
+- Course catalog and session management
 - Type-safe API client integration
 
 ## Development Workflow
 
-### Backend Development
-
-1. Make changes in `backend/src/`
-2. Run tests: `./gradlew :backend:test`
-3. Run server: `./gradlew :backend:bootRun`
-4. Test with HTTP client: `backend/src/test/http/http-client-requests.http`
-
-### Frontend Development
-
-1. Make changes in `frontend/src/`
-2. Dev server auto-reloads at `http://localhost:5173`
-3. Test API integration with running backend
-4. Build for production: `npm run build`
-
-### Full-Stack Testing
-
-1. Start backend: `./gradlew :backend:bootRun` (port 8080)
-2. Start frontend: `cd frontend && npm run dev` (port 5173)
-3. Test complete workflows in browser
+**Backend:** Edit `backend/src/` → Test `./gradlew :backend:test` → Run `./gradlew :backend:bootRun`
+**Frontend:** Edit `frontend/src/` → Auto-reload at `localhost:5173` → Build `npm run build`
+**Full-Stack:** Start both servers (8080 + 5173) → Test in browser
 
 ## Git Commit Guidelines
 
-**Commit message format (MANDATORY):**
-- **First line**: Concise summary (imperative mood, no period)
-- **Body** (optional): Brief explanation of what and why (one sentence per line)
-- **❌ NEVER include attribution**: ABSOLUTELY NO "Generated with Claude Code", "Co-Authored-By: Claude", or ANY similar AI attribution
+**Format (MANDATORY):**
+- First line: Imperative mood, no period (e.g., "Add feature" not "Added feature.")
+- Body (optional): Brief explanation (one sentence per line)
+- **❌ NEVER include**: "Generated with Claude Code", "Co-Authored-By: Claude", or ANY AI attribution
 
-**✅ CORRECT Example:**
-```
-Add effectivePhase to separate user preference from active phase
-
-User-controlled conversationPhase (Auto/Free/Correction/Drill) now separate from effectivePhase (actual active phase).
-LLM suggestions only update effectivePhase when in Auto mode, never override manual user choices.
-```
-
-**❌ WRONG Example (DO NOT DO THIS):**
-```
-Add effectivePhase to separate user preference from active phase
-
-User-controlled conversationPhase now separate from effectivePhase.
-
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
-
-Co-Authored-By: Claude <noreply@anthropic.com>
-```
-
-**Before every commit, verify:**
-1. ✅ No "Generated with" or "Co-Authored-By" lines
-2. ✅ Imperative mood ("Add" not "Added", "Fix" not "Fixed")
-3. ✅ No period at end of first line
-4. ✅ Blank line between subject and body (if body exists)
+**Pre-commit checklist:**
+1. ✅ No AI attribution lines
+2. ✅ Imperative mood
+3. ✅ No period at end of subject
+4. ✅ Blank line between subject and body
 
 ## API Integration
 
@@ -165,373 +120,166 @@ The frontend consumes the backend REST API at `http://localhost:8080/api/v1/*`.
 
 ## Course Authoring
 
-Language courses are stored in `backend/src/main/resources/course-content/`.
+Courses stored in `backend/src/main/resources/course-content/` (legacy) or database (preferred).
 
-See **CLAUDE_COURSE.md** for comprehensive guidelines on:
+**See `CLAUDE_COURSE.md` for:**
+- Lesson structure and pedagogical standards
 - Course types (Conversational, Grammar, Travel)
-- Lesson structure (8 required sections)
-- Pedagogical approaches and research foundations
-- Size requirements and quality standards
 - Creating curriculum.yml files
 
-Quick command: `/course:write-lesson` for guided lesson creation.
+**Quick command:** `/course:write-lesson`
 
 ## Catalog Import & Migration
 
-The system supports importing languages, tutors, and courses via a unified YAML format. This replaces the legacy file-based seeding approach.
+Import languages, tutors, and courses via unified YAML format (replaces legacy file-based seeding).
 
-**📖 For complete format specification, see [CATALOG_IMPORT_FORMAT.md](CATALOG_IMPORT_FORMAT.md)**
-**📖 For migration instructions, see [COURSE_MIGRATION_GUIDE.md](COURSE_MIGRATION_GUIDE.md)**
+**📖 Complete documentation:**
+- Format specification: `docs/CATALOG_IMPORT_FORMAT.md`
+- Migration guide: `docs/COURSE_MIGRATION_GUIDE.md`
 
-### Quick Migration Options
+### Quick Migration
 
-**Option 1: Automatic Migration (Recommended)**
+**Automatic (Recommended):**
 ```bash
-# Migrate all course-content/ files to database in one command
 ./gradlew :backend:migrateCoursesFromFiles
 ```
 
-**Option 2: Extract & Upload via API**
+**Manual via API:**
 ```bash
-# Step 1: Extract files to external directory
 ./gradlew :backend:extractCourseFiles
-
-# Step 2: Upload individual courses via REST API
 ./upload-course-example.sh course-content-extracted/de-conversational-german YOUR_TOKEN
 ```
 
-**Option 3: Upload via UI**
-- Navigate to Course Management page
-- Click "Import Course" button
-- Upload curriculum.yml + lesson .md files
-- Review and publish
+**Via UI:**
+Course Management → "Import Course" → Upload `curriculum.yml` + lesson `.md` files
 
-**After migration:**
-- Lessons load from database automatically
-- File-based fallback still works for backwards compatibility
-- To disable startup seeding, set `ai-tutor.catalog.useSeeding=false` in `application.yml`
+### Key API Endpoints
 
-### Unified Catalog Import (New Format)
-
-Import languages, tutors, and courses together using the unified YAML format.
-
-**Format structure:**
-```yaml
-version: "1.0"
-
-tutorArchetypes:  # Optional: Reusable tutor templates
-  - id: encouraging-general
-    # ...
-
-languages:  # Optional: Language definitions
-  - code: de-DE
-    name:
-      en: German (Germany)
-      de: Deutsch (Deutschland)
-    # ...
-
-tutors:  # Optional: Tutor profiles
-  - name: Anna
-    targetLanguage: de-DE
-    archetypeId: encouraging-general  # OR direct definition
-    # ...
-
-courses:  # Optional: Course definitions
-  - languageCode: de-DE
-    name:
-      en: Conversational German
-    curriculum:  # Optional: Embedded curriculum
-      lessons:
-        - id: lesson-01
-          content: "..." # OR file: lesson-01.md
-```
-
-**REST API Endpoints:**
 ```bash
 # Import complete catalog (languages + tutors + courses)
 POST /api/v1/catalog/import
-Content-Type: multipart/form-data
-Body:
-  - catalogFile: catalog.yml (required)
-  - lessonFiles: [*.md files] (optional, for file-referenced lessons)
-Requires: ADMIN role
+# Multipart: catalogFile (YAML), lessonFiles (optional .md files)
+# Requires: ADMIN role
 
-Response:
-{
-  "languagesImported": 17,
-  "tutorsImported": 72,
-  "coursesImported": 127,
-  "lessonsImported": 450,
-  "errors": [],
-  "success": true
-}
-
-# Import only languages
-POST /api/v1/languages/import
-Content-Type: multipart/form-data
-Body:
-  - catalogFile: catalog.yml (containing languages section)
-Requires: ADMIN role
-
-# Validate catalog before importing
-POST /api/v1/catalog/import/validate
-Content-Type: multipart/form-data
-Body:
-  - catalogFile: catalog.yml
-  - lessonFiles: [*.md files] (optional)
-```
-
-**Seeding on startup:**
-- Place `catalog-seed.yml` in `backend/src/main/resources/`
-- System tries `catalog-seed.yml` first, falls back to legacy `application-seed.yml`
-- Auto-loads on first startup when database is empty
-
-**Key benefits:**
-- Single-file catalog definition
-- Import all entity types together or separately
-- Multilingual support throughout
-- Optional tutor archetypes for DRY principle
-- Flexible lesson content (embedded or file-referenced)
-
-### Importing Individual Courses via API (Legacy Format)
-
-**Endpoints:**
-```bash
-# Import complete course (curriculum.yml + lesson .md files)
+# Import individual course
 POST /api/v1/courses/import/file
-Content-Type: multipart/form-data
-Body:
-  - curriculumFile: curriculum.yml
-  - lessonFiles: [lesson-01.md, lesson-02.md, ...]
-  - languageCode: de
-  - courseName: Conversational German
-  - category: Conversational (optional)
-  - startingLevel: A1 (optional)
-  - targetLevel: B2 (optional)
+# Multipart: curriculumFile, lessonFiles, languageCode, courseName
+# Requires: EDITOR or ADMIN role
 
-# Add lessons to existing course
-POST /api/v1/courses/{courseId}/lessons/import/file
-Content-Type: multipart/form-data
-Body:
-  - lessonFiles: [lesson-03.md, lesson-04.md, ...]
-
-# Validate files before importing
+# Validate before importing
+POST /api/v1/catalog/import/validate
 POST /api/v1/courses/import/validate
-Content-Type: multipart/form-data
-Body:
-  - curriculumFile: curriculum.yml (optional)
-  - lessonFiles: [*.md files]
 ```
-
-**Requires:** EDITOR or ADMIN role
-
-### Importing via UI
-
-The Course Management page now has an **"Import Course"** button:
-
-1. Click "Import Course" in Course Management
-2. Fill in course metadata (name, language, category, levels)
-3. Upload `curriculum.yml` file (required)
-4. Upload lesson `.md` files (required, multiple files)
-5. Optionally validate files before importing
-6. Click "Import Course"
-7. Imported course opens in editor as draft
-8. Review and publish when ready
-
-**Features:**
-- Drag-and-drop file upload
-- Real-time validation
-- Error reporting with detailed messages
-- Progress indicators
-- Automatic navigation to newly imported course
 
 ### Source Type Tracking
 
-All courses and tutors now track their origin via `sourceType`:
-- **SEEDED**: Legacy data from startup seeding (to be phased out)
+Courses and tutors track origin via `sourceType`:
+- **SEEDED**: Legacy startup seeding (being phased out)
 - **UPLOADED**: Imported via file upload API
-- **CREATED**: Created directly through UI/API
-
-This enables audit trails and helps identify migration status.
+- **CREATED**: Created via UI/API
 
 ## Testing
 
-### Backend Tests
-
+**Backend Tests:**
 ```bash
-# Run all backend tests
-./gradlew :backend:test
-
-# Run specific test class
-./gradlew :backend:test --tests ChatControllerTest
-
-# Run with coverage report
-./gradlew :backend:test :backend:jacocoTestReport
+./gradlew :backend:test                                      # Run all tests
+./gradlew :backend:test --tests ChatControllerTest           # Specific test
+./gradlew :backend:test :backend:jacocoTestReport            # With coverage
 ```
 
-### Pedagogical Test Harness
-
-Automated LLM-as-judge evaluation for tutor behavior:
-
+**Pedagogical Test Harness (LLM-as-judge):**
 ```bash
-# List available scenarios
-./gradlew :backend:runTestHarness --args="--list"
-
-# Run all scenarios
-./gradlew :backend:runTestHarness
-
-# Run specific scenario
-./gradlew :backend:runTestHarness --args="--scenario beginner-errors"
+./gradlew :backend:runTestHarness                            # Run all scenarios
+./gradlew :backend:runTestHarness --args="--list"            # List scenarios
+./gradlew :backend:runTestHarness --args="--scenario NAME"   # Run specific
 ```
 
 ## Environment Configuration
 
-### Backend Environment Variables
+### Backend
 
-**OpenAI (default):**
+**LLM Provider (choose one):**
 ```bash
+# OpenAI (default)
 export OPENAI_API_KEY=your-api-key
-```
 
-**Azure OpenAI:**
-```bash
+# Azure OpenAI (uncomment config in application.yml)
 export AZURE_OPENAI_API_KEY=your-key
 export AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com
-```
 
-Edit `backend/src/main/resources/application.yml` to uncomment Azure configuration.
-
-**Anthropic (Claude):**
-```bash
+# Anthropic (use dev-anthropic profile in application.yml)
 export ANTHROPIC_API_KEY=your-api-key
-```
 
-Edit `backend/src/main/resources/application.yml` to use the `dev-anthropic` profile.
-
-**Ollama (local):**
-```bash
-# Start Ollama with a model
+# Ollama (local, uncomment config in application.yml)
 ollama run llama3
 ```
 
-Edit `backend/src/main/resources/application.yml` to uncomment Ollama configuration.
-
-**Encryption Key (required for BYOK):**
+**Security (required for BYOK):**
 ```bash
-# Generate a secure 256-bit encryption key
-export ENCRYPTION_KEY=$(openssl rand -base64 32)
+export ENCRYPTION_KEY=$(openssl rand -base64 32)  # User API key encryption
 ```
 
-Required for encrypting user API keys when using the Bring Your Own Key (BYOK) feature.
+### Frontend
 
-### Frontend Environment Variables
-
-Copy `frontend/.env.example` to `frontend/.env` and configure:
+Copy `frontend/.env.example` to `frontend/.env`:
 ```
 VITE_API_BASE_URL=http://localhost:8080
 ```
 
 ## Bring Your Own Key (BYOK)
 
-⚠️ **CURRENT STATUS**: The BYOK feature is **partially implemented**. Users can configure and store API keys securely, but the system currently uses the default ChatModel for all users. Full runtime ChatModel instantiation requires deeper Spring AI 1.0.1 integration (see implementation notes below).
+⚠️ **Status: Partially Implemented**
+- ✅ Secure API key storage (AES-256-GCM encrypted)
+- ✅ User profile UI and REST API endpoints
+- ✅ Support for OpenAI, Azure OpenAI, Anthropic
 
-The AI Tutor is designed to support user-provided API keys for LLM providers, allowing users to use their own accounts instead of shared system keys.
+**Limitation:** Spring AI 1.0.1 lacks builder APIs for runtime ChatModel instantiation. Future implementation requires Spring AI improvements or upgrade.
 
-### Supported Providers
+**User Configuration:**
+1. Profile & Settings → "AI Provider Settings (BYOK)"
+2. Enter API key for desired provider
+3. Save (format validation only)
 
-- **OpenAI** - Standard OpenAI API (GPT models)
-- **Azure OpenAI** - Microsoft's Azure-hosted OpenAI service
-- **Anthropic** - Anthropic's Claude API
+**Key Endpoints:**
+- `GET /api/v1/users/me/api-keys` - Get configuration status
+- `PUT /api/v1/users/me/api-keys/{openai|azure-openai|anthropic}` - Set key
+- `DELETE /api/v1/users/me/api-keys/{provider}` - Remove key
 
-### How It Works (Current Implementation)
+## IntelliJ IDEA Run Configurations
 
-1. **UI & Storage**: Users can configure API keys through the Profile page
-2. **Validation**: Basic format validation for API keys (prefix checking, length validation)
-3. **Encryption**: All user API keys are encrypted using AES-256-GCM before storage in database
-4. **⚠️ Limitation**: Currently all users use the system default ChatModel (configured via environment variables)
-5. **Future**: Runtime per-user ChatModel instantiation pending Spring AI API improvements
-
-### What Works
-
-✅ Secure API key storage (AES-256-GCM encrypted)
-✅ User profile UI for managing keys
-✅ Database schema with encrypted fields
-✅ REST API endpoints for key management
-✅ Support for OpenAI, Azure OpenAI, and Anthropic
-
-### What Doesn't Work Yet
-
-❌ Runtime ChatModel instantiation with user's API key
-❌ Actual API key testing/validation (only format checks)
-❌ Per-user provider selection (everyone uses system default)
-
-### Technical Limitation
-
-Spring AI 1.0.1's ChatModel constructors require many injected dependencies (RestClientBuilder, WebClientBuilder, etc.) that are typically provided by Spring Boot autoconfiguration. Manual runtime instantiation is complex and not well-documented. Future implementation will require either:
-- Waiting for Spring AI to provide better builder APIs
-- Deep dive into Spring AI autoconfiguration internals
-- Upgrade to newer Spring AI version with improved APIs
-
-### Configuration
-
-**Server-side (required):**
-```bash
-# Generate and set encryption key for API key storage
-export ENCRYPTION_KEY=$(openssl rand -base64 32)
-```
-
-**User-side:**
-1. Navigate to Profile & Settings page
-2. Scroll to "AI Provider Settings (BYOK)" section
-3. Enter API key for desired provider
-4. Click "Save & Validate" to test the key
-5. Optionally set a preferred provider
-
-### REST API Endpoints
-
-- `GET /api/v1/users/me/api-keys` - Get API key configuration status
-- `PUT /api/v1/users/me/api-keys/openai` - Set OpenAI API key
-- `PUT /api/v1/users/me/api-keys/azure-openai` - Set Azure OpenAI key and endpoint
-- `PUT /api/v1/users/me/api-keys/anthropic` - Set Anthropic API key
-- `DELETE /api/v1/users/me/api-keys/{provider}` - Remove API key
-- `PUT /api/v1/users/me/api-keys/preferred-provider` - Set preferred provider
-
-## IntelliJ IDEA
-
-The project includes pre-configured run configurations:
-- **AiTutor Server (OpenAI)** - Run backend with OpenAI
-- **AiTutor Server (Azure OpenAI)** - Run backend with Azure OpenAI
-- **AiTutor Server (Ollama)** - Run backend with Ollama
-- **TestHarnessMain (OpenAI)** - Run test harness
+Pre-configured in `.idea/runConfigurations/`:
+- **AiTutor Server (OpenAI/Azure/Ollama)** - Run backend with different providers
+- **TestHarnessMain** - Run pedagogical test harness
 - **Tests in 'ai-tutor.backend.test'** - Run backend tests
 
-All configurations use the `ai-tutor.backend.main` module.
+All use `ai-tutor.backend.main` module.
 
-## Preserving Existing Functionality
+## Development Guidelines
 
-**CRITICAL**: Never remove or break existing features without explicit user approval.
+**CRITICAL: Preserve Existing Functionality**
+1. ✅ Verify REST endpoints work after changes (use HTTP client)
+2. ✅ Ensure tests pass (`./gradlew :backend:test`)
+3. ✅ Ask before deleting code
+4. ✅ Maintain API backward compatibility
+5. ✅ Document breaking changes if unavoidable
 
-When refactoring or adding features:
-1. **Verify all existing REST endpoints still work** - Test with HTTP client
-2. **Check existing tests pass** - Failing tests indicate broken functionality
-3. **Review before deletion** - If removing code, ask user first
-4. **Maintain backward compatibility** - Don't change existing API contracts
-5. **Document breaking changes** - If unavoidable, clearly communicate impact
+## Quick Reference
 
-## Additional Resources
+**Documentation:**
+- `backend/CLAUDE.md` - Backend API and architecture
+- `frontend/CLAUDE.md` - Frontend components and patterns
+- `CLAUDE_COURSE.md` - Lesson authoring standards
+- `docs/CATALOG_IMPORT_FORMAT.md` - Import format specification
+- `docs/COURSE_MIGRATION_GUIDE.md` - Migration instructions
+- `README.md` - User-facing documentation
 
-- **Backend API**: `backend/CLAUDE.md` - Full backend documentation
-- **Frontend Guide**: `frontend/CLAUDE.md` - Frontend development guidelines
-- **Course Writing**: `CLAUDE_COURSE.md` - Lesson authoring standards
-- **Catalog Import**: `CATALOG_IMPORT_FORMAT.md` - Unified import format specification
-- **Migration Guide**: `COURSE_MIGRATION_GUIDE.md` - Course migration instructions
-- **README**: `README.md` - User-facing documentation
-- **OpenAPI Docs**: `http://localhost:8080/swagger-ui.html` (when backend running)
+**Key Directories:**
+- `backend/src/main/kotlin/` - Backend source code
+- `frontend/src/` - Frontend source code
+- `backend/src/main/resources/course-content/` - Legacy course files
+- `backend/src/test/http/` - HTTP client test requests
+- `scenarios/` - Test harness scenarios
 
-## Project Links
-
-- Backend source: `backend/src/main/kotlin/`
-- Frontend source: `frontend/src/`
-- Course content: `backend/src/main/resources/course-content/`
-- HTTP tests: `backend/src/test/http/`
-- Test scenarios: `scenarios/`
+**Tools:**
+- OpenAPI docs: `http://localhost:8080/swagger-ui.html`
+- H2 Console: `http://localhost:8080/h2-console`
