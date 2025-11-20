@@ -90,16 +90,14 @@ export default function LanguageIcons({ userId }: LanguageIconsProps) {
           position="bottom"
         >
           <div
-            className={`relative flex items-center justify-center w-6 h-6 rounded-full overflow-hidden cursor-pointer ${
-              proficiency.isPrimary
-                ? 'ring-2 ring-blue-500 ring-offset-1'
-                : 'ring-1 ring-slate-300'
-            }`}
+            className="relative flex items-center justify-center w-6 h-6 cursor-pointer"
             onClick={() => navigate('/profile#language-proficiencies')}
           >
             <FlagIcon languageCode={proficiency.languageCode} size={1.2} />
             {proficiency.isPrimary && (
-              <span className="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 rounded-full border border-white"></span>
+              <span className="absolute top-0 right-0 text-blue-500 text-[10px] transform translate-x-1 -translate-y-1">
+                ★
+              </span>
             )}
           </div>
         </Tooltip>
