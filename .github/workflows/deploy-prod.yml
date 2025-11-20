@@ -80,6 +80,7 @@ jobs:
             VCS_REF=${{ github.sha }}
             VERSION=${{ github.event.release.tag_name }}
             VITE_API_URL=https://ai-tutor.obermuhlner.ch/api/v1
+            VITE_GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
 
       - name: Deploy to production server via SSH
         uses: appleboy/ssh-action@v1.0.3
@@ -113,6 +114,8 @@ jobs:
             FRONTEND_URL=https://ai-tutor.obermuhlner.ch
             JWT_SECRET=${{ secrets.JWT_SECRET_PROD }}
             OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
+            GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
+            GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
             ADMIN_USERNAME=${{ secrets.ADMIN_USERNAME }}
             ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}
             DEMO_USERNAME=${{ secrets.DEMO_USERNAME }}
