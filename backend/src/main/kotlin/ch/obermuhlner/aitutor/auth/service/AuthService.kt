@@ -428,7 +428,7 @@ class AuthService(
         }
     }
 
-    private fun toUserResponse(user: UserEntity): UserResponse {
+    internal fun toUserResponse(user: UserEntity): UserResponse {
         return UserResponse(
             id = user.id,
             username = user.username,

@@ -217,6 +217,38 @@ class AuthControllerTest {
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.username").value("testuser"))
             .andExpect(jsonPath("$.email").value("test@example.com"))
+            .andExpect(jsonPath("$.provider").value("CREDENTIALS"))
+
+        verify { authorizationService.getCurrentUser() }
+    }
+
+    @Test
+    @WithMockUser(username = "googleuser")
+    fun `GET me should return Google OAuth provider for Google users`() {
+        val user = ch.obermuhlner.aitutor.user.domain.UserEntity(
+            id = UUID.randomUUID(),
+            username = "googleuser",
+            email = "google@example.com",
+            firstName = "Google",
+            lastName = "User",
+            roles = mutableSetOf(UserRole.USER),
+            enabled = true,
+            emailVerified = true,
+            createdAt = Instant.now(),
+            lastLoginAt = Instant.now(),
+            subscriptionPlan = ch.obermuhlner.aitutor.user.domain.SubscriptionPlan.FREE,
+            provider = ch.obermuhlner.aitutor.user.domain.AuthProvider.GOOGLE
+        )
+
+        every { authorizationService.getCurrentUser() } returns user
+
+        mockMvc.perform(
+            get("/api/v1/auth/me")
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.username").value("googleuser"))
+            .andExpect(jsonPath("$.email").value("google@example.com"))
+            .andExpect(jsonPath("$.provider").value("GOOGLE"))
 
         verify { authorizationService.getCurrentUser() }
     }

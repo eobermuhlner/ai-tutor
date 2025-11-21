@@ -450,4 +450,22 @@ class AuthServiceTest {
             authService.refreshAccessToken(request)
         }
     }
+
+    @Test
+    fun `toUserResponse should include provider field`() {
+        val user = UserEntity(
+            id = UUID.randomUUID(),
+            username = "testuser",
+            email = "test@example.com",
+            passwordHash = "hash",
+            roles = mutableSetOf(UserRole.USER),
+            provider = AuthProvider.GOOGLE
+        )
+
+        val result = authService.toUserResponse(user)
+
+        assertEquals(AuthProvider.GOOGLE, result.provider)
+        assertEquals("testuser", result.username)
+        assertEquals("test@example.com", result.email)
+    }
 }
