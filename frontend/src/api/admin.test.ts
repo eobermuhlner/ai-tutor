@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { 
+import {
   updateUserSubscriptionPlan,
 } from './admin';
-import { PronunciationPreference } from '../types';
+import { AuthProvider, PronunciationPreference } from '../types';
 import type { User } from '../types';
 
 // Use vi.hoisted to properly handle the hoisting issue
@@ -44,6 +44,7 @@ describe('admin API module', () => {
         lastLoginAt: null,
         subscriptionPlan: 'FREE',
         pronunciationPreference: 'NONE' as PronunciationPreference,
+        provider: 'CREDENTIALS' as AuthProvider,
       };
       
       mockPatch.mockResolvedValue({ data: mockUser });
@@ -75,6 +76,7 @@ describe('admin API module', () => {
         lastLoginAt: null,
         subscriptionPlan: 'SUBSCRIPTION_10',
         pronunciationPreference: 'NONE' as PronunciationPreference,
+        provider: 'CREDENTIALS' as AuthProvider,
       };
       
       mockPatch.mockResolvedValue({ data: mockUser });
@@ -106,6 +108,7 @@ describe('admin API module', () => {
         lastLoginAt: null,
         subscriptionPlan: 'FREE_BYOK',
         pronunciationPreference: 'NONE' as PronunciationPreference,
+        provider: 'CREDENTIALS' as AuthProvider,
       };
       
       mockPatch.mockResolvedValue({ data: mockUser });

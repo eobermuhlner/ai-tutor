@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { 
+import {
   register,
   login,
   refreshToken,
@@ -8,7 +8,7 @@ import {
   changePassword,
   changeEmail,
 } from './auth';
-import { PronunciationPreference } from '../types';
+import { AuthProvider, PronunciationPreference } from '../types';
 import type { User } from '../types';
 
 // Use vi.hoisted to properly handle the hoisting issue
@@ -51,12 +51,13 @@ describe('auth API module', () => {
         lastLoginAt: null,
         subscriptionPlan: 'FREE',
         pronunciationPreference: 'NONE' as PronunciationPreference,
+        provider: 'CREDENTIALS' as AuthProvider,
       };
-      
+
       mockPost.mockResolvedValue({ data: mockUser });
-      
+
       const result = await register('testuser', 'test@example.com', 'password123');
-      
+
       expect(mockPost).toHaveBeenCalledWith('/auth/register', {
         username: 'testuser',
         email: 'test@example.com',
@@ -87,6 +88,7 @@ describe('auth API module', () => {
           lastLoginAt: null,
           subscriptionPlan: 'FREE',
           pronunciationPreference: 'NONE' as PronunciationPreference,
+          provider: 'CREDENTIALS' as AuthProvider,
         }
       };
       
@@ -123,6 +125,7 @@ describe('auth API module', () => {
           lastLoginAt: null,
           subscriptionPlan: 'FREE',
           pronunciationPreference: 'NONE' as PronunciationPreference,
+          provider: 'CREDENTIALS' as AuthProvider,
         }
       };
       
@@ -153,6 +156,7 @@ describe('auth API module', () => {
         lastLoginAt: null,
         subscriptionPlan: 'FREE',
         pronunciationPreference: 'NONE' as PronunciationPreference,
+        provider: 'CREDENTIALS' as AuthProvider,
       };
       
       mockGet.mockResolvedValue({ data: mockUser });
@@ -203,6 +207,7 @@ describe('auth API module', () => {
         lastLoginAt: null,
         subscriptionPlan: 'FREE',
         pronunciationPreference: 'NONE' as PronunciationPreference,
+        provider: 'CREDENTIALS' as AuthProvider,
       };
       
       mockPost.mockResolvedValue({ data: mockUser });

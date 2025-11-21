@@ -16,7 +16,7 @@ import {
   removeLanguageProficiency,
 } from '../api/userLanguages';
 import { changePassword, changeEmail } from '../api/auth';
-import { CEFRLevel, LanguageProficiencyType } from '../types';
+import { AuthProvider, CEFRLevel, LanguageProficiencyType } from '../types';
 import type { LanguageProficiency } from '../types';
 import toast from 'react-hot-toast';
 
@@ -38,6 +38,9 @@ export default function ProfilePage() {
 
   // Email change form state
   const [newEmail, setNewEmail] = useState('');
+
+  // Check if user is OAuth user (Google, GitHub, etc.)
+  const isOAuthUser = user?.provider !== AuthProvider.CREDENTIALS;
   const [isSubmittingEmail, setIsSubmittingEmail] = useState(false);
 
   // Profile name change state
@@ -457,64 +460,74 @@ export default function ProfilePage() {
             )}
             <div className="pt-4 border-t border-slate-100">
               <h3 className="text-sm font-semibold text-slate-500 mb-2">Account Security</h3>
-              {!isChangingPassword ? (
-                <Button
-                  variant="secondary"
-                  onClick={() => setIsChangingPassword(true)}
-                >
-                  Change Password
-                </Button>
+              {isOAuthUser ? (
+                <div className="space-y-1">
+                  <p className="text-sm text-slate-600">
+                    Linked to {user?.provider} account
+                  </p>
+                </div>
               ) : (
-                <form onSubmit={handleChangePassword} className="space-y-4 max-w-md">
-                  <Input
-                    type="password"
-                    label="Current Password"
-                    value={currentPassword}
-                    onChange={(e) => setCurrentPassword(e.target.value)}
-                    required
-                    disabled={isSubmittingPassword}
-                  />
-                  <Input
-                    type="password"
-                    label="New Password"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    required
-                    minLength={8}
-                    disabled={isSubmittingPassword}
-                  />
-                  <Input
-                    type="password"
-                    label="Confirm New Password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    required
-                    minLength={8}
-                    disabled={isSubmittingPassword}
-                  />
-                  <div className="flex gap-3">
+                <>
+                  {!isChangingPassword ? (
                     <Button
-                      type="button"
                       variant="secondary"
-                      onClick={() => {
-                        setIsChangingPassword(false);
-                        setCurrentPassword('');
-                        setNewPassword('');
-                        setConfirmPassword('');
-                      }}
-                      disabled={isSubmittingPassword}
+                      onClick={() => setIsChangingPassword(true)}
                     >
-                      Cancel
+                      Change Password
                     </Button>
-                    <Button
-                      type="submit"
-                      variant="primary"
-                      isLoading={isSubmittingPassword}
-                    >
-                      Update Password
-                    </Button>
-                  </div>
-                </form>
+                  ) : (
+                    <form onSubmit={handleChangePassword} className="space-y-4 max-w-md">
+                      <Input
+                        type="password"
+                        label="Current Password"
+                        value={currentPassword}
+                        onChange={(e) => setCurrentPassword(e.target.value)}
+                        required
+                        disabled={isSubmittingPassword}
+                      />
+                      <Input
+                        type="password"
+                        label="New Password"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        required
+                        minLength={8}
+                        disabled={isSubmittingPassword}
+                      />
+                      <Input
+                        type="password"
+                        label="Confirm New Password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        required
+                        minLength={8}
+                        disabled={isSubmittingPassword}
+                      />
+                      <div className="flex gap-3">
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          onClick={() => {
+                            setIsChangingPassword(false);
+                            setCurrentPassword('');
+                            setNewPassword('');
+                            setConfirmPassword('');
+                          }}
+                          disabled={isSubmittingPassword}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          type="submit"
+                          variant="primary"
+                          isLoading={isSubmittingPassword}
+                        >
+                          Update Password
+                        </Button>
+                      </div>
+                    </form>
+                  )}
+                </>
               )}
             </div>
           </div>

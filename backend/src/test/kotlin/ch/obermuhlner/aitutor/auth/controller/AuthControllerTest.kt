@@ -8,6 +8,7 @@ import ch.obermuhlner.aitutor.auth.dto.RegisterRequest
 import ch.obermuhlner.aitutor.auth.dto.UserResponse
 import ch.obermuhlner.aitutor.auth.service.AuthService
 import ch.obermuhlner.aitutor.auth.service.AuthorizationService
+import ch.obermuhlner.aitutor.user.domain.AuthProvider
 import ch.obermuhlner.aitutor.user.domain.UserRole
 import ch.obermuhlner.aitutor.user.service.UserService
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -85,7 +86,8 @@ class AuthControllerTest {
             createdAt = Instant.now(),
             lastLoginAt = null,
             subscriptionPlan = ch.obermuhlner.aitutor.user.domain.SubscriptionPlan.FREE,
-            pronunciationPreference = ch.obermuhlner.aitutor.user.domain.PronunciationPreference.NONE
+            pronunciationPreference = ch.obermuhlner.aitutor.user.domain.PronunciationPreference.NONE,
+            provider = AuthProvider.CREDENTIALS
         )
 
         every { authService.register(request) } returns response
@@ -125,7 +127,8 @@ class AuthControllerTest {
                 createdAt = Instant.now(),
                 lastLoginAt = Instant.now(),
                 subscriptionPlan = ch.obermuhlner.aitutor.user.domain.SubscriptionPlan.FREE,
-                pronunciationPreference = ch.obermuhlner.aitutor.user.domain.PronunciationPreference.NONE
+                pronunciationPreference = ch.obermuhlner.aitutor.user.domain.PronunciationPreference.NONE,
+                provider = AuthProvider.CREDENTIALS
             )
         )
 
@@ -168,7 +171,8 @@ class AuthControllerTest {
                 createdAt = Instant.now(),
                 lastLoginAt = null,
                 subscriptionPlan = ch.obermuhlner.aitutor.user.domain.SubscriptionPlan.FREE,
-                pronunciationPreference = ch.obermuhlner.aitutor.user.domain.PronunciationPreference.NONE
+                pronunciationPreference = ch.obermuhlner.aitutor.user.domain.PronunciationPreference.NONE,
+                provider = AuthProvider.CREDENTIALS
             )
         )
 

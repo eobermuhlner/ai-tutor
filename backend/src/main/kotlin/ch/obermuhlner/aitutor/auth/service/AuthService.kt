@@ -442,7 +442,8 @@ class AuthService(
             createdAt = user.createdAt,
             lastLoginAt = user.lastLoginAt,
             subscriptionPlan = user.subscriptionPlan,
-            pronunciationPreference = user.pronunciationPreference
+            pronunciationPreference = user.pronunciationPreference,
+            provider = user.provider
         )
     }
 }

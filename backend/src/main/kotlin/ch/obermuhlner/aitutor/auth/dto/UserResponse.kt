@@ -3,6 +3,7 @@ package ch.obermuhlner.aitutor.auth.dto
 import ch.obermuhlner.aitutor.user.domain.SubscriptionPlan
 import ch.obermuhlner.aitutor.user.domain.UserRole
 import ch.obermuhlner.aitutor.user.domain.PronunciationPreference
+import ch.obermuhlner.aitutor.user.domain.AuthProvider
 import java.time.Instant
 import java.util.UUID
 
@@ -19,5 +20,6 @@ data class UserResponse(
     val createdAt: Instant?,
     val lastLoginAt: Instant?,
     val subscriptionPlan: SubscriptionPlan,
-    val pronunciationPreference: PronunciationPreference
+    val pronunciationPreference: PronunciationPreference,
+    val provider: AuthProvider
 )

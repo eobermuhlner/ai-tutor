@@ -105,6 +105,7 @@ export interface User {
   lastLoginAt: string | null;
   subscriptionPlan: 'FREE' | 'FREE_BYOK' | 'SUBSCRIPTION_10';
   pronunciationPreference: PronunciationPreference;
+  provider: AuthProvider;
 }
 
 export enum PronunciationPreference {
@@ -112,6 +113,13 @@ export enum PronunciationPreference {
   IPA = 'IPA',
   SOURCE_LANGUAGE = 'SOURCE_LANGUAGE',
   ENGLISH = 'ENGLISH',
+}
+
+export enum AuthProvider {
+  CREDENTIALS = 'CREDENTIALS',
+  GOOGLE = 'GOOGLE',
+  GITHUB = 'GITHUB',
+  FACEBOOK = 'FACEBOOK',
 }
 
 export interface Message {
