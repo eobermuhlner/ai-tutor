@@ -1,0 +1,14 @@
+jwt:
+  secret: test-secret-for-testing
+
+ai-tutor:
+  audio:
+    enabled: false  # Disable audio in tests
+
+  catalog:
+    use-seeding: false  # Disables both SeedDataService and SeedLanguageService
+
+logging:
+  level:
+    org.springframework: WARN
+    ch.obermuhlner: INFO

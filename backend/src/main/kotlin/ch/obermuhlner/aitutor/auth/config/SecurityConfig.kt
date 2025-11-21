@@ -38,8 +38,15 @@ class SecurityConfig(
             // Strict session policy for token-based auth
             .sessionManagement { sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
 
-            // Route authorization
-            .authorizeHttpRequests { auth ->
+        // Route authorization - conditionally configure based on noauth profile
+        if (env.acceptsProfiles(Profiles.of("noauth"))) {
+            http.authorizeHttpRequests { auth ->
+                auth
+                    // All requests permitted when noauth profile is active
+                    .anyRequest().permitAll()
+            }
+        } else {
+            http.authorizeHttpRequests { auth ->
                 auth
                     // Public auth endpoints
                     .requestMatchers(
@@ -82,9 +89,13 @@ class SecurityConfig(
                     // Everything else denied by default
                     .anyRequest().denyAll()
             }
+        }
 
-            // Add JWT filter ahead of UsernamePasswordAuthenticationFilter
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
+        // Add JWT filter ahead of UsernamePasswordAuthenticationFilter
+        // Only add JWT filter when not in noauth mode
+        if (!env.acceptsProfiles(Profiles.of("noauth"))) {
+            http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
+        }
 
         // Security headers
         http.headers { headers ->

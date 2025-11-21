@@ -26,6 +26,7 @@ import org.springframework.core.io.Resource
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 import java.time.Instant
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 
 /**
  * One-time migration script to convert course-content files to database entities.
@@ -43,6 +44,7 @@ import java.time.Instant
  * 5. Generates migration report with statistics
  */
 @SpringBootApplication
+@ConditionalOnProperty(name = ["ai-tutor.catalog.use-seeding"], havingValue = "true", matchIfMissing = true)
 @EnableJpaRepositories(basePackages = ["ch.obermuhlner.aitutor"])
 @EntityScan(basePackages = ["ch.obermuhlner.aitutor"])
 @ComponentScan(basePackages = ["ch.obermuhlner.aitutor"])

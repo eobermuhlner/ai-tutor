@@ -30,7 +30,7 @@ class CatalogController(
     private val catalogService: CatalogService,
     private val imageService: ImageService,
     private val localizationService: LocalizationService,
-    private val authorizationService: ch.obermuhlner.aitutor.auth.service.AuthorizationService
+    private val authorizationService: ch.obermuhlner.aitutor.auth.service.AuthorizationService,
 ) {
     private val objectMapper = jacksonObjectMapper()
 
@@ -273,7 +273,6 @@ class CatalogController(
     }
 
     @PutMapping("/tutors/{tutorId}")
-    @ResponseStatus(HttpStatus.OK)
     fun updateTutor(
         @PathVariable tutorId: UUID,
         @RequestBody request: UpdateTutorRequest,
@@ -285,7 +284,7 @@ class CatalogController(
 
         val tutor = catalogService.updateTutor(tutorId, request, currentUserId, isAdmin)
             ?: throw org.springframework.web.server.ResponseStatusException(HttpStatus.NOT_FOUND, "Tutor not found")
-        
+
         return TutorDetailResponse(
             id = tutor.id,
             name = tutor.name,
