@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useAuthStore } from '../../store/authStore';
 import type {
   GlobalSummaryStats,
   SummaryDetail,
@@ -10,6 +11,7 @@ import {
 } from '../../api/summaries';
 
 export default function SummaryDashboard() {
+  const { user: currentUser } = useAuthStore();
   const [globalStats, setGlobalStats] = useState<GlobalSummaryStats | null>(
     null
   );
@@ -21,23 +23,28 @@ export default function SummaryDashboard() {
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchGlobalStats = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const stats = await getGlobalStats();
-        setGlobalStats(stats);
-      } catch (err) {
-        setError('Failed to load global stats. Admin access required.');
-        console.error('Error fetching global stats:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Check if user is admin to determine what to render
+  const isAdmin = currentUser?.roles.includes('ADMIN') || false;
 
-    fetchGlobalStats();
-  }, []);
+  useEffect(() => {
+    if (isAdmin) {
+      const fetchGlobalStats = async () => {
+        try {
+          setLoading(true);
+          setError(null);
+          const stats = await getGlobalStats();
+          setGlobalStats(stats);
+        } catch (err) {
+          setError('Failed to load global stats. Admin access required.');
+          console.error('Error fetching global stats:', err);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchGlobalStats();
+    }
+  }, [isAdmin]); // Add isAdmin as dependency
 
   const handleViewDetails = async () => {
     if (!selectedSessionId.trim()) {
@@ -78,6 +85,20 @@ export default function SummaryDashboard() {
       setTriggerLoading(false);
     }
   };
+
+  // Show access denied if user is not admin
+  if (!isAdmin) {
+    return (
+      <div className="mx-auto max-w-4xl p-6">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <h2 className="text-lg font-semibold text-red-800">Access Denied</h2>
+          <p className="text-red-600">
+            You must be an administrator to access summarization statistics.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (

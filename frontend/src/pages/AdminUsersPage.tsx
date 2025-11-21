@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
+import { useAuthStore } from '../store/authStore';
 import Layout from '../components/layout/Layout';
 import UserTable from '../components/admin/UserTable';
 import Button from '../components/ui/Button';
@@ -13,6 +14,7 @@ import { Users as UsersIcon, Search, Filter, ChevronLeft, ChevronRight } from 'l
 import toast from 'react-hot-toast';
 
 export default function AdminUsersPage() {
+  const { user: currentUser } = useAuthStore();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalElements, setTotalElements] = useState(0);
@@ -22,7 +24,7 @@ export default function AdminUsersPage() {
 
   // Filter state
   const [searchTerm, setSearchTerm] = useState('');
-  const [roleFilter, setRoleFilter] = useState<'USER' | 'ADMIN' | ''>('');
+  const [roleFilter, setRoleFilter] = useState<'USER' | 'ADMIN' | 'EDITOR' | ''>('');
   const [subscriptionFilter, setSubscriptionFilter] = useState<'FREE' | 'FREE_BYOK' | 'SUBSCRIPTION_10' | ''>('');
   const [enabledFilter, setEnabledFilter] = useState<'true' | 'false' | ''>('');
   const [lockedFilter, setLockedFilter] = useState<'true' | 'false' | ''>('');
@@ -57,6 +59,25 @@ export default function AdminUsersPage() {
   useEffect(() => {
     fetchUsers();
   }, [fetchUsers]);
+
+  const isAdmin = currentUser?.roles.includes('ADMIN') || false;
+  const isLoggedIn = !!currentUser;
+
+  // Check access after all hooks have been called
+  if (isLoggedIn && !isAdmin) {
+    return (
+      <Layout>
+        <div className="max-w-4xl mx-auto p-6">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <h2 className="text-lg font-semibold text-red-800">Access Denied</h2>
+            <p className="text-red-600">
+              You must be an administrator to access user management.
+            </p>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -153,12 +174,13 @@ export default function AdminUsersPage() {
                   </label>
                   <select
                     value={roleFilter}
-                    onChange={(e) => setRoleFilter(e.target.value as 'USER' | 'ADMIN' | '')}
+                    onChange={(e) => setRoleFilter(e.target.value as 'USER' | 'ADMIN' | 'EDITOR' | '')}
                     className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none"
                   >
                     <option value="">All Roles</option>
                     <option value="USER">User</option>
                     <option value="ADMIN">Admin</option>
+                    <option value="EDITOR">Editor</option>
                   </select>
                 </div>
 

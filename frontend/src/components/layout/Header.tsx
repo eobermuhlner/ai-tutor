@@ -62,7 +62,7 @@ export default function Header() {
       ]
     : [];
 
-  const editorNavItems = (isEditor || isAdmin)
+  const editorNavItems = isEditor
     ? [
         { label: 'Content Management', path: '/content' },
       ]
@@ -130,7 +130,7 @@ export default function Header() {
                   {item.label}
                 </button>
               ))}
-              {(isEditor || isAdmin) && (
+              {isEditor && (
                 <>
                   <div className="h-6 w-px bg-slate-300 mx-2"></div>
                   {editorNavItems.map((item) => (
@@ -256,7 +256,7 @@ export default function Header() {
                   {item.label}
                 </button>
               ))}
-              {(isEditor || isAdmin) && editorNavItems.length > 0 && (
+              {isEditor && editorNavItems.length > 0 && (
                 <>
                   <div className="my-2 border-t border-slate-200"></div>
                   <div className="px-4 py-2 text-xs font-semibold text-blue-600 uppercase tracking-wider">

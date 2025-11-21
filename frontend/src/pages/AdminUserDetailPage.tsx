@@ -127,7 +127,7 @@ export default function AdminUserDetailPage() {
     }
   };
 
-  const handleToggleRole = async (role: 'USER' | 'ADMIN') => {
+  const handleToggleRole = async (role: 'USER' | 'ADMIN' | 'EDITOR') => {
     if (!userId) return;
 
     const newRoles = roles.includes(role)
@@ -363,6 +363,20 @@ export default function AdminUserDetailPage() {
                     <p className="font-medium text-slate-900">ADMIN</p>
                     <p className="text-sm text-slate-600">
                       Full administrative access
+                    </p>
+                  </div>
+                </label>
+                <label className="flex items-center gap-3 p-3 border border-slate-200 rounded-lg hover:bg-slate-50 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={roles.includes('EDITOR')}
+                    onChange={() => handleToggleRole('EDITOR')}
+                    className="w-4 h-4 text-brand-600 rounded focus:ring-brand-500"
+                  />
+                  <div>
+                    <p className="font-medium text-slate-900">EDITOR</p>
+                    <p className="text-sm text-slate-600">
+                      Content management access
                     </p>
                   </div>
                 </label>

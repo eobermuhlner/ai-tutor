@@ -29,14 +29,14 @@ export default function ContentManagementPage() {
   };
 
   // Access control
-  if (!user || (!user.roles.includes('EDITOR') && !user.roles.includes('ADMIN'))) {
+  if (!user || !user.roles.includes('EDITOR')) {
     return (
       <Layout>
         <div className="max-w-4xl mx-auto p-6">
           <div className="bg-red-50 border border-red-200 rounded-lg p-4">
             <h2 className="text-lg font-semibold text-red-800">Access Denied</h2>
             <p className="text-red-600">
-              You must be an editor or admin to access content management.
+              You must be an editor to access content management.
             </p>
           </div>
         </div>
@@ -44,8 +44,8 @@ export default function ContentManagementPage() {
     );
   }
 
-  // Additional check for Upload tab (ADMIN only)
-  const isAdmin = user.roles.includes('ADMIN');
+  // Additional check for Upload tab (EDITOR only)
+  const isEditor = user.roles.includes('EDITOR');
 
   return (
     <Layout>
@@ -63,7 +63,7 @@ export default function ContentManagementPage() {
           <nav className="-mb-px flex space-x-8" aria-label="Tabs">
             <button
               onClick={() => handleTabChange('upload')}
-              disabled={!isAdmin}
+              disabled={!isEditor}
               className={`
                 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors
                 ${
@@ -71,13 +71,13 @@ export default function ContentManagementPage() {
                     ? 'border-brand-500 text-brand-600'
                     : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
                 }
-                ${!isAdmin ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+                ${!isEditor ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
               `}
             >
               Upload
-              {!isAdmin && (
+              {!isEditor && (
                 <span className="ml-2 text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">
-                  Admin Only
+                  Editor Only
                 </span>
               )}
             </button>
@@ -112,12 +112,12 @@ export default function ContentManagementPage() {
 
         {/* Tab Panels */}
         <div className="mt-6">
-          {activeTab === 'upload' && isAdmin && <CatalogUploadPanel />}
-          {activeTab === 'upload' && !isAdmin && (
+          {activeTab === 'upload' && isEditor && <CatalogUploadPanel />}
+          {activeTab === 'upload' && !isEditor && (
             <div className="bg-amber-50 border border-amber-200 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-amber-900 mb-2">Admin Access Required</h3>
+              <h3 className="text-lg font-semibold text-amber-900 mb-2">Editor Access Required</h3>
               <p className="text-amber-800">
-                The catalog upload feature requires administrator privileges. Please contact your system administrator if you need access.
+                The catalog upload feature requires editor privileges. Please contact your system administrator if you need access.
               </p>
             </div>
           )}

@@ -26,7 +26,7 @@ export interface GetUsersParams {
   page?: number;
   size?: number;
   search?: string;
-  role?: 'USER' | 'ADMIN';
+  role?: 'USER' | 'ADMIN' | 'EDITOR';
   subscriptionPlan?: 'FREE' | 'FREE_BYOK' | 'SUBSCRIPTION_10';
   enabled?: boolean;
   locked?: boolean;
