@@ -37,6 +37,7 @@ class ChatServiceTest {
     private lateinit var chatSessionRepository: ChatSessionRepository
     private lateinit var chatMessageRepository: ChatMessageRepository
     private lateinit var tutorService: TutorService
+    private lateinit var correctionService: ch.obermuhlner.aitutor.tutor.service.CorrectionService
     private lateinit var vocabularyService: VocabularyService
     private lateinit var vocabularyReviewService: ch.obermuhlner.aitutor.vocabulary.service.VocabularyReviewService
     private lateinit var phaseDecisionService: ch.obermuhlner.aitutor.tutor.service.PhaseDecisionService
@@ -55,6 +56,7 @@ class ChatServiceTest {
         chatSessionRepository = mockk()
         chatMessageRepository = mockk()
         tutorService = mockk()
+        correctionService = mockk(relaxed = true)
         vocabularyService = mockk()
         vocabularyReviewService = mockk()
         phaseDecisionService = mockk()
@@ -80,6 +82,7 @@ class ChatServiceTest {
             chatSessionRepository,
             chatMessageRepository,
             tutorService,
+            correctionService,
             vocabularyService,
             vocabularyReviewService,
             phaseDecisionService,
@@ -165,7 +168,6 @@ class ChatServiceTest {
                     phase = ConversationPhase.Drill,
                     estimatedCEFRLevel = CEFRLevel.A2
                 ),
-                corrections = emptyList(),
                 newVocabulary = emptyList()
             )
         )
@@ -228,7 +230,6 @@ class ChatServiceTest {
                     estimatedCEFRLevel = CEFRLevel.A1,
                     currentTopic = "new-topic"
                 ),
-                corrections = emptyList(),
                 newVocabulary = emptyList()
             )
         )
@@ -271,7 +272,6 @@ class ChatServiceTest {
                     estimatedCEFRLevel = CEFRLevel.A2,
                     currentTopic = null
                 ),
-                corrections = emptyList(),
                 newVocabulary = emptyList()
             )
         )
@@ -486,7 +486,6 @@ class ChatServiceTest {
                     phase = ch.obermuhlner.aitutor.tutor.domain.ConversationPhase.Free,
                     estimatedCEFRLevel = ch.obermuhlner.aitutor.core.model.CEFRLevel.A1
                 ),
-                corrections = emptyList(),
                 newVocabulary = emptyList()
             )
         )
@@ -535,7 +534,6 @@ class ChatServiceTest {
                     phase = ch.obermuhlner.aitutor.tutor.domain.ConversationPhase.Free,
                     estimatedCEFRLevel = ch.obermuhlner.aitutor.core.model.CEFRLevel.A1
                 ),
-                corrections = emptyList(),
                 newVocabulary = emptyList()
             )
         )
@@ -1107,7 +1105,6 @@ class ChatServiceTest {
                     estimatedCEFRLevel = CEFRLevel.A1,
                     requestedLessonAction = "next"  // LLM requests lesson advancement
                 ),
-                corrections = emptyList(),
                 newVocabulary = emptyList()
             )
         )
@@ -1144,7 +1141,6 @@ class ChatServiceTest {
                     estimatedCEFRLevel = CEFRLevel.A1,
                     requestedLessonAction = "previous"  // LLM requests previous lesson
                 ),
-                corrections = emptyList(),
                 newVocabulary = emptyList()
             )
         )
@@ -1181,7 +1177,6 @@ class ChatServiceTest {
                     estimatedCEFRLevel = CEFRLevel.A1,
                     requestedLessonAction = "next"  // LLM requests lesson advancement but not in course session
                 ),
-                corrections = emptyList(),
                 newVocabulary = emptyList()
             )
         )
@@ -1218,7 +1213,6 @@ class ChatServiceTest {
                     estimatedCEFRLevel = CEFRLevel.A1,
                     requestedLessonAction = null  // No lesson action requested
                 ),
-                corrections = emptyList(),
                 newVocabulary = emptyList()
             )
         )
@@ -1255,7 +1249,6 @@ class ChatServiceTest {
                     estimatedCEFRLevel = CEFRLevel.A1,
                     requestedLessonAction = "stay"  // Explicitly stay on current lesson
                 ),
-                corrections = emptyList(),
                 newVocabulary = emptyList()
             )
         )
@@ -1487,7 +1480,6 @@ class ChatServiceTest {
                     phase = ConversationPhase.Free,
                     estimatedCEFRLevel = CEFRLevel.A1
                 ),
-                corrections = emptyList(),
                 newVocabulary = emptyList()
             )
         )
@@ -1544,7 +1536,6 @@ class ChatServiceTest {
                     phase = ConversationPhase.Correction,
                     estimatedCEFRLevel = CEFRLevel.A2
                 ),
-                corrections = emptyList(),
                 newVocabulary = emptyList()
             )
         )
@@ -1598,7 +1589,6 @@ class ChatServiceTest {
                     phase = ConversationPhase.Drill,  // LLM suggests Drill
                     estimatedCEFRLevel = CEFRLevel.A2
                 ),
-                corrections = emptyList(),
                 newVocabulary = emptyList()
             )
         )
@@ -1632,7 +1622,6 @@ class ChatServiceTest {
                     phase = ConversationPhase.Free,
                     estimatedCEFRLevel = CEFRLevel.A1
                 ),
-                corrections = emptyList(),
                 newVocabulary = emptyList()
             )
         )

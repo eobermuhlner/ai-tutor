@@ -141,7 +141,6 @@ class TutorServiceTest {
 
         val conversationResponse = ConversationResponse(
             conversationState = conversationState,
-            corrections = emptyList(),
             newVocabulary = emptyList()
         )
 
@@ -185,16 +184,6 @@ class TutorServiceTest {
 
         val conversationResponse = ConversationResponse(
             conversationState = conversationState,
-            corrections = listOf(
-                Correction(
-                    span = "espanol",
-                    errorType = ErrorType.Typography,
-                    severity = ErrorSeverity.Low,
-                    correctedTargetLanguage = "español",
-                    whySourceLanguage = "Missing accent",
-                    whyTargetLanguage = "Falta el acento"
-                )
-            ),
             newVocabulary = emptyList()
         )
 
@@ -212,7 +201,6 @@ class TutorServiceTest {
 
         assertNotNull(result)
         assertEquals("¡Muy bien!", result?.reply)
-        assertEquals(1, result?.conversationResponse?.corrections?.size)
         verify { aiChatService.call(any(), any()) }
     }
 
@@ -238,7 +226,6 @@ class TutorServiceTest {
 
         val conversationResponse = ConversationResponse(
             conversationState = conversationState,
-            corrections = emptyList(),
             newVocabulary = emptyList()
         )
 
@@ -311,7 +298,6 @@ class TutorServiceTest {
 
         val conversationResponse = ConversationResponse(
             conversationState = conversationState,
-            corrections = emptyList(),
             newVocabulary = emptyList()
         )
 
@@ -350,7 +336,6 @@ class TutorServiceTest {
 
         val conversationResponse = ConversationResponse(
             conversationState = conversationState,
-            corrections = emptyList(),
             newVocabulary = emptyList()
         )
 

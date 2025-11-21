@@ -2,10 +2,11 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
-import { getSession, sendChatMessage, updatePhase as updatePhaseAPI, updateTopic as updateTopicAPI, updateTeachingStyle as updateTeachingStyleAPI, updateVocabularyReviewMode as updateVocabularyReviewModeAPI } from '../api/chat';
+import { getSession, sendChatMessage, analyzeCorrections, updatePhase as updatePhaseAPI, updateTopic as updateTopicAPI, updateTeachingStyle as updateTeachingStyleAPI, updateVocabularyReviewMode as updateVocabularyReviewModeAPI } from '../api/chat';
 import { getLanguages } from '../api/catalog';
 import { getDueCount } from '../api/vocabulary';
 import { getErrorMessage } from '../utils/errorHandling';
+import { transformCorrection } from '../utils/messageTransformer';
 import { CEFRLevel, TeachingStyle } from '../types';
 import type { Message, ConversationPhase, MessageRole, Language } from '../types';
 import type { ChatSessionContextValue, TutorInfo, PhaseInfo, SkillLevels } from '../types/chat';
@@ -134,10 +135,22 @@ export function ChatSessionProvider({ children, sessionId }: ChatSessionProvider
     setIsSending(true);
 
     try {
-      const assistantMessage = await sendChatMessage(sessionId, text, text);
+      // Call both endpoints in parallel
+      const [assistantMessage, corrections] = await Promise.all([
+        sendChatMessage(sessionId, text, text),
+        analyzeCorrections(sessionId, text).catch((error) => {
+          console.error('Failed to analyze corrections:', error);
+          return []; // Graceful degradation - continue without corrections
+        }),
+      ]);
 
-      // If assistant message has corrections, move them to the user message
-      if (assistantMessage.metadata?.corrections && assistantMessage.metadata.corrections.length > 0) {
+      // Transform corrections with the user's text
+      const transformedCorrections = corrections
+        .map(c => transformCorrection(c, text))
+        .filter(c => c !== null);
+
+      // Update user message with corrections
+      if (transformedCorrections.length > 0) {
         setMessages((prev) => {
           const updatedMessages = [...prev];
           const lastUserMsgIndex = updatedMessages.length - 1;
@@ -146,26 +159,13 @@ export function ChatSessionProvider({ children, sessionId }: ChatSessionProvider
           const updatedUserMsg = {
             ...lastUserMsg,
             metadata: {
-              corrections: assistantMessage.metadata!.corrections,
-              phase: assistantMessage.metadata!.phase,
+              corrections: transformedCorrections,
+              phase: effectivePhase,
             },
           };
 
           updatedMessages[lastUserMsgIndex] = updatedUserMsg;
-
-          // Remove corrections from assistant message but keep wordCards
-          const assistantWithoutCorrections = {
-            ...assistantMessage,
-            metadata: assistantMessage.metadata?.wordCards || assistantMessage.metadata?.characterCards
-              ? {
-                  corrections: [],
-                  phase: assistantMessage.metadata.phase,
-                  wordCards: assistantMessage.metadata.wordCards,
-                  characterCards: assistantMessage.metadata.characterCards,
-                }
-              : undefined,
-          };
-          return [...updatedMessages, assistantWithoutCorrections];
+          return [...updatedMessages, assistantMessage];
         });
       } else {
         setMessages((prev) => [...prev, assistantMessage]);

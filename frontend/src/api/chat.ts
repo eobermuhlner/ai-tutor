@@ -5,6 +5,7 @@ import {
   transformBackendMessage,
   transformCorrection,
   type BackendMessageResponse,
+  type BackendCorrection,
 } from '../utils/messageTransformer';
 import * as storage from '../utils/storage';
 import { API_BASE_URL } from '../utils/constants';
@@ -332,6 +333,26 @@ export async function sendChatMessage(
 
   // Transform backend response to frontend Message format using utility
   return transformBackendMessage(response.data, sessionId, userText);
+}
+
+/**
+ * Analyze user text for corrections without storing to database.
+ * This is a synchronous call that returns corrections immediately.
+ *
+ * @param sessionId The session ID (for context and authorization)
+ * @param userText The user's message text to analyze
+ * @returns Array of corrections found (empty array if no errors)
+ * @throws Error if analysis failed or unauthorized
+ */
+export async function analyzeCorrections(
+  sessionId: string,
+  userText: string
+): Promise<BackendCorrection[]> {
+  const response = await apiClient.post(
+    `/chat/sessions/${sessionId}/analyze-corrections`,
+    { userText }
+  );
+  return response.data;
 }
 
 // Tutor-initiated message APIs

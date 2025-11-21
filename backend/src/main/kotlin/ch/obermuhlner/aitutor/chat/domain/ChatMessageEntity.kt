@@ -32,7 +32,7 @@ class ChatMessageEntity(
     val content: String,
 
     @Column(name = "corrections_json", columnDefinition = "TEXT")
-    val correctionsJson: String? = null,
+    var correctionsJson: String? = null,
 
     @Column(name = "vocabulary_json", columnDefinition = "TEXT")
     val vocabularyJson: String? = null,

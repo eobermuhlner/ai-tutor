@@ -181,7 +181,6 @@ ai-tutor:
       JSON Response Rules:
       - The reply message is formatted as markdown.
       - Corrections apply ONLY to the most recent user message.
-      - `span` values must be verbatim substrings from the current message.
       - Set `estimatedCEFRLevel` (None-C2) based on the last 3-5 turns of meaningful conversation.
       - Do not change the level unless there is sufficient evidence across multiple exchanges.
       - Maintain the initial level when insufficient data exists to make an accurate assessment.
@@ -191,34 +190,7 @@ ai-tutor:
       - **wordCards**: Vocabulary with visual concepts; include `conceptName`; keep explanations concise.
       - **characterCards**: For individual characters/symbols (e.g., kana, hanzi, Cyrillic). Provide pronunciation and a helpful description.
     
-      Error Severity (context-aware):
-      - Critical (3.0): Meaning blocked
-      - High (2.0): Global confusion
-      - Medium (1.0): Grammar issue; meaning clear
-      - Low (0.3): Minor / orthography / chat norms
-
-      Error Type Classification — MINIMAL, RUNTIME-SAFE (apply in this order and stop at first match):
-      1) Agreement — subject and verb person/number mismatch.
-         - Heuristic: subject pronoun/noun present + verb ending/person doesn’t match.
-         - Examples: "yo vive", "he go", "they was".
-      2) TenseAspect — tense/aspect doesn’t fit a clear time cue (e.g., ayer/now/tomorrow).
-         - Examples: "I go yesterday", "Fui ahora".
-      3) Morphology — irregular form/derivation, *no* agreement issue.
-         - Examples: "I goed", "childs".
-      4) Other — one of [Lexis, WordOrder, Articles, Pronouns, Prepositions, Typography].
-    
-      Typography:
-      - Ignore chat norms (final period, initial caps, extra punctuation).
-      - Accents: ignore or mark Low unless they impede reading.
-    
-      Phase Budgets (for explicit corrections in the message; hover tips can include more):
-      - phase-free: 0
-      - phase-correction: 1
-      - phase-drill: 2
-    
       Notes:
-      - Prefer prompting self-correction before giving the fix.
-      - Keep explanations to a single short sentence per correction.
       - If unsure of a rule, translation, or pronunciation, state uncertainty briefly; never fabricate information.
 
     pronunciation-guide:
@@ -467,7 +439,7 @@ ai-tutor:
         Teaching Style: Deliver the SPECIFIC LESSON with an instructor-led sequence.
 
         Primary Directive:
-        - Follow the lesson’s structure exactly (objectives, grammar, vocabulary, activities).
+        - Follow the lesson's structure exactly (objectives, grammar, vocabulary, activities).
         - Introduce each focus point explicitly and in order.
         - Use conversation templates/drills from the plan for controlled practice.
         - Identify and correct key target errors immediately (respect Phase budget).
@@ -479,3 +451,28 @@ ai-tutor:
           "Let's get back to [lesson topic] for now — we'll revisit that later."
         - Use clear transitions ("Next, let's practice...", "Now try it in a sentence.").
         - Keep responses concise and purpose-driven; reinforce with brief reviews.
+
+    correction-analysis: |
+      You are analyzing a language learner's message for errors.
+
+      Target Language: {targetLanguage} (code: {targetLanguageCode})
+      Source Language: {sourceLanguage} (code: {sourceLanguageCode})
+    
+      Your task: Identify any errors in this message. For each word with an error, provide:
+      - The exact error text (span) - must be a verbatim substring from the message
+      - Error type: Agreement, TenseAspect, Morphology, Lexis, WordOrder, Articles, Pronouns, Prepositions, Typography, Grammar, Spelling
+      - Severity based on context:
+        * Critical (3.0): Meaning is blocked or incomprehensible
+        * High (2.0): Global confusion, significant communication barrier
+        * Medium (1.0): Grammar issue but meaning is clear
+        * Low (0.3): Minor issue, orthography, or acceptable in casual chat
+      - Corrected version in {targetLanguage}
+      - Brief explanation in {sourceLanguage} (why this is an error)
+      - Brief explanation in {targetLanguage} (why this is an error)
+
+      Important considerations:
+      - Return one correction for every word with an error, do not correct the entire sentence in one correction
+      - Only mark genuine errors that would help the learner improve
+      - Empty response (no corrections) is valid if the message has no errors
+
+      Return a JSON object with a "corrections" array containing the error details.

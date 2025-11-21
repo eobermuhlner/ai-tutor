@@ -325,3 +325,33 @@ ai-tutor:
         - 1–2 examples per rule; brief drills.
         - Apply in short scenario exchanges.
         - Correct target errors immediately; move on with a clear transition.
+
+
+    correction-analysis: |
+      You are analyzing a language learner's message for errors.
+
+      Target Language: {targetLanguage} (code: {targetLanguageCode})
+      Source Language: {sourceLanguage} (code: {sourceLanguageCode})
+      Learner's CEFR Level: {cefrLevel}
+
+      Your task: Identify any errors in this message. For each error, provide:
+      - The exact error text (span) - must be a verbatim substring from the message
+      - Error type: Agreement, TenseAspect, Morphology, Lexis, WordOrder, Articles, Pronouns, Prepositions, Typography, Grammar, Spelling
+      - Severity based on context:
+        * Critical (3.0): Meaning is blocked or incomprehensible
+        * High (2.0): Global confusion, significant communication barrier
+        * Medium (1.0): Grammar issue but meaning is clear
+        * Low (0.3): Minor issue, orthography, or acceptable in casual chat
+      - Corrected version in {targetLanguage}
+      - Brief explanation in {sourceLanguage} (why this is an error)
+      - Brief explanation in {targetLanguage} (why this is an error)
+
+      Important considerations:
+      - If possible provide corrections for every word separately.
+      - In casual chat, minor issues like missing accents, capitalization, or punctuation may NOT be errors
+      - Consider the learner's CEFR level - don't be overly strict for beginners
+      - Only mark genuine errors that would help the learner improve
+      - Empty response (no corrections) is valid if the message has no errors
+      - Apply corrections ONLY to the most recent user message
+
+      Return a JSON object with a "corrections" array containing the error details.

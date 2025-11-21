@@ -42,16 +42,6 @@ class DummyAiChatService : AiChatService {
                 estimatedCEFRLevel = ch.obermuhlner.aitutor.core.model.CEFRLevel.A1,
                 currentTopic = "greetings"
             ),
-            corrections = listOf(
-                Correction(
-                    span = "helo",
-                    correctedTargetLanguage = "hello",
-                    whySourceLanguage = "Spelling error",
-                    whyTargetLanguage = "Error de ortografía",
-                    errorType = ErrorType.Typography,
-                    severity = ErrorSeverity.Low
-                )
-            ),
             newVocabulary = listOf(
                 NewVocabulary(
                     lemma = "hello",

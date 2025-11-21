@@ -1,19 +1,19 @@
 package ch.obermuhlner.aitutor.tutor.domain
 
 import ch.obermuhlner.aitutor.core.model.CharacterCard
-import ch.obermuhlner.aitutor.core.model.Correction
 import ch.obermuhlner.aitutor.core.model.NewVocabulary
 import ch.obermuhlner.aitutor.core.model.WordCard
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonPropertyDescription
 
+/**
+ * Response from LLM containing conversational state and pedagogical data.
+ * Corrections are now handled separately via CorrectionResponse to reduce LLM context.
+ */
 data class ConversationResponse(
     @field:JsonProperty(required = true)
     @field:JsonPropertyDescription("Current state of the conversation.")
     val conversationState: ConversationState,
-    @field:JsonProperty(required = true)
-    @field:JsonPropertyDescription("Corrections of learner's errors.")
-    val corrections: List<Correction>,
     @field:JsonProperty(required = true)
     val newVocabulary: List<NewVocabulary>,
     @field:JsonProperty(required = true)

@@ -283,6 +283,25 @@ class ChatController(
         return emitter
     }
 
+    @PostMapping("/sessions/{sessionId}/analyze-corrections")
+    @Operation(summary = "Analyze text for corrections", description = "Analyze user text for language errors without storing to database")
+    fun analyzeCorrections(
+        @PathVariable sessionId: UUID,
+        @RequestBody request: ch.obermuhlner.aitutor.chat.dto.AnalyzeCorrectionsRequest
+    ): ResponseEntity<List<ch.obermuhlner.aitutor.core.model.Correction>> {
+        val currentUserId = authorizationService.getCurrentUserId()
+        return try {
+            val corrections = chatService.analyzeCorrections(sessionId, request.userText, currentUserId)
+            ResponseEntity.ok(corrections)
+        } catch (e: SecurityException) {
+            ResponseEntity.status(HttpStatus.FORBIDDEN).build()
+        } catch (e: IllegalArgumentException) {
+            ResponseEntity.notFound().build()
+        } catch (e: Exception) {
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
+        }
+    }
+
     @PostMapping("/sessions/{sessionId}/messages/initiate")
     @Operation(summary = "Initiate tutor message", description = "Tutor sends first message without user input (for welcome or re-engagement)")
     fun initiateTutorMessage(
@@ -379,6 +398,7 @@ class ChatController(
             .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"speech.mp3\"")
             .body(audioBytes)
     }
+
 
     @PostMapping("/sessions/{sessionId}/messages/{messageId}/audio", produces = ["audio/mpeg"])
     @Operation(summary = "Synthesize audio for a message", description = "Generates speech audio for a specific chat message using the tutor's voice")

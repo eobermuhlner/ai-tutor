@@ -83,6 +83,13 @@ export enum ErrorSeverity {
   LOW = 'LOW',
 }
 
+export enum CorrectionsStatus {
+  PENDING = 'PENDING',
+  AVAILABLE = 'AVAILABLE',
+  NONE = 'NONE',
+  ERROR = 'ERROR',
+}
+
 // Domain Models
 export interface User {
   id: string;
@@ -172,6 +179,7 @@ export interface CharacterCard {
 
 export interface MessageMetadata {
   corrections: Correction[];
+  correctionsStatus?: CorrectionsStatus;
   phase: ConversationPhase;
   wordCards?: WordCard[];
   characterCards?: CharacterCard[];

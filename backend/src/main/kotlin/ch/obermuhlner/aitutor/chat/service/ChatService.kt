@@ -41,6 +41,7 @@ class ChatService(
     private val chatSessionRepository: ChatSessionRepository,
     private val chatMessageRepository: ChatMessageRepository,
     private val tutorService: TutorService,
+    private val correctionService: ch.obermuhlner.aitutor.tutor.service.CorrectionService,
     private val vocabularyService: VocabularyService,
     private val vocabularyReviewService: ch.obermuhlner.aitutor.vocabulary.service.VocabularyReviewService,
     private val phaseDecisionService: ch.obermuhlner.aitutor.tutor.service.PhaseDecisionService,
@@ -494,13 +495,11 @@ class ChatService(
 
         chatSessionRepository.save(session)
 
-        // Save assistant message with next sequence number
+        // Save assistant message with next sequence number (no corrections yet)
         val assistantMessage = ChatMessageEntity(
             session = session,
             role = MessageRole.ASSISTANT,
             content = tutorResponse.reply,
-            correctionsJson = if (tutorResponse.conversationResponse.corrections.isNotEmpty())
-                objectMapper.writeValueAsString(tutorResponse.conversationResponse.corrections) else null,
             vocabularyJson = if (tutorResponse.conversationResponse.newVocabulary.isNotEmpty())
                 objectMapper.writeValueAsString(tutorResponse.conversationResponse.newVocabulary) else null,
             wordCardsJson = if (tutorResponse.conversationResponse.wordCards.isNotEmpty())
@@ -523,22 +522,40 @@ class ChatService(
             )
         }
 
-        // Record error patterns for analytics
-        if (tutorResponse.conversationResponse.corrections.isNotEmpty()) {
-            try {
-                errorAnalyticsService.recordErrors(
-                    userId = session.userId,
-                    lang = session.targetLanguageCode,
-                    messageId = savedAssistantMessage.id,
-                    corrections = tutorResponse.conversationResponse.corrections
-                )
-            } catch (e: Exception) {
-                logger.error("Failed to record error patterns", e)
-                // Don't fail message sending if analytics fails
-            }
+        return toMessageResponse(savedAssistantMessage)
+    }
+
+    /**
+     * Analyze user text for corrections without storing to database.
+     * Intended for real-time correction analysis called from the frontend.
+     *
+     * @param sessionId The chat session ID (for context and authorization)
+     * @param userText The user's message text to analyze
+     * @param userId The current user ID (for authorization)
+     * @return List of corrections found (empty if no errors)
+     */
+    fun analyzeCorrections(sessionId: UUID, userText: String, userId: UUID): List<Correction> {
+        // Get session for authorization and context
+        val session = chatSessionRepository.findById(sessionId).orElse(null)
+            ?: throw IllegalArgumentException("Session not found")
+
+        // Authorization check
+        if (session.userId != userId) {
+            throw SecurityException("Unauthorized access to session")
         }
 
-        return toMessageResponse(savedAssistantMessage)
+        // Get user's custom ChatModel if they have BYOK configured
+        val userChatModel = userChatModelFactory.getChatModelForUser(userId)
+
+        // Call CorrectionService directly (synchronous)
+        return correctionService.generateCorrections(
+            userText = userText,
+            sourceLanguageCode = session.sourceLanguageCode,
+            targetLanguageCode = session.targetLanguageCode,
+            estimatedCEFRLevel = session.estimatedCEFRLevel,
+            phase = session.effectivePhase ?: ConversationPhase.Correction,
+            chatModel = userChatModel
+        )
     }
 
     /**
@@ -735,8 +752,6 @@ class ChatService(
             session = session,
             role = MessageRole.ASSISTANT,
             content = tutorResponse.reply,
-            correctionsJson = if (tutorResponse.conversationResponse.corrections.isNotEmpty())
-                objectMapper.writeValueAsString(tutorResponse.conversationResponse.corrections) else null,
             vocabularyJson = if (tutorResponse.conversationResponse.newVocabulary.isNotEmpty())
                 objectMapper.writeValueAsString(tutorResponse.conversationResponse.newVocabulary) else null,
             wordCardsJson = if (tutorResponse.conversationResponse.wordCards.isNotEmpty())

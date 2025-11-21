@@ -38,7 +38,6 @@ class TestConfig {
                     phase = ConversationPhase.Free,
                     estimatedCEFRLevel = CEFRLevel.A1
                 ),
-                corrections = emptyList(),
                 newVocabulary = emptyList()
             )
         )
