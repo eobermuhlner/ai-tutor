@@ -8,6 +8,7 @@ import ch.obermuhlner.aitutor.catalog.repository.LessonContentRepository
 import ch.obermuhlner.aitutor.catalog.repository.TutorProfileRepository
 import ch.obermuhlner.aitutor.config.TestConfig
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.mockito.Mockito
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -47,6 +48,8 @@ class SeedDataServiceTest {
     @Autowired
     private lateinit var unifiedCatalogImportService: UnifiedCatalogImportService
 
+    private lateinit var fileImportService: FileImportService
+
     @BeforeEach
     fun setup() {
         // Clear existing data
@@ -55,6 +58,9 @@ class SeedDataServiceTest {
         courseTemplateRepository.deleteAll()
         tutorProfileRepository.deleteAll()
         languageRepository.deleteAll()
+
+        // Initialize mock
+        fileImportService = Mockito.mock(FileImportService::class.java)
 
         // Manually seed data for testing
         val seedDataService = SeedDataService(
@@ -65,7 +71,8 @@ class SeedDataServiceTest {
             curriculumRuleRepository,
             catalogProperties,
             objectMapper,
-            unifiedCatalogImportService
+            unifiedCatalogImportService,
+            fileImportService
         )
         seedDataService.seedData()
     }

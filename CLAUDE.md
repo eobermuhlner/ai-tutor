@@ -86,7 +86,12 @@ npm run build
 
 **Backend:** Edit `backend/src/` → Test `./gradlew :backend:test` → Run `./gradlew :backend:bootRun`
 **Frontend:** Edit `frontend/src/` → Auto-reload at `localhost:5173` → Build `npm run build`
-**Full-Stack:** Start both servers (8080 + 5173) → Test in browser
+
+**Quality checks that MUST pass to complete any task:**
+- ✅ `npm run lint` - No errors
+- ✅ `npm run build` - Successful build
+- ✅ `./gradlew :backend:test` - All tests pass
+- ✅ `./gradlew build` - Complete build successful
 
 ## Git Commit Guidelines
 

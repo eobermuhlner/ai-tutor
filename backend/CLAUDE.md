@@ -284,6 +284,10 @@ When adding new REST endpoints or modifying existing ones, **always update**:
 3. **Add tests for new functionality** - Maintain test coverage
 4. **Verify build succeeds**: `./gradlew build`
 
+**Quality checks that MUST pass to complete any task:**
+- ✅ `./gradlew :backend:test` - All tests pass
+- ✅ `./gradlew build` - Complete build successful
+
 If tests fail, investigate and fix the root cause. Common issues:
 - Mocked dependencies need updating
 - Test data doesn't match new validation rules

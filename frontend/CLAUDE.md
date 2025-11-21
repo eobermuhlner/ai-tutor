@@ -218,6 +218,12 @@ When modifying React components or modules:
 
 **CRITICAL**: Never remove or break existing features without explicit user approval.
 
+### Quality Assurance
+
+**Quality checks that MUST pass to complete any task:**
+- ✅ `npm run lint` - No errors
+- ✅ `npm run build` - Successful build
+
 When implementing new features or making changes:
 
 1. **Preserve existing UI/UX patterns**
