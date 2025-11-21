@@ -10,8 +10,13 @@ import ch.obermuhlner.aitutor.catalog.repository.CurriculumRuleRepository
 import ch.obermuhlner.aitutor.catalog.repository.LanguageRepository
 import ch.obermuhlner.aitutor.catalog.repository.LessonContentRepository
 import ch.obermuhlner.aitutor.catalog.repository.TutorProfileRepository
+import ch.obermuhlner.aitutor.catalog.service.FileImportService
+import ch.obermuhlner.aitutor.lesson.domain.CourseCurriculum
+import ch.obermuhlner.aitutor.lesson.domain.ProgressionMode
 import ch.obermuhlner.aitutor.tutor.domain.ConversationPhase
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import jakarta.annotation.PostConstruct
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -31,7 +36,8 @@ class SeedDataService(
     private val curriculumRuleRepository: CurriculumRuleRepository,
     private val catalogProperties: CatalogProperties,
     private val objectMapper: ObjectMapper,
-    private val unifiedCatalogImportService: UnifiedCatalogImportService
+    private val unifiedCatalogImportService: UnifiedCatalogImportService,
+    private val fileImportService: FileImportService
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -72,7 +78,7 @@ class SeedDataService(
             logger.info("Parsed unified catalog: ${catalog.languages.size} languages, " +
                     "${catalog.tutors.size} tutors, ${catalog.courses.size} courses")
 
-            // Import all entities
+            // Import catalog entities (courses, tutors, languages) but not lessons as they may come from file system
             val result = unifiedCatalogImportService.importCatalog(
                 catalogFile = object : org.springframework.web.multipart.MultipartFile {
                     override fun getName() = "catalog-seed.yml"
@@ -89,17 +95,18 @@ class SeedDataService(
                 sourceType = SourceType.SEEDED
             )
 
-            // Save all entities
+            // Save languages, tutors, and courses first
             result.languages.forEach { language ->
                 languageRepository.save(language)
             }
             tutorProfileRepository.saveAll(result.tutors)
-            courseTemplateRepository.saveAll(result.courses)
+            val savedCourses = courseTemplateRepository.saveAll(result.courses)
+            // Save lessons from embedded curriculum if any
             lessonContentRepository.saveAll(result.lessons)
 
-            // Create curriculum rules
-            val coursesWithLessons = result.lessons.groupBy { it.courseId }
-            coursesWithLessons.forEach { (courseId, lessons) ->
+            // Create curriculum rules for embedded lessons
+            val coursesWithEmbeddedLessons = result.lessons.groupBy { it.courseId }
+            coursesWithEmbeddedLessons.forEach { (courseId, lessons) ->
                 val hasTimeBased = lessons.any { lesson ->
                     val minDays = lesson.minimumDays
                     minDays != null && minDays > 0
@@ -114,6 +121,9 @@ class SeedDataService(
                 )
                 curriculumRuleRepository.save(rule)
             }
+
+            // Now try to migrate file-based lessons for seeded courses that don't have embedded curriculum
+            migrateFileBasedLessons(savedCourses)
 
             logger.info("Seeded from unified format: ${result.languages.size} languages, " +
                     "${result.tutors.size} tutors, ${result.courses.size} courses, " +
@@ -260,5 +270,134 @@ class SeedDataService(
 
         courseTemplateRepository.saveAll(courseEntities)
         return courseEntities
+    }
+
+    /**
+     * Migrate file-based lessons to database for seeded courses that don't have embedded lessons.
+     */
+    private fun migrateFileBasedLessons(courses: List<CourseTemplateEntity>) {
+        logger.info("Migrating file-based lessons for ${courses.size} seeded courses...")
+
+        val objectMapper = com.fasterxml.jackson.databind.ObjectMapper()
+        val yamlMapper = com.fasterxml.jackson.databind.ObjectMapper(com.fasterxml.jackson.dataformat.yaml.YAMLFactory()).registerKotlinModule()
+
+        courses.forEach { course ->
+            try {
+                // Generate course slug (same logic as in CourseMigrationMain)
+                val courseSlug = generateCourseSlug(course)
+                val curriculumResource = org.springframework.core.io.ClassPathResource("course-content/$courseSlug/curriculum.yml")
+
+                // Check if curriculum file exists for this course
+                if (curriculumResource.exists()) {
+                    logger.debug("Found curriculum file for course $courseSlug, checking for lessons...")
+
+                    // Check if this course already has lessons in the database (embedded in seed data)
+                    val existingLessons = lessonContentRepository.findByCourseId(course.id)
+                    if (existingLessons.isNotEmpty()) {
+                        logger.debug("Course ${course.id} already has ${existingLessons.size} embedded lessons in database, skipping file migration")
+                        return@forEach
+                    }
+
+                    // Parse curriculum file
+                    val curriculum = curriculumResource.inputStream.use {
+                        yamlMapper.readValue(it, ch.obermuhlner.aitutor.lesson.domain.CourseCurriculum::class.java)
+                    }
+
+                    // Load lesson files
+                    val lessonResources = try {
+                        org.springframework.core.io.support.PathMatchingResourcePatternResolver()
+                            .getResources("classpath:course-content/$courseSlug/*.md")
+                    } catch (e: Exception) {
+                        logger.warn("No lesson files found for $courseSlug: ${e.message}")
+                        emptyArray<org.springframework.core.io.Resource>()
+                    }
+
+                    logger.debug("Found ${lessonResources.size} lesson files for $courseSlug")
+
+                    // Parse each lesson
+                    val lessonsParsed = mutableMapOf<String, ch.obermuhlner.aitutor.catalog.service.FileImportService.LessonParseResult>()
+                    lessonResources.forEach { lessonResource ->
+                        try {
+                            val markdown = lessonResource.inputStream.bufferedReader().readText()
+                            val fileName = lessonResource.filename ?: "unknown.md"
+                            val parsed = fileImportService.parseLessonFromString(markdown, fileName)
+                            lessonsParsed[parsed.lessonId] = parsed
+                        } catch (e: Exception) {
+                            logger.warn("Failed to parse lesson ${lessonResource.filename}: ${e.message}")
+                        }
+                    }
+
+                    // Create lesson entities from file-based lessons
+                    val lessons = curriculum.lessons.mapIndexedNotNull { index, metadata ->
+                        val parsed = lessonsParsed[metadata.id]
+                        if (parsed == null) {
+                            logger.warn("Missing lesson file for ${metadata.id} in course $courseSlug")
+                            null
+                        } else {
+                            fileImportService.createLessonEntity(
+                                courseId = course.id,
+                                lessonParseResult = parsed,
+                                displayOrder = index,
+                                minimumDays = metadata.minimumDays,
+                                requiredTurns = metadata.requiredTurns
+                            )
+                        }
+                    }.filterNotNull()
+
+                    if (lessons.isNotEmpty()) {
+                        // Save lessons to database
+                        lessonContentRepository.saveAll(lessons)
+
+                        // Create curriculum rule if doesn't exist
+                        val existingRule = curriculumRuleRepository.findByCourseId(course.id)
+                        if (existingRule == null) {
+                            val progressionMode = when (curriculum.progressionMode) {
+                                ch.obermuhlner.aitutor.lesson.domain.ProgressionMode.TIME_BASED -> "TIME_BASED"
+                                ch.obermuhlner.aitutor.lesson.domain.ProgressionMode.COMPLETION_BASED -> "COMPLETION_BASED"
+                            }
+
+                            val rule = ch.obermuhlner.aitutor.catalog.domain.CurriculumRuleEntity(
+                                courseId = course.id,
+                                progressionMode = progressionMode,
+                                allowSkipping = false,
+                                requireCompletion = true,
+                                createdAt = Instant.now(),
+                                updatedAt = Instant.now()
+                            )
+                            curriculumRuleRepository.save(rule)
+                        }
+
+                        logger.info("Migrated ${lessons.size} lessons for course $courseSlug (ID: ${course.id}) to database")
+                    } else {
+                        logger.debug("No lessons to migrate for course $courseSlug")
+                    }
+                } else {
+                    logger.debug("No curriculum file found for $courseSlug, skipping lesson migration")
+                }
+            } catch (e: Exception) {
+                logger.error("Failed to migrate lessons for course ${course.nameJson} (${course.id})", e)
+            }
+        }
+
+        logger.info("File-based lesson migration completed")
+    }
+
+    /**
+     * Generate course slug from language code and course name (same logic as CourseMigrationMain)
+     */
+    private fun generateCourseSlug(course: CourseTemplateEntity): String {
+        // Extract English name from JSON
+        val nameEnglish = try {
+            val nameMap = objectMapper.readValue(course.nameJson, Map::class.java)
+            nameMap["en"] as? String ?: "unknown"
+        } catch (e: Exception) {
+            logger.warn("Could not parse course name JSON for course ${course.id}: ${e.message}")
+            "unknown"
+        }
+
+        // Generate slug: languageCode-courseName (lowercase, spaces to dashes)
+        val languageOnly = course.languageCode.lowercase().substringBefore("-")
+        val courseNameSlug = nameEnglish.lowercase().replace(" ", "-").replace("[^a-z0-9-]".toRegex(), "")
+        return "$languageOnly-$courseNameSlug"
     }
 }
