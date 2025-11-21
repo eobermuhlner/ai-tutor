@@ -9,8 +9,6 @@ import ch.obermuhlner.aitutor.catalog.dto.LanguageResponse
 import ch.obermuhlner.aitutor.catalog.dto.TutorDetailResponse
 import ch.obermuhlner.aitutor.catalog.dto.TutorResponse
 import ch.obermuhlner.aitutor.catalog.dto.UpdateTutorRequest
-import ch.obermuhlner.aitutor.catalog.repository.CourseTemplateRepository
-import ch.obermuhlner.aitutor.catalog.repository.TutorProfileRepository
 import ch.obermuhlner.aitutor.config.TestConfig
 import ch.obermuhlner.aitutor.core.model.CEFRLevel
 import ch.obermuhlner.aitutor.core.model.catalog.CourseCategory
@@ -18,90 +16,17 @@ import ch.obermuhlner.aitutor.core.model.catalog.TutorGender
 import ch.obermuhlner.aitutor.core.model.catalog.TutorPersonality
 import ch.obermuhlner.aitutor.tutor.domain.ConversationPhase
 import ch.obermuhlner.aitutor.tutor.domain.TeachingStyle
-import ch.obermuhlner.aitutor.user.domain.UserEntity
-import ch.obermuhlner.aitutor.user.repository.UserRepository
-import com.ninjasquad.springmockk.MockkBean
-import io.mockk.every
-import java.util.UUID
+import ch.obermuhlner.aitutor.testutil.BaseControllerIntegrationTest
 import org.assertj.core.api.Assertions
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.web.client.TestRestTemplate
-import org.springframework.boot.test.web.server.LocalServerPort
-import org.springframework.context.annotation.Import
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
-import org.springframework.test.context.ActiveProfiles
+import java.util.UUID
 
-@ActiveProfiles("test", "noauth")
-@SpringBootTest(
-    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
-)
-@Import(TestConfig::class)
-class CatalogControllerIntegrationTest {
-    @LocalServerPort
-    private var port: Int = 0
-
-    @Autowired
-    private lateinit var restTemplate: TestRestTemplate
-
-    @Autowired
-    private lateinit var courseTemplateRepository: CourseTemplateRepository
-
-    @Autowired
-    private lateinit var tutorProfileRepository: TutorProfileRepository
-
-    @Autowired
-    private lateinit var userRepository: UserRepository
-
-    @MockkBean(relaxed = true)
-    private lateinit var authorizationService: ch.obermuhlner.aitutor.auth.service.AuthorizationService
-
-    private fun baseUrl(path: String): String = "http://localhost:$port/api/v1$path"
-
-    private val testUserId = UUID.randomUUID()
-
-    private val testUser = UserEntity(
-        id = testUserId,
-        username = "testuser",
-        email = "test@example.com",
-        passwordHash = "password",
-        roles = mutableSetOf(ch.obermuhlner.aitutor.user.domain.UserRole.USER)
-    )
-
-    @BeforeEach
-    fun setUp() {
-        // Clean up existing data before each test
-        courseTemplateRepository.deleteAll()
-        tutorProfileRepository.deleteAll()
-        userRepository.deleteAll()
-
-        // Create a default admin user for the noauth profile
-        val adminUser = UserEntity(
-            id = testUserId,
-            username = "testuser",
-            email = "test@example.com",
-            passwordHash = "password",
-            roles = mutableSetOf(
-                ch.obermuhlner.aitutor.user.domain.UserRole.USER,
-                ch.obermuhlner.aitutor.user.domain.UserRole.ADMIN,
-                ch.obermuhlner.aitutor.user.domain.UserRole.EDITOR
-            )
-        )
-        userRepository.save(adminUser)
-
-        // Mock authorization service to return test user info
-        every { authorizationService.getCurrentUserId() } returns testUserId
-        every { authorizationService.getCurrentUser() } returns adminUser
-        every { authorizationService.isAdmin() } returns true
-        every { authorizationService.isEditor() } returns true
-        every { authorizationService.isEditorOrAdmin() } returns true
-    }
+class CatalogControllerIntegrationTest : BaseControllerIntegrationTest() {
 
     @Test
     fun `test get languages endpoint`() {
