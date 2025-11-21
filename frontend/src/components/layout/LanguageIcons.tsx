@@ -6,6 +6,7 @@ import { getLanguageProficiencies } from '../../api/userLanguages';
 import { getLanguages } from '../../api/catalog';
 import Tooltip from '../ui/Tooltip';
 import FlagIcon from '../ui/FlagIcon';
+import { useLanguageProficiencyStore } from '../../store/languageProficiencyStore';
 
 // Map CEFR levels to numeric values for sorting (higher is more proficient)
 const cefrLevelValues: Record<CEFRLevel, number> = {
@@ -34,14 +35,17 @@ export default function LanguageIcons({ userId }: LanguageIconsProps) {
   const [languages, setLanguages] = useState<Language[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const { refreshTrigger } = useLanguageProficiencyStore();
+
   useEffect(() => {
     async function fetchLanguagesAndProficiencies() {
+      setIsLoading(true);
       try {
         const [userProficiencies, allLanguages] = await Promise.all([
           getLanguageProficiencies(userId),
           getLanguages()
         ]);
-        
+
         setProficiencies(userProficiencies);
         setLanguages(allLanguages);
       } catch (error) {
@@ -54,7 +58,7 @@ export default function LanguageIcons({ userId }: LanguageIconsProps) {
     if (userId) {
       fetchLanguagesAndProficiencies();
     }
-  }, [userId]);
+  }, [userId, refreshTrigger]);
 
   if (isLoading || !proficiencies.length) {
     return null;

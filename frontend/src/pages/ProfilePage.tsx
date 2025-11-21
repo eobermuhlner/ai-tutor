@@ -7,6 +7,7 @@ import Spinner from '../components/ui/Spinner';
 import LanguageProficiencyList from '../components/profile/LanguageProficiencyList';
 import AddLanguageModal from '../components/profile/AddLanguageModal';
 import { useAuthStore } from '../store/authStore';
+import { useLanguageProficiencyStore } from '../store/languageProficiencyStore';
 import {
   getLanguageProficiencies,
   addLanguageProficiency,
@@ -105,6 +106,7 @@ export default function ProfilePage() {
         cefrLevel
       );
       setProficiencies([...proficiencies, newProficiency]);
+      useLanguageProficiencyStore.getState().triggerRefresh();
       toast.success('Language added successfully');
     } catch (err) {
       toast.error('Failed to add language');
@@ -126,6 +128,7 @@ export default function ProfilePage() {
           p.languageCode === languageCode ? updatedProficiency : p
         )
       );
+      useLanguageProficiencyStore.getState().triggerRefresh();
       toast.success('Language level updated');
     } catch (err) {
       toast.error('Failed to update language level');
@@ -140,6 +143,7 @@ export default function ProfilePage() {
       await setPrimaryLanguage(user.id, languageCode);
       // Reload proficiencies to ensure consistency with server state
       await loadProficiencies();
+      useLanguageProficiencyStore.getState().triggerRefresh();
       toast.success('Primary language updated');
     } catch {
       toast.error('Failed to set primary language');
@@ -162,6 +166,7 @@ export default function ProfilePage() {
     try {
       await removeLanguageProficiency(user.id, languageCode);
       setProficiencies(proficiencies.filter((p) => p.languageCode !== languageCode));
+      useLanguageProficiencyStore.getState().triggerRefresh();
       toast.success('Language removed');
     } catch {
       toast.error('Failed to remove language');

@@ -4,6 +4,7 @@ import { CEFRLevel, LanguageProficiencyType } from '../../types';
 import type { Language } from '../../types';
 import Button from '../ui/Button';
 import { getLanguages } from '../../api/catalog';
+import { formatCompactLanguageDisplay } from '../../utils/languageDisplay';
 
 interface AddLanguageModalProps {
   isOpen: boolean;
@@ -157,7 +158,7 @@ export default function AddLanguageModal({
               </option>
               {availableLanguages.map((lang) => (
                 <option key={lang.code} value={lang.code}>
-                  {lang.nativeName} - {lang.name}
+                  {formatCompactLanguageDisplay(lang)} - {lang.name}
                 </option>
               ))}
             </select>
