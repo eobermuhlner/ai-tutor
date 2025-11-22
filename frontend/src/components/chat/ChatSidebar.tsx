@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { PanelRightClose } from 'lucide-react';
 import PhaseSelector from './PhaseSelector';
 import TeachingStyleSelector from './TeachingStyleSelector';
 import SessionSummaryPanel from './SessionSummaryPanel';
@@ -66,7 +67,7 @@ export default function ChatSidebar({ isVisible, onClose }: ChatSidebarProps) {
     <div
       className={`
         flex-shrink-0 transition-all duration-200 ease-in-out
-        fixed inset-y-0 right-0 w-[85vw] max-w-sm z-50
+        absolute top-0 right-0 w-[85vw] max-w-sm z-50
         md:relative md:inset-auto md:w-80 md:max-w-none md:z-auto
         ${isVisible
           ? 'translate-x-0 opacity-100'
@@ -74,9 +75,20 @@ export default function ChatSidebar({ isVisible, onClose }: ChatSidebarProps) {
         }
       `}
     >
-      <div className="h-full max-h-[calc(100vh-10rem)] flex flex-col rounded-l-2xl md:rounded-2xl border border-slate-200 bg-white shadow-soft-lg">
+      <div className="h-[calc(100vh-10rem)] flex flex-col rounded-l-2xl md:rounded-2xl border border-slate-200 bg-white shadow-soft-lg">
+        {/* Close Button - Mobile Only */}
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="md:hidden absolute top-3 right-3 z-10 p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
+            aria-label="Close sidebar"
+          >
+            <PanelRightClose className="w-5 h-5" />
+          </button>
+        )}
+
         {/* Tab Navigation */}
-        <div className="flex border-b border-slate-200">
+        <div className="flex border-b border-slate-200 pr-12 md:pr-0">
           <button
             onClick={() => setSidebarTab('settings')}
             className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${

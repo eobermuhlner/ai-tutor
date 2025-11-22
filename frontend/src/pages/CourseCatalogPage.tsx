@@ -71,59 +71,65 @@ export default function CourseCatalogPage() {
 
   return (
     <Layout>
-      <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="flex items-center gap-2 text-4xl font-bold text-slate-900" aria-label={`Courses for ${languageAriaLabel}`}>
-            {currentLanguage && <FlagIcon languageCode={currentLanguage.code} size={1.5} />}
-            {displayText}
-          </h1>
-          <p className="mt-2 text-slate-600">
-            Browse and enroll in courses tailored to your level
-          </p>
+      <div className="flex flex-col max-h-[calc(100vh-10rem)]">
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 flex-shrink-0">
+          <div>
+            <h1 className="flex items-center gap-2 text-4xl font-bold text-slate-900" aria-label={`Courses for ${languageAriaLabel}`}>
+              {currentLanguage && <FlagIcon languageCode={currentLanguage.code} size={1.5} />}
+              {displayText}
+            </h1>
+            <p className="mt-2 text-slate-600">
+              Browse and enroll in courses tailored to your level
+            </p>
+          </div>
+          <button
+            onClick={() => navigate('/languages')}
+            className="text-brand-600 hover:text-brand-700 font-medium transition-colors flex items-center gap-1 self-start sm:self-auto"
+          >
+            ← Back to Languages
+          </button>
         </div>
-        <button
-          onClick={() => navigate('/languages')}
-          className="text-brand-600 hover:text-brand-700 font-medium transition-colors flex items-center gap-1 self-start sm:self-auto"
-        >
-          ← Back to Languages
-        </button>
-      </div>
 
-      <FilterBar
-        selectedLevel={selectedLevel}
-        selectedCategory={selectedCategory}
-        onLevelChange={setSelectedLevel}
-        onCategoryChange={setSelectedCategory}
-      />
-
-      {isLoading ? (
-        <div className="flex items-center justify-center py-12">
-          <Spinner size="lg" />
+        <div className="flex-shrink-0 mb-6">
+          <FilterBar
+            selectedLevel={selectedLevel}
+            selectedCategory={selectedCategory}
+            onLevelChange={setSelectedLevel}
+            onCategoryChange={setSelectedCategory}
+          />
         </div>
-      ) : courses.length === 0 ? (
-        <EmptyState
-          title="No courses found"
-          message="There are no courses matching your criteria. Try adjusting your filters."
-          action={{
-            label: 'Clear Filters',
-            onClick: () => {
-              setSelectedLevel(undefined);
-              setSelectedCategory(undefined);
-            },
-          }}
-        />
-      ) : (
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {courses.map((course) => (
-            <CourseCard
-              key={course.id}
-              course={course}
-              onClick={() => handleCourseClick(course.id)}
-              language={currentLanguage}
+
+        <div className="flex-1 overflow-y-auto pt-2">
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Spinner size="lg" />
+            </div>
+          ) : courses.length === 0 ? (
+            <EmptyState
+              title="No courses found"
+              message="There are no courses matching your criteria. Try adjusting your filters."
+              action={{
+                label: 'Clear Filters',
+                onClick: () => {
+                  setSelectedLevel(undefined);
+                  setSelectedCategory(undefined);
+                },
+              }}
             />
-          ))}
+          ) : (
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 pb-4">
+              {courses.map((course) => (
+                <CourseCard
+                  key={course.id}
+                  course={course}
+                  onClick={() => handleCourseClick(course.id)}
+                  language={currentLanguage}
+                />
+              ))}
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </Layout>
   );
 }
