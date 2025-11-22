@@ -326,7 +326,6 @@ ch.obermuhlner.aitutor
 │   ├── domain/         # TutorProfileEntity, CourseTemplateEntity
 │   └── dto/            # LanguageResponse, CourseResponse, CourseDetailResponse,
 │                       # TutorResponse, TutorDetailResponse
-├── cli/                # Standalone CLI client (AiTutorCli, HttpApiClient, CliConfig)
 └── core/
     ├── model/          # Shared domain models (CEFRLevel, ErrorType, ErrorSeverity,
     │                   # Correction, NewVocabulary, WordCard)
@@ -449,8 +448,6 @@ docker-compose up --build
 # Run Spring Boot REST API server (traditional method)
 ./gradlew :backend:bootRun
 
-# Run standalone CLI client (future)
-# ./gradlew :cli:run
 
 # Run JAR
 java -jar backend/build/libs/ai-tutor-0.0.1-SNAPSHOT.jar
@@ -877,7 +874,7 @@ The test harness is a standalone application built on:
 
 ```
 testharness/
-├── TestHarnessMain.kt        # CLI entry point
+├── TestHarnessMain.kt        # Test harness entry point
 ├── config/                    # Configuration management
 ├── client/                    # REST API client
 ├── domain/                    # Scenario and result models

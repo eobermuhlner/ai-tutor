@@ -95,7 +95,6 @@ jacocoTestReport {
         classDirectories.setFrom(files(classDirectories.files.collect {
             fileTree(dir: it, exclude: [
                 '**/AiTutorApplication**',
-                '**/cli/**',
                 '**/dto/**',
                 '**/domain/**',
                 '**/conversation/service/**',  // Spring AI integration, requires integration tests
@@ -117,7 +116,6 @@ jacocoTestCoverageVerification {
         classDirectories.setFrom(files(classDirectories.files.collect {
             fileTree(dir: it, exclude: [
                 '**/AiTutorApplication**',
-                '**/cli/**',
                 '**/dto/**',
                 '**/domain/**',
                 '**/conversation/service/**',  // Spring AI integration, requires integration tests

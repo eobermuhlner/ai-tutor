@@ -161,7 +161,7 @@ Language learning assistant with conversational AI tutoring and vocabulary track
 - H2 Console: http://localhost:8080/h2-console
 - HTTP Tests: `backend/src/test/http/http-client-requests.http`
 
-**Note:** Three independent entry points - REST API server, CLI client, and test harness
+**Note:** Two independent entry points - REST API server and test harness
 
 ## Package Structure
 ```
@@ -228,10 +228,6 @@ ch.obermuhlner.aitutor
 │   ├── service/            # LanguageService, LocalizationService, TranslationService
 │   │                       # OpenAITranslationService
 │   └── config/             # LanguageConfig (language metadata configuration)
-├── cli/                    # Standalone CLI client
-│   ├── AiTutorCli          # Main CLI application with catalog commands
-│   ├── CliConfig           # Configuration management (updated for course-based sessions)
-│   └── HttpApiClient       # HTTP client for REST API (with catalog endpoints)
 ├── testharness/            # Pedagogical test harness (LLM-as-judge)
 │   ├── TestHarnessMain     # Main entry point for test harness
 │   ├── config/             # TestHarnessConfig - YAML configuration loading
