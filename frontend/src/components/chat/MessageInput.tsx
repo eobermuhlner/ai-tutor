@@ -2,8 +2,10 @@ import { useState, useRef, useEffect } from 'react';
 import type { KeyboardEvent } from 'react';
 import Button from '../ui/Button';
 import VirtualKeyboard from './VirtualKeyboard';
+import CompactRateLimitIndicator from './CompactRateLimitIndicator';
 import { hasKeyboardLayout } from '../../utils/keyboardLayouts';
 import { useMobileDetection } from '../../hooks/useMobileDetection';
+import { useChatSession } from '../../contexts/ChatSessionContext';
 
 interface MessageInputProps {
   onSend: (message: string) => void;
@@ -22,6 +24,7 @@ export default function MessageInput({
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const isMobile = useMobileDetection();
+  const { rateLimitRefreshTrigger } = useChatSession();
 
   useEffect(() => {
     if (!disabled && textareaRef.current) {
@@ -123,7 +126,8 @@ export default function MessageInput({
             </button>
           )}
         </div>
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-1.5">
+          <CompactRateLimitIndicator forceRefresh={rateLimitRefreshTrigger} />
           {onCancel && disabled ? (
             <Button onClick={onCancel} variant="outline" size="md">
               Cancel
