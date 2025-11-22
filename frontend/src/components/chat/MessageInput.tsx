@@ -3,6 +3,7 @@ import type { KeyboardEvent } from 'react';
 import Button from '../ui/Button';
 import VirtualKeyboard from './VirtualKeyboard';
 import { hasKeyboardLayout } from '../../utils/keyboardLayouts';
+import { useMobileDetection } from '../../hooks/useMobileDetection';
 
 interface MessageInputProps {
   onSend: (message: string) => void;
@@ -20,6 +21,7 @@ export default function MessageInput({
   const [message, setMessage] = useState('');
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const isMobile = useMobileDetection();
 
   useEffect(() => {
     if (!disabled && textareaRef.current) {
@@ -35,9 +37,18 @@ export default function MessageInput({
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
+    if (e.key === 'Enter') {
+      if (isMobile) {
+        // Mobile: Enter always inserts newline (don't prevent default)
+        // User must use Send button to send message
+        return;
+      } else {
+        // Desktop: Enter sends message, Shift+Enter inserts newline
+        if (!e.shiftKey) {
+          e.preventDefault();
+          handleSend();
+        }
+      }
     }
   };
 
@@ -78,7 +89,11 @@ export default function MessageInput({
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Type your message... (Shift+Enter for newline)"
+            placeholder={
+              isMobile
+                ? 'Type your message...'
+                : 'Type your message... (Shift+Enter for newline)'
+            }
             disabled={disabled}
             rows={3}
             className="w-full resize-none rounded-xl border-2 border-slate-200 px-4 py-3 pr-12 text-slate-900 placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 disabled:bg-slate-50 disabled:text-slate-400 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow-md focus:shadow-md"
