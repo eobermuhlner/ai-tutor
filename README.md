@@ -456,7 +456,7 @@ docker-compose up --build
 java -jar backend/build/libs/ai-tutor-0.0.1-SNAPSHOT.jar
 
 # Run test harness
-./gradlew :backend:runTestHarness
+./gradlew :testharness:runTestHarness
 ```
 
 ### Running with Docker
@@ -682,20 +682,20 @@ The test harness:
 
 ```bash
 # List available scenarios
-./gradlew :backend:runTestHarness --args="--list"
+./gradlew :testharness:runTestHarness --args="--list"
 
 # Run all scenarios
-./gradlew :backend:runTestHarness
+./gradlew :testharness:runTestHarness
 
 # Run specific scenario(s)
-./gradlew :backend:runTestHarness --args="--scenario beginner-errors"
-./gradlew :backend:runTestHarness --args="--scenario phase"  # All scenarios with "phase" in name
+./gradlew :testharness:runTestHarness --args="--scenario beginner-errors"
+./gradlew :testharness:runTestHarness --args="--scenario phase"  # All scenarios with "phase" in name
 
 # Use custom configuration
-./gradlew :backend:runTestHarness --args="--config custom-config.yml"
+./gradlew :testharness:runTestHarness --args="--config custom-config.yml"
 
 # Get help
-./gradlew :backend:runTestHarness --args="--help"
+./gradlew :testharness:runTestHarness --args="--help"
 ```
 
 **Example --list output:**

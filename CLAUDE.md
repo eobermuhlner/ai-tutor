@@ -35,7 +35,7 @@ ai-tutor/
 ./gradlew :backend:test
 
 # Run test harness
-./gradlew :backend:runTestHarness
+./gradlew :testharness:runTestHarness
 ```
 
 **Default ports:**
@@ -194,9 +194,9 @@ Courses and tutors track origin via `sourceType`:
 
 **Pedagogical Test Harness (LLM-as-judge):**
 ```bash
-./gradlew :backend:runTestHarness                            # Run all scenarios
-./gradlew :backend:runTestHarness --args="--list"            # List scenarios
-./gradlew :backend:runTestHarness --args="--scenario NAME"   # Run specific
+./gradlew :testharness:runTestHarness                            # Run all scenarios
+./gradlew :testharness:runTestHarness --args="--list"            # List scenarios
+./gradlew :testharness:runTestHarness --args="--scenario NAME"   # Run specific
 ```
 
 ## Environment Configuration

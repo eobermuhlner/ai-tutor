@@ -1,3 +1,4 @@
 rootProject.name = 'ai-tutor'
 
 include 'backend'
+include 'testharness'
