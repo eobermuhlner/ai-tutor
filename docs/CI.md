@@ -253,8 +253,6 @@ describe('Component', () => {
 # Run specific test class
 ./gradlew :backend:test --tests ChatControllerTest
 
-# Run test harness (pedagogical quality checks)
-./gradlew :testharness:runTestHarness
 ```
 
 ### Coverage Requirements

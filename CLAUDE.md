@@ -34,8 +34,6 @@ ai-tutor/
 # Run backend tests
 ./gradlew :backend:test
 
-# Run test harness
-./gradlew :testharness:runTestHarness
 ```
 
 **Default ports:**
@@ -192,12 +190,6 @@ Courses and tutors track origin via `sourceType`:
 ./gradlew :backend:test :backend:jacocoTestReport            # With coverage
 ```
 
-**Pedagogical Test Harness (LLM-as-judge):**
-```bash
-./gradlew :testharness:runTestHarness                            # Run all scenarios
-./gradlew :testharness:runTestHarness --args="--list"            # List scenarios
-./gradlew :testharness:runTestHarness --args="--scenario NAME"   # Run specific
-```
 
 ## Environment Configuration
 
@@ -254,7 +246,6 @@ VITE_API_BASE_URL=http://localhost:8080
 
 Pre-configured in `.idea/runConfigurations/`:
 - **AiTutor Server (OpenAI/Azure/Ollama)** - Run backend with different providers
-- **TestHarnessMain** - Run pedagogical test harness
 - **Tests in 'ai-tutor.backend.test'** - Run backend tests
 
 All use `ai-tutor.backend.main` module.

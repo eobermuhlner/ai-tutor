@@ -151,10 +151,6 @@ Language learning assistant with conversational AI tutoring and vocabulary track
 
 ## Commands
 - `./gradlew :backend:bootRun` - Run REST API server (requires AI provider configuration: OpenAI, Azure OpenAI, or Ollama)
-- `./gradlew :backend:runTestHarness` - Run pedagogical test harness with LLM-as-judge evaluation (supports OpenAI, Azure OpenAI, or Ollama)
-  - `--args="--list"` - List all available test scenarios
-  - `--args="--scenario NAME"` - Run specific scenario(s)
-  - `--args="--help"` - Show test harness help
 - `./gradlew build` - Build all modules
 - `./gradlew :backend:build` - Build backend module
 - `./gradlew :backend:test` - Run backend tests
@@ -228,21 +224,6 @@ ch.obermuhlner.aitutor
 │   ├── service/            # LanguageService, LocalizationService, TranslationService
 │   │                       # OpenAITranslationService
 │   └── config/             # LanguageConfig (language metadata configuration)
-├── testharness/            # Pedagogical test harness (LLM-as-judge)
-│   ├── TestHarnessMain     # Main entry point for test harness
-│   ├── config/             # TestHarnessConfig - YAML configuration loading
-│   ├── client/             # ApiClient - REST API client for test execution
-│   ├── domain/             # TestScenario, EvaluationResult, LearnerPersona, etc.
-│   ├── judge/              # JudgeService - LLM-based pedagogical evaluation
-│   ├── ai/                 # AI provider implementations (OpenAI, Azure OpenAI, Ollama)
-│   │   ├── AiProvider      # Provider abstraction interface
-│   │   ├── AiProviderFactory # Provider factory
-│   │   ├── OpenAiProvider  # OpenAI HTTP client
-│   │   ├── AzureOpenAiProvider # Azure OpenAI HTTP client
-│   │   └── OllamaProvider  # Ollama HTTP client
-│   ├── executor/           # TestExecutor - Scenario orchestration and execution
-│   ├── scenario/           # ScenarioLoader - YAML scenario file loading
-│   └── report/             # ReportGenerator - Markdown report generation
 └── core/                   # Shared models and utilities
     ├── model/              # Shared domain models (CEFRLevel, ErrorType, ErrorSeverity,
     │                       # Correction, NewVocabulary, WordCard, CharacterCard)
