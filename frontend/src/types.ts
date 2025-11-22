@@ -106,6 +106,7 @@ export interface User {
   subscriptionPlan: 'FREE' | 'FREE_BYOK' | 'SUBSCRIPTION_10';
   pronunciationPreference: PronunciationPreference;
   provider: AuthProvider;
+  avatarUrl: string | null;
 }
 
 export enum PronunciationPreference {

@@ -180,7 +180,15 @@ export default function Header() {
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
                   className="flex items-center gap-2 cursor-pointer px-3 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 transition-colors"
                 >
-                  <User className="w-4 h-4 text-slate-600" />
+                  {user.avatarUrl ? (
+                    <img
+                      src={user.avatarUrl}
+                      alt="Avatar"
+                      className="w-6 h-6 rounded-full object-cover"
+                    />
+                  ) : (
+                    <User className="w-4 h-4 text-slate-600" />
+                  )}
                   <span className="text-sm text-slate-700 font-medium">{user.username}</span>
                   <svg
                     className={`w-4 h-4 text-slate-500 transition-transform ${userMenuOpen ? 'rotate-180' : ''}`}
@@ -292,7 +300,15 @@ export default function Header() {
               )}
               <div className="pt-4 border-t border-slate-200 flex flex-col gap-3 px-4">
                 <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
-                  <User className="w-5 h-5 text-slate-600" />
+                  {user.avatarUrl ? (
+                    <img
+                      src={user.avatarUrl}
+                      alt="Avatar"
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
+                  ) : (
+                    <User className="w-5 h-5 text-slate-600" />
+                  )}
                   <span className="text-sm text-slate-700 font-medium">{user.username}</span>
                 </div>
                 <button

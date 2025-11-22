@@ -87,7 +87,8 @@ class AuthControllerTest {
             lastLoginAt = null,
             subscriptionPlan = ch.obermuhlner.aitutor.user.domain.SubscriptionPlan.FREE,
             pronunciationPreference = ch.obermuhlner.aitutor.user.domain.PronunciationPreference.NONE,
-            provider = AuthProvider.CREDENTIALS
+            provider = AuthProvider.CREDENTIALS,
+            avatarUrl = null
         )
 
         every { authService.register(request) } returns response
@@ -128,7 +129,8 @@ class AuthControllerTest {
                 lastLoginAt = Instant.now(),
                 subscriptionPlan = ch.obermuhlner.aitutor.user.domain.SubscriptionPlan.FREE,
                 pronunciationPreference = ch.obermuhlner.aitutor.user.domain.PronunciationPreference.NONE,
-                provider = AuthProvider.CREDENTIALS
+                provider = AuthProvider.CREDENTIALS,
+                avatarUrl = null
             )
         )
 
@@ -172,7 +174,8 @@ class AuthControllerTest {
                 lastLoginAt = null,
                 subscriptionPlan = ch.obermuhlner.aitutor.user.domain.SubscriptionPlan.FREE,
                 pronunciationPreference = ch.obermuhlner.aitutor.user.domain.PronunciationPreference.NONE,
-                provider = AuthProvider.CREDENTIALS
+                provider = AuthProvider.CREDENTIALS,
+                avatarUrl = null
             )
         )
 

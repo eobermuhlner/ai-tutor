@@ -102,3 +102,10 @@ export async function updatePronunciationPreference(pronunciationPreference: str
   });
   return response.data;
 }
+
+export async function updateAvatar(avatarUrl: string): Promise<User> {
+  const response = await apiClient.post<User>('/auth/avatar', {
+    avatarUrl,
+  });
+  return response.data;
+}

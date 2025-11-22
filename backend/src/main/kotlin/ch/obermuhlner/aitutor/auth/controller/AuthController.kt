@@ -72,7 +72,8 @@ class AuthController(
             lastLoginAt = user.lastLoginAt,
             subscriptionPlan = user.subscriptionPlan,
             pronunciationPreference = user.pronunciationPreference,
-            provider = user.provider
+            provider = user.provider,
+            avatarUrl = user.avatarUrl
         )
 
         return ResponseEntity.ok(response)
@@ -112,7 +113,8 @@ class AuthController(
             lastLoginAt = user.lastLoginAt,
             subscriptionPlan = user.subscriptionPlan,
             pronunciationPreference = user.pronunciationPreference,
-            provider = user.provider
+            provider = user.provider,
+            avatarUrl = user.avatarUrl
         )
         return ResponseEntity.ok(response)
     }
@@ -134,6 +136,16 @@ class AuthController(
     ): ResponseEntity<UserResponse> {
         val userId = authorizationService.getCurrentUserId()
         val response = authService.updatePronunciationPreference(userId, request.pronunciationPreference)
+        return ResponseEntity.ok(response)
+    }
+
+    @PostMapping("/avatar")
+    @Operation(summary = "Update avatar", description = "Allows authenticated user to update their avatar image URL")
+    fun updateAvatar(
+        @RequestBody request: ch.obermuhlner.aitutor.auth.dto.UpdateAvatarRequest
+    ): ResponseEntity<UserResponse> {
+        val userId = authorizationService.getCurrentUserId()
+        val response = authService.updateAvatar(userId, request.avatarUrl)
         return ResponseEntity.ok(response)
     }
 }

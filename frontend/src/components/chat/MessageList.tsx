@@ -8,6 +8,7 @@ import MarkdownMessage from './MarkdownMessage';
 import TutorImage from '../tutor/TutorImage';
 import { useTTS } from '../../contexts/TTSContext';
 import { useMessageAutoPlay } from '../../hooks/useMessageAutoPlay';
+import { useAuthStore } from '../../store/authStore';
 
 interface MessageListProps {
   messages: Message[];
@@ -35,6 +36,7 @@ export default function MessageList({
 }: MessageListProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { available: ttsAvailable, playMessageAudio, preferences } = useTTS();
+  const user = useAuthStore((state) => state.user);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -85,6 +87,7 @@ export default function MessageList({
           tutorImage={tutorImage}
           tutorEmoji={tutorEmoji}
           tutorName={tutorName}
+          userAvatarUrl={user?.avatarUrl}
         />
       ))}
 

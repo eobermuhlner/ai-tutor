@@ -15,7 +15,7 @@ import {
   setPrimaryLanguage,
   removeLanguageProficiency,
 } from '../api/userLanguages';
-import { changePassword, changeEmail } from '../api/auth';
+import { changePassword, changeEmail, updateAvatar } from '../api/auth';
 import { AuthProvider, CEFRLevel, LanguageProficiencyType } from '../types';
 import type { LanguageProficiency } from '../types';
 import toast from 'react-hot-toast';
@@ -53,6 +53,9 @@ export default function ProfilePage() {
   const [isEditingPronunciation, setIsEditingPronunciation] = useState(false);
   const [pronunciationPreference, setPronunciationPreference] = useState(user?.pronunciationPreference || 'NONE');
   const [isSubmittingPronunciation, setIsSubmittingPronunciation] = useState(false);
+
+  // Avatar upload state
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
 
   const loadProficiencies = useCallback(async () => {
     if (!user) return;
@@ -274,7 +277,7 @@ export default function ProfilePage() {
 
     setIsSubmittingPronunciation(true);
     try {
-      await import('../api/auth').then(({ updatePronunciationPreference }) => 
+      await import('../api/auth').then(({ updatePronunciationPreference }) =>
         updatePronunciationPreference(pronunciationPreference)
       );
       // Refresh user data to get updated pronunciation preference
@@ -288,6 +291,47 @@ export default function ProfilePage() {
     } finally {
       setIsSubmittingPronunciation(false);
     }
+  };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Check file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error('Image size must be less than 2MB');
+      return;
+    }
+
+    // Check file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please upload an image file');
+      return;
+    }
+
+    setIsUploadingAvatar(true);
+
+    // Convert to base64
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      try {
+        const base64String = reader.result as string;
+        await updateAvatar(base64String);
+        await useAuthStore.getState().refreshUser();
+        toast.success('Avatar updated successfully');
+      } catch (err: unknown) {
+        const error = err as { response?: { data?: { message?: string } } };
+        const errorMessage = error.response?.data?.message || 'Failed to update avatar';
+        toast.error(errorMessage);
+      } finally {
+        setIsUploadingAvatar(false);
+      }
+    };
+    reader.onerror = () => {
+      toast.error('Failed to read image file');
+      setIsUploadingAvatar(false);
+    };
+    reader.readAsDataURL(file);
   };
 
   if (!user) {
@@ -333,6 +377,39 @@ export default function ProfilePage() {
             </h2>
           </div>
           <div className="space-y-4">
+            {/* Avatar Upload */}
+            <div>
+              <label className="text-sm font-semibold text-slate-500 mb-2 block">Profile Picture</label>
+              <div className="flex items-center gap-4">
+                {user.avatarUrl ? (
+                  <img
+                    src={user.avatarUrl}
+                    alt="Avatar"
+                    className="w-20 h-20 rounded-full object-cover border-2 border-slate-200"
+                  />
+                ) : (
+                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-slate-400 to-slate-500 flex items-center justify-center">
+                    <User className="w-10 h-10 text-white" />
+                  </div>
+                )}
+                <div>
+                  <label htmlFor="avatar-upload" className="cursor-pointer">
+                    <div className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors inline-block">
+                      {isUploadingAvatar ? 'Uploading...' : 'Change Picture'}
+                    </div>
+                  </label>
+                  <input
+                    id="avatar-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleAvatarUpload}
+                    disabled={isUploadingAvatar}
+                    className="hidden"
+                  />
+                  <p className="text-xs text-slate-500 mt-1">Max 2MB, JPG or PNG</p>
+                </div>
+              </div>
+            </div>
             <div>
               <label className="text-sm font-semibold text-slate-500">Username</label>
               <p className="text-slate-900 mt-1">{user.username}</p>

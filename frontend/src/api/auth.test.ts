@@ -52,6 +52,7 @@ describe('auth API module', () => {
         subscriptionPlan: 'FREE',
         pronunciationPreference: 'NONE' as PronunciationPreference,
         provider: 'CREDENTIALS' as AuthProvider,
+        avatarUrl: null,
       };
 
       mockPost.mockResolvedValue({ data: mockUser });
@@ -89,6 +90,7 @@ describe('auth API module', () => {
           subscriptionPlan: 'FREE',
           pronunciationPreference: 'NONE' as PronunciationPreference,
           provider: 'CREDENTIALS' as AuthProvider,
+          avatarUrl: null,
         }
       };
       
@@ -126,6 +128,7 @@ describe('auth API module', () => {
           subscriptionPlan: 'FREE',
           pronunciationPreference: 'NONE' as PronunciationPreference,
           provider: 'CREDENTIALS' as AuthProvider,
+          avatarUrl: null,
         }
       };
       
@@ -157,6 +160,7 @@ describe('auth API module', () => {
         subscriptionPlan: 'FREE',
         pronunciationPreference: 'NONE' as PronunciationPreference,
         provider: 'CREDENTIALS' as AuthProvider,
+        avatarUrl: null,
       };
       
       mockGet.mockResolvedValue({ data: mockUser });
@@ -208,6 +212,7 @@ describe('auth API module', () => {
         subscriptionPlan: 'FREE',
         pronunciationPreference: 'NONE' as PronunciationPreference,
         provider: 'CREDENTIALS' as AuthProvider,
+        avatarUrl: null,
       };
       
       mockPost.mockResolvedValue({ data: mockUser });

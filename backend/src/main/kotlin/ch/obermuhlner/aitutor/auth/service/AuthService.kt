@@ -166,6 +166,11 @@ class AuthService(
                     existingUserByEmail.lastName = googleUserInfo.familyName
                 }
 
+                // Update avatar URL from Google profile picture
+                if (googleUserInfo.pictureUrl != null) {
+                    existingUserByEmail.avatarUrl = googleUserInfo.pictureUrl
+                }
+
                 user = userService.updateUser(existingUserByEmail)
             } else {
                 // Create new user account from Google profile
@@ -191,7 +196,8 @@ class AuthService(
                     emailVerified = googleUserInfo.emailVerified,
                     provider = AuthProvider.GOOGLE,
                     providerId = googleUserInfo.googleUserId,
-                    pronunciationPreference = PronunciationPreference.NONE
+                    pronunciationPreference = PronunciationPreference.NONE,
+                    avatarUrl = googleUserInfo.pictureUrl
                 )
 
                 user = userService.createUser(newUser)
@@ -388,6 +394,20 @@ class AuthService(
         return toUserResponse(updatedUser)
     }
 
+    fun updateAvatar(userId: UUID, avatarUrl: String): UserResponse {
+        logger.info("Avatar update request for user: $userId")
+
+        val user = userService.findById(userId)
+            ?: throw UserNotFoundException("User not found: $userId")
+
+        user.avatarUrl = avatarUrl
+        val updatedUser = userService.updateUser(user)
+
+        logger.info("Avatar updated for user: ${updatedUser.username}")
+
+        return toUserResponse(updatedUser)
+    }
+
     private fun validateUsername(username: String) {
         if (username.length < 3 || username.length > 32) {
             throw IllegalArgumentException("Username must be between 3 and 32 characters")
@@ -443,7 +463,8 @@ class AuthService(
             lastLoginAt = user.lastLoginAt,
             subscriptionPlan = user.subscriptionPlan,
             pronunciationPreference = user.pronunciationPreference,
-            provider = user.provider
+            provider = user.provider,
+            avatarUrl = user.avatarUrl
         )
     }
 }

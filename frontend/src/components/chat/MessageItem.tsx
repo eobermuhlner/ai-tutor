@@ -20,6 +20,7 @@ interface MessageItemProps {
   tutorImage?: string | null;
   tutorEmoji?: string;
   tutorName?: string;
+  userAvatarUrl?: string | null;
 }
 
 export default function MessageItem({
@@ -31,6 +32,7 @@ export default function MessageItem({
   tutorImage,
   tutorEmoji,
   tutorName,
+  userAvatarUrl,
 }: MessageItemProps) {
   const { available: ttsAvailable, playMessageAudio, isPlaying, currentMessageId, preferences } = useTTS();
   const [loadingAudio, setLoadingAudio] = useState(false);
@@ -199,8 +201,18 @@ export default function MessageItem({
 
       {/* Avatar for User */}
       {isUser && (
-        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-slate-600 to-slate-700 flex items-center justify-center shadow-md">
-          <User className="w-5 h-5 text-white" />
+        <div className="flex-shrink-0">
+          {userAvatarUrl ? (
+            <img
+              src={userAvatarUrl}
+              alt="User Avatar"
+              className="w-8 h-8 rounded-full object-cover shadow-md border border-slate-300"
+            />
+          ) : (
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-slate-600 to-slate-700 flex items-center justify-center shadow-md">
+              <User className="w-5 h-5 text-white" />
+            </div>
+          )}
         </div>
       )}
     </div>

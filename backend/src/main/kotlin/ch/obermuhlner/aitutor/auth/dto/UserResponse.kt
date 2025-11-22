@@ -21,5 +21,6 @@ data class UserResponse(
     val lastLoginAt: Instant?,
     val subscriptionPlan: SubscriptionPlan,
     val pronunciationPreference: PronunciationPreference,
-    val provider: AuthProvider
+    val provider: AuthProvider,
+    val avatarUrl: String?
 )

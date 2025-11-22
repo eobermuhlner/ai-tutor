@@ -45,6 +45,7 @@ describe('admin API module', () => {
         subscriptionPlan: 'FREE',
         pronunciationPreference: 'NONE' as PronunciationPreference,
         provider: 'CREDENTIALS' as AuthProvider,
+        avatarUrl: null,
       };
       
       mockPatch.mockResolvedValue({ data: mockUser });
@@ -77,6 +78,7 @@ describe('admin API module', () => {
         subscriptionPlan: 'SUBSCRIPTION_10',
         pronunciationPreference: 'NONE' as PronunciationPreference,
         provider: 'CREDENTIALS' as AuthProvider,
+        avatarUrl: null,
       };
       
       mockPatch.mockResolvedValue({ data: mockUser });
@@ -109,6 +111,7 @@ describe('admin API module', () => {
         subscriptionPlan: 'FREE_BYOK',
         pronunciationPreference: 'NONE' as PronunciationPreference,
         provider: 'CREDENTIALS' as AuthProvider,
+        avatarUrl: null,
       };
       
       mockPatch.mockResolvedValue({ data: mockUser });

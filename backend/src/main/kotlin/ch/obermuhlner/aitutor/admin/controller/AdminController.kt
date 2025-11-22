@@ -84,7 +84,8 @@ class AdminController(
             lastLoginAt = user.lastLoginAt,
             subscriptionPlan = user.subscriptionPlan,
             pronunciationPreference = user.pronunciationPreference,
-            provider = user.provider
+            provider = user.provider,
+            avatarUrl = user.avatarUrl
         )
 
         return ResponseEntity.ok(response)
@@ -328,7 +329,8 @@ class AdminController(
             lastLoginAt = user.lastLoginAt,
             subscriptionPlan = user.subscriptionPlan,
             pronunciationPreference = user.pronunciationPreference,
-            provider = user.provider
+            provider = user.provider,
+            avatarUrl = user.avatarUrl
         )
     }
 }
