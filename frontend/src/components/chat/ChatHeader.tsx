@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { PanelRightOpen, PanelRightClose } from 'lucide-react';
 import TutorImage from '../tutor/TutorImage';
 import SkillBreakdownBadge from '../assessment/SkillBreakdownBadge';
 import EditableTopic from './EditableTopic';
@@ -6,7 +7,12 @@ import Button from '../ui/Button';
 import { useChatSession } from '../../contexts/ChatSessionContext';
 import FlagIcon from '../ui/FlagIcon';
 
-export default function ChatHeader() {
+interface ChatHeaderProps {
+  showSidebar: boolean;
+  onToggleSidebar: () => void;
+}
+
+export default function ChatHeader({ showSidebar, onToggleSidebar }: ChatHeaderProps) {
   const navigate = useNavigate();
   const {
     courseName,
@@ -83,6 +89,19 @@ export default function ChatHeader() {
             )}
           </div>
         </div>
+      </div>
+      <div className="flex items-center">
+        <button
+          onClick={onToggleSidebar}
+          className="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
+          aria-label={showSidebar ? 'Close sidebar' : 'Open sidebar'}
+        >
+          {showSidebar ? (
+            <PanelRightClose className="w-5 h-5" />
+          ) : (
+            <PanelRightOpen className="w-5 h-5" />
+          )}
+        </button>
       </div>
     </div>
   );

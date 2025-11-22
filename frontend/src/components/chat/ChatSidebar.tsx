@@ -9,13 +9,14 @@ import RateLimitIndicator from '../profile/RateLimitIndicator';
 import UserLevelSelector from './UserLevelSelector';
 import { useChatSession } from '../../contexts/ChatSessionContext';
 
-type SidebarTab = 'summary' | 'review' | 'settings' | 'lesson';
+type SidebarTab = 'summary' | 'review' | 'settings' | 'lesson' | 'rate-limits';
 
 interface ChatSidebarProps {
   isVisible: boolean;
+  onClose?: () => void;
 }
 
-export default function ChatSidebar({ isVisible }: ChatSidebarProps) {
+export default function ChatSidebar({ isVisible, onClose }: ChatSidebarProps) {
   const {
     sessionId,
     courseId,
@@ -47,13 +48,33 @@ export default function ChatSidebar({ isVisible }: ChatSidebarProps) {
     }
   }, [vocabularyReviewMode]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Handle ESC key to close sidebar
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isVisible && onClose) {
+        onClose();
+      }
+    };
+
+    if (isVisible) {
+      document.addEventListener('keydown', handleEscape);
+      return () => document.removeEventListener('keydown', handleEscape);
+    }
+  }, [isVisible, onClose]);
+
   return (
     <div
-      className={`flex-shrink-0 transition-all duration-300 ease-in-out ${
-        isVisible ? 'w-80 opacity-100' : 'w-0 opacity-0'
-      } overflow-hidden`}
+      className={`
+        flex-shrink-0 transition-all duration-200 ease-in-out
+        fixed inset-y-0 right-0 w-[85vw] max-w-sm z-50
+        md:relative md:inset-auto md:w-80 md:max-w-none md:z-auto
+        ${isVisible
+          ? 'translate-x-0 opacity-100'
+          : 'translate-x-full md:hidden opacity-0'
+        }
+      `}
     >
-      <div className="h-full flex flex-col rounded-2xl border border-slate-200 bg-white shadow-soft-lg">
+      <div className="h-full max-h-[calc(100vh-10rem)] flex flex-col rounded-l-2xl md:rounded-2xl border border-slate-200 bg-white shadow-soft-lg">
         {/* Tab Navigation */}
         <div className="flex border-b border-slate-200">
           <button
@@ -85,6 +106,16 @@ export default function ChatSidebar({ isVisible }: ChatSidebarProps) {
             }`}
           >
             Summary
+          </button>
+          <button
+            onClick={() => setSidebarTab('rate-limits')}
+            className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
+              sidebarTab === 'rate-limits'
+                ? 'text-brand-600 border-b-2 border-brand-600 bg-brand-50/50'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+            }`}
+          >
+            Limits
           </button>
           {vocabularyReviewMode && (
             <button
@@ -123,6 +154,11 @@ export default function ChatSidebar({ isVisible }: ChatSidebarProps) {
               isVisible={true}
               onReviewComplete={refreshDueCount}
             />
+          )}
+          {sidebarTab === 'rate-limits' && (
+            <div>
+              <RateLimitIndicator forceRefresh={rateLimitRefreshTrigger} />
+            </div>
           )}
           {sidebarTab === 'settings' && (
             <div className="space-y-6">
@@ -180,10 +216,6 @@ export default function ChatSidebar({ isVisible }: ChatSidebarProps) {
 
               <div className="border-t border-slate-200 pt-6">
                 <TTSSettings />
-              </div>
-
-              <div className="border-t border-slate-200 pt-6">
-                <RateLimitIndicator forceRefresh={rateLimitRefreshTrigger} />
               </div>
             </div>
           )}
