@@ -43,7 +43,7 @@ function ChatPageContent() {
         )}
 
         {/* Main chat area */}
-        <div className="flex-1 flex max-h-[calc(100vh-10rem)] flex-col rounded-2xl border border-slate-200 bg-white shadow-soft-lg overflow-hidden">
+        <div className="flex-1 flex max-h-[calc(100vh-10rem)] flex-col bg-white overflow-hidden">
           {/* Header */}
           <ChatHeader
             showSidebar={showSummaryPanel}
