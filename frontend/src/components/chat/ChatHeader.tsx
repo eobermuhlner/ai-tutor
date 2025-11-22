@@ -1,9 +1,7 @@
-import { useNavigate } from 'react-router-dom';
 import { PanelRightOpen, PanelRightClose } from 'lucide-react';
 import TutorImage from '../tutor/TutorImage';
 import SkillBreakdownBadge from '../assessment/SkillBreakdownBadge';
 import EditableTopic from './EditableTopic';
-import Button from '../ui/Button';
 import { useChatSession } from '../../contexts/ChatSessionContext';
 import FlagIcon from '../ui/FlagIcon';
 
@@ -13,7 +11,6 @@ interface ChatHeaderProps {
 }
 
 export default function ChatHeader({ showSidebar, onToggleSidebar }: ChatHeaderProps) {
-  const navigate = useNavigate();
   const {
     courseName,
     targetLanguageCode,
@@ -31,9 +28,6 @@ export default function ChatHeader({ showSidebar, onToggleSidebar }: ChatHeaderP
   return (
     <div className="relative z-20 flex items-center justify-between border-b border-slate-200 bg-white/90 backdrop-blur-sm px-6 py-4">
       <div className="flex items-center gap-4">
-        <Button onClick={() => navigate('/sessions')} variant="ghost" size="sm">
-          ← Back
-        </Button>
         <div className="flex items-center gap-3">
           {tutor.profileId && (
             <div className="flex-shrink-0">
