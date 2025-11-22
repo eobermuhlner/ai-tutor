@@ -2,12 +2,11 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
 import CourseCard from '../components/catalog/CourseCard';
-import FilterBar from '../components/catalog/FilterBar';
 import Spinner from '../components/ui/Spinner';
 import EmptyState from '../components/ui/EmptyState';
 import { getCourses, getLanguages } from '../api/catalog';
 import { getLanguageAriaLabel } from '../utils/languageDisplay';
-import type { Course, CEFRLevel, CourseCategory, Language } from '../types';
+import type { Course, Language } from '../types';
 import toast from 'react-hot-toast';
 import FlagIcon from '../components/ui/FlagIcon';
 
@@ -16,8 +15,6 @@ export default function CourseCatalogPage() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [languages, setLanguages] = useState<Language[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedLevel, setSelectedLevel] = useState<CEFRLevel>();
-  const [selectedCategory, setSelectedCategory] = useState<CourseCategory>();
   const navigate = useNavigate();
 
   const loadData = useCallback(async () => {
@@ -26,7 +23,7 @@ export default function CourseCatalogPage() {
     setIsLoading(true);
     try {
       const [coursesData, languagesData] = await Promise.all([
-        getCourses(code, 'en', selectedLevel, selectedCategory),
+        getCourses(code, 'en'),
         getLanguages(),
       ]);
       setCourses(coursesData);
@@ -37,7 +34,7 @@ export default function CourseCatalogPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [code, selectedLevel, selectedCategory]);
+  }, [code]);
 
   useEffect(() => {
     if (code) {
@@ -90,15 +87,6 @@ export default function CourseCatalogPage() {
           </button>
         </div>
 
-        <div className="flex-shrink-0 mb-6">
-          <FilterBar
-            selectedLevel={selectedLevel}
-            selectedCategory={selectedCategory}
-            onLevelChange={setSelectedLevel}
-            onCategoryChange={setSelectedCategory}
-          />
-        </div>
-
         <div className="flex-1 overflow-y-auto pt-2">
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
@@ -107,14 +95,7 @@ export default function CourseCatalogPage() {
           ) : courses.length === 0 ? (
             <EmptyState
               title="No courses found"
-              message="There are no courses matching your criteria. Try adjusting your filters."
-              action={{
-                label: 'Clear Filters',
-                onClick: () => {
-                  setSelectedLevel(undefined);
-                  setSelectedCategory(undefined);
-                },
-              }}
+              message="There are no courses available for this language yet."
             />
           ) : (
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 pb-4">

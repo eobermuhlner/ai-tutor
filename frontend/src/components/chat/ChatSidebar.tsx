@@ -67,7 +67,7 @@ export default function ChatSidebar({ isVisible, onClose }: ChatSidebarProps) {
     <div
       className={`
         flex-shrink-0 transition-all duration-200 ease-in-out overflow-hidden
-        absolute top-0 right-0 w-[85vw] max-w-sm z-50
+        fixed top-[4.5rem] left-0 right-0 bottom-0 z-50
         md:relative md:inset-auto md:max-w-none md:z-auto
         ${isVisible
           ? 'translate-x-0 opacity-100 md:w-80 md:opacity-100'
@@ -75,7 +75,7 @@ export default function ChatSidebar({ isVisible, onClose }: ChatSidebarProps) {
         }
       `}
     >
-      <div className="h-[calc(100vh-10rem)] w-80 flex flex-col rounded-l-2xl md:rounded-2xl border border-slate-200 bg-white shadow-soft-lg">
+      <div className="h-full w-full md:h-[calc(100vh-10rem)] md:w-80 flex flex-col md:rounded-2xl bg-white shadow-soft-lg border-0 md:border md:border-slate-200">
         {/* Close Button - Mobile Only */}
         {onClose && (
           <button

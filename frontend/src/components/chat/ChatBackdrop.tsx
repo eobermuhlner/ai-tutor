@@ -8,7 +8,7 @@ export default function ChatBackdrop({ isVisible, onClick }: ChatBackdropProps) 
 
   return (
     <div
-      className="absolute inset-0 bg-black/50 transition-opacity duration-200 md:hidden z-40"
+      className="fixed inset-0 bg-black/50 transition-opacity duration-200 md:hidden z-40"
       onClick={onClick}
       aria-hidden="true"
     />
