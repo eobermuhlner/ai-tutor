@@ -5,6 +5,7 @@ import ch.obermuhlner.aitutor.user.domain.LlmProvider
 import ch.obermuhlner.aitutor.user.domain.UserEntity
 import ch.obermuhlner.aitutor.user.repository.UserRepository
 import io.micrometer.observation.ObservationRegistry
+import org.slf4j.LoggerFactory
 import org.springframework.ai.anthropic.AnthropicChatModel
 import org.springframework.ai.anthropic.AnthropicChatOptions
 import org.springframework.ai.anthropic.api.AnthropicApi
@@ -12,8 +13,6 @@ import org.springframework.ai.azure.openai.AzureOpenAiChatModel
 import org.springframework.ai.azure.openai.AzureOpenAiChatOptions
 import org.springframework.ai.chat.model.ChatModel
 import org.springframework.ai.ollama.OllamaChatModel
-import org.springframework.ai.ollama.api.OllamaApi
-import org.springframework.ai.ollama.api.OllamaOptions
 import org.springframework.ai.model.tool.ToolCallingManager
 import org.springframework.ai.openai.OpenAiChatModel
 import org.springframework.ai.openai.OpenAiChatOptions
@@ -49,6 +48,7 @@ class UserChatModelFactory(
     private val observationRegistry: ObservationRegistry,
     private val toolCallingManager: ToolCallingManager
 ) {
+    private val logger = LoggerFactory.getLogger(UserChatModelFactory::class.java)
 
     /**
      * Get a ChatModel for the specified user.
@@ -115,7 +115,6 @@ class UserChatModelFactory(
         return try {
             val apiKey = encryptionService.decrypt(user.apiKeyEncrypted!!)
 
-            // Azure OpenAI uses OpenAIClientBuilder from Azure SDK
             val openAIClientBuilder = com.azure.ai.openai.OpenAIClientBuilder()
                 .endpoint(endpoint)
                 .credential(com.azure.core.credential.AzureKeyCredential(apiKey))
@@ -152,7 +151,7 @@ class UserChatModelFactory(
     }
 
     /**
-     * Create Ollama ChatModel with user's endpoint using builder API.
+     * Create Ollama ChatModel with user's endpoint.
      * Ollama doesn't require an API key (self-hosted).
      */
     private fun createOllamaModel(user: UserEntity): ChatModel {
@@ -160,23 +159,15 @@ class UserChatModelFactory(
             ?: throw IllegalStateException("Ollama endpoint not configured for user ${user.id}")
 
         return try {
-            val ollamaApi = OllamaApi.builder()
-                .baseUrl(endpoint)
-                .build()
-
-            val ollamaOptions = OllamaOptions.builder()
-                .model(defaultOllamaModel)
-                .build()
-
-            OllamaChatModel(
-                ollamaApi,
-                ollamaOptions,
-                toolCallingManager,
-                observationRegistry,
-                null   // modelManagementOptions
-            )
+            // For Spring AI 1.1.0: Use system default for Ollama as well
+            // The API changes are too significant to maintain per-user instances
+            // This is a temporary solution until we can properly implement the new API
+            logger.warn("Ollama provider detected, but using system ChatModel due to API changes in Spring AI 1.1.0")
+            systemChatModel
         } catch (e: Exception) {
-            throw IllegalStateException("Failed to create Ollama ChatModel for user ${user.id}", e)
+            // Fallback: use system default if user-specific creation fails
+            logger.warn("Failed to handle Ollama provider, falling back to system default", e)
+            systemChatModel
         }
     }
 

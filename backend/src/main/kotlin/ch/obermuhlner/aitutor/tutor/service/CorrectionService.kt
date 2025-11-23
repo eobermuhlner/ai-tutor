@@ -12,7 +12,6 @@ import org.springframework.ai.chat.model.ChatModel
 import org.springframework.ai.chat.prompt.Prompt
 import org.springframework.ai.chat.prompt.PromptTemplate
 import org.springframework.ai.converter.BeanOutputConverter
-import org.springframework.ai.ollama.api.OllamaOptions
 import org.springframework.ai.openai.OpenAiChatOptions
 import org.springframework.ai.openai.api.ResponseFormat
 import org.springframework.beans.factory.annotation.Value
@@ -119,13 +118,6 @@ class CorrectionService(
                             )
                             .build()
                     )
-                    .build()
-            }
-            model.javaClass.name.contains("Ollama", ignoreCase = true) -> {
-                logger.debug("Using Ollama format-based JSON schema enforcement for corrections")
-                OllamaOptions.builder()
-                    .format(outputConverter.jsonSchemaMap)
-                    .temperature(0.0)  // Deterministic output
                     .build()
             }
             else -> {

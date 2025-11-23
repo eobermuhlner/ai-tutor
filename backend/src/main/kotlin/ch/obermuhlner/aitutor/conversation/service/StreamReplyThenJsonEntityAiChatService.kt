@@ -10,7 +10,6 @@ import org.springframework.ai.chat.model.ChatModel
 import org.springframework.ai.chat.prompt.Prompt
 import org.springframework.ai.chat.prompt.PromptTemplate
 import org.springframework.ai.converter.BeanOutputConverter
-import org.springframework.ai.ollama.api.OllamaOptions
 import org.springframework.ai.openai.OpenAiChatOptions
 import org.springframework.ai.openai.api.ResponseFormat
 import org.springframework.ai.util.json.schema.JsonSchemaGenerator
@@ -69,13 +68,6 @@ class StreamReplyThenJsonEntityAiChatService(
                             )
                             .build()
                     )
-                    .build()
-            }
-            isOllamaProvider(effectiveChatModel) -> {
-                logger.debug("Using Ollama format-based JSON schema enforcement for streaming")
-                OllamaOptions.builder()
-                    .format(outputConverter.jsonSchemaMap)
-                    .temperature(0.0)  // Recommended for deterministic output
                     .build()
             }
             else -> {

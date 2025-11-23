@@ -7,7 +7,6 @@ import org.springframework.ai.chat.client.ChatClient
 import org.springframework.ai.chat.model.ChatModel
 import org.springframework.ai.chat.prompt.Prompt
 import org.springframework.ai.converter.BeanOutputConverter
-import org.springframework.ai.ollama.api.OllamaOptions
 import org.springframework.ai.openai.OpenAiChatOptions
 import org.springframework.ai.openai.api.ResponseFormat
 import org.springframework.beans.factory.annotation.Value
@@ -60,6 +59,8 @@ class SingleJsonEntityAiChatService(
             isOpenAiProvider(effectiveChatModel) -> {
                 logger.debug("Using OpenAI strict JSON schema enforcement")
                 OpenAiChatOptions.builder()
+                    .reasoningEffort("minimal")
+                    .temperature(1.0)
                     .responseFormat(
                         ResponseFormat.builder()
                             .type(ResponseFormat.Type.JSON_SCHEMA)
@@ -74,13 +75,6 @@ class SingleJsonEntityAiChatService(
                     )
                     .build()
             }
-            isOllamaProvider(effectiveChatModel) -> {
-                logger.debug("Using Ollama format-based JSON schema enforcement")
-                OllamaOptions.builder()
-                    .format(outputConverter.jsonSchemaMap)
-                    .temperature(0.0)  // Recommended for deterministic output
-                    .build()
-            }
             else -> {
                 logger.warn("Unknown provider, falling back to soft enforcement")
                 return callWithSoftEnforcement(request, effectiveChatModel)
@@ -89,6 +83,7 @@ class SingleJsonEntityAiChatService(
 
         val prompt = Prompt(request.messages, chatOptions)
         val response = effectiveChatModel.call(prompt)
+        logger.debug("Response metadata: {}", response.metadata)
         val content = response.result.output.text ?: ""
 
         return outputConverter.convert(content)
