@@ -15,7 +15,7 @@ import {
   setPrimaryLanguage,
   removeLanguageProficiency,
 } from '../api/userLanguages';
-import { changePassword, changeEmail, updateAvatar } from '../api/auth';
+import { changePassword, changeEmail, updateAvatar, updateProfile, updatePronunciationPreference } from '../api/auth';
 import { AuthProvider, CEFRLevel, LanguageProficiencyType } from '../types';
 import type { LanguageProficiency } from '../types';
 import toast from 'react-hot-toast';
@@ -256,9 +256,7 @@ export default function ProfilePage() {
 
     setIsSubmittingName(true);
     try {
-      await import('../api/auth').then(({ updateProfile }) => 
-        updateProfile(firstName || null, lastName || null)
-      );
+      await updateProfile(firstName || null, lastName || null);
       // Refresh user data to get updated name
       await useAuthStore.getState().refreshUser();
       toast.success('Name updated successfully');
@@ -277,9 +275,7 @@ export default function ProfilePage() {
 
     setIsSubmittingPronunciation(true);
     try {
-      await import('../api/auth').then(({ updatePronunciationPreference }) =>
-        updatePronunciationPreference(pronunciationPreference)
-      );
+      await updatePronunciationPreference(pronunciationPreference);
       // Refresh user data to get updated pronunciation preference
       await useAuthStore.getState().refreshUser();
       toast.success('Pronunciation preference updated successfully');

@@ -579,7 +579,8 @@ describe('chat API module', () => {
       const result = await sendChatMessage(sessionId, messageText, messageText);
 
       expect(mockPost).toHaveBeenCalledWith(`/chat/sessions/${sessionId}/messages`, {
-        content: messageText
+        content: messageText,
+        corrections: null
       });
       expect(result).toEqual(expectedMessage);
     });
