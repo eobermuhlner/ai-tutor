@@ -1,0 +1,24 @@
+# OpenAI configuration for testharness
+
+spring:
+  ai:
+    enabled: true
+    model:
+      chat: openai
+    azure:
+      enabled: false  # Explicitly disable Azure
+    anthropic:
+      enabled: false  # Explicitly disable Anthropic
+    ollama:
+      enabled: false  # Explicitly disable Ollama
+
+spring.ai.openai.chat.options.model: gpt-4o
+spring.ai.openai.api-key: ${OPENAI_API_KEY:}  # Use env var, empty if not set
+spring.ai.openai.base-url: https://api.openai.com
+
+# TestHarness specific configuration
+testharness:
+  learners:
+    default-model: openai
+  judges:
+    default-model: openai

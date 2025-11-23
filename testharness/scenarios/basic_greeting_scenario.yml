@@ -1,0 +1,44 @@
+name: "Basic Greeting Scenario"
+description: "Test basic greeting and introduction conversation"
+language: "en"
+level: "A1"
+topic: "introductions"
+objective: "Evaluate how the tutor handles basic introductions and personal information exchange"
+
+learnerPersona:
+  name: "Beginner Learner"
+  level: "A1"
+  learningStyle: "visual"
+  goals:
+    - "Learn basic greetings"
+    - "Practice introducing myself"
+  commonMistakes:
+    - "Subject-verb disagreement"
+    - "Wrong verb tenses"
+  personality: "shy but eager to learn"
+
+expectedBehaviors:
+  - "Use simple vocabulary appropriate for A1 level"
+  - "Provide gentle corrections"
+  - "Ask follow-up questions to encourage speaking"
+
+testSteps:
+  - action: "learner_speaks"
+    expectedOutcome: "Tutor responds with a friendly greeting and asks a question"
+    evaluationCriteria:
+      - "Appropriate for A1 level"
+      - "Encourages further conversation"
+      
+  - action: "learner_makes_mistake"
+    expectedOutcome: "Tutor corrects mistake gently without discouraging learner"
+    evaluationCriteria:
+      - "Correction is accurate"
+      - "Delivery is supportive"
+      - "Explains the correction"
+      
+  - action: "learner_speaks"
+    expectedOutcome: "Tutor continues conversation appropriately"
+    evaluationCriteria:
+      - "Maintains conversation flow"
+      - "Provides relevant input"
+      - "Uses appropriate language level"

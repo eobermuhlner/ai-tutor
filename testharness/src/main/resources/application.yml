@@ -1,0 +1,19 @@
+spring:
+  profiles:
+    active: ai-openai
+    group:
+      ai-openai: ai-openai-config
+      ai-azure-openai: ai-azure-openai-config
+      ai-ollama: ai-ollama-config
+      ai-anthropic: ai-anthropic-config
+
+# Default settings
+testharness:
+  backend:
+    base-url: ${TESTHARNESS_BACKEND_URL:http://localhost:8080}
+  scenarios:
+    directory: ${TESTHARNESS_SCENARIOS_DIR:scenarios}
+  learners:
+    default-model: ${TESTHARNESS_LEARNER_MODEL:openai}
+  judges:
+    default-model: ${TESTHARNESS_JUDGE_MODEL:openai}
