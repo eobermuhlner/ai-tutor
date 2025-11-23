@@ -140,8 +140,9 @@ class TutorServiceTest {
         )
 
         val conversationResponse = ConversationResponse(
-            conversationState = conversationState,
-            newVocabulary = emptyList()
+            newVocabulary = emptyList(),
+            wordCards = emptyList(),
+            characterCards = emptyList()
         )
 
         val aiResponse = AiChatResponse(
@@ -158,7 +159,6 @@ class TutorServiceTest {
 
         assertNotNull(result)
         assertEquals("Hola! How can I help?", result?.reply)
-        assertEquals(ConversationPhase.Free, result?.conversationResponse?.conversationState?.phase)
         verify { aiChatService.call(any(), any()) }
     }
 
@@ -183,8 +183,9 @@ class TutorServiceTest {
         )
 
         val conversationResponse = ConversationResponse(
-            conversationState = conversationState,
-            newVocabulary = emptyList()
+            newVocabulary = emptyList(),
+            wordCards = emptyList(),
+            characterCards = emptyList()
         )
 
         val aiResponse = AiChatResponse(
@@ -225,8 +226,9 @@ class TutorServiceTest {
         )
 
         val conversationResponse = ConversationResponse(
-            conversationState = conversationState,
-            newVocabulary = emptyList()
+            newVocabulary = emptyList(),
+            wordCards = emptyList(),
+            characterCards = emptyList()
         )
 
         val aiResponse = AiChatResponse(
@@ -243,7 +245,6 @@ class TutorServiceTest {
 
         assertNotNull(result)
         assertEquals("Let's practice ser and estar!", result?.reply)
-        assertEquals(ConversationPhase.Drill, result?.conversationResponse?.conversationState?.phase)
         verify { aiChatService.call(any(), any()) }
     }
 
@@ -297,8 +298,9 @@ class TutorServiceTest {
         )
 
         val conversationResponse = ConversationResponse(
-            conversationState = conversationState,
-            newVocabulary = emptyList()
+            newVocabulary = emptyList(),
+            wordCards = emptyList(),
+            characterCards = emptyList()
         )
 
         val aiResponse = AiChatResponse(
@@ -335,8 +337,9 @@ class TutorServiceTest {
         )
 
         val conversationResponse = ConversationResponse(
-            conversationState = conversationState,
-            newVocabulary = emptyList()
+            newVocabulary = emptyList(),
+            wordCards = emptyList(),
+            characterCards = emptyList()
         )
 
         val aiResponse = AiChatResponse(

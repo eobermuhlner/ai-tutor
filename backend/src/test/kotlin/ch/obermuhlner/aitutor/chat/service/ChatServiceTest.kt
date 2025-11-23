@@ -42,6 +42,7 @@ class ChatServiceTest {
     private lateinit var vocabularyReviewService: ch.obermuhlner.aitutor.vocabulary.service.VocabularyReviewService
     private lateinit var phaseDecisionService: ch.obermuhlner.aitutor.tutor.service.PhaseDecisionService
     private lateinit var topicDecisionService: ch.obermuhlner.aitutor.tutor.service.TopicDecisionService
+    private lateinit var metadataEvaluationService: ch.obermuhlner.aitutor.tutor.service.MetadataEvaluationService
     private lateinit var catalogService: ch.obermuhlner.aitutor.catalog.service.CatalogService
     private lateinit var errorAnalyticsService: ch.obermuhlner.aitutor.analytics.service.ErrorAnalyticsService
     private lateinit var userLanguageService: ch.obermuhlner.aitutor.user.service.UserLanguageService
@@ -61,6 +62,7 @@ class ChatServiceTest {
         vocabularyReviewService = mockk()
         phaseDecisionService = mockk()
         topicDecisionService = mockk()
+        metadataEvaluationService = mockk(relaxed = true)
         catalogService = mockk()
         errorAnalyticsService = mockk(relaxed = true)
         userLanguageService = mockk(relaxed = true)
@@ -87,6 +89,7 @@ class ChatServiceTest {
             vocabularyReviewService,
             phaseDecisionService,
             topicDecisionService,
+            metadataEvaluationService,
             catalogService,
             errorAnalyticsService,
             userLanguageService,
@@ -96,8 +99,7 @@ class ChatServiceTest {
             userRepository,
             imageService,
             objectMapper,
-            "An error occurred",
-            minTurnsForLevelChange = 3
+            "An error occurred"
         )
     }
 
@@ -164,11 +166,9 @@ class ChatServiceTest {
         val tutorResponse = TutorService.TutorResponse(
             reply = "Test reply",
             conversationResponse = ConversationResponse(
-                conversationState = ConversationState(
-                    phase = ConversationPhase.Drill,
-                    estimatedCEFRLevel = CEFRLevel.A2
-                ),
-                newVocabulary = emptyList()
+                newVocabulary = emptyList(),
+                wordCards = emptyList(),
+                characterCards = emptyList()
             )
         )
 
@@ -225,12 +225,9 @@ class ChatServiceTest {
         val tutorResponse = TutorService.TutorResponse(
             reply = "Reply",
             conversationResponse = ConversationResponse(
-                conversationState = ConversationState(
-                    phase = ConversationPhase.Correction,
-                    estimatedCEFRLevel = CEFRLevel.A1,
-                    currentTopic = "new-topic"
-                ),
-                newVocabulary = emptyList()
+                newVocabulary = emptyList(),
+                wordCards = emptyList(),
+                characterCards = emptyList()
             )
         )
 
@@ -244,18 +241,15 @@ class ChatServiceTest {
         every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
         every { chatMessageRepository.save(any<ChatMessageEntity>()) } returns userMessage andThen assistantMessage
         every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(any()) } returns allMessages
-        every { topicDecisionService.decideTopic(any(), any(), any(), any()) } returns TopicDecision("new-topic", 10, "Topic changed", emptyList())
-        every { topicDecisionService.countTurnsInRecentMessages(any()) } returns 10
-        every { topicDecisionService.shouldArchiveTopic(any(), any()) } returns true
         every { tutorService.respond(any(), any(), any(), any(), any(), any(), any(), any(), any(), any()) } returns tutorResponse
         every { chatMessageRepository.countBySessionId(any()) } returns 0L
-        every { phaseDecisionService.decidePhase(any(), any()) } returns PhaseDecision(ConversationPhase.Correction, "Default phase", 0.0)
         every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns session
 
         val result = chatService.sendMessage(TestDataFactory.TEST_SESSION_ID, "Test", TestDataFactory.TEST_USER_ID)
 
         assertNotNull(result)
-        verify { chatSessionRepository.save(match { it.currentTopic == "new-topic" }) }
+        // Verify that MetadataEvaluationService is called to evaluate metadata periodically
+        verify { metadataEvaluationService.evaluateIfNeeded(TestDataFactory.TEST_SESSION_ID, any()) }
     }
 
     @Test
@@ -267,12 +261,9 @@ class ChatServiceTest {
         val tutorResponse = TutorService.TutorResponse(
             reply = "Reply",
             conversationResponse = ConversationResponse(
-                conversationState = ConversationState(
-                    phase = ConversationPhase.Drill,  // LLM suggests Drill
-                    estimatedCEFRLevel = CEFRLevel.A2,
-                    currentTopic = null
-                ),
-                newVocabulary = emptyList()
+                newVocabulary = emptyList(),
+                wordCards = emptyList(),
+                characterCards = emptyList()
             )
         )
 
@@ -482,11 +473,9 @@ class ChatServiceTest {
         val tutorResponse = TutorService.TutorResponse(
             reply = "Reply",
             conversationResponse = ch.obermuhlner.aitutor.tutor.domain.ConversationResponse(
-                conversationState = ch.obermuhlner.aitutor.tutor.domain.ConversationState(
-                    phase = ch.obermuhlner.aitutor.tutor.domain.ConversationPhase.Free,
-                    estimatedCEFRLevel = ch.obermuhlner.aitutor.core.model.CEFRLevel.A1
-                ),
-                newVocabulary = emptyList()
+                newVocabulary = emptyList(),
+                wordCards = emptyList(),
+                characterCards = emptyList()
             )
         )
 
@@ -530,11 +519,9 @@ class ChatServiceTest {
         val tutorResponse = TutorService.TutorResponse(
             reply = "Reply",
             conversationResponse = ch.obermuhlner.aitutor.tutor.domain.ConversationResponse(
-                conversationState = ch.obermuhlner.aitutor.tutor.domain.ConversationState(
-                    phase = ch.obermuhlner.aitutor.tutor.domain.ConversationPhase.Free,
-                    estimatedCEFRLevel = ch.obermuhlner.aitutor.core.model.CEFRLevel.A1
-                ),
-                newVocabulary = emptyList()
+                newVocabulary = emptyList(),
+                wordCards = emptyList(),
+                characterCards = emptyList()
             )
         )
 
@@ -1100,29 +1087,24 @@ class ChatServiceTest {
         val tutorResponse = TutorService.TutorResponse(
             reply = "Great! Let's move to the next lesson.",
             conversationResponse = ConversationResponse(
-                conversationState = ConversationState(
-                    phase = ConversationPhase.Correction,
-                    estimatedCEFRLevel = CEFRLevel.A1,
-                    requestedLessonAction = "next"  // LLM requests lesson advancement
-                ),
-                newVocabulary = emptyList()
+                newVocabulary = emptyList(),
+                wordCards = emptyList(),
+                characterCards = emptyList()
             )
         )
 
         every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
         every { chatMessageRepository.save(any<ChatMessageEntity>()) } returns userMessage andThen assistantMessage
         every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(any()) } returns emptyList()
-        every { topicDecisionService.decideTopic(any(), any(), any(), any()) } returns TopicDecision(null, 0, "Free conversation", emptyList())
         every { tutorService.respond(any(), any(), any(), any(), any(), any(), any(), any(), any(), any()) } returns tutorResponse
         every { chatMessageRepository.countBySessionId(any()) } returns 0L
-        every { phaseDecisionService.decidePhase(any(), any()) } returns PhaseDecision(ConversationPhase.Correction, "Default phase", 0.0)
         every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns session
-        every { lessonProgressionService.navigateToNextLesson(TestDataFactory.TEST_SESSION_ID) } returns mockk()  // Mock successful lesson switch
 
         val result = chatService.sendMessage(TestDataFactory.TEST_SESSION_ID, "I'm ready for the next lesson", TestDataFactory.TEST_USER_ID)
 
         assertNotNull(result)
-        verify { lessonProgressionService.navigateToNextLesson(TestDataFactory.TEST_SESSION_ID) }
+        // Lesson progression is now handled periodically by MetadataEvaluationService
+        verify { metadataEvaluationService.evaluateIfNeeded(TestDataFactory.TEST_SESSION_ID, any()) }
     }
 
     @Test
@@ -1136,29 +1118,24 @@ class ChatServiceTest {
         val tutorResponse = TutorService.TutorResponse(
             reply = "OK, let's review the previous lesson.",
             conversationResponse = ConversationResponse(
-                conversationState = ConversationState(
-                    phase = ConversationPhase.Correction,
-                    estimatedCEFRLevel = CEFRLevel.A1,
-                    requestedLessonAction = "previous"  // LLM requests previous lesson
-                ),
-                newVocabulary = emptyList()
+                newVocabulary = emptyList(),
+                wordCards = emptyList(),
+                characterCards = emptyList()
             )
         )
 
         every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
         every { chatMessageRepository.save(any<ChatMessageEntity>()) } returns userMessage andThen assistantMessage
         every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(any()) } returns emptyList()
-        every { topicDecisionService.decideTopic(any(), any(), any(), any()) } returns TopicDecision(null, 0, "Free conversation", emptyList())
         every { tutorService.respond(any(), any(), any(), any(), any(), any(), any(), any(), any(), any()) } returns tutorResponse
         every { chatMessageRepository.countBySessionId(any()) } returns 0L
-        every { phaseDecisionService.decidePhase(any(), any()) } returns PhaseDecision(ConversationPhase.Correction, "Default phase", 0.0)
         every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns session
-        every { lessonProgressionService.navigateToPreviousLesson(TestDataFactory.TEST_SESSION_ID) } returns mockk()  // Mock successful lesson switch
 
         val result = chatService.sendMessage(TestDataFactory.TEST_SESSION_ID, "Can we go back to the previous lesson?", TestDataFactory.TEST_USER_ID)
 
         assertNotNull(result)
-        verify { lessonProgressionService.navigateToPreviousLesson(TestDataFactory.TEST_SESSION_ID) }
+        // Lesson progression is now handled periodically by MetadataEvaluationService
+        verify { metadataEvaluationService.evaluateIfNeeded(TestDataFactory.TEST_SESSION_ID, any()) }
     }
 
     @Test
@@ -1172,12 +1149,9 @@ class ChatServiceTest {
         val tutorResponse = TutorService.TutorResponse(
             reply = "Reply",
             conversationResponse = ConversationResponse(
-                conversationState = ConversationState(
-                    phase = ConversationPhase.Correction,
-                    estimatedCEFRLevel = CEFRLevel.A1,
-                    requestedLessonAction = "next"  // LLM requests lesson advancement but not in course session
-                ),
-                newVocabulary = emptyList()
+                newVocabulary = emptyList(),
+                wordCards = emptyList(),
+                characterCards = emptyList()
             )
         )
 
@@ -1208,12 +1182,9 @@ class ChatServiceTest {
         val tutorResponse = TutorService.TutorResponse(
             reply = "Reply",
             conversationResponse = ConversationResponse(
-                conversationState = ConversationState(
-                    phase = ConversationPhase.Correction,
-                    estimatedCEFRLevel = CEFRLevel.A1,
-                    requestedLessonAction = null  // No lesson action requested
-                ),
-                newVocabulary = emptyList()
+                newVocabulary = emptyList(),
+                wordCards = emptyList(),
+                characterCards = emptyList()
             )
         )
 
@@ -1244,12 +1215,9 @@ class ChatServiceTest {
         val tutorResponse = TutorService.TutorResponse(
             reply = "Let's continue with this lesson.",
             conversationResponse = ConversationResponse(
-                conversationState = ConversationState(
-                    phase = ConversationPhase.Correction,
-                    estimatedCEFRLevel = CEFRLevel.A1,
-                    requestedLessonAction = "stay"  // Explicitly stay on current lesson
-                ),
-                newVocabulary = emptyList()
+                newVocabulary = emptyList(),
+                wordCards = emptyList(),
+                characterCards = emptyList()
             )
         )
 
@@ -1476,11 +1444,9 @@ class ChatServiceTest {
         val tutorResponse = TutorService.TutorResponse(
             reply = "Welcome!",
             conversationResponse = ConversationResponse(
-                conversationState = ConversationState(
-                    phase = ConversationPhase.Free,
-                    estimatedCEFRLevel = CEFRLevel.A1
-                ),
-                newVocabulary = emptyList()
+                newVocabulary = emptyList(),
+                wordCards = emptyList(),
+                characterCards = emptyList()
             )
         )
 
@@ -1532,11 +1498,9 @@ class ChatServiceTest {
         val tutorResponse = TutorService.TutorResponse(
             reply = "Welcome back!",
             conversationResponse = ConversationResponse(
-                conversationState = ConversationState(
-                    phase = ConversationPhase.Correction,
-                    estimatedCEFRLevel = CEFRLevel.A2
-                ),
-                newVocabulary = emptyList()
+                newVocabulary = emptyList(),
+                wordCards = emptyList(),
+                characterCards = emptyList()
             )
         )
 
@@ -1585,18 +1549,14 @@ class ChatServiceTest {
         val tutorResponse = TutorService.TutorResponse(
             reply = "Let's practice!",
             conversationResponse = ConversationResponse(
-                conversationState = ConversationState(
-                    phase = ConversationPhase.Drill,  // LLM suggests Drill
-                    estimatedCEFRLevel = CEFRLevel.A2
-                ),
-                newVocabulary = emptyList()
+                newVocabulary = emptyList(),
+                wordCards = emptyList(),
+                characterCards = emptyList()
             )
         )
 
         every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
         every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(TestDataFactory.TEST_SESSION_ID) } returns emptyList()
-        every { phaseDecisionService.decidePhase(ConversationPhase.Auto, emptyList()) } returns PhaseDecision(ConversationPhase.Drill, "High errors", 2.0)
-        every { topicDecisionService.decideTopic(any(), any(), any(), any()) } returns TopicDecision(null, 0, "Free", emptyList())
         every { tutorService.respond(any(), any(), any(), any(), any(), any(), any(), any(), any(), any()) } returns tutorResponse
         every { chatMessageRepository.countBySessionId(any()) } returns 0L
         every { chatSessionRepository.save(any<ChatSessionEntity>()) } returns session
@@ -1605,7 +1565,8 @@ class ChatServiceTest {
         val result = chatService.initiateTutorMessage(TestDataFactory.TEST_SESSION_ID, TestDataFactory.TEST_USER_ID, "welcome")
 
         assertNotNull(result)
-        verify { chatSessionRepository.save(match { it.effectivePhase == ConversationPhase.Drill }) }
+        // Phase updates are now handled periodically by MetadataEvaluationService
+        verify { metadataEvaluationService.evaluateIfNeeded(TestDataFactory.TEST_SESSION_ID, any()) }
     }
 
     @Test
@@ -1618,11 +1579,9 @@ class ChatServiceTest {
         val tutorResponse = TutorService.TutorResponse(
             reply = "Let's review!",
             conversationResponse = ConversationResponse(
-                conversationState = ConversationState(
-                    phase = ConversationPhase.Free,
-                    estimatedCEFRLevel = CEFRLevel.A1
-                ),
-                newVocabulary = emptyList()
+                newVocabulary = emptyList(),
+                wordCards = emptyList(),
+                characterCards = emptyList()
             )
         )
 

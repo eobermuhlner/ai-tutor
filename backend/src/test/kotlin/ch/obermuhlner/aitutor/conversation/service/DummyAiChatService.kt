@@ -37,17 +37,14 @@ class DummyAiChatService : AiChatService {
     private fun createDefaultResponse(reply: String) = AiChatResponse(
         reply = reply,
         conversationResponse = ConversationResponse(
-            conversationState = ConversationState(
-                phase = ch.obermuhlner.aitutor.tutor.domain.ConversationPhase.Correction,
-                estimatedCEFRLevel = ch.obermuhlner.aitutor.core.model.CEFRLevel.A1,
-                currentTopic = "greetings"
-            ),
             newVocabulary = listOf(
                 NewVocabulary(
                     lemma = "hello",
                     context = "greeting"
                 )
-            )
+            ),
+            wordCards = emptyList(),
+            characterCards = emptyList()
         )
     )
 }

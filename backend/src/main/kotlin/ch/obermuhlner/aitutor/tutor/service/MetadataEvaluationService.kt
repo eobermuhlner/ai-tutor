@@ -10,8 +10,6 @@ import ch.obermuhlner.aitutor.tutor.domain.ConversationPhase
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.slf4j.LoggerFactory
 import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.boot.context.properties.bind.ConstructorBinding
-import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -19,14 +17,13 @@ import java.util.*
  * Configuration for metadata evaluation intervals.
  * Controls how often different metadata fields are re-evaluated.
  */
-@Component
 @ConfigurationProperties(prefix = "ai-tutor.metadata-evaluation")
-data class MetadataEvaluationConfig @ConstructorBinding constructor(
-    val cefrLevelInterval: Int = 10,      // Evaluate CEFR level every N turns
-    val topicInterval: Int = 5,           // Evaluate topic every N turns
-    val phaseInterval: Int = 5,           // Evaluate phase every N turns
-    val lessonCheckInterval: Int = 3      // Check lesson progression every N turns
-)
+class MetadataEvaluationConfig {
+    var cefrLevelInterval: Int = 10      // Evaluate CEFR level every N turns
+    var topicInterval: Int = 5           // Evaluate topic every N turns
+    var phaseInterval: Int = 5           // Evaluate phase every N turns
+    var lessonCheckInterval: Int = 3     // Check lesson progression every N turns
+}
 
 /**
  * Service for periodic background evaluation of session metadata.
@@ -128,17 +125,24 @@ class MetadataEvaluationService(
             recentMessages = messages
         )
 
-        // Update effective phase if it changed
+        // Update effective phase and reason if changed
+        var updated = false
         if (session.effectivePhase != phaseDecision.phase) {
             logger.info(
                 "Session ${session.id} phase changed: ${session.effectivePhase} -> ${phaseDecision.phase} " +
                 "(reason: ${phaseDecision.reason})"
             )
             session.effectivePhase = phaseDecision.phase
-            return true
+            updated = true
         }
 
-        return false
+        // Always update phase reason (context may change even if phase stays same)
+        if (session.phaseReason != phaseDecision.reason) {
+            session.phaseReason = phaseDecision.reason
+            updated = true
+        }
+
+        return updated
     }
 
     /**
@@ -209,6 +213,12 @@ class MetadataEvaluationService(
                 "(status: ${topicDecision.eligibilityStatus})"
             )
             session.currentTopic = topicDecision.topic
+            updated = true
+        }
+
+        // Always update topic eligibility status (context may change even if topic stays same)
+        if (session.topicEligibilityStatus != topicDecision.eligibilityStatus) {
+            session.topicEligibilityStatus = topicDecision.eligibilityStatus
             updated = true
         }
 

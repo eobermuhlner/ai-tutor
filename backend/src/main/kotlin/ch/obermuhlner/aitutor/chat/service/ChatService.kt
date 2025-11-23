@@ -57,7 +57,6 @@ class ChatService(
     private val imageService: ImageService,
     private val objectMapper: ObjectMapper,
     @Value("\${ai-tutor.messages.technical-error}") private val technicalErrorMessage: String,
-    @Value("\${ai-tutor.cefr.level-change.minimum-turns-before-change:3}") private val minTurnsForLevelChange: Int,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -359,28 +358,17 @@ class ChatService(
             }
         }
 
-        // Resolve effective phase and compute decision metadata
+        // Get message history for context
         val allMessages = chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(sessionId)
 
-        // Compute phase decision with metadata
-        val phaseDecision = if (session.conversationPhase == ConversationPhase.Auto) {
-            phaseDecisionService.decidePhase(session.conversationPhase, allMessages)
-        } else {
-            // For manually set phases, create PhaseDecision wrapper
-            PhaseDecision(
-                phase = session.conversationPhase,
-                reason = "User-selected phase",
-                severityScore = 0.0
-            )
-        }
-
-        // Compute topic metadata for prompt context (LLM hasn't responded yet, use current topic)
-        val topicMetadata = topicDecisionService.decideTopic(
-            currentTopic = session.currentTopic,
-            llmProposedTopic = session.currentTopic,
-            recentMessages = allMessages,
-            pastTopicsJson = session.pastTopicsJson
-        )
+        // Parse past topics from session
+        val pastTopics = session.pastTopicsJson?.let {
+            try {
+                objectMapper.readValue<List<String>>(it)
+            } catch (e: Exception) {
+                emptyList()
+            }
+        } ?: emptyList()
 
         // Get due vocabulary count if review mode enabled
         val dueCount = if (session.vocabularyReviewMode) {
@@ -393,14 +381,14 @@ class ChatService(
             null
         }
 
-        // Pass effective phase and metadata to LLM via enriched ConversationState
+        // Build ConversationState from stored session values (updated periodically by MetadataEvaluationService)
         val conversationState = ConversationState(
-            phase = phaseDecision.phase,
+            phase = session.effectivePhase ?: ConversationPhase.Correction,
             estimatedCEFRLevel = session.estimatedCEFRLevel,
             currentTopic = session.currentTopic,
-            phaseReason = phaseDecision.reason,
-            topicEligibilityStatus = topicMetadata.eligibilityStatus,
-            pastTopics = topicMetadata.pastTopics,
+            phaseReason = session.phaseReason ?: "Balanced default phase",
+            topicEligibilityStatus = session.topicEligibilityStatus ?: "Active conversation",
+            pastTopics = pastTopics,
             vocabularyReviewMode = session.vocabularyReviewMode,
             dueVocabularyCount = dueCount
         )
@@ -457,15 +445,8 @@ class ChatService(
             return toMessageResponse(savedAssistantMessage, errorMessage)
         }
 
-        // Update effective phase from PhaseDecisionService, not from LLM response
-        // PhaseDecisionService has the fossilization detection logic
-        if (session.conversationPhase == ConversationPhase.Auto) {
-            session.effectivePhase = phaseDecision.phase
-            logger.debug("Auto mode: effectivePhase updated to ${phaseDecision.phase} (${phaseDecision.reason})")
-        } else {
-            // When user has explicit phase preference, effective phase matches it
-            session.effectivePhase = session.conversationPhase
-        }
+        // Metadata (phase, CEFR level, topic, lesson progression) is now evaluated periodically
+        // by MetadataEvaluationService instead of on every message
 
         chatSessionRepository.save(session)
 
@@ -594,25 +575,17 @@ class ChatService(
             }
         }
 
-        // Resolve effective phase and compute decision metadata
+        // Get message history for context
         val allMessages = chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(sessionId)
 
-        val phaseDecision = if (session.conversationPhase == ConversationPhase.Auto) {
-            phaseDecisionService.decidePhase(session.conversationPhase, allMessages)
-        } else {
-            PhaseDecision(
-                phase = session.conversationPhase,
-                reason = "User-selected phase",
-                severityScore = 0.0
-            )
-        }
-
-        val topicMetadata = topicDecisionService.decideTopic(
-            currentTopic = session.currentTopic,
-            llmProposedTopic = session.currentTopic,
-            recentMessages = allMessages,
-            pastTopicsJson = session.pastTopicsJson
-        )
+        // Parse past topics from session
+        val pastTopics = session.pastTopicsJson?.let {
+            try {
+                objectMapper.readValue<List<String>>(it)
+            } catch (e: Exception) {
+                emptyList()
+            }
+        } ?: emptyList()
 
         // Get due vocabulary count if review mode enabled
         val dueCount = if (session.vocabularyReviewMode) {
@@ -625,14 +598,14 @@ class ChatService(
             null
         }
 
-        // Build conversation state with initiation context
+        // Build ConversationState from stored session values (updated periodically by MetadataEvaluationService)
         val conversationState = ConversationState(
-            phase = phaseDecision.phase,
+            phase = session.effectivePhase ?: ConversationPhase.Correction,
             estimatedCEFRLevel = session.estimatedCEFRLevel,
             currentTopic = session.currentTopic,
-            phaseReason = phaseDecision.reason,
-            topicEligibilityStatus = topicMetadata.eligibilityStatus,
-            pastTopics = topicMetadata.pastTopics,
+            phaseReason = session.phaseReason ?: "Balanced default phase",
+            topicEligibilityStatus = session.topicEligibilityStatus ?: "Active conversation",
+            pastTopics = pastTopics,
             vocabularyReviewMode = session.vocabularyReviewMode,
             dueVocabularyCount = dueCount,
             initiationContext = initiationContext  // Special flag for tutor-initiated messages
@@ -689,13 +662,8 @@ class ChatService(
             return toMessageResponse(savedAssistantMessage, errorMessage)
         }
 
-        // Update effective phase
-        if (session.conversationPhase == ConversationPhase.Auto) {
-            session.effectivePhase = phaseDecision.phase
-            logger.debug("Auto mode: effectivePhase updated to ${phaseDecision.phase} (${phaseDecision.reason})")
-        } else {
-            session.effectivePhase = session.conversationPhase
-        }
+        // Metadata (phase, CEFR level, topic, lesson progression) is now evaluated periodically
+        // by MetadataEvaluationService instead of on every message
 
         chatSessionRepository.save(session)
 

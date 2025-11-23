@@ -112,6 +112,13 @@ class ChatSessionEntity(
     @Column(name = "past_topics_json", nullable = true, columnDefinition = "TEXT")
     var pastTopicsJson: String? = null,
 
+    // Metadata evaluation context (updated periodically by MetadataEvaluationService)
+    @Column(name = "phase_reason", nullable = true, length = 256)
+    var phaseReason: String? = null,
+
+    @Column(name = "topic_eligibility_status", nullable = true, length = 256)
+    var topicEligibilityStatus: String? = null,
+
     // NEW: Course-related fields (nullable for backward compatibility)
     @Column(name = "course_template_id")
     var courseTemplateId: UUID? = null,

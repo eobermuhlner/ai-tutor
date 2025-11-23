@@ -34,11 +34,9 @@ class TestConfig {
         every { mock.call(any(), any()) } returns AiChatResponse(
             reply = "Test reply from AI",
             conversationResponse = ConversationResponse(
-                conversationState = ConversationState(
-                    phase = ConversationPhase.Free,
-                    estimatedCEFRLevel = CEFRLevel.A1
-                ),
-                newVocabulary = emptyList()
+                newVocabulary = emptyList(),
+                wordCards = emptyList(),
+                characterCards = emptyList()
             )
         )
 
