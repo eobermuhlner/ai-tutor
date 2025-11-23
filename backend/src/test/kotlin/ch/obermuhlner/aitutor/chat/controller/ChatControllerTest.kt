@@ -5,11 +5,15 @@ import ch.obermuhlner.aitutor.catalog.service.CatalogService
 import ch.obermuhlner.aitutor.chat.dto.CreateSessionFromCourseRequest
 import ch.obermuhlner.aitutor.chat.dto.CreateSessionRequest
 import ch.obermuhlner.aitutor.chat.dto.SendMessageRequest
+import ch.obermuhlner.aitutor.chat.dto.UpdateCorrectionsRequest
 import ch.obermuhlner.aitutor.chat.dto.UpdatePhaseRequest
 import ch.obermuhlner.aitutor.chat.dto.UpdateTopicRequest
 import ch.obermuhlner.aitutor.chat.dto.UpdateTeachingStyleRequest
 import ch.obermuhlner.aitutor.chat.dto.UpdateVocabularyReviewModeRequest
 import ch.obermuhlner.aitutor.chat.dto.UpdateLessonRequest
+import ch.obermuhlner.aitutor.core.model.Correction
+import ch.obermuhlner.aitutor.core.model.ErrorType
+import ch.obermuhlner.aitutor.core.model.ErrorSeverity
 import ch.obermuhlner.aitutor.chat.repository.ChatSessionRepository
 import ch.obermuhlner.aitutor.chat.service.ChatService
 import ch.obermuhlner.aitutor.conversation.service.AiAudioService
@@ -299,5 +303,61 @@ class ChatControllerTest {
         verify { chatService.sendMessage(sessionId = sessionId, userContent = userContent, currentUserId = currentUserId) }
         assert(result.statusCode == HttpStatus.OK)
         assert(result.body == messageResponse)
+    }
+
+    @Test
+    fun `updateMessageCorrections should update corrections and return updated message`() {
+        val sessionId = UUID.randomUUID()
+        val messageId = UUID.randomUUID()
+        val currentUserId = UUID.randomUUID()
+        val corrections = listOf(
+            Correction(
+                span = "gehen",
+                errorType = ErrorType.Agreement,
+                severity = ErrorSeverity.Medium,
+                correctedTargetLanguage = "gehe",
+                whySourceLanguage = "Use 'gehe' with 'ich'",
+                whyTargetLanguage = "Verwende 'gehe' mit 'ich'"
+            )
+        )
+        val request = UpdateCorrectionsRequest(corrections)
+        val messageResponse = mockk<ch.obermuhlner.aitutor.chat.dto.MessageResponse>()
+
+        every { authorizationService.getCurrentUserId() } returns currentUserId
+        every { chatService.updateMessageCorrections(sessionId, messageId, currentUserId, corrections) } returns messageResponse
+
+        val result = controller.updateMessageCorrections(sessionId, messageId, request)
+
+        verify { authorizationService.getCurrentUserId() }
+        verify { chatService.updateMessageCorrections(sessionId, messageId, currentUserId, corrections) }
+        assert(result.statusCode == HttpStatus.OK)
+        assert(result.body == messageResponse)
+    }
+
+    @Test
+    fun `updateMessageCorrections should return 404 when message not found`() {
+        val sessionId = UUID.randomUUID()
+        val messageId = UUID.randomUUID()
+        val currentUserId = UUID.randomUUID()
+        val corrections = listOf(
+            Correction(
+                span = "test",
+                errorType = ErrorType.Typography,
+                severity = ErrorSeverity.Low,
+                correctedTargetLanguage = "test",
+                whySourceLanguage = "Test",
+                whyTargetLanguage = "Test"
+            )
+        )
+        val request = UpdateCorrectionsRequest(corrections)
+
+        every { authorizationService.getCurrentUserId() } returns currentUserId
+        every { chatService.updateMessageCorrections(sessionId, messageId, currentUserId, corrections) } returns null
+
+        val result = controller.updateMessageCorrections(sessionId, messageId, request)
+
+        verify { authorizationService.getCurrentUserId() }
+        verify { chatService.updateMessageCorrections(sessionId, messageId, currentUserId, corrections) }
+        assert(result.statusCode == HttpStatus.NOT_FOUND)
     }
 }

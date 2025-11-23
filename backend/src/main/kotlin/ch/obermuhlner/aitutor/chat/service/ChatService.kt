@@ -117,6 +117,33 @@ class ChatService(
         return chatMessageRepository.save(message)
     }
 
+    @Transactional
+    fun updateMessageCorrections(
+        sessionId: UUID,
+        messageId: UUID,
+        userId: UUID,
+        corrections: List<Correction>
+    ): MessageResponse? {
+        val message = getMessage(sessionId, messageId) ?: return null
+
+        // Validate message belongs to the user's session
+        if (message.session.userId != userId) {
+            logger.warn("User $userId attempted to update corrections for message $messageId in session $sessionId owned by ${message.session.userId}")
+            return null
+        }
+
+        // Only allow updating USER role messages (corrections are for user's input)
+        if (message.role != MessageRole.USER) {
+            logger.warn("Attempted to update corrections for non-USER message $messageId (role: ${message.role})")
+            return null
+        }
+
+        message.correctionsJson = objectMapper.writeValueAsString(corrections)
+        logger.debug("Updated corrections for message $messageId in session $sessionId: ${corrections.size} corrections")
+        val savedMessage = chatMessageRepository.save(message)
+        return toMessageResponse(savedMessage)
+    }
+
     fun getUserSessions(userId: UUID): List<SessionResponse> {
         return chatSessionRepository.findByUserIdOrderByUpdatedAtDesc(userId)
             .map { toSessionResponse(it) }
@@ -281,6 +308,7 @@ class ChatService(
         sessionId: UUID,
         userContent: String,
         currentUserId: UUID,
+        corrections: List<Correction>? = null,
         onReplyChunk: (String) -> Unit = {}
     ): MessageResponse? {
         val session = chatSessionRepository.findById(sessionId).orElse(null) ?: return null
@@ -295,11 +323,12 @@ class ChatService(
             .maxOfOrNull { it.sequenceNumber } ?: -1
         val nextSequence = maxSequence + 1
 
-        // Save user message
+        // Save user message with corrections if provided
         val userMessage = ChatMessageEntity(
             session = session,
             role = MessageRole.USER,
             content = userContent,
+            correctionsJson = corrections?.let { objectMapper.writeValueAsString(it) },
             sequenceNumber = nextSequence
         )
         chatMessageRepository.save(userMessage)

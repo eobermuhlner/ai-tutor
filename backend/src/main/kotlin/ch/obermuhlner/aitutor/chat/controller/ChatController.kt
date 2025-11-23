@@ -9,6 +9,7 @@ import ch.obermuhlner.aitutor.chat.dto.SessionResponse
 import ch.obermuhlner.aitutor.chat.dto.SessionWithMessagesResponse
 import ch.obermuhlner.aitutor.chat.dto.SessionWithProgressResponse
 import ch.obermuhlner.aitutor.chat.dto.TopicHistoryResponse
+import ch.obermuhlner.aitutor.chat.dto.UpdateCorrectionsRequest
 import ch.obermuhlner.aitutor.chat.dto.UpdateLessonRequest
 import ch.obermuhlner.aitutor.chat.dto.UpdatePhaseRequest
 import ch.obermuhlner.aitutor.chat.dto.UpdateTopicRequest
@@ -228,7 +229,7 @@ class ChatController(
         @RequestBody request: SendMessageRequest
     ): ResponseEntity<MessageResponse> {
         val currentUserId = authorizationService.getCurrentUserId()
-        val message = chatService.sendMessage(sessionId, request.content, currentUserId)
+        val message = chatService.sendMessage(sessionId, request.content, currentUserId, corrections = request.corrections)
             ?: return ResponseEntity.notFound().build()
         return addRateLimitHeaders(ResponseEntity.ok(), currentUserId)
             .body(message)
@@ -250,7 +251,7 @@ class ChatController(
                 // Propagate SecurityContext to async thread
                 org.springframework.security.core.context.SecurityContextHolder.setContext(context)
 
-                val message = chatService.sendMessage(sessionId, request.content, currentUserId) { chunk ->
+                val message = chatService.sendMessage(sessionId, request.content, currentUserId, corrections = request.corrections) { chunk ->
                     try {
                         emitter.send(
                             SseEmitter.event()
@@ -300,6 +301,19 @@ class ChatController(
         } catch (e: Exception) {
             ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
         }
+    }
+
+    @PatchMapping("/sessions/{sessionId}/messages/{messageId}/corrections")
+    @Operation(summary = "Update message corrections", description = "Save corrections to a user message for persistence")
+    fun updateMessageCorrections(
+        @PathVariable sessionId: UUID,
+        @PathVariable messageId: UUID,
+        @RequestBody request: UpdateCorrectionsRequest
+    ): ResponseEntity<MessageResponse> {
+        val currentUserId = authorizationService.getCurrentUserId()
+        val message = chatService.updateMessageCorrections(sessionId, messageId, currentUserId, request.corrections)
+            ?: return ResponseEntity.notFound().build()
+        return ResponseEntity.ok(message)
     }
 
     @PostMapping("/sessions/{sessionId}/messages/initiate")

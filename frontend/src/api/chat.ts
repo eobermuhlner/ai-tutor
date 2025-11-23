@@ -128,15 +128,17 @@ export async function getSession(sessionId: string): Promise<Session & { message
   const backend = response.data;
 
   // Transform messages from backend format to frontend format
-  // and move corrections from assistant messages to the preceding user messages
   const messages: Message[] = [];
   for (let i = 0; i < response.data.messages.length; i++) {
     const msg = response.data.messages[i];
 
-    // Use utility to transform message
-    const frontendMsg = transformBackendMessage(msg, sessionId);
+    // For USER messages with corrections, pass the user's text for transformation
+    // For ASSISTANT messages, no userText needed
+    const userText = msg.role === 'USER' && msg.corrections ? msg.content : undefined;
+    const frontendMsg = transformBackendMessage(msg, sessionId, userText);
 
-    // If this is an assistant message with corrections, move them to the previous user message
+    // Legacy support: If this is an assistant message with corrections, move them to the previous user message
+    // (This handles old messages that were saved before the correction persistence change)
     if (msg.role === 'ASSISTANT' && msg.corrections && msg.corrections.length > 0 && messages.length > 0) {
       const lastMsg = messages[messages.length - 1];
       if (lastMsg.role === 'USER') {
@@ -324,11 +326,15 @@ export async function navigateLesson(
 export async function sendChatMessage(
   sessionId: string,
   message: string,
-  userText: string // The user's message text for correction mapping
+  userText: string, // The user's message text for correction mapping
+  corrections?: BackendCorrection[] // Optional corrections to save with the message
 ): Promise<Message> {
   const response = await apiClient.post<BackendMessageResponse>(
     `/chat/sessions/${sessionId}/messages`,
-    { content: message }
+    {
+      content: message,
+      corrections: corrections || null
+    }
   );
 
   // Transform backend response to frontend Message format using utility
@@ -353,6 +359,28 @@ export async function analyzeCorrections(
     { userText }
   );
   return response.data;
+}
+
+/**
+ * Update corrections for a user message.
+ * This persists corrections to the database so they appear when the chat is reloaded.
+ *
+ * @param sessionId The session ID
+ * @param messageId The user message ID to update
+ * @param corrections Array of corrections to save
+ * @returns Updated message with saved corrections
+ * @throws Error if update failed or unauthorized
+ */
+export async function updateMessageCorrections(
+  sessionId: string,
+  messageId: string,
+  corrections: BackendCorrection[]
+): Promise<Message> {
+  const response = await apiClient.patch<BackendMessageResponse>(
+    `/chat/sessions/${sessionId}/messages/${messageId}/corrections`,
+    { corrections }
+  );
+  return transformBackendMessage(response.data, sessionId);
 }
 
 // Tutor-initiated message APIs

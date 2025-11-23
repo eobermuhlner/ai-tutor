@@ -135,21 +135,21 @@ export function ChatSessionProvider({ children, sessionId }: ChatSessionProvider
     setIsSending(true);
 
     try {
-      // Call both endpoints in parallel
-      const [assistantMessage, corrections] = await Promise.all([
-        sendChatMessage(sessionId, text, text),
-        analyzeCorrections(sessionId, text).catch((error) => {
-          console.error('Failed to analyze corrections:', error);
-          return []; // Graceful degradation - continue without corrections
-        }),
-      ]);
+      // Analyze corrections first
+      const corrections = await analyzeCorrections(sessionId, text).catch((error) => {
+        console.error('Failed to analyze corrections:', error);
+        return []; // Graceful degradation - continue without corrections
+      });
 
-      // Transform corrections with the user's text
+      // Send message with corrections included
+      const assistantMessage = await sendChatMessage(sessionId, text, text, corrections);
+
+      // Transform corrections with the user's text for UI display
       const transformedCorrections = corrections
         .map(c => transformCorrection(c, text))
         .filter(c => c !== null);
 
-      // Update user message with corrections
+      // Update user message with corrections for immediate display
       if (transformedCorrections.length > 0) {
         setMessages((prev) => {
           const updatedMessages = [...prev];
