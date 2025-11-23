@@ -85,6 +85,11 @@ ai-tutor:
   cefr:
     level-change:
       minimum-turns-before-change: ${CEFR_LEVEL_MIN_TURNS:3}  # Minimum turns before allowing CEFR level changes
+  metadata-evaluation:
+    cefr-level-interval: 10       # Evaluate CEFR level every N turns
+    topic-interval: 5             # Evaluate topic every N turns
+    phase-interval: 5             # Evaluate phase every N turns
+    lesson-check-interval: 3      # Check lesson progression every N turns
   context:
     max-tokens: 100000  # Safety margin below model's 128k limit
     recent-messages: 10  # Keep last 10 messages at full fidelity

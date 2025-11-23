@@ -120,9 +120,6 @@ ai-tutor:
       - Reply message is markdown.
       - Corrections apply ONLY to current learner message.
       - Each `span` is an exact substring from that message.
-      - Set `estimatedCEFRLevel` (None-C2) based on the last 3-5 turns of meaningful conversation.
-      - Do not change the level unless there is sufficient evidence across multiple exchanges.
-      - Maintain the initial level when insufficient data exists to make an accurate assessment.
       - Include `conceptName` for new vocabulary.
       - If unsure about a rule/translation/pronunciation, say you’re unsure; never invent details.
 
@@ -199,13 +196,8 @@ ai-tutor:
       - Correct according to Phase budget; be kind.
       - Keep dialogue natural and concise.
 
-      Lesson Switching:
-      - requestedLessonAction = "next" ONLY if:
-        * Learner asks, OR
-        * 3+ times show mastery (target forms used; zero High/Critical errors), OR
-        * Learner says current content is too easy/boring.
-      - requestedLessonAction = "previous" ONLY if learner asks or requests easier content.
-      - Otherwise leave null. Do NOT advance for just a few good answers.
+      Note: Lesson progression is handled automatically by the system based on performance metrics and time spent.
+      Focus on delivering effective, engaging instruction within the current lesson scope.
 
     summary-prefix: "Previous conversation summary: {summary}"
 

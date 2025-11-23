@@ -46,6 +46,7 @@ class ChatService(
     private val vocabularyReviewService: ch.obermuhlner.aitutor.vocabulary.service.VocabularyReviewService,
     private val phaseDecisionService: ch.obermuhlner.aitutor.tutor.service.PhaseDecisionService,
     private val topicDecisionService: ch.obermuhlner.aitutor.tutor.service.TopicDecisionService,
+    private val metadataEvaluationService: ch.obermuhlner.aitutor.tutor.service.MetadataEvaluationService,
     private val catalogService: ch.obermuhlner.aitutor.catalog.service.CatalogService,
     private val errorAnalyticsService: ch.obermuhlner.aitutor.analytics.service.ErrorAnalyticsService,
     private val userLanguageService: ch.obermuhlner.aitutor.user.service.UserLanguageService,
@@ -465,62 +466,6 @@ class ChatService(
             // When user has explicit phase preference, effective phase matches it
             session.effectivePhase = session.conversationPhase
         }
-        // Only update CEFR level if minimum number of turns has been reached
-        val messageCount = chatMessageRepository.countBySessionId(sessionId).toInt()
-        val shouldUpdateLevel = messageCount >= minTurnsForLevelChange
-        
-        if (shouldUpdateLevel) {
-            session.estimatedCEFRLevel = tutorResponse.conversationResponse.conversationState.estimatedCEFRLevel
-            logger.debug("Updated CEFR level to ${tutorResponse.conversationResponse.conversationState.estimatedCEFRLevel} after $messageCount turns (minimum: $minTurnsForLevelChange)")
-        } else {
-            logger.debug("Skipping CEFR level update (current: ${session.estimatedCEFRLevel}, proposed: ${tutorResponse.conversationResponse.conversationState.estimatedCEFRLevel}) - minimum turns not reached: $messageCount/$minTurnsForLevelChange")
-        }
-
-        // Validate and apply topic change from LLM with hysteresis
-        val llmProposedTopic = tutorResponse.conversationResponse.conversationState.currentTopic
-        val topicDecision = topicDecisionService.decideTopic(
-            currentTopic = session.currentTopic,
-            llmProposedTopic = llmProposedTopic,
-            recentMessages = allMessages,
-            pastTopicsJson = session.pastTopicsJson
-        )
-
-        // Handle topic changes
-        if (topicDecision.topic != session.currentTopic) {
-            // Topic changed - archive old topic if it was sustained long enough
-            if (session.currentTopic != null) {
-                if (topicDecisionService.shouldArchiveTopic(session.currentTopic, topicDecision.turnCount)) {
-                    archiveTopic(session, session.currentTopic!!)
-                }
-            }
-            session.currentTopic = topicDecision.topic
-        }
-
-        // Handle lesson switching requests from LLM (only for course-based sessions)
-        val requestedLessonAction = tutorResponse.conversationResponse.conversationState.requestedLessonAction
-        if (requestedLessonAction != null && session.courseTemplateId != null) {
-            val lessonSwitched = when (requestedLessonAction.lowercase()) {
-                "next" -> {
-                    logger.info("LLM requested lesson advancement for session $sessionId")
-                    lessonProgressionService.navigateToNextLesson(sessionId) != null
-                }
-                "previous" -> {
-                    logger.info("LLM requested previous lesson for session $sessionId")
-                    lessonProgressionService.navigateToPreviousLesson(sessionId) != null
-                }
-                "stay" -> {
-                    logger.debug("LLM requested to stay on current lesson for session $sessionId")
-                    false
-                }
-                else -> {
-                    logger.warn("Unknown lesson action requested by LLM: $requestedLessonAction for session $sessionId")
-                    false
-                }
-            }
-            if (lessonSwitched) {
-                logger.info("Lesson switched successfully based on LLM recommendation: $requestedLessonAction")
-            }
-        }
 
         chatSessionRepository.save(session)
 
@@ -550,6 +495,12 @@ class ChatService(
                 turnId = savedAssistantMessage.id
             )
         }
+
+        // Evaluate session metadata periodically (CEFR level, topic, phase, lesson progression)
+        metadataEvaluationService.evaluateIfNeeded(
+            sessionId = sessionId,
+            messageHistory = allMessages + listOf(userMessage, savedAssistantMessage)
+        )
 
         return toMessageResponse(savedAssistantMessage)
     }
@@ -745,34 +696,6 @@ class ChatService(
         } else {
             session.effectivePhase = session.conversationPhase
         }
-        // Only update CEFR level if minimum number of turns has been reached
-        val messageCount = chatMessageRepository.countBySessionId(sessionId).toInt()
-        val shouldUpdateLevel = messageCount >= minTurnsForLevelChange
-        
-        if (shouldUpdateLevel) {
-            session.estimatedCEFRLevel = tutorResponse.conversationResponse.conversationState.estimatedCEFRLevel
-            logger.debug("Updated CEFR level to ${tutorResponse.conversationResponse.conversationState.estimatedCEFRLevel} after $messageCount turns (minimum: $minTurnsForLevelChange)")
-        } else {
-            logger.debug("Skipping CEFR level update (current: ${session.estimatedCEFRLevel}, proposed: ${tutorResponse.conversationResponse.conversationState.estimatedCEFRLevel}) - minimum turns not reached: $messageCount/$minTurnsForLevelChange")
-        }
-
-        // Handle topic changes
-        val llmProposedTopic = tutorResponse.conversationResponse.conversationState.currentTopic
-        val topicDecision = topicDecisionService.decideTopic(
-            currentTopic = session.currentTopic,
-            llmProposedTopic = llmProposedTopic,
-            recentMessages = allMessages,
-            pastTopicsJson = session.pastTopicsJson
-        )
-
-        if (topicDecision.topic != session.currentTopic) {
-            if (session.currentTopic != null) {
-                if (topicDecisionService.shouldArchiveTopic(session.currentTopic, topicDecision.turnCount)) {
-                    archiveTopic(session, session.currentTopic!!)
-                }
-            }
-            session.currentTopic = topicDecision.topic
-        }
 
         chatSessionRepository.save(session)
 
@@ -803,6 +726,12 @@ class ChatService(
 
         // Note: We don't record error analytics for tutor-initiated messages
         // since there's no user input to correct
+
+        // Evaluate session metadata periodically (CEFR level, topic, phase, lesson progression)
+        metadataEvaluationService.evaluateIfNeeded(
+            sessionId = sessionId,
+            messageHistory = allMessages + listOf(savedAssistantMessage)
+        )
 
         logger.info("Tutor message initiated successfully for session $sessionId (context: $initiationContext)")
         return toMessageResponse(savedAssistantMessage)
