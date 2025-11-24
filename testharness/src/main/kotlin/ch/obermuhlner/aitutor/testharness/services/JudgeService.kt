@@ -6,13 +6,16 @@ import org.springframework.ai.chat.prompt.Prompt
 import org.springframework.stereotype.Service
 import ch.obermuhlner.aitutor.testharness.domain.EvaluationResult
 import ch.obermuhlner.aitutor.testharness.domain.TestScenario
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 
 /**
  * Service that evaluates the quality of the AI tutor's responses using AI.
  */
 @Service
 class JudgeService(
-    private val chatModel: ChatModel  // This will get the primary ChatModel bean
+    private val chatModel: ChatModel,  // This will get the primary ChatModel bean
+    private val objectMapper: ObjectMapper
 ) {
 
     /**
@@ -142,29 +145,40 @@ class JudgeService(
     }
 
     private fun parseEvaluationResult(jsonString: String): EvaluationResult {
-        // In a real implementation, you would use a proper JSON library like Jackson or kotlinx.serialization
-        // For now, using a simple regex-based approach to extract values
+        try {
+            val evaluationData = objectMapper.readValue<Map<String, Any>>(jsonString)
+            
+            val rating = (evaluationData["rating"] as? Number)?.toInt() ?: 5
+            val feedback = evaluationData["feedback"] as? String ?: "No feedback provided"
+            val pedagogicalScore = (evaluationData["pedagogicalScore"] as? Number)?.toInt() ?: 5
+            val accuracyScore = (evaluationData["accuracyScore"] as? Number)?.toInt() ?: 5
+            val engagementScore = (evaluationData["engagementScore"] as? Number)?.toInt() ?: 5
+            
+            @Suppress("UNCHECKED_CAST")
+            val strengths = (evaluationData["strengths"] as? List<String>) ?: listOf()
+            @Suppress("UNCHECKED_CAST")
+            val improvements = (evaluationData["improvements"] as? List<String>) ?: listOf()
 
-        val ratingRegex = Regex("\"rating\":\\s*(\\d+)")
-        val feedbackRegex = Regex("\"feedback\":\\s*\"([^\"]+)\"")
-        val pedagogicalScoreRegex = Regex("\"pedagogicalScore\":\\s*(\\d+)")
-        val accuracyScoreRegex = Regex("\"accuracyScore\":\\s*(\\d+)")
-        val engagementScoreRegex = Regex("\"engagementScore\":\\s*(\\d+)")
-
-        val rating = ratingRegex.find(jsonString)?.groupValues?.get(1)?.toIntOrNull() ?: 5
-        val feedback = feedbackRegex.find(jsonString)?.groupValues?.get(1) ?: "No feedback provided"
-        val pedagogicalScore = pedagogicalScoreRegex.find(jsonString)?.groupValues?.get(1)?.toIntOrNull() ?: 5
-        val accuracyScore = accuracyScoreRegex.find(jsonString)?.groupValues?.get(1)?.toIntOrNull() ?: 5
-        var engagementScore = engagementScoreRegex.find(jsonString)?.groupValues?.get(1)?.toIntOrNull() ?: 5
-
-        return EvaluationResult(
-            rating = rating,
-            feedback = feedback,
-            strengths = listOf(), // Would extract from JSON in a complete implementation
-            improvements = listOf(), // Would extract from JSON in a complete implementation
-            pedagogicalScore = pedagogicalScore,
-            accuracyScore = accuracyScore,
-            engagementScore = engagementScore
-        )
+            return EvaluationResult(
+                rating = rating,
+                feedback = feedback,
+                strengths = strengths,
+                improvements = improvements,
+                pedagogicalScore = pedagogicalScore,
+                accuracyScore = accuracyScore,
+                engagementScore = engagementScore
+            )
+        } catch (e: Exception) {
+            // If JSON parsing fails, return a default evaluation
+            return EvaluationResult(
+                rating = 5,
+                feedback = "Could not parse AI evaluation result: ${e.message}",
+                strengths = listOf(),
+                improvements = listOf(),
+                pedagogicalScore = 5,
+                accuracyScore = 5,
+                engagementScore = 5
+            )
+        }
     }
 }

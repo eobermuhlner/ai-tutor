@@ -1,6 +1,7 @@
 package ch.obermuhlner.aitutor.testharness.scenario
 
 import ch.obermuhlner.aitutor.testharness.domain.*
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.KotlinModule
@@ -13,9 +14,11 @@ import java.io.File
  */
 @Service
 class ScenarioLoader {
-    
-    private val objectMapper = ObjectMapper(YAMLFactory()).registerModule(KotlinModule.Builder().build())
-    
+
+    private val objectMapper = ObjectMapper(YAMLFactory())
+        .registerModule(KotlinModule.Builder().build())
+        .findAndRegisterModules() // This registers JavaTimeModule and other modules
+
     /**
      * Load a single scenario from a YAML file
      */
@@ -27,17 +30,17 @@ class ScenarioLoader {
             // Try to load from classpath
             ClassPathResource(filePath).inputStream.bufferedReader().use { it.readText() }
         }
-        
+
         return objectMapper.readValue(yamlContent, ScenarioYaml::class.java).toDomain()
     }
-    
+
     /**
      * Load all scenarios from a directory
      */
     fun loadScenariosFromDirectory(directoryPath: String): List<TestScenario> {
         val dir = File(directoryPath)
         val scenarios = mutableListOf<TestScenario>()
-        
+
         if (dir.exists() && dir.isDirectory) {
             dir.walkTopDown()
                 .filter { it.extension.equals("yml", ignoreCase = true) || it.extension.equals("yaml", ignoreCase = true) }
@@ -48,13 +51,14 @@ class ScenarioLoader {
                         scenarios.add(scenarioYaml.toDomain())
                     } catch (e: Exception) {
                         println("Error loading scenario from ${file.absolutePath}: ${e.message}")
+                        e.printStackTrace()
                     }
                 }
         }
-        
+
         return scenarios
     }
-    
+
     /**
      * Helper function to convert YAML model to domain model
      */
@@ -62,57 +66,92 @@ class ScenarioLoader {
         return TestScenario(
             id = this.id ?: "scenario_${System.currentTimeMillis()}",
             name = this.name,
-            description = this.description,
-            language = this.language,
-            level = this.level,
-            topic = this.topic,
-            objective = this.objective,
+            description = this.description ?: "",
+            language = this.learnerPersona?.targetLanguage ?: "en",
+            level = this.learnerPersona?.cefrLevel ?: "A1",
+            topic = this.learnerPersona?.learningGoals?.firstOrNull() ?: "General",
+            objective = this.description ?: "",
             learnerPersona = LearnerPersona(
                 name = this.learnerPersona?.name ?: "Default Learner",
-                level = this.learnerPersona?.level ?: "Intermediate",
-                learningStyle = this.learnerPersona?.learningStyle ?: "Balanced",
-                goals = this.learnerPersona?.goals ?: emptyList(),
-                commonMistakes = this.learnerPersona?.commonMistakes ?: emptyList(),
-                personality = this.learnerPersona?.personality ?: "Engaged"
+                level = this.learnerPersona?.cefrLevel ?: "A1",
+                learningStyle = "Balanced",
+                goals = this.learnerPersona?.learningGoals ?: emptyList(),
+                commonMistakes = this.learnerPersona?.commonErrors ?: emptyList(),
+                personality = "Engaged"
             ),
-            expectedBehaviors = this.expectedBehaviors ?: emptyList(),
-            testSteps = this.testSteps?.mapIndexed { index, step ->
+            expectedBehaviors = this.evaluationFocus ?: emptyList(),
+            testSteps = this.conversationScript?.mapIndexed { index, step ->
                 TestStep(
                     stepNumber = index + 1,
-                    action = step.action,
-                    expectedOutcome = step.expectedOutcome ?: "",
-                    evaluationCriteria = step.evaluationCriteria ?: emptyList()
+                    action = "learner_speaks",
+                    expectedOutcome = step.content, // Use the actual content from the conversation script
+                    evaluationCriteria = emptyList()
                 )
             } ?: emptyList()
         )
     }
 }
 
-// YAML data class structure
+// YAML data class structure that matches the actual scenario files
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class ScenarioYaml(
     val id: String?,
     val name: String,
-    val description: String,
-    val language: String,
-    val level: String,
-    val topic: String,
-    val objective: String,
+    val description: String?,
     val learnerPersona: LearnerPersonaYaml?,
-    val expectedBehaviors: List<String>?,
-    val testSteps: List<TestStepYaml>?
+    val tutorConfig: TutorConfigYaml?,
+    val conversationScript: List<ConversationScriptYaml>?,
+    val expectedOutcomes: ExpectedOutcomesYaml?,
+    val evaluationFocus: List<String>?
 )
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class LearnerPersonaYaml(
     val name: String,
-    val level: String,
-    val learningStyle: String,
-    val goals: List<String>,
-    val commonMistakes: List<String>,
-    val personality: String
+    val cefrLevel: String,
+    val sourceLanguage: String,
+    val targetLanguage: String,
+    val commonErrors: List<String>?,
+    val learningGoals: List<String>?
 )
 
-data class TestStepYaml(
-    val action: String,
-    val expectedOutcome: String?,
-    val evaluationCriteria: List<String>?
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class TutorConfigYaml(
+    val tutorName: String,
+    val initialPhase: String,
+    val teachingStyle: String
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class ConversationScriptYaml(
+    val content: String,
+    val intentionalErrors: List<IntentionalErrorYaml>?,
+    val notes: String?
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class IntentionalErrorYaml(
+    val span: String,
+    val errorType: String,
+    val expectedSeverity: String,
+    val correctForm: String,
+    val reasoning: String
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class ExpectedOutcomesYaml(
+    val phaseTransitions: List<PhaseTransitionYaml>?,
+    val minimumCorrectionsDetected: Int,
+    val shouldTriggerDrillPhase: Boolean?,
+    val shouldMaintainFreePhase: Boolean?,
+    val topicChanges: Int?,
+    // Allow unknown properties for fields like vocabularyItems, etc.
+    val additionalProperties: Map<String, Any>? = null
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class PhaseTransitionYaml(
+    val afterMessageIndex: Int,
+    val toPhase: String,
+    val reason: String
 )

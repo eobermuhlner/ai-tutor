@@ -8,6 +8,8 @@ import org.springframework.ai.chat.prompt.Prompt
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 
 /**
  * Service that simulates a language learner using AI to interact with the tutor.
