@@ -162,6 +162,12 @@ export default function SessionListPage() {
                         <span className="mx-1">·</span>
                       </>
                     )}
+                    {session.tutorName && (
+                      <>
+                        <span>{session.tutorName}</span>
+                        {session.userLevel && <span className="mx-1">·</span>}
+                      </>
+                    )}
                     {session.userLevel}
                   </p>
                 </div>
