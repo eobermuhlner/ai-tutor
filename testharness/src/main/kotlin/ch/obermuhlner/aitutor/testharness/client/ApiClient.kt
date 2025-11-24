@@ -19,23 +19,25 @@ import java.util.UUID
 class ApiClient(
     private val restTemplate: RestTemplate,
     private val objectMapper: ObjectMapper,
-    @Value("\${testharness.backend.base-url}") private val baseUrl: String
+    @Value("\${testharness.backend.base-url}") private val baseUrl: String,
+    @Value("\${testharness.backend.username}") private val username: String,
+    @Value("\${testharness.backend.password}") private val password: String
 ) {
     private var accessToken: String? = null
     private var currentUserId: String? = null
 
     init {
-        // Log in with the demo user to get an access token
-        loginAsDemoUser()
+        // Log in with configured credentials to get an access token
+        login()
     }
 
-    private fun loginAsDemoUser() {
+    private fun login() {
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_JSON
 
         val requestBody = mapOf(
-            "username" to "demo",
-            "password" to "demo"
+            "username" to username,
+            "password" to password
         )
 
         val entity = HttpEntity(requestBody, headers)
@@ -49,10 +51,14 @@ class ApiClient(
                 getUserProfile()
             }
 
-            println("Successfully logged in as demo user")
+            println("Successfully logged in as user: $username")
         } catch (e: Exception) {
-            println("Failed to log in as demo user: ${e.message}")
-            // Continue without authentication, may result in 403 errors
+            println("Failed to log in as user '$username': ${e.message}")
+            println("Make sure the user exists and credentials are correct.")
+            println("You can configure credentials via:")
+            println("  - Environment variables: TESTHARNESS_USERNAME, TESTHARNESS_PASSWORD")
+            println("  - application.yml: testharness.backend.username, testharness.backend.password")
+            throw RuntimeException("Authentication failed", e)
         }
     }
 
@@ -79,26 +85,45 @@ class ApiClient(
     /**
      * Create a new learning session
      */
-    fun createSession(userId: String, language: String, level: String): String {
+    fun createSession(
+        userId: String,
+        language: String,
+        level: String,
+        tutorName: String = "Test Tutor",
+        tutorPersona: String = "patient coach",
+        initialPhase: String? = null
+    ): String {
         val headers = createAuthHeaders()
         headers.contentType = MediaType.APPLICATION_JSON
 
-        val requestBody = mapOf(
-            "userId" to (currentUserId ?: userId),  // Use current user ID if available, otherwise use provided userId
+        val effectiveUserId = currentUserId ?: userId
+        val requestBody = mutableMapOf(
+            "userId" to effectiveUserId,  // Use current user ID if available, otherwise use provided userId
             "targetLanguageCode" to language,
             "estimatedCEFRLevel" to level,
-            "tutorName" to "Test Tutor",
+            "tutorName" to tutorName,
             "sourceLanguageCode" to "en",
-            "tutorPersona" to "patient coach",
+            "tutorPersona" to tutorPersona,
             "tutorDomain" to "general conversation, grammar, typography"
         )
+
+        // Add initial phase if specified
+        if (initialPhase != null) {
+            requestBody["initialPhase"] = initialPhase
+        }
+
+        println("Creating session for user: $effectiveUserId (authenticated as: $currentUserId)")
+        println("Session config: language=$language, level=$level, tutor=$tutorName, persona=$tutorPersona, phase=$initialPhase")
 
         val entity = HttpEntity(requestBody, headers)
         val response = restTemplate.postForEntity("$baseUrl/api/v1/chat/sessions", entity, Map::class.java)
 
         val responseBody = response.body as Map<*, *>
-        return (responseBody["id"] as? String) ?: (responseBody["id"] as? UUID)?.toString()
+        val sessionId = (responseBody["id"] as? String) ?: (responseBody["id"] as? UUID)?.toString()
             ?: throw RuntimeException("Could not extract session ID from response: $responseBody")
+
+        println("Session created successfully: $sessionId")
+        return sessionId
     }
 
     /**
@@ -129,13 +154,31 @@ class ApiClient(
         headers.contentType = MediaType.APPLICATION_JSON
 
         val requestBody = mapOf(
-            "message" to message
+            "content" to message
         )
 
-        val entity = HttpEntity(requestBody, headers)
-        val response = restTemplate.postForEntity("$baseUrl/api/v1/chat/sessions/$sessionId/messages", entity, Map::class.java)
+        println("Sending message to session $sessionId")
+        println("Request body: $requestBody")
+        println("Auth token present: ${accessToken != null}")
+        println("Current user ID: $currentUserId")
 
-        return response.body as Map<String, Any>
+        val entity = HttpEntity(requestBody, headers)
+        try {
+            val response = restTemplate.postForEntity("$baseUrl/api/v1/chat/sessions/$sessionId/messages", entity, Map::class.java)
+            return response.body as Map<String, Any>
+        } catch (e: org.springframework.web.client.HttpClientErrorException.TooManyRequests) {
+            println("RATE LIMIT: ${e.message}")
+            println("The backend has rate limiting enabled. Please wait and try again.")
+            println("This is expected behavior to protect the AI provider API from excessive usage.")
+            throw e
+        } catch (e: org.springframework.web.client.HttpClientErrorException.Forbidden) {
+            println("FORBIDDEN (403): ${e.message}")
+            println("This could be a session ownership issue - the backend may be checking if the session belongs to the authenticated user")
+            throw e
+        } catch (e: Exception) {
+            println("ERROR sending message: ${e.message}")
+            throw e
+        }
     }
 
     /**

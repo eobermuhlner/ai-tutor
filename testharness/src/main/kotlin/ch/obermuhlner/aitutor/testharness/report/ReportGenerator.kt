@@ -50,14 +50,21 @@ class ReportGenerator {
                 appendLine("### Test ${index + 1}: ${result.scenarioId}")
                 appendLine("**Status:** ${if (result.success) "✅ PASSED" else "❌ FAILED"}")
                 appendLine("**Message:** ${result.message}")
-                
+
                 if (result.success) {
                     appendLine("**Overall Rating:** ${String.format("%.2f", result.overallRating)}/10.0")
                     appendLine("**Pedagogical Score:** ${String.format("%.2f", result.pedagogicalScore)}/10.0")
                     appendLine("**Accuracy Score:** ${String.format("%.2f", result.accuracyScore)}/10.0")
                     appendLine("**Engagement Score:** ${String.format("%.2f", result.engagementScore)}/10.0")
                 }
-                
+
+                // Display validation results
+                if (result.validationResults.isNotEmpty()) {
+                    val passedValidations = result.validationResults.count { it.passed }
+                    val totalValidations = result.validationResults.size
+                    appendLine("**Validations:** $passedValidations/$totalValidations passed")
+                }
+
                 appendLine()
             }
         }
@@ -93,6 +100,20 @@ class ReportGenerator {
                         appendLine("- $message")
                     }
                     
+                    appendLine()
+                    appendLine("### Validation Results:")
+                    if (result.validationResults.isNotEmpty()) {
+                        result.validationResults.groupBy { it.category }.forEach { (category, validations) ->
+                            appendLine("#### $category:")
+                            validations.forEach { validation ->
+                                val status = if (validation.passed) "✅" else "❌"
+                                appendLine("- $status ${validation.message}")
+                            }
+                        }
+                    } else {
+                        appendLine("No validations configured for this scenario.")
+                    }
+
                     appendLine()
                     appendLine("### Evaluation Results:")
                     result.evaluationResults.forEachIndexed { evalIndex, eval ->

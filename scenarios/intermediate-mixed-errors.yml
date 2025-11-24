@@ -25,54 +25,21 @@ tutorConfig:
 
 conversationScript:
   - content: "Hallo! Ich möchte über mein Wochenende sprechen"
-    intentionalErrors: []
 
   - content: "Am Samstag bin ich zu der Park gegangen"
-    intentionalErrors:
-      - span: "der Park"
-        errorType: "Articles"
-        expectedSeverity: "Medium"
-        correctForm: "dem Park"
-        reasoning: "Preposition 'zu' requires dative case: dem Park"
 
   - content: "Ich habe ein Buch gelesen, das sehr interessant war"
-    intentionalErrors: []
 
   - content: "Das Buch handelte von die Geschichte von Berlin"
-    intentionalErrors:
-      - span: "von die Geschichte"
-        errorType: "Articles"
-        expectedSeverity: "Medium"
-        correctForm: "von der Geschichte"
-        reasoning: "Preposition 'von' requires dative: der Geschichte"
 
   - content: "Gestern habe ich getroffen einen alten Freund"
-    intentionalErrors:
-      - span: "habe ich getroffen einen alten Freund"
-        errorType: "WordOrder"
-        expectedSeverity: "Medium"
-        correctForm: "habe ich einen alten Freund getroffen"
-        reasoning: "Direct object should come before past participle"
 
   - content: "Wir sind zusammen in ein Restaurant gegangen"
-    intentionalErrors: []
 
   - content: "Der Restaurant war sehr gut und die Essen war lecker"
-    intentionalErrors:
-      - span: "Der Restaurant"
-        errorType: "Articles"
-        expectedSeverity: "Medium"
-        correctForm: "Das Restaurant"
-        reasoning: "Restaurant is neuter: das Restaurant"
-      - span: "die Essen"
-        errorType: "Articles"
-        expectedSeverity: "Medium"
-        correctForm: "das Essen"
-        reasoning: "Essen is neuter: das Essen"
 
 expectedOutcomes:
   phaseTransitions: []
-  minimumCorrectionsDetected: 5
   shouldMaintainFreePhase: false
   shouldTriggerDrillPhase: false
 

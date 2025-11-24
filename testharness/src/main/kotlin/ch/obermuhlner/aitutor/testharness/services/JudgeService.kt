@@ -19,47 +19,102 @@ class JudgeService(
 ) {
 
     /**
-     * Evaluate the quality of a tutor response based on pedagogical criteria
+     * Evaluate the overall conversation quality focusing on pedagogical effectiveness
      */
-    fun evaluateTutorResponse(
+    fun evaluateConversationQuality(
         scenario: TestScenario,
         tutorResponse: String,
         learnerInput: String,
-        conversationHistory: List<String>
+        conversationHistory: List<String>,
+        messageIndex: Int = 0,
+        sessionId: String
     ): EvaluationResult {
+        // Build comprehensive focus areas based on scenario
+        val tutorConfig = scenario.tutorConfig
+        val focusAreas = buildString {
+            append("Evaluate conversation quality focusing on:\n")
+
+            // Teaching Style Adherence
+            if (tutorConfig != null) {
+                append("- Teaching Style: Does the tutor follow '${tutorConfig.teachingStyle}' style?\n")
+                append("  * Guided: Structured, asks clarifying questions, provides clear explanations\n")
+                append("  * Reactive: Minimal intervention, lets learner lead, corrects only when necessary\n")
+                append("  * Directive: Active instruction, provides examples, more teaching-focused\n")
+            }
+
+            // CEFR Level Appropriateness
+            append("- CEFR Level Appropriateness: Is the conversation suitable for ${scenario.level} level?\n")
+            append("  * Vocabulary complexity\n")
+            append("  * Sentence structure complexity\n")
+            append("  * Topic depth\n")
+
+            // Conversation Phase Appropriateness
+            if (tutorConfig != null) {
+                append("- Phase Appropriateness: Does the tutor use the '${tutorConfig.initialPhase}' phase correctly?\n")
+                append("  * Free: Pure fluency focus, encouraging natural conversation\n")
+                append("  * Correction: Balanced feedback without disrupting flow\n")
+                append("  * Drill: Focused practice on specific patterns\n")
+                append("  * Auto: Adaptive approach based on learner needs\n")
+            }
+
+            // Scenario-specific focus areas
+            if (scenario.evaluationFocus.isNotEmpty()) {
+                append("- Scenario-Specific Focus:\n")
+                scenario.evaluationFocus.forEach { focus ->
+                    append("  * $focus\n")
+                }
+            }
+
+            // General quality factors
+            append("- Content Quality:\n")
+            append("  * Accuracy of language instruction\n")
+            append("  * Cultural appropriateness\n")
+            append("  * Relevance to learner's goals\n")
+            append("- Pedagogical Effectiveness:\n")
+            append("  * Clear explanations\n")
+            append("  * Appropriate pacing\n")
+            append("  * Learner engagement\n")
+        }
+
         val evaluationPrompt = """
-            You are an expert language pedagogy evaluator. Evaluate the quality of the AI tutor's response in the context of language learning.
+            You are an expert language pedagogy evaluator. Evaluate the quality and effectiveness of the AI tutor's conversation.
 
             Test Scenario:
-            - Language: ${scenario.language}
-            - Level: ${scenario.level}
+            - Name: ${scenario.name}
+            - Description: ${scenario.description}
+            - Target Language: ${scenario.language} (${scenario.level} level)
             - Topic: ${scenario.topic}
-            - Objective: ${scenario.objective}
+            - Learner Goals: ${scenario.learnerPersona.learningGoals.joinToString(", ")}
+            - Message ${messageIndex + 1} of ${scenario.conversationScript.size}
 
-            Learner Input: $learnerInput
-            Tutor Response: $tutorResponse
+            Tutor Configuration:
+            ${if (tutorConfig != null) """
+            - Tutor Name: ${tutorConfig.tutorName}
+            - Teaching Style: ${tutorConfig.teachingStyle}
+            - Initial Phase: ${tutorConfig.initialPhase}
+            """.trimIndent() else "- Default configuration"}
 
-            Conversation History:
-            ${conversationHistory.joinToString("\n") { "- $it" }}
+            Current Exchange:
+            Learner: $learnerInput
+            Tutor: $tutorResponse
 
-            Evaluate the tutor response based on these criteria:
-            1. Pedagogical appropriateness: Does the response match the learner's level and needs?
-            2. Accuracy: Is the information provided correct?
-            3. Engagement: Is the response likely to keep the learner engaged?
-            4. Error correction: If errors were made, were they addressed appropriately?
-            5. Language learning value: Does the response help the learner improve?
+            Full Conversation Context:
+            ${conversationHistory.takeLast(10).joinToString("\n") { "- $it" }}
+
+            $focusAreas
 
             Provide your evaluation as a rating from 1-10 (with 10 being excellent) and specific feedback.
+            Consider the entire conversation context, not just this single exchange.
 
             Format your response as JSON:
             {
-              "rating": [number from 1-10],
-              "feedback": "[specific feedback about the tutor response]",
-              "strengths": ["[list of strengths]"],
-              "improvements": ["[list of suggested improvements]"],
-              "pedagogicalScore": [number from 1-10],
-              "accuracyScore": [number from 1-10],
-              "engagementScore": [number from 1-10]
+              "rating": [number from 1-10 - overall conversation quality],
+              "feedback": "[specific feedback about quality, teaching effectiveness, and adherence to requirements]",
+              "strengths": ["[what the tutor is doing well]"],
+              "improvements": ["[what could be improved]"],
+              "pedagogicalScore": [1-10 - teaching effectiveness and style adherence],
+              "accuracyScore": [1-10 - content accuracy and cultural appropriateness],
+              "engagementScore": [1-10 - learner engagement and conversation flow]
             }
         """.trimIndent()
 

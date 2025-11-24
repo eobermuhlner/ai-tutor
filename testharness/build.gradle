@@ -60,9 +60,17 @@ dependencyManagement {
 kotlin {
     compilerOptions {
         freeCompilerArgs.addAll(['-Xjsr305=strict'])
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
     }
 }
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+// Ensure UTF-8 encoding for console output (especially important on Windows)
+tasks.named('bootRun') {
+    systemProperty 'file.encoding', 'UTF-8'
+    systemProperty 'sun.stdout.encoding', 'UTF-8'
+    systemProperty 'sun.stderr.encoding', 'UTF-8'
 }

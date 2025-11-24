@@ -67,7 +67,6 @@ conversationScript:
     
 expectedOutcomes:
   phaseTransitions: []
-  minimumCorrectionsDetected: 0
   shouldTriggerDrillPhase: false
   shouldMaintainFreePhase: true
   topicChanges: 0

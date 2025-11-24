@@ -23,36 +23,17 @@ tutorConfig:
 
 conversationScript:
   - content: "Ciao! Io morire fame"
-    intentionalErrors:
-      - span: "morire"
-        errorType: "Morphology"
-        expectedSeverity: "Critical"
-        correctForm: "ho"
-        reasoning: "Used infinitive 'to die' instead of 'to have' - completely wrong meaning and comprehension blocked"
     notes: "Meant to say 'ho fame' (I'm hungry) but said 'morire fame' (to die hunger)"
 
   - content: "Ieri mangiare una pizza"
-    intentionalErrors:
-      - span: "mangiare"
-        errorType: "TenseAspect"
-        expectedSeverity: "Critical"
-        correctForm: "ho mangiato"
-        reasoning: "Used infinitive instead of past tense - meaning lost"
 
   - content: "La pizza essere molto buona"
-    intentionalErrors:
-      - span: "essere"
-        errorType: "TenseAspect"
-        expectedSeverity: "Critical"
-        correctForm: "era"
-        reasoning: "Used infinitive 'to be' instead of past 'was' - incomprehensible"
 
 expectedOutcomes:
   phaseTransitions:
     - afterMessageIndex: 1
       toPhase: Drill
       reason: "Critical errors blocking basic comprehension require immediate intervention"
-  minimumCorrectionsDetected: 3
   shouldTriggerDrillPhase: true
 
 evaluationFocus:

@@ -1,34 +1,57 @@
 # AI Tutor Test Harness - Detailed Results
 
-**Generated:** 2025-11-23 21:01:31
+**Generated:** 2025-11-24 13:28:44
 
-## Test 1: intermediate-mixed-errors
+## Test 1: advanced-fluency-focus
 **Status:** ❌ FAILED
-**Message:** Error executing scenario: 403  on POST request for "http://localhost:8081/api/v1/chat/sessions/b0b2aff0-0ebf-4879-97c8-47b18eac21ad/messages": [no body]
+**Message:** Scenario quality issues detected:
+  - Validation failures:
+    • Teaching style: not set (expected: Reactive)
+Average ratings: Overall=7.7, Pedagogical=7.5, Accuracy=8.8, Engagement=7.0
 ---
 
-## Test 2: critical-comprehension-errors
+## Test 2: beginner-agreement-errors
 **Status:** ❌ FAILED
-**Message:** Error executing scenario: 403  on POST request for "http://localhost:8081/api/v1/chat/sessions/fd32cd9d-32ce-4afe-b459-29e553399c39/messages": [no body]
+**Message:** Scenario quality issues detected:
+  - Validation failures:
+    • Teaching style: not set (expected: Guided)
+    • Final phase: null (expected: Drill)
+Average ratings: Overall=7.2, Pedagogical=7.5, Accuracy=8.3, Engagement=6.5
 ---
 
-## Test 3: beginner-agreement-errors
+## Test 3: critical-comprehension-errors
 **Status:** ❌ FAILED
-**Message:** Error executing scenario: 403  on POST request for "http://localhost:8081/api/v1/chat/sessions/4c811487-e41a-47ec-8c18-dece35f817a2/messages": [no body]
+**Message:** Scenario quality issues detected:
+  - Validation failures:
+    • Teaching style: not set (expected: Guided)
+    • Final phase: null (expected: Drill)
+Average ratings: Overall=6.7, Pedagogical=6.3, Accuracy=7.7, Engagement=6.0
 ---
 
-## Test 4: llm-generated-conversation-lesson
+## Test 4: intermediate-mixed-errors
 **Status:** ❌ FAILED
-**Message:** Error executing scenario: 403  on POST request for "http://localhost:8081/api/v1/chat/sessions/f2a7dbe7-5f5e-4d31-b48a-a2724574c577/messages": [no body]
+**Message:** Scenario quality issues detected:
+  - Validation failures:
+    • Teaching style: not set (expected: Guided)
+Average ratings: Overall=7.7, Pedagogical=8.0, Accuracy=8.4, Engagement=7.4
 ---
 
-## Test 5: topic-management-test
+## Test 5: llm-generated-conversation-lesson
 **Status:** ❌ FAILED
-**Message:** Error executing scenario: 403  on POST request for "http://localhost:8081/api/v1/chat/sessions/37680a1b-405c-43f9-982b-934c1feb77d3/messages": [no body]
+**Message:** Scenario quality issues detected:
+  - Quality ratings below threshold (6.0)
+  - Validation failures:
+    • Teaching style: not set (expected: Guided)
+    • Average pedagogical score: NaN/10 (threshold: 6.0)
+    • Average accuracy score: NaN/10 (threshold: 6.0)
+Average ratings: Overall=0.0, Pedagogical=0.0, Accuracy=0.0, Engagement=0.0
 ---
 
-## Test 6: advanced-fluency-focus
+## Test 6: topic-management-test
 **Status:** ❌ FAILED
-**Message:** Error executing scenario: 403  on POST request for "http://localhost:8081/api/v1/chat/sessions/f147a611-de74-4d06-8c05-eebbd34edd85/messages": [no body]
+**Message:** Scenario quality issues detected:
+  - Validation failures:
+    • Teaching style: not set (expected: Guided)
+Average ratings: Overall=7.8, Pedagogical=7.8, Accuracy=8.5, Engagement=7.4
 ---
 

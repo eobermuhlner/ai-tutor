@@ -19,22 +19,38 @@ data class TestScenario(
     val topic: String,
     val objective: String,
     val learnerPersona: LearnerPersona,
-    val expectedBehaviors: List<String>,
-    val testSteps: List<TestStep>
+    val tutorConfig: TutorConfig?,
+    val conversationScript: List<ConversationMessage>,
+    val expectedOutcomes: ExpectedOutcomes?,
+    val evaluationFocus: List<String>
 )
 
 data class LearnerPersona(
     val name: String,
     val level: String,
-    val learningStyle: String,
-    val goals: List<String>,
-    val commonMistakes: List<String>,
-    val personality: String
+    val sourceLanguage: String,
+    val targetLanguage: String,
+    val learningGoals: List<String>,
+    val commonErrors: List<String>
 )
 
-data class TestStep(
-    val stepNumber: Int,
-    val action: String, // "learner_speaks", "tutor_responds", etc.
-    val expectedOutcome: String,
-    val evaluationCriteria: List<String>
+data class TutorConfig(
+    val tutorName: String,
+    val initialPhase: String,
+    val teachingStyle: String
+)
+
+data class ConversationMessage(
+    val content: String,
+    val notes: String?
+)
+
+data class ExpectedOutcomes(
+    val phaseTransitions: List<PhaseTransition>
+)
+
+data class PhaseTransition(
+    val afterMessageIndex: Int,
+    val toPhase: String,
+    val reason: String
 )

@@ -6,11 +6,18 @@ spring:
       ai-azure-openai: ai-azure-openai-config
       ai-ollama: ai-ollama-config
       ai-anthropic: ai-anthropic-config
+  main:
+    web-application-type: none  # Disable web server - testharness is a CLI tool
+  output:
+    ansi:
+      enabled: always  # Enable ANSI colors and UTF-8 support
 
 # Default settings
 testharness:
   backend:
     base-url: ${TESTHARNESS_BACKEND_URL:http://localhost:8080}
+    username: ${TESTHARNESS_USERNAME:demo}
+    password: ${TESTHARNESS_PASSWORD:demo}
   scenarios:
     directory: ${TESTHARNESS_SCENARIOS_DIR:scenarios}
   learners:

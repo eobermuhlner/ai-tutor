@@ -74,20 +74,36 @@ class ScenarioLoader {
             learnerPersona = LearnerPersona(
                 name = this.learnerPersona?.name ?: "Default Learner",
                 level = this.learnerPersona?.cefrLevel ?: "A1",
-                learningStyle = "Balanced",
-                goals = this.learnerPersona?.learningGoals ?: emptyList(),
-                commonMistakes = this.learnerPersona?.commonErrors ?: emptyList(),
-                personality = "Engaged"
+                sourceLanguage = this.learnerPersona?.sourceLanguage ?: "en",
+                targetLanguage = this.learnerPersona?.targetLanguage ?: "en",
+                learningGoals = this.learnerPersona?.learningGoals ?: emptyList(),
+                commonErrors = this.learnerPersona?.commonErrors ?: emptyList()
             ),
-            expectedBehaviors = this.evaluationFocus ?: emptyList(),
-            testSteps = this.conversationScript?.mapIndexed { index, step ->
-                TestStep(
-                    stepNumber = index + 1,
-                    action = "learner_speaks",
-                    expectedOutcome = step.content, // Use the actual content from the conversation script
-                    evaluationCriteria = emptyList()
+            tutorConfig = this.tutorConfig?.let {
+                TutorConfig(
+                    tutorName = it.tutorName,
+                    initialPhase = it.initialPhase,
+                    teachingStyle = it.teachingStyle
                 )
-            } ?: emptyList()
+            },
+            conversationScript = this.conversationScript?.map { step ->
+                ConversationMessage(
+                    content = step.content,
+                    notes = step.notes
+                )
+            } ?: emptyList(),
+            expectedOutcomes = this.expectedOutcomes?.let {
+                ExpectedOutcomes(
+                    phaseTransitions = it.phaseTransitions?.map { transition ->
+                        PhaseTransition(
+                            afterMessageIndex = transition.afterMessageIndex,
+                            toPhase = transition.toPhase,
+                            reason = transition.reason
+                        )
+                    } ?: emptyList()
+                )
+            },
+            evaluationFocus = this.evaluationFocus ?: emptyList()
         )
     }
 }
@@ -125,28 +141,12 @@ data class TutorConfigYaml(
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class ConversationScriptYaml(
     val content: String,
-    val intentionalErrors: List<IntentionalErrorYaml>?,
     val notes: String?
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class IntentionalErrorYaml(
-    val span: String,
-    val errorType: String,
-    val expectedSeverity: String,
-    val correctForm: String,
-    val reasoning: String
-)
-
-@JsonIgnoreProperties(ignoreUnknown = true)
 data class ExpectedOutcomesYaml(
-    val phaseTransitions: List<PhaseTransitionYaml>?,
-    val minimumCorrectionsDetected: Int,
-    val shouldTriggerDrillPhase: Boolean?,
-    val shouldMaintainFreePhase: Boolean?,
-    val topicChanges: Int?,
-    // Allow unknown properties for fields like vocabularyItems, etc.
-    val additionalProperties: Map<String, Any>? = null
+    val phaseTransitions: List<PhaseTransitionYaml>?
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
