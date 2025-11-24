@@ -42,45 +42,47 @@ export default function ChatHeader({ showSidebar, onToggleSidebar }: ChatHeaderP
             </div>
           )}
           <div>
-            <div className="flex items-center gap-3">
+            <h1 className="text-xl font-semibold text-slate-900">
+              {courseName || 'Chat Session'}
+            </h1>
+            <div className="flex items-center gap-3 mt-1 flex-wrap">
               {currentLanguage && (
                 <>
                   <span className="inline-flex items-center gap-1 text-sm font-medium text-slate-600">
                     <FlagIcon languageCode={currentLanguage.code} size={1} />
                     {currentLanguage.nativeName.split('(')[0].trim()}
                   </span>
-                  <span className="text-slate-300">•</span>
+                  {tutor.name && (
+                    <>
+                      <span className="text-slate-300">•</span>
+                      <span className="text-sm font-medium text-slate-600">{tutor.name}</span>
+                    </>
+                  )}
                 </>
               )}
-              <h1 className="text-xl font-semibold text-slate-900">{tutor.name || courseName}</h1>
-              {tutor.age && (
-                <>
-                  <span className="text-slate-300">•</span>
-                  <span className="text-sm text-slate-600">Age {tutor.age}</span>
-                </>
+              {(currentLanguage && userLevel) && (
+                <span className="text-slate-300">•</span>
+              )}
+              {userLevel && (
+                <SkillBreakdownBadge
+                  overall={userLevel}
+                  grammar={skillLevels.grammar}
+                  vocabulary={skillLevels.vocabulary}
+                  fluency={skillLevels.fluency}
+                  comprehension={skillLevels.comprehension}
+                />
+              )}
+              {(userLevel && currentTopic !== undefined) && (
+                <span className="text-slate-300">•</span>
+              )}
+              {currentTopic !== undefined && (
+                <EditableTopic
+                  topic={currentTopic}
+                  onSave={updateTopic}
+                  disabled={isSending}
+                />
               )}
             </div>
-            {(userLevel || currentTopic !== undefined) && (
-              <div className="flex items-center gap-3 mt-1">
-                {userLevel && (
-                  <SkillBreakdownBadge
-                    overall={userLevel}
-                    grammar={skillLevels.grammar}
-                    vocabulary={skillLevels.vocabulary}
-                    fluency={skillLevels.fluency}
-                    comprehension={skillLevels.comprehension}
-                  />
-                )}
-                <>
-                  {userLevel && <span className="text-slate-300">•</span>}
-                  <EditableTopic
-                    topic={currentTopic}
-                    onSave={updateTopic}
-                    disabled={isSending}
-                  />
-                </>
-              </div>
-            )}
           </div>
         </div>
       </div>

@@ -41,6 +41,7 @@ interface SessionWithProgressResponse {
     estimatedCEFRLevel: string;
     currentTopic: string | null;
     courseTemplateId: string | null;
+    customName: string | null; // NEW: Include custom name field
     createdAt: string;
     updatedAt: string;
   };
@@ -61,7 +62,7 @@ export async function getActiveSessions(userId: string): Promise<Session[]> {
     id: item.session.id,
     userId: item.session.userId,
     courseId: item.session.courseTemplateId || '',
-    courseName: item.session.tutorName,
+    courseName: item.session.customName || item.session.tutorName || 'Conversation',
     targetLanguageCode: item.session.targetLanguageCode,
     userLevel: item.session.estimatedCEFRLevel as CEFRLevel | '',
     phase: normalizePhase(item.session.conversationPhase),
@@ -162,11 +163,31 @@ export async function getSession(sessionId: string): Promise<Session & { message
 
   const session = backend.session;
 
+  // Determine course name with proper hierarchy: custom name > course name (if course-based) > tutor name > default
+  let resolvedCourseName = session.customName || '';
+
+  if (!resolvedCourseName && session.courseTemplateId) {
+    // If no custom name but there's a course template, fetch the course name
+    try {
+      // Need to import the catalog API dynamically to avoid circular dependencies
+      const catalogModule = await import('./catalog');
+      const courseDetail = await catalogModule.getCourse(session.courseTemplateId);
+      resolvedCourseName = courseDetail.name || session.tutorName || 'Conversation';
+    } catch (error) {
+      console.warn('Failed to fetch course name for session:', session.courseTemplateId, error);
+      // Fallback to tutor name if course fetch fails
+      resolvedCourseName = session.tutorName || 'Conversation';
+    }
+  } else if (!resolvedCourseName) {
+    // If no course template ID, use tutor name or default
+    resolvedCourseName = session.tutorName || 'Conversation';
+  }
+
   const result: Session & { messages: Message[] } = {
     id: session.id,
     userId: session.userId,
     courseId: session.courseTemplateId,
-    courseName: session.customName || 'Conversation', // Use custom name or fallback
+    courseName: resolvedCourseName, // Use the properly determined course name
     targetLanguageCode: session.targetLanguageCode,
     userLevel: session.estimatedCEFRLevel as CEFRLevel | '',
     phase: normalizePhase(session.conversationPhase),

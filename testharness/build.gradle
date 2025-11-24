@@ -1,0 +1,76 @@
+plugins {
+    id 'org.springframework.boot' version '3.5.6'
+    id 'io.spring.dependency-management' version '1.1.7'
+    id 'org.jetbrains.kotlin.jvm' version '1.9.25'
+    id 'org.jetbrains.kotlin.plugin.spring' version '1.9.25'
+}
+
+group = 'ch.obermuhlner'
+version = '0.0.1-SNAPSHOT'
+description = 'AI Tutor Test Harness'
+sourceCompatibility = '17'
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    set('springAiVersion', "1.0.1")
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.jetbrains.kotlin:kotlin-reflect'
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+
+    // Spring AI - using only OpenAI for test harness to avoid configuration conflicts
+    implementation 'org.springframework.ai:spring-ai-starter-model-openai'
+    // NOTE: Other providers are commented out to prevent autoconfiguration conflicts
+    // If needed, add them selectively with proper property configuration
+
+    // JSON and YAML processing
+    implementation 'com.fasterxml.jackson.module:jackson-module-kotlin:2.15.2'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.15.2'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.2'
+
+    // Configuration processor
+    compileOnly 'org.springframework.boot:spring-boot-configuration-processor'
+
+    // Test dependencies
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    // Add dependency on common module to access shared models
+    implementation project(':common')
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.ai:spring-ai-bom:${springAiVersion}"
+    }
+}
+
+kotlin {
+    compilerOptions {
+        freeCompilerArgs.addAll(['-Xjsr305=strict'])
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+    }
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+// Ensure UTF-8 encoding for console output (especially important on Windows)
+tasks.named('bootRun') {
+    systemProperty 'file.encoding', 'UTF-8'
+    systemProperty 'sun.stdout.encoding', 'UTF-8'
+    systemProperty 'sun.stderr.encoding', 'UTF-8'
+}

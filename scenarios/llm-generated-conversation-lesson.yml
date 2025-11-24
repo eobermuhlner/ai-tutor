@@ -38,7 +38,6 @@ llmConversationConfig:
   notes: "Generate messages appropriate for A1 Spanish learner focusing on greetings and basic expressions from the week-01-greetings lesson content. Include practice with hola, buenos días, buenas tardes, buenas noches, cómo estás, cómo está usted, gracias, de nada, and polite expressions. Focus on passive learning of lesson content rather than active error production."
 
 expectedOutcomes:
-  minimumCorrectionsDetected: 2
   topicChanges: 0
 
 evaluationFocus:

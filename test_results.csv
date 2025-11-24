@@ -1,0 +1,30 @@
+scenario_id,success,message,overall_rating,pedagogical_score,accuracy_score,engagement_score
+"advanced-fluency-focus",false,"Scenario quality issues detected:
+  - Validation failures:
+    • Teaching style: not set (expected: Reactive)
+Average ratings: Overall=7.7, Pedagogical=7.5, Accuracy=8.8, Engagement=7.0",7.666666666666667,7.5,8.833333333333334,7.0
+"beginner-agreement-errors",false,"Scenario quality issues detected:
+  - Validation failures:
+    • Teaching style: not set (expected: Guided)
+    • Final phase: null (expected: Drill)
+Average ratings: Overall=7.2, Pedagogical=7.5, Accuracy=8.3, Engagement=6.5",7.166666666666667,7.5,8.333333333333334,6.5
+"critical-comprehension-errors",false,"Scenario quality issues detected:
+  - Validation failures:
+    • Teaching style: not set (expected: Guided)
+    • Final phase: null (expected: Drill)
+Average ratings: Overall=6.7, Pedagogical=6.3, Accuracy=7.7, Engagement=6.0",6.666666666666667,6.333333333333333,7.666666666666667,6.0
+"intermediate-mixed-errors",false,"Scenario quality issues detected:
+  - Validation failures:
+    • Teaching style: not set (expected: Guided)
+Average ratings: Overall=7.7, Pedagogical=8.0, Accuracy=8.4, Engagement=7.4",7.714285714285714,8.0,8.428571428571429,7.428571428571429
+"llm-generated-conversation-lesson",false,"Scenario quality issues detected:
+  - Quality ratings below threshold (6.0)
+  - Validation failures:
+    • Teaching style: not set (expected: Guided)
+    • Average pedagogical score: NaN/10 (threshold: 6.0)
+    • Average accuracy score: NaN/10 (threshold: 6.0)
+Average ratings: Overall=0.0, Pedagogical=0.0, Accuracy=0.0, Engagement=0.0",0.0,0.0,0.0,0.0
+"topic-management-test",false,"Scenario quality issues detected:
+  - Validation failures:
+    • Teaching style: not set (expected: Guided)
+Average ratings: Overall=7.8, Pedagogical=7.8, Accuracy=8.5, Engagement=7.4",7.8,7.8,8.5,7.4
