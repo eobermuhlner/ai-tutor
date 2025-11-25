@@ -129,7 +129,8 @@ class LessonProgressionService(
         // Update session to target lesson
         session.currentLessonId = targetLessonId
         session.lessonStartedAt = Instant.now()
-        session.lessonProgressJson = """{"turnCount": 0}"""
+        session.lessonProgressTurnCount = 0
+        session.lessonProgressGoalsCompleted = false
         chatSessionRepository.save(session)
 
         logger.info("Navigated session ${session.id} to specific lesson $targetLessonId")
