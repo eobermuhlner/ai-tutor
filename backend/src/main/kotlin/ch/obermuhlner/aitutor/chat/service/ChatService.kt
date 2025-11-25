@@ -333,6 +333,9 @@ class ChatService(
         )
         chatMessageRepository.save(userMessage)
 
+        // Increment lesson turn count for user messages
+        incrementLessonTurnCount(session)
+
         // Build message history
         val messageHistory = buildMessageHistory(sessionId)
 
@@ -947,5 +950,34 @@ class ChatService(
             errorMessage = errorMessage,
             createdAt = entity.createdAt ?: java.time.Instant.now()
         )
+    }
+
+    /**
+     * Increments the turn count in the lesson progress JSON.
+     * This tracks how many user turns have occurred in the current lesson.
+     */
+    private fun incrementLessonTurnCount(session: ChatSessionEntity) {
+        if (session.currentLessonId == null) {
+            // No active lesson, nothing to increment
+            return
+        }
+
+        val progressJson = session.lessonProgressJson ?: """{"turnCount": 0, "goalsCompleted": false}"""
+
+        try {
+            val progressMap = objectMapper.readValue<MutableMap<String, Any>>(progressJson)
+            val currentCount = (progressMap["turnCount"] as? Number)?.toInt() ?: 0
+            progressMap["turnCount"] = currentCount + 1
+
+            session.lessonProgressJson = objectMapper.writeValueAsString(progressMap)
+            chatSessionRepository.save(session)
+
+            logger.debug("Incremented lesson turn count for session ${session.id}, lesson ${session.currentLessonId}: ${currentCount + 1}")
+        } catch (e: Exception) {
+            logger.error("Failed to increment lesson turn count for session ${session.id}", e)
+            // Reset to valid JSON if parsing fails
+            session.lessonProgressJson = """{"turnCount": 1, "goalsCompleted": false}"""
+            chatSessionRepository.save(session)
+        }
     }
 }

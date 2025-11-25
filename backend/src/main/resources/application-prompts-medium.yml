@@ -345,3 +345,25 @@ ai-tutor:
       - Apply corrections ONLY to the most recent user message
 
       Return a JSON object with a "corrections" array containing the error details.
+
+    lesson-goals-evaluation: |
+      Evaluate if the learner has achieved the current lesson goals.
+
+      Target Language: {targetLanguage} (code: {targetLanguageCode})
+
+      Determine if the learner has practiced and demonstrated the lesson goals.
+      Consider vocabulary use, grammatical understanding, and topic engagement.
+      Do not require perfection - focus on active practice and basic competence.
+
+      Return JSON with:
+      - "goalsCompleted" (boolean): true if goals sufficiently practiced
+      - "reasoning" (string): Brief explanation in {sourceLanguage}
+      - "progressIndicators" (array): Examples showing progress
+
+      Learner Level: {cefrLevel}
+
+      Lesson Goals:
+      {lessonGoals}
+
+      Recent Conversation:
+      {conversationContext}

@@ -95,7 +95,7 @@ class LessonProgressionService(
         val firstLesson = curriculum.lessons.firstOrNull() ?: return null
         session.currentLessonId = firstLesson.id
         session.lessonStartedAt = Instant.now()
-        session.lessonProgressJson = """{"turnCount": 0}"""
+        session.lessonProgressJson = """{"turnCount": 0, "goalsCompleted": false}"""
         chatSessionRepository.save(session)
 
         logger.info("Activated first lesson for session ${session.id}: ${firstLesson.id}")
@@ -116,9 +116,9 @@ class LessonProgressionService(
             Instant.now()
         ).toDays()
 
-        // Check turn count
-        val turnCount = chatMessageRepository.countBySessionId(session.id)
+        // Get turn count from lesson progress JSON (lesson-specific, not total session messages)
         val progress = parseProgress(session.lessonProgressJson)
+        val turnCount = progress.turnCount
 
         val shouldAdvance = when (curriculum.progressionMode) {
             ProgressionMode.TIME_BASED -> {
@@ -143,7 +143,7 @@ class LessonProgressionService(
 
         session.currentLessonId = nextLesson.id
         session.lessonStartedAt = Instant.now()
-        session.lessonProgressJson = """{"turnCount": 0}"""
+        session.lessonProgressJson = """{"turnCount": 0, "goalsCompleted": false}"""
         chatSessionRepository.save(session)
 
         logger.info("Advanced session ${session.id} to lesson ${nextLesson.id}")
@@ -165,7 +165,7 @@ class LessonProgressionService(
 
         session.currentLessonId = previousLesson.id
         session.lessonStartedAt = Instant.now()
-        session.lessonProgressJson = """{"turnCount": 0}"""
+        session.lessonProgressJson = """{"turnCount": 0, "goalsCompleted": false}"""
         chatSessionRepository.save(session)
 
         logger.info("Advanced session ${session.id} to previous lesson ${previousLesson.id}")
