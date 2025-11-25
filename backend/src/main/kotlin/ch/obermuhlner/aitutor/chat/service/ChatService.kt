@@ -281,6 +281,26 @@ class ChatService(
         return if (lessonContent != null) toSessionResponse(session) else null
     }
 
+    @Transactional
+    fun updateSessionToSpecificLesson(sessionId: UUID, lessonId: String, currentUserId: UUID): SessionResponse? {
+        val session = chatSessionRepository.findById(sessionId).orElse(null) ?: return null
+
+        // Validate ownership
+        if (session.userId != currentUserId) {
+            return null
+        }
+
+        // Only allow lesson navigation for course-based sessions
+        if (session.courseTemplateId == null) {
+            logger.warn("Attempt to navigate to specific lesson in non-course session: $sessionId")
+            return null
+        }
+
+        val lessonContent = lessonProgressionService.navigateToSpecificLesson(sessionId, lessonId)
+
+        return if (lessonContent != null) toSessionResponse(session) else null
+    }
+
     fun getTopicHistory(sessionId: UUID, currentUserId: UUID): TopicHistoryResponse? {
         val session = chatSessionRepository.findById(sessionId).orElse(null) ?: return null
 

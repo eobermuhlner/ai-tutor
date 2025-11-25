@@ -88,6 +88,32 @@ class LessonProgressionService(
         return advanceToPreviousLesson(session, curriculum, currentLessonId)
     }
 
+    @Transactional
+    fun navigateToSpecificLesson(sessionId: UUID, targetLessonId: String): LessonContent? {
+        // Reload session within transaction to avoid stale entity and lock contention
+        val session = chatSessionRepository.findById(sessionId).orElse(null) ?: return null
+
+        val courseSlug = getCourseSlug(session.courseTemplateId) ?: return null
+        val curriculum = lessonContentService.getCurriculum(courseSlug) ?: return null
+
+        // Check if the target lesson exists in the curriculum
+        val targetLesson = curriculum.lessons.find { it.id == targetLessonId }
+        if (targetLesson == null) {
+            logger.warn("Target lesson $targetLessonId not found in curriculum for session $sessionId")
+            return null
+        }
+
+        // Update session to target lesson
+        session.currentLessonId = targetLessonId
+        session.lessonStartedAt = Instant.now()
+        session.lessonProgressJson = """{"turnCount": 0}"""
+        chatSessionRepository.save(session)
+
+        logger.info("Navigated session ${session.id} to specific lesson $targetLessonId")
+
+        return lessonContentService.getLesson(curriculum.courseId, targetLessonId)
+    }
+
     private fun activateFirstLesson(
         session: ChatSessionEntity,
         curriculum: CourseCurriculum

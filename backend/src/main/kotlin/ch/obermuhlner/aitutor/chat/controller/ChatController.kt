@@ -223,6 +223,17 @@ class ChatController(
         return ResponseEntity.ok(session)
     }
 
+    @PatchMapping("/sessions/{sessionId}/lesson-specific")
+    fun updateSessionToSpecificLesson(
+        @PathVariable sessionId: UUID,
+        @RequestBody request: ch.obermuhlner.aitutor.chat.dto.UpdateLessonToSpecificRequest
+    ): ResponseEntity<SessionResponse> {
+        val currentUserId = authorizationService.getCurrentUserId()
+        val session = chatService.updateSessionToSpecificLesson(sessionId, request.lessonId, currentUserId)
+            ?: return ResponseEntity.notFound().build()
+        return ResponseEntity.ok(session)
+    }
+
     @PostMapping("/sessions/{sessionId}/messages")
     fun sendMessage(
         @PathVariable sessionId: UUID,

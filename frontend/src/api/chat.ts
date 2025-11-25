@@ -344,6 +344,16 @@ export async function navigateLesson(
   return response.data;
 }
 
+export async function navigateToSpecificLesson(
+  sessionId: string,
+  lessonId: string
+): Promise<Session> {
+  const response = await apiClient.patch<Session>(`/chat/sessions/${sessionId}/lesson-specific`, {
+    lessonId
+  });
+  return response.data;
+}
+
 export async function sendChatMessage(
   sessionId: string,
   message: string,

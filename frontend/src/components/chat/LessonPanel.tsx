@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { getCurrentLesson } from '../../api/lessons';
-import { navigateLesson } from '../../api/chat';
+import { getCurrentLesson, getCourseCurriculum, type LessonMetadata } from '../../api/lessons';
+import { navigateLesson, navigateToSpecificLesson } from '../../api/chat';
 import Spinner from '../ui/Spinner';
 import Button from '../ui/Button';
+import Select from '../ui/Select';
 import type { LessonContent } from '../../types';
 
 interface LessonPanelProps {
@@ -29,14 +30,44 @@ export default function LessonPanel({ sessionId, courseId }: LessonPanelProps) {
   const [error, setError] = useState<string | null>(null);
   const [isNavigating, setIsNavigating] = useState(false);
   const [showNavigation, setShowNavigation] = useState(false); // Only show if courseId is present
+  const [canNavigateNext, setCanNavigateNext] = useState(true); // Assume true initially
+  const [canNavigatePrevious, setCanNavigatePrevious] = useState(true); // Assume true initially
+  const [lessons, setLessons] = useState<LessonMetadata[]>([]); // Store the list of all lessons
+  const [selectedLesson, setSelectedLesson] = useState<string>(''); // Track selected lesson ID
 
   useEffect(() => {
     const loadLesson = async () => {
       try {
         setIsLoading(true);
         setError(null);
+        setCanNavigateNext(true); // Reset navigation status when loading
+        setCanNavigatePrevious(true);
+
         const lessonData = await getCurrentLesson(sessionId);
         setLesson(lessonData);
+
+        // If we have a courseId, fetch the curriculum to determine navigation status
+        if (courseId) {
+          try {
+            const curriculum = await getCourseCurriculum(courseId);
+            // Set all lessons for the dropdown
+            setLessons(curriculum.lessons);
+
+            // Set selected lesson to the current one
+            setSelectedLesson(lessonData.id);
+
+            // Find current lesson's position in the curriculum
+            const currentIndex = curriculum.lessons.findIndex(lesson => lesson.id === lessonData.id);
+
+            if (currentIndex !== -1) {
+              setCanNavigatePrevious(currentIndex > 0);
+              setCanNavigateNext(currentIndex < curriculum.lessons.length - 1);
+            }
+          } catch (curriculumErr) {
+            console.error('Failed to load curriculum for navigation status:', curriculumErr);
+            // Fallback: keep initial assumption that both directions are possible
+          }
+        }
       } catch (err) {
         console.error('Failed to load lesson:', err);
         setError('Failed to load lesson. This session may not have an associated lesson.');
@@ -48,7 +79,7 @@ export default function LessonPanel({ sessionId, courseId }: LessonPanelProps) {
     if (sessionId) {
       loadLesson();
     }
-  }, [sessionId]);
+  }, [sessionId, courseId]);
 
   useEffect(() => {
     // Determine if navigation should be shown based on presence of courseId
@@ -61,21 +92,103 @@ export default function LessonPanel({ sessionId, courseId }: LessonPanelProps) {
     try {
       setIsNavigating(true);
       setError(null);
+
       await navigateLesson(sessionId, direction);
-      
+
       // After successful navigation, reload the lesson content
       const lessonData = await getCurrentLesson(sessionId);
       setLesson(lessonData);
+
+      // Update navigation status based on curriculum position
+      if (courseId) {
+        try {
+          const curriculum = await getCourseCurriculum(courseId);
+          // Set all lessons for the dropdown
+          setLessons(curriculum.lessons);
+
+          // Update the selected lesson
+          setSelectedLesson(lessonData.id);
+
+          // Find current lesson's position in the curriculum
+          const currentIndex = curriculum.lessons.findIndex(lesson => lesson.id === lessonData.id);
+
+          if (currentIndex !== -1) {
+            setCanNavigatePrevious(currentIndex > 0);
+            setCanNavigateNext(currentIndex < curriculum.lessons.length - 1);
+          }
+        } catch (curriculumErr) {
+          console.error('Failed to load curriculum for navigation status after navigation:', curriculumErr);
+          // Fallback: reset to enable both directions
+          setCanNavigateNext(true);
+          setCanNavigatePrevious(true);
+        }
+      } else {
+        // If no courseId is available, reset the navigation states
+        setCanNavigateNext(true);
+        setCanNavigatePrevious(true);
+        setLessons([]);
+        setSelectedLesson('');
+      }
     } catch (err: unknown) {
       console.error(`Failed to navigate ${direction.toLowerCase()} lesson:`, err);
-      
+
       // Check if it's a 404 error (boundary case)
       const axiosError = err as { response?: { status: number } };
       if (axiosError.response?.status === 404) {
+        // Update navigation status to reflect that we're at a boundary
+        if (direction === 'NEXT') {
+          setCanNavigateNext(false);
+        } else {
+          setCanNavigatePrevious(false);
+        }
+
         setError(`No ${direction.toLowerCase()} lesson available. You've reached the ${direction === 'NEXT' ? 'end' : 'beginning'} of the course.`);
       } else {
         setError(`Failed to navigate to ${direction.toLowerCase()} lesson. Please try again.`);
       }
+    } finally {
+      setIsNavigating(false);
+    }
+  };
+
+  const handleSpecificLessonNavigation = async (lessonId: string) => {
+    if (!sessionId || !courseId || !lessonId || isNavigating) return;
+
+    try {
+      setIsNavigating(true);
+      setError(null);
+
+      await navigateToSpecificLesson(sessionId, lessonId);
+
+      // After successful navigation, reload the lesson content
+      const lessonData = await getCurrentLesson(sessionId);
+      setLesson(lessonData);
+
+      // Update the selected lesson state
+      setSelectedLesson(lessonData.id);
+
+      // Update navigation status based on curriculum position
+      try {
+        const curriculum = await getCourseCurriculum(courseId);
+        // Set all lessons for the dropdown
+        setLessons(curriculum.lessons);
+
+        // Find current lesson's position in the curriculum
+        const currentIndex = curriculum.lessons.findIndex(lesson => lesson.id === lessonData.id);
+
+        if (currentIndex !== -1) {
+          setCanNavigatePrevious(currentIndex > 0);
+          setCanNavigateNext(currentIndex < curriculum.lessons.length - 1);
+        }
+      } catch (curriculumErr) {
+        console.error('Failed to load curriculum for navigation status after specific lesson navigation:', curriculumErr);
+        // Fallback: reset to enable both directions
+        setCanNavigateNext(true);
+        setCanNavigatePrevious(true);
+      }
+    } catch (err: unknown) {
+      console.error(`Failed to navigate to specific lesson:`, err);
+      setError('Failed to navigate to the selected lesson. Please try again.');
     } finally {
       setIsNavigating(false);
     }
@@ -123,7 +236,7 @@ export default function LessonPanel({ sessionId, courseId }: LessonPanelProps) {
         <div className="flex items-center justify-between pt-2 border-t border-slate-200 pt-4">
           <Button
             onClick={() => handleNavigation('PREVIOUS')}
-            disabled={isNavigating}
+            disabled={isNavigating || !canNavigatePrevious}
             variant="outline"
             size="sm"
             className="flex items-center gap-2"
@@ -139,10 +252,28 @@ export default function LessonPanel({ sessionId, courseId }: LessonPanelProps) {
               </>
             )}
           </Button>
-          <span className="text-sm text-slate-500">Lesson</span>
+
+          {/* Lesson Selection Dropdown */}
+          <div className="flex flex-col items-center gap-1">
+            <Select
+              value={selectedLesson}
+              onChange={(value) => handleSpecificLessonNavigation(value as string)}
+              disabled={isNavigating || lessons.length === 0}
+              className="w-40 text-xs"
+            >
+              <option value="">Select Lesson</option>
+              {lessons.map((lesson) => (
+                <option key={lesson.id} value={lesson.id}>
+                  {lesson.file}
+                </option>
+              ))}
+            </Select>
+            <span className="text-xs text-slate-500">Lesson</span>
+          </div>
+
           <Button
             onClick={() => handleNavigation('NEXT')}
-            disabled={isNavigating}
+            disabled={isNavigating || !canNavigateNext}
             variant="outline"
             size="sm"
             className="flex items-center gap-2"

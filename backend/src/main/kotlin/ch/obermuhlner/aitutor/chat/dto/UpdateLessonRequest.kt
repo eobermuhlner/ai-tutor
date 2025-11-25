@@ -7,3 +7,7 @@ enum class LessonNavigationDirection {
 data class UpdateLessonRequest(
     val direction: LessonNavigationDirection
 )
+
+data class UpdateLessonToSpecificRequest(
+    val lessonId: String
+)
