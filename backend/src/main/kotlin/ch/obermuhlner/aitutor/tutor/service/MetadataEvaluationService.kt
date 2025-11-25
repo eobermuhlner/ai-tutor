@@ -8,9 +8,7 @@ import ch.obermuhlner.aitutor.chat.repository.ChatSessionRepository
 import ch.obermuhlner.aitutor.lesson.service.LessonProgressionService
 import ch.obermuhlner.aitutor.tutor.domain.ConversationPhase
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.stereotype.Service
 import java.util.*
@@ -49,14 +47,10 @@ class MetadataEvaluationService(
     private val phaseDecisionService: PhaseDecisionService,
     private val topicDecisionService: TopicDecisionService,
     private val lessonProgressionService: LessonProgressionService,
+    private val lessonGoalsEvaluationService: ch.obermuhlner.aitutor.lesson.service.LessonGoalsEvaluationService,
     private val chatSessionRepository: ChatSessionRepository,
     private val chatMessageRepository: ChatMessageRepository,
-    private val lessonContentService: ch.obermuhlner.aitutor.lesson.service.LessonContentService,
-    private val catalogService: ch.obermuhlner.aitutor.catalog.service.CatalogService,
-    private val userChatModelFactory: ch.obermuhlner.aitutor.conversation.service.UserChatModelFactory,
-    private val languageService: ch.obermuhlner.aitutor.language.service.LanguageService,
-    private val objectMapper: ObjectMapper,
-    @Value("\${ai-tutor.prompts.lesson-goals-evaluation}") private val lessonGoalsEvaluationPrompt: String
+    private val objectMapper: ObjectMapper
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -104,7 +98,7 @@ class MetadataEvaluationService(
             // After checking progression, evaluate lesson goals completion if we're still on the same lesson
             // (if lesson didn't advance, we should update goalsCompleted field)
             if (turnCount >= 5 && turnCount % 5 == 0) { // Evaluate every 5 turns, starting at turn 5
-                evaluateLessonGoals(session, messages)
+                lessonGoalsEvaluationService.evaluateLessonGoals(session, messages)
             }
         }
 
@@ -236,127 +230,6 @@ class MetadataEvaluationService(
         }
 
         return updated
-    }
-
-    /**
-     * Evaluates lesson goals completion using LLM analysis.
-     * Updates the goalsCompleted field in lessonProgressJson.
-     */
-    private fun evaluateLessonGoals(
-        session: ChatSessionEntity,
-        messages: List<ChatMessageEntity>
-    ) {
-        // Only evaluate if there's an active lesson
-        if (session.currentLessonId == null || session.courseTemplateId == null) {
-            return
-        }
-
-        try {
-            // Get course slug for lesson lookup
-            val course = catalogService.getCourseById(session.courseTemplateId!!) ?: return
-            val nameMap = objectMapper.readValue<Map<String, String>>(course.nameJson)
-            val courseNameEn = nameMap["en"] ?: "unknown"
-            val languageOnly = course.languageCode.lowercase().substringBefore("-")
-            val courseSlug = "$languageOnly-${courseNameEn.lowercase().replace(" ", "-")}"
-
-            // Get lesson content to extract goals
-            val lessonContent = lessonContentService.getLesson(courseSlug, session.currentLessonId!!) ?: return
-
-            // Extract goals section from lesson markdown
-            val goalsSection = extractLessonGoals(lessonContent.fullMarkdown)
-            if (goalsSection.isBlank()) {
-                logger.debug("No goals section found in lesson ${session.currentLessonId}")
-                return
-            }
-
-            // Get recent conversation context (last 10 messages)
-            val recentMessages = messages.takeLast(10)
-            val conversationContext = recentMessages.joinToString("\n") { msg ->
-                "${msg.role.name}: ${msg.content}"
-            }
-
-            // Get language names
-            val targetLanguage = languageService.getLanguageName(session.targetLanguageCode)
-            val sourceLanguage = languageService.getLanguageName(session.sourceLanguageCode)
-
-            // Render prompt template with placeholders
-            val renderedPrompt = org.springframework.ai.chat.prompt.PromptTemplate(lessonGoalsEvaluationPrompt).render(mapOf(
-                "targetLanguage" to targetLanguage,
-                "targetLanguageCode" to session.targetLanguageCode,
-                "sourceLanguage" to sourceLanguage,
-                "sourceLanguageCode" to session.sourceLanguageCode,
-                "cefrLevel" to session.estimatedCEFRLevel.name,
-                "lessonGoals" to goalsSection,
-                "conversationContext" to conversationContext
-            ))
-
-            // Get chat model for this user
-            val chatModel = userChatModelFactory.getChatModelForUser(session.userId)
-
-            // Call LLM
-            val response = chatModel.call(renderedPrompt)
-
-            // Parse response
-            val jsonResponse = extractJsonFromResponse(response)
-            val resultMap = objectMapper.readValue<Map<String, Any>>(jsonResponse)
-            val goalsCompleted = resultMap["goalsCompleted"] as? Boolean ?: false
-            val reasoning = resultMap["reasoning"] as? String ?: "No reasoning provided"
-
-            // Update session lessonProgressJson
-            val progressJson = session.lessonProgressJson ?: """{"turnCount": 0, "goalsCompleted": false}"""
-            val progressMap = objectMapper.readValue<MutableMap<String, Any>>(progressJson)
-            progressMap["goalsCompleted"] = goalsCompleted
-            session.lessonProgressJson = objectMapper.writeValueAsString(progressMap)
-            chatSessionRepository.save(session)
-
-            logger.info("Session ${session.id} lesson goals evaluated: $goalsCompleted - $reasoning")
-
-        } catch (e: Exception) {
-            logger.error("Failed to evaluate lesson goals for session ${session.id}", e)
-        }
-    }
-
-    /**
-     * Extracts the "This Week's Goals" or "Lesson Goals" section from lesson markdown.
-     */
-    private fun extractLessonGoals(markdown: String): String {
-        val lines = markdown.lines()
-        val goalsSectionStart = lines.indexOfFirst {
-            it.trim().startsWith("##") &&
-            (it.contains("Goal", ignoreCase = true) || it.contains("Objective", ignoreCase = true))
-        }
-
-        if (goalsSectionStart == -1) {
-            return ""
-        }
-
-        // Find next section (starting with ##)
-        val nextSectionStart = lines.subList(goalsSectionStart + 1, lines.size)
-            .indexOfFirst { it.trim().startsWith("##") }
-
-        val goalsSectionEnd = if (nextSectionStart == -1) {
-            lines.size
-        } else {
-            goalsSectionStart + 1 + nextSectionStart
-        }
-
-        return lines.subList(goalsSectionStart, goalsSectionEnd).joinToString("\n").trim()
-    }
-
-    /**
-     * Extracts JSON from LLM response, handling markdown code blocks.
-     */
-    private fun extractJsonFromResponse(response: String): String {
-        val trimmed = response.trim()
-
-        // Check if response is wrapped in markdown code block
-        if (trimmed.startsWith("```")) {
-            val lines = trimmed.lines()
-            val contentLines = lines.drop(1).dropLast(1) // Remove first and last lines
-            return contentLines.joinToString("\n").trim()
-        }
-
-        return trimmed
     }
 
     private fun shouldEvaluatePhase(turnCount: Int): Boolean {

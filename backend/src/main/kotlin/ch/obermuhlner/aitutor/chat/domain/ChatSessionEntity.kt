@@ -10,6 +10,7 @@ import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import jakarta.persistence.Version
 import java.time.Instant
 import java.util.UUID
 import org.hibernate.annotations.CreationTimestamp
@@ -145,6 +146,10 @@ class ChatSessionEntity(
 
     @Column(name = "lesson_progress_json", columnDefinition = "TEXT")
     var lessonProgressJson: String? = null,
+
+    @Version
+    @Column(name = "version", nullable = false, columnDefinition = "BIGINT DEFAULT 0")
+    var version: Long = 0,
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
