@@ -22,7 +22,7 @@ class MetadataEvaluationConfig {
     var cefrLevelInterval: Int = 10      // Evaluate CEFR level every N turns
     var topicInterval: Int = 5           // Evaluate topic every N turns
     var phaseInterval: Int = 5           // Evaluate phase every N turns
-    var lessonCheckInterval: Int = 3     // Check lesson progression every N turns
+    var lessonCheckInterval: Int = 3     // Check lesson progression every N turns (also evaluates goals)
 }
 
 /**
@@ -95,11 +95,8 @@ class MetadataEvaluationService(
             // LessonProgressionService handles its own persistence
             lessonProgressionService.checkAndProgressLesson(sessionId)
 
-            // After checking progression, evaluate lesson goals completion if we're still on the same lesson
-            // (if lesson didn't advance, we should update goalsCompleted field)
-            if (turnCount >= 5 && turnCount % 5 == 0) { // Evaluate every 5 turns, starting at turn 5
-                lessonGoalsEvaluationService.evaluateLessonGoals(session, messages)
-            }
+            // Also evaluate lesson goals completion whenever we check progression
+            lessonGoalsEvaluationService.evaluateLessonGoals(session, messages)
         }
 
         // Save session if any metadata was updated

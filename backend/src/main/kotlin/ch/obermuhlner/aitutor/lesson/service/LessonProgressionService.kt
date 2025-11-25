@@ -26,6 +26,29 @@ class LessonProgressionService(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
+    /**
+     * Gets the current lesson for a session without checking progression.
+     * Use this when you just need the lesson content for display/context.
+     * Use checkAndProgressLesson() when you want to also check if lesson should advance.
+     */
+    fun getCurrentLesson(sessionId: UUID): LessonContent? {
+        val session = chatSessionRepository.findById(sessionId).orElse(null) ?: return null
+        val courseSlug = getCourseSlug(session.courseTemplateId) ?: return null
+        val curriculum = lessonContentService.getCurriculum(courseSlug) ?: return null
+
+        val currentLessonId = session.currentLessonId
+
+        // If no current lesson, return first lesson (but don't activate it)
+        if (currentLessonId == null) {
+            return curriculum.lessons.firstOrNull()?.let {
+                lessonContentService.getLesson(curriculum.courseId, it.id)
+            }
+        }
+
+        // Return current lesson
+        return lessonContentService.getLesson(curriculum.courseId, currentLessonId)
+    }
+
     @Transactional
     fun checkAndProgressLesson(sessionId: UUID): LessonContent? {
         // Reload session within transaction to avoid stale entity and lock contention

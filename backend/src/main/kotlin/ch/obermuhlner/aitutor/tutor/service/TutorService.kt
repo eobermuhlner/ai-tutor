@@ -113,8 +113,10 @@ class TutorService(
         val vocabularyGuidance = buildVocabularyGuidance(vocabContext)
 
         // Get current lesson and curriculum if session is course-based
+        // Use getCurrentLesson() to avoid duplicate progression checks
+        // (progression is handled periodically by MetadataEvaluationService)
         val currentLesson = if (session != null && session.courseTemplateId != null) {
-            lessonProgressionService.checkAndProgressLesson(session.id)
+            lessonProgressionService.getCurrentLesson(session.id)
         } else {
             null
         }
