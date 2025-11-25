@@ -101,8 +101,7 @@ class LessonGoalsEvaluationServiceTest {
         service.evaluateLessonGoals(session, messages)
 
         verify { chatSessionRepository.save(match { savedSession ->
-            val progress = objectMapper.readValue<Map<String, Any>>(savedSession.lessonProgressJson ?: "{}")
-            progress["goalsCompleted"] == true
+            savedSession.lessonProgressGoalsCompleted == true
         }) }
     }
 
@@ -287,7 +286,8 @@ class LessonGoalsEvaluationServiceTest {
             estimatedCEFRLevel = CEFRLevel.A1,
             courseTemplateId = UUID.randomUUID(),
             currentLessonId = "lesson-01",
-            lessonProgressJson = """{"turnCount": 10, "goalsCompleted": false}"""
+            lessonProgressTurnCount = 10,
+            lessonProgressGoalsCompleted = false
         )
     }
 

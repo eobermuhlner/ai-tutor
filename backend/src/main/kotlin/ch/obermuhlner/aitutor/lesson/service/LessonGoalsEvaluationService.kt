@@ -33,7 +33,7 @@ class LessonGoalsEvaluationService(
 
     /**
      * Evaluates lesson goals completion using LLM analysis.
-     * Updates the goalsCompleted field in lessonProgressJson.
+     * Updates the goalsCompleted field in lessonProgressGoalsCompleted.
      *
      * This method runs asynchronously to avoid blocking user message processing.
      * Evaluation failures are logged but do not affect the user experience.
@@ -102,11 +102,8 @@ class LessonGoalsEvaluationService(
             val goalsCompleted = resultMap["goalsCompleted"] as? Boolean ?: false
             val reasoning = resultMap["reasoning"] as? String ?: "No reasoning provided"
 
-            // Update session lessonProgressJson
-            val progressJson = session.lessonProgressJson ?: """{"turnCount": 0, "goalsCompleted": false}"""
-            val progressMap = objectMapper.readValue<MutableMap<String, Any>>(progressJson)
-            progressMap["goalsCompleted"] = goalsCompleted
-            session.lessonProgressJson = objectMapper.writeValueAsString(progressMap)
+            // Update session lesson progress fields
+            session.lessonProgressGoalsCompleted = goalsCompleted
             chatSessionRepository.save(session)
 
             logger.info("Session ${session.id} lesson goals evaluated: $goalsCompleted - $reasoning")

@@ -978,15 +978,10 @@ class ChatService(
                     session
                 }
 
-                val progressJson = freshSession.lessonProgressJson ?: """{"turnCount": 0, "goalsCompleted": false}"""
-                val progressMap = objectMapper.readValue<MutableMap<String, Any>>(progressJson)
-                val currentCount = (progressMap["turnCount"] as? Number)?.toInt() ?: 0
-                progressMap["turnCount"] = currentCount + 1
-
-                freshSession.lessonProgressJson = objectMapper.writeValueAsString(progressMap)
+                freshSession.lessonProgressTurnCount = freshSession.lessonProgressTurnCount + 1
                 chatSessionRepository.save(freshSession)
 
-                logger.debug("Incremented lesson turn count for session ${freshSession.id}, lesson ${freshSession.currentLessonId}: ${currentCount + 1}")
+                logger.debug("Incremented lesson turn count for session ${freshSession.id}, lesson ${freshSession.currentLessonId}: ${freshSession.lessonProgressTurnCount}")
                 return // Success!
 
             } catch (e: jakarta.persistence.OptimisticLockException) {
@@ -1005,7 +1000,8 @@ class ChatService(
                     try {
                         val freshSession = chatSessionRepository.findById(session.id).orElse(null)
                         if (freshSession != null) {
-                            freshSession.lessonProgressJson = """{"turnCount": 1, "goalsCompleted": false}"""
+                            freshSession.lessonProgressTurnCount = 1
+                            freshSession.lessonProgressGoalsCompleted = false
                             chatSessionRepository.save(freshSession)
                         }
                     } catch (resetException: Exception) {

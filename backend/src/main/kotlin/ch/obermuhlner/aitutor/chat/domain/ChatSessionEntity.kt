@@ -144,8 +144,11 @@ class ChatSessionEntity(
     @Column(name = "lesson_started_at")
     var lessonStartedAt: Instant? = null,
 
-    @Column(name = "lesson_progress_json", columnDefinition = "TEXT")
-    var lessonProgressJson: String? = null,
+    @Column(name = "lesson_progress_turn_count", nullable = false)
+    var lessonProgressTurnCount: Int = 0,
+
+    @Column(name = "lesson_progress_goals_completed", nullable = false)
+    var lessonProgressGoalsCompleted: Boolean = false,
 
     @Version
     @Column(name = "version", nullable = false, columnDefinition = "BIGINT DEFAULT 0")

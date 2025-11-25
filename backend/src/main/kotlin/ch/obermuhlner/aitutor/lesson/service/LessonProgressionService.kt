@@ -118,7 +118,8 @@ class LessonProgressionService(
         val firstLesson = curriculum.lessons.firstOrNull() ?: return null
         session.currentLessonId = firstLesson.id
         session.lessonStartedAt = Instant.now()
-        session.lessonProgressJson = """{"turnCount": 0, "goalsCompleted": false}"""
+        session.lessonProgressTurnCount = 0
+        session.lessonProgressGoalsCompleted = false
         chatSessionRepository.save(session)
 
         logger.info("Activated first lesson for session ${session.id}: ${firstLesson.id}")
@@ -139,9 +140,9 @@ class LessonProgressionService(
             Instant.now()
         ).toDays()
 
-        // Get turn count from lesson progress JSON (lesson-specific, not total session messages)
-        val progress = parseProgress(session.lessonProgressJson)
-        val turnCount = progress.turnCount
+        // Get turn count and goals completed from lesson progress fields (lesson-specific, not total session messages)
+        val turnCount = session.lessonProgressTurnCount
+        val goalsCompleted = session.lessonProgressGoalsCompleted
 
         val shouldAdvance = when (curriculum.progressionMode) {
             ProgressionMode.TIME_BASED -> {
@@ -150,7 +151,7 @@ class LessonProgressionService(
                 daysSinceLessonStart >= metadata.minimumDays && turnCount >= metadata.requiredTurns
             }
             ProgressionMode.COMPLETION_BASED ->
-                turnCount >= metadata.requiredTurns && progress.goalsCompleted
+                turnCount >= metadata.requiredTurns && goalsCompleted
         }
 
         return ProgressionResult(shouldAdvance)
@@ -166,7 +167,8 @@ class LessonProgressionService(
 
         session.currentLessonId = nextLesson.id
         session.lessonStartedAt = Instant.now()
-        session.lessonProgressJson = """{"turnCount": 0, "goalsCompleted": false}"""
+        session.lessonProgressTurnCount = 0
+        session.lessonProgressGoalsCompleted = false
         chatSessionRepository.save(session)
 
         logger.info("Advanced session ${session.id} to lesson ${nextLesson.id}")
@@ -188,7 +190,8 @@ class LessonProgressionService(
 
         session.currentLessonId = previousLesson.id
         session.lessonStartedAt = Instant.now()
-        session.lessonProgressJson = """{"turnCount": 0, "goalsCompleted": false}"""
+        session.lessonProgressTurnCount = 0
+        session.lessonProgressGoalsCompleted = false
         chatSessionRepository.save(session)
 
         logger.info("Advanced session ${session.id} to previous lesson ${previousLesson.id}")
@@ -196,19 +199,7 @@ class LessonProgressionService(
         return lessonContentService.getLesson(curriculum.courseId, previousLesson.id)
     }
 
-    private fun parseProgress(json: String?): LessonProgress {
-        if (json == null) return LessonProgress(0, false)
-        return try {
-            val map = objectMapper.readValue<Map<String, Any>>(json)
-            LessonProgress(
-                turnCount = (map["turnCount"] as? Number)?.toInt() ?: 0,
-                goalsCompleted = (map["goalsCompleted"] as? Boolean) ?: false
-            )
-        } catch (e: Exception) {
-            logger.warn("Failed to parse lesson progress JSON: $json", e)
-            LessonProgress(0, false)
-        }
-    }
+
 
     // Helper: Map UUID to course slug for file system lookup
     private fun getCourseSlug(courseTemplateId: UUID?): String? {

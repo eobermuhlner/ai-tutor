@@ -1608,7 +1608,8 @@ class ChatServiceTest {
     fun `should increment lesson turn count when lesson is active`() {
         val session = TestDataFactory.createSessionEntity()
         session.currentLessonId = "lesson-01"
-        session.lessonProgressJson = """{"turnCount": 5, "goalsCompleted": false}"""
+        session.lessonProgressTurnCount = 5
+        session.lessonProgressGoalsCompleted = false
 
         every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
         every { chatSessionRepository.save(any<ChatSessionEntity>()) } answers { firstArg() }
@@ -1636,8 +1637,7 @@ class ChatServiceTest {
 
         // Verify turn count was incremented
         verify { chatSessionRepository.save(match { session ->
-            val progress = objectMapper.readValue<Map<String, Any>>(session.lessonProgressJson ?: "{}")
-            (progress["turnCount"] as? Number)?.toInt() == 6
+            session.lessonProgressTurnCount == 6
         }) }
     }
 
@@ -1645,7 +1645,8 @@ class ChatServiceTest {
     fun `should skip incrementing turn count when no active lesson`() {
         val session = TestDataFactory.createSessionEntity()
         session.currentLessonId = null  // No active lesson
-        session.lessonProgressJson = null
+        session.lessonProgressTurnCount = 0
+        session.lessonProgressGoalsCompleted = false
 
         every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
         every { chatSessionRepository.save(any<ChatSessionEntity>()) } answers { firstArg() }
@@ -1670,15 +1671,16 @@ class ChatServiceTest {
 
         chatService.sendMessage(TestDataFactory.TEST_SESSION_ID, "Test", TestDataFactory.TEST_USER_ID)
 
-        // Verify lessonProgressJson was not modified
-        verify { chatSessionRepository.save(match { it.lessonProgressJson == null }) }
+        // Verify lesson progress was not modified
+        verify { chatSessionRepository.save(match { it.lessonProgressTurnCount == 0 && it.lessonProgressGoalsCompleted == false }) }
     }
 
     @Test
     fun `should initialize turn count with default JSON when not set`() {
         val session = TestDataFactory.createSessionEntity()
         session.currentLessonId = "lesson-01"
-        session.lessonProgressJson = null  // Not initialized yet
+        session.lessonProgressTurnCount = 0  // Initialized to 0 by default
+        session.lessonProgressGoalsCompleted = false  // Initialized to false by default
 
         every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
         every { chatSessionRepository.save(any<ChatSessionEntity>()) } answers { firstArg() }
@@ -1705,8 +1707,7 @@ class ChatServiceTest {
 
         // Verify turn count was set to 1
         verify { chatSessionRepository.save(match { session ->
-            val progress = objectMapper.readValue<Map<String, Any>>(session.lessonProgressJson ?: "{}")
-            (progress["turnCount"] as? Number)?.toInt() == 1
+            session.lessonProgressTurnCount == 1
         }) }
     }
 }

@@ -134,7 +134,8 @@ class LessonProgressionServiceTest {
             courseTemplateId = courseId,
             currentLessonId = "week-01-greetings",
             lessonStartedAt = Instant.now().minus(3, ChronoUnit.DAYS), // Only 3 days
-            lessonProgressJson = """{"turnCount": 0, "goalsCompleted": false}"""
+            lessonProgressTurnCount = 0,
+            lessonProgressGoalsCompleted = false
         )
 
         val course = mockk<CourseTemplateEntity>()
@@ -181,7 +182,8 @@ class LessonProgressionServiceTest {
             courseTemplateId = courseId,
             currentLessonId = "week-01-greetings",
             lessonStartedAt = Instant.now().minus(8, ChronoUnit.DAYS), // 8 days
-            lessonProgressJson = """{"turnCount": 10, "goalsCompleted": false}"""
+            lessonProgressTurnCount = 10,
+            lessonProgressGoalsCompleted = false
         )
 
         val course = mockk<CourseTemplateEntity>()
@@ -230,7 +232,8 @@ class LessonProgressionServiceTest {
             courseTemplateId = courseId,
             currentLessonId = "week-10-future-plans",
             lessonStartedAt = Instant.now().minus(70, ChronoUnit.DAYS),
-            lessonProgressJson = """{"turnCount": 20, "goalsCompleted": false}"""
+            lessonProgressTurnCount = 20,
+            lessonProgressGoalsCompleted = false
         )
 
         val course = mockk<CourseTemplateEntity>()
