@@ -3,6 +3,8 @@ package ch.obermuhlner.aitutor.conversation.service
 import ch.obermuhlner.aitutor.conversation.dto.AiChatRequest
 import ch.obermuhlner.aitutor.conversation.dto.AiChatResponse
 import ch.obermuhlner.aitutor.core.util.LlmJson
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import org.slf4j.LoggerFactory
 import org.springframework.ai.chat.messages.Message
 import org.springframework.ai.chat.messages.SystemMessage
@@ -10,6 +12,7 @@ import org.springframework.ai.chat.model.ChatModel
 import org.springframework.ai.chat.prompt.Prompt
 import org.springframework.ai.chat.prompt.PromptTemplate
 import org.springframework.ai.converter.BeanOutputConverter
+import org.springframework.ai.ollama.api.OllamaChatOptions
 import org.springframework.ai.openai.OpenAiChatOptions
 import org.springframework.ai.openai.api.ResponseFormat
 import org.springframework.ai.util.json.schema.JsonSchemaGenerator
@@ -68,6 +71,17 @@ class StreamReplyThenJsonEntityAiChatService(
                             )
                             .build()
                     )
+                    .build()
+            }
+            isOllamaProvider(effectiveChatModel) -> {
+                logger.debug("Using Ollama strict JSON schema enforcement for streaming")
+                // Convert JSON schema string to Map for Ollama format parameter
+                val objectMapper = ObjectMapper()
+                val schemaMap = objectMapper.readValue<Map<String, Any>>(jsonSchema)
+
+                OllamaChatOptions.builder()
+                    .format(schemaMap)  // Ollama-specific format parameter for JSON schema
+                    .temperature(0.0)   // Lower temperature for more deterministic JSON output
                     .build()
             }
             else -> {

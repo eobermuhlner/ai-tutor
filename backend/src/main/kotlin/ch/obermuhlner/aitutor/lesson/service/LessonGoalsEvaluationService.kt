@@ -8,10 +8,28 @@ import ch.obermuhlner.aitutor.conversation.service.UserChatModelFactory
 import ch.obermuhlner.aitutor.language.service.LanguageService
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.fasterxml.jackson.annotation.JsonProperty
 import org.slf4j.LoggerFactory
+import org.springframework.ai.chat.messages.UserMessage
+import org.springframework.ai.chat.prompt.Prompt
+import org.springframework.ai.converter.BeanOutputConverter
+import org.springframework.ai.ollama.api.OllamaChatOptions
+import org.springframework.ai.openai.OpenAiChatOptions
+import org.springframework.ai.openai.api.ResponseFormat
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
+
+/**
+ * Data class for structured output of lesson goals evaluation
+ */
+data class LessonGoalsEvaluationResponse(
+    @JsonProperty("goalsCompleted")
+    val goalsCompleted: Boolean,
+
+    @JsonProperty("reasoning")
+    val reasoning: String
+)
 
 /**
  * Service for evaluating lesson goals completion using LLM analysis.
@@ -93,14 +111,59 @@ class LessonGoalsEvaluationService(
             // Get chat model for this user
             val chatModel = userChatModelFactory.getChatModelForUser(session.userId)
 
-            // Call LLM
-            val response = chatModel.call(renderedPrompt)
+            // Use structured output with strict schema enforcement based on provider
+            val outputConverter = BeanOutputConverter(LessonGoalsEvaluationResponse::class.java)
+            val jsonSchema = outputConverter.jsonSchema
 
-            // Parse response
-            val jsonResponse = extractJsonFromResponse(response)
-            val resultMap = objectMapper.readValue<Map<String, Any>>(jsonResponse)
-            val goalsCompleted = resultMap["goalsCompleted"] as? Boolean ?: false
-            val reasoning = resultMap["reasoning"] as? String ?: "No reasoning provided"
+            val chatOptions = when {
+                chatModel.javaClass.name.contains("OpenAi", ignoreCase = true) -> {
+                    logger.debug("Using OpenAI strict JSON schema enforcement for lesson goals evaluation")
+                    OpenAiChatOptions.builder()
+                        .responseFormat(
+                            ResponseFormat.builder()
+                                .type(ResponseFormat.Type.JSON_SCHEMA)
+                                .jsonSchema(
+                                    ResponseFormat.JsonSchema.builder()
+                                        .name("LessonGoalsEvaluationResponse")
+                                        .schema(jsonSchema)
+                                        .strict(true)
+                                        .build()
+                                )
+                                .build()
+                        )
+                        .build()
+                }
+                chatModel.javaClass.name.contains("Ollama", ignoreCase = true) -> {
+                    logger.debug("Using Ollama strict JSON schema enforcement for lesson goals evaluation")
+                    // Convert JSON schema string to Map for Ollama format parameter
+                    val schemaMap = objectMapper.readValue<Map<String, Any>>(jsonSchema)
+
+                    OllamaChatOptions.builder()
+                        .format(schemaMap)  // Ollama-specific format parameter for JSON schema
+                        .temperature(0.0)   // Lower temperature for more deterministic JSON output
+                        .build()
+                }
+                else -> {
+                    logger.warn("Unknown provider for lesson goals evaluation, using soft enforcement")
+                    null
+                }
+            }
+
+            // Create prompt with appropriate options
+            val prompt = if (chatOptions != null) {
+                Prompt(listOf(UserMessage(renderedPrompt)), chatOptions)
+            } else {
+                Prompt(listOf(UserMessage(renderedPrompt)))
+            }
+
+            // Call LLM with structured output
+            val response = chatModel.call(prompt)
+            val content = response.result.output.text ?: ""
+
+            // Parse response using BeanOutputConverter for type safety
+            val evaluationResponse = outputConverter.convert(content)
+            val goalsCompleted = evaluationResponse.goalsCompleted
+            val reasoning = evaluationResponse.reasoning
 
             // Update session lesson progress fields
             session.lessonProgressGoalsCompleted = goalsCompleted
@@ -143,22 +206,4 @@ class LessonGoalsEvaluationService(
         return lines.subList(goalsSectionStart, goalsSectionEnd).joinToString("\n").trim()
     }
 
-    /**
-     * Extracts JSON from LLM response, handling markdown code blocks.
-     *
-     * @param response The raw LLM response
-     * @return The extracted JSON string
-     */
-    private fun extractJsonFromResponse(response: String): String {
-        val trimmed = response.trim()
-
-        // Check if response is wrapped in markdown code block
-        if (trimmed.startsWith("```")) {
-            val lines = trimmed.lines()
-            val contentLines = lines.drop(1).dropLast(1) // Remove first and last lines
-            return contentLines.joinToString("\n").trim()
-        }
-
-        return trimmed
-    }
 }

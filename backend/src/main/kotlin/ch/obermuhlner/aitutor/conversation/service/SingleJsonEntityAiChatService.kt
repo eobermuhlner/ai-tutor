@@ -2,11 +2,14 @@ package ch.obermuhlner.aitutor.conversation.service
 
 import ch.obermuhlner.aitutor.conversation.dto.AiChatRequest
 import ch.obermuhlner.aitutor.conversation.dto.AiChatResponse
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import org.slf4j.LoggerFactory
 import org.springframework.ai.chat.client.ChatClient
 import org.springframework.ai.chat.model.ChatModel
 import org.springframework.ai.chat.prompt.Prompt
 import org.springframework.ai.converter.BeanOutputConverter
+import org.springframework.ai.ollama.api.OllamaChatOptions
 import org.springframework.ai.openai.OpenAiChatOptions
 import org.springframework.ai.openai.api.ResponseFormat
 import org.springframework.beans.factory.annotation.Value
@@ -73,6 +76,17 @@ class SingleJsonEntityAiChatService(
                             )
                             .build()
                     )
+                    .build()
+            }
+            isOllamaProvider(effectiveChatModel) -> {
+                logger.debug("Using Ollama strict JSON schema enforcement")
+                // Convert JSON schema string to Map for Ollama format parameter
+                val objectMapper = ObjectMapper()
+                val schemaMap = objectMapper.readValue<Map<String, Any>>(jsonSchema)
+
+                OllamaChatOptions.builder()
+                    .format(schemaMap)  // Ollama-specific format parameter for JSON schema
+                    .temperature(0.0)   // Lower temperature for more deterministic JSON output
                     .build()
             }
             else -> {

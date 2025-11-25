@@ -92,11 +92,9 @@ class MetadataEvaluationService(
 
         // Check lesson progression if interval reached and session is course-based
         if (session.courseTemplateId != null && shouldCheckLessonProgression(turnCount)) {
-            // LessonProgressionService handles its own persistence
+            lessonGoalsEvaluationService.evaluateLessonGoals(session, messages)
             lessonProgressionService.checkAndProgressLesson(sessionId)
 
-            // Also evaluate lesson goals completion whenever we check progression
-            lessonGoalsEvaluationService.evaluateLessonGoals(session, messages)
         }
 
         // Save session if any metadata was updated
