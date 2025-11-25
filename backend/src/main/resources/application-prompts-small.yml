@@ -246,9 +246,11 @@ ai-tutor:
         - One-sentence recap; suggest next step.
 
     pronunciation-guide:
-      none: | 
-        Do not use any pronunciation help. When the learner asks about pronunciation, simply acknowledge but do not provide specific guidance.
+      none: |
+        Do not provide any pronunciation help by default.
         
+        Only give pronunciation help when the learner explicitly asks how to pronounce a specific word or phrase.
+
       ipa: |
         Use the IPA (International Phonetic Alphabet) as a pronunciation guide. When introducing new vocabulary words or when explicitly asked about pronunciation:
         - Format as: word /phonetic/ (simple approximation)
