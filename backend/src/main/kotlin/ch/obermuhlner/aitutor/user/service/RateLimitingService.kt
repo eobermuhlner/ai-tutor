@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package ch.obermuhlner.aitutor.user.service
 
 import ch.obermuhlner.aitutor.core.exception.RateLimitExceededException
@@ -180,6 +182,7 @@ class RateLimitingService {
      * @param subscriptionPlan The subscription plan containing rate limits
      * @return A new Bucket instance configured for hourly limits
      */
+    @Suppress("DEPRECATION")
     private fun createHourlyBucket(subscriptionPlan: SubscriptionPlan): Bucket {
         val hourlyLimit = Bandwidth.classic(
             subscriptionPlan.messagesPerHour,
@@ -194,6 +197,7 @@ class RateLimitingService {
      * @param subscriptionPlan The subscription plan containing rate limits
      * @return A new Bucket instance configured for daily limits
      */
+    @Suppress("DEPRECATION")
     private fun createDailyBucket(subscriptionPlan: SubscriptionPlan): Bucket {
         val dailyLimit = Bandwidth.classic(
             subscriptionPlan.messagesPerDay,

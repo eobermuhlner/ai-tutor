@@ -6,6 +6,7 @@ import ch.obermuhlner.aitutor.catalog.dto.LanguageResponse
 import ch.obermuhlner.aitutor.catalog.service.CatalogLanguageService
 import ch.obermuhlner.aitutor.catalog.service.UnifiedCatalogImportService
 import ch.obermuhlner.aitutor.core.model.catalog.LanguageMetadata
+import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -168,8 +169,16 @@ class LanguageController(
 
     // Helper function to convert LanguageEntity to LanguageResponse
     private fun toLanguageResponse(language: LanguageEntity): LanguageResponse {
-        val nameMap = objectMapper.readValue(language.nameJson, Map::class.java) as Map<String, String>
-        val descMap = objectMapper.readValue(language.descriptionJson, Map::class.java) as Map<String, String>
+        val nameMap = try {
+            objectMapper.readValue(language.nameJson, object : TypeReference<Map<String, String>>() {})
+        } catch (e: Exception) {
+            emptyMap()
+        }
+        val descMap = try {
+            objectMapper.readValue(language.descriptionJson, object : TypeReference<Map<String, String>>() {})
+        } catch (e: Exception) {
+            emptyMap()
+        }
 
         return LanguageResponse(
             code = language.code,

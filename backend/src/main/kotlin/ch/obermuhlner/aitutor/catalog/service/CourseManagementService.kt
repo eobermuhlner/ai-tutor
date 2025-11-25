@@ -174,8 +174,6 @@ class CourseManagementService(
     }
 
     fun getAllCourses(includeDrafts: Boolean): List<CourseManagementResponse> {
-        val userId = authorizationService.getCurrentUserId()
-        
         val courses = if (!includeDrafts) {
             // Only return published courses to non-editors
             if (authorizationService.isEditorOrAdmin()) {
@@ -191,7 +189,7 @@ class CourseManagementService(
                 courseTemplateRepository.findAll().filter { !it.isDraft }
             }
         }
-        
+
         return courses.map { mapToCourseResponse(it) }
     }
 

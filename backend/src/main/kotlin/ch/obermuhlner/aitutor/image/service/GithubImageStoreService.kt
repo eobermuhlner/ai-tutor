@@ -54,15 +54,15 @@ class GithubImageStoreService {
             hasAllRequired && !hasForbidden
         }.map { metadata ->
             // Calculate score based on how many optional tags match
-            val optionalMatchCount = optional.count { tag -> 
-                tag.lowercase() in metadata.tags.map { it.lowercase() } 
+            val optionalMatchCount = optional.count { tag ->
+                tag.lowercase() in metadata.tags.map { it.lowercase() }
             }
-            
+
             // Sort results by how many optional tags match (higher score first)
             // Create ImageMetadataResponse with a fake ID for compatibility
             val fakeId = metadata.hashCode().toLong() and 0x7FFFFFFFFFFFFFFFL // Make sure it's positive
-            
-            ImageMetadataResponse(
+
+            Pair(optionalMatchCount, ImageMetadataResponse(
                 id = fakeId,
                 filename = metadata.filename,
                 contentType = "image/jpeg", // Assume JPEG for now, could make this more dynamic
@@ -70,11 +70,9 @@ class GithubImageStoreService {
                 uploadDate = Instant.now(), // Use current time as approximation
                 storageType = "GITHUB_PAGES",
                 tags = metadata.tags
-            )
-        }.sortedByDescending { result ->
-            // Prioritize results with more matching optional tags
-            optional.count { tag -> tag.lowercase() in result.tags.map { it.lowercase() } }
-        }
+            ))
+        }.sortedByDescending { (matchCount, _) -> matchCount }
+        .map { (_, response) -> response }
     }
 
     private fun updateImageIndexIfNeeded() {

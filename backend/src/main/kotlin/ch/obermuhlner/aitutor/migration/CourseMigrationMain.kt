@@ -136,7 +136,7 @@ class CourseMigrationApplication {
                     val courseName = courseSlug
                         .substringAfter("-")
                         .split("-")
-                        .joinToString(" ") { it.capitalize() }
+                        .joinToString(" ") { it.replaceFirstChar { c -> c.uppercaseChar() } }
 
                     val course = CourseTemplateEntity(
                         languageCode = languageCode,

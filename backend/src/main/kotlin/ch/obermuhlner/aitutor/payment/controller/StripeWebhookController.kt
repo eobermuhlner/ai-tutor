@@ -243,6 +243,7 @@ class StripeWebhookController(
             try {
                 val eventData = event.data
                 if (eventData != null) {
+                    @Suppress("DEPRECATION")
                     val dataObject = eventData.`object`
                     if (dataObject is Subscription) {
                         subscription = dataObject

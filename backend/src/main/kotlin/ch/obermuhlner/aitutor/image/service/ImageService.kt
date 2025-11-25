@@ -140,11 +140,12 @@ class ImageService(
         return normalized.replace(markRegex, "")
     }
 
+    @Suppress("UNUSED_PARAMETER")
     private fun getImage(metadata: ImageMetadataResponse): ImageData? {
         // With GitHub Pages, we can't fetch the raw image data, only URLs
         // We'll return a placeholder or handle this differently based on requirements
         // For now, we'll return null since we can't fetch the actual image data
-        
+
         // If we want to actually fetch image data, we'd need to download from the URL
         // But this would require additional network requests and caching
         // For now, we'll log that this method isn't fully supported with the GitHub approach

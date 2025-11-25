@@ -131,7 +131,7 @@ class CorrectionService(
         val content = response.result.output.text ?: ""
 
         logger.debug("Correction response received (${content.length} chars)")
-        return outputConverter.convert(content) ?: CorrectionResponse(emptyList())
+        return (outputConverter.convert(content) as CorrectionResponse?) ?: CorrectionResponse(emptyList())
     }
 
     private fun callWithSoftEnforcement(messages: List<org.springframework.ai.chat.messages.Message>, model: ChatModel): CorrectionResponse {
@@ -167,7 +167,7 @@ class CorrectionService(
         }
 
         return try {
-            outputConverter.convert(jsonContent) ?: CorrectionResponse(emptyList())
+            (outputConverter.convert(jsonContent) as CorrectionResponse?) ?: CorrectionResponse(emptyList())
         } catch (e: Exception) {
             logger.error("Failed to parse correction response", e)
             CorrectionResponse(emptyList())

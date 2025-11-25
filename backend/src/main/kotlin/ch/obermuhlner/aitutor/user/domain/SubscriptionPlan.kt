@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package ch.obermuhlner.aitutor.user.domain
 
 import io.github.bucket4j.Bandwidth

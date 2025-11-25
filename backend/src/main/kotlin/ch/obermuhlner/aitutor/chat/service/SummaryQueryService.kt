@@ -26,7 +26,7 @@ class SummaryQueryService(
      * Get summary statistics for a session.
      */
     fun getSessionSummaryInfo(sessionId: UUID): SessionSummaryInfoResponse {
-        val session = sessionRepository.findById(sessionId)
+        sessionRepository.findById(sessionId)
             .orElseThrow { IllegalArgumentException("Session not found: $sessionId") }
 
         val allSummaries = summaryRepository
@@ -108,7 +108,7 @@ class SummaryQueryService(
      * Trigger manual summarization for a session.
      */
     fun triggerManualSummarization(sessionId: UUID) {
-        val session = sessionRepository.findById(sessionId)
+        sessionRepository.findById(sessionId)
             .orElseThrow { IllegalArgumentException("Session not found: $sessionId") }
 
         progressiveSummarizationService.checkAndSummarize(sessionId)

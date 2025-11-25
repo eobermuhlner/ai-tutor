@@ -151,6 +151,7 @@ class MetadataEvaluationService(
      * Evaluates and updates the estimated CEFR level.
      * Uses a simple heuristic based on error patterns and conversation complexity.
      */
+    @Suppress("UNUSED_PARAMETER")
     private fun evaluateCEFRLevel(
         session: ChatSessionEntity,
         messages: List<ChatMessageEntity>,
@@ -184,6 +185,7 @@ class MetadataEvaluationService(
         // For topic evaluation, we need to extract the proposed topic from conversation content
         // This is a simplified version - in practice, might use LLM to extract topic
 
+        @Suppress("UNUSED_VARIABLE")
         val recentUserMessages = messages
             .filter { it.role == MessageRole.USER }
             .takeLast(5)

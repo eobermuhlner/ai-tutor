@@ -156,6 +156,7 @@ class MessageCompactionService(
     /**
      * Helper function to get message text content.
      */
+    @Suppress("USELESS_ELVIS")
     private fun getMessageText(message: Message): String {
         return when (message) {
             is SystemMessage -> message.text ?: ""

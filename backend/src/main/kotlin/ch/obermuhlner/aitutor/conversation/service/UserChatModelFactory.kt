@@ -161,8 +161,9 @@ class UserChatModelFactory(
      * Ollama doesn't require an API key (self-hosted).
      */
     private fun createOllamaModel(user: UserEntity): ChatModel {
-        val endpoint = user.endpoint
-            ?: throw IllegalStateException("Ollama endpoint not configured for user ${user.id}")
+        if (user.endpoint == null) {
+            throw IllegalStateException("Ollama endpoint not configured for user ${user.id}")
+        }
 
         return try {
             // For Spring AI 1.1.0: Use system default for Ollama as well

@@ -278,7 +278,6 @@ class SeedDataService(
     private fun migrateFileBasedLessons(courses: List<CourseTemplateEntity>) {
         logger.info("Migrating file-based lessons for ${courses.size} seeded courses...")
 
-        val objectMapper = com.fasterxml.jackson.databind.ObjectMapper()
         val yamlMapper = com.fasterxml.jackson.databind.ObjectMapper(com.fasterxml.jackson.dataformat.yaml.YAMLFactory()).registerKotlinModule()
 
         courses.forEach { course ->
