@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service
 @Profile("!test")  // Exclude from test profile
 class SingleJsonEntityAiChatService(
     val chatModel: ChatModel,
+    private val chatOptionsFactory: ChatOptionsFactory,
     @Value("\${ai-tutor.chat.strict-schema-enforcement:true}") private val strictSchemaEnforcement: Boolean
 ) : AiChatService {
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -57,42 +58,12 @@ class SingleJsonEntityAiChatService(
         val outputConverter = BeanOutputConverter(AiChatResponse::class.java)
         val jsonSchema = outputConverter.jsonSchema
 
-        // Detect provider and use appropriate strict enforcement
-        val chatOptions = when {
-            isOpenAiProvider(effectiveChatModel) -> {
-                logger.debug("Using OpenAI strict JSON schema enforcement")
-                OpenAiChatOptions.builder()
-                    .reasoningEffort("minimal")
-                    .temperature(1.0)
-                    .responseFormat(
-                        ResponseFormat.builder()
-                            .type(ResponseFormat.Type.JSON_SCHEMA)
-                            .jsonSchema(
-                                ResponseFormat.JsonSchema.builder()
-                                    .name("AiChatResponse")
-                                    .schema(jsonSchema)
-                                    .strict(true)
-                                    .build()
-                            )
-                            .build()
-                    )
-                    .build()
-            }
-            isOllamaProvider(effectiveChatModel) -> {
-                logger.debug("Using Ollama strict JSON schema enforcement")
-                // Convert JSON schema string to Map for Ollama format parameter
-                val objectMapper = ObjectMapper()
-                val schemaMap = objectMapper.readValue<Map<String, Any>>(jsonSchema)
+        // Use the factory to get provider-specific options
+        val chatOptions = chatOptionsFactory.createOptions(effectiveChatModel, jsonSchema)
 
-                OllamaChatOptions.builder()
-                    .format(schemaMap)  // Ollama-specific format parameter for JSON schema
-                    .temperature(0.0)   // Lower temperature for more deterministic JSON output
-                    .build()
-            }
-            else -> {
-                logger.warn("Unknown provider, falling back to soft enforcement")
-                return callWithSoftEnforcement(request, effectiveChatModel)
-            }
+        if (chatOptions == null) {
+            logger.warn("No supported provider found, falling back to soft enforcement")
+            return callWithSoftEnforcement(request, effectiveChatModel)
         }
 
         val prompt = Prompt(request.messages, chatOptions)
@@ -110,11 +81,4 @@ class SingleJsonEntityAiChatService(
             .entity(AiChatResponse::class.java)
     }
 
-    private fun isOpenAiProvider(model: ChatModel): Boolean {
-        return model.javaClass.name.contains("OpenAi", ignoreCase = true)
-    }
-
-    private fun isOllamaProvider(model: ChatModel): Boolean {
-        return model.javaClass.name.contains("Ollama", ignoreCase = true)
-    }
 }

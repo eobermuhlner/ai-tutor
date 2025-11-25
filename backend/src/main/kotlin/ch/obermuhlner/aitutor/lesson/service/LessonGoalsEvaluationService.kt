@@ -4,6 +4,7 @@ import ch.obermuhlner.aitutor.catalog.service.CatalogService
 import ch.obermuhlner.aitutor.chat.domain.ChatMessageEntity
 import ch.obermuhlner.aitutor.chat.domain.ChatSessionEntity
 import ch.obermuhlner.aitutor.chat.repository.ChatSessionRepository
+import ch.obermuhlner.aitutor.conversation.service.ChatOptionsFactory
 import ch.obermuhlner.aitutor.conversation.service.UserChatModelFactory
 import ch.obermuhlner.aitutor.language.service.LanguageService
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -45,6 +46,7 @@ class LessonGoalsEvaluationService(
     private val languageService: LanguageService,
     private val chatSessionRepository: ChatSessionRepository,
     private val objectMapper: ObjectMapper,
+    private val chatOptionsFactory: ChatOptionsFactory,
     @Value("\${ai-tutor.prompts.lesson-goals-evaluation}") private val lessonGoalsEvaluationPrompt: String
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -111,48 +113,18 @@ class LessonGoalsEvaluationService(
             // Get chat model for this user
             val chatModel = userChatModelFactory.getChatModelForUser(session.userId)
 
-            // Use structured output with strict schema enforcement based on provider
+            // Use structured output with the standardized factory
             val outputConverter = BeanOutputConverter(LessonGoalsEvaluationResponse::class.java)
             val jsonSchema = outputConverter.jsonSchema
 
-            val chatOptions = when {
-                chatModel.javaClass.name.contains("OpenAi", ignoreCase = true) -> {
-                    logger.debug("Using OpenAI strict JSON schema enforcement for lesson goals evaluation")
-                    OpenAiChatOptions.builder()
-                        .responseFormat(
-                            ResponseFormat.builder()
-                                .type(ResponseFormat.Type.JSON_SCHEMA)
-                                .jsonSchema(
-                                    ResponseFormat.JsonSchema.builder()
-                                        .name("LessonGoalsEvaluationResponse")
-                                        .schema(jsonSchema)
-                                        .strict(true)
-                                        .build()
-                                )
-                                .build()
-                        )
-                        .build()
-                }
-                chatModel.javaClass.name.contains("Ollama", ignoreCase = true) -> {
-                    logger.debug("Using Ollama strict JSON schema enforcement for lesson goals evaluation")
-                    // Convert JSON schema string to Map for Ollama format parameter
-                    val schemaMap = objectMapper.readValue<Map<String, Any>>(jsonSchema)
-
-                    OllamaChatOptions.builder()
-                        .format(schemaMap)  // Ollama-specific format parameter for JSON schema
-                        .temperature(0.0)   // Lower temperature for more deterministic JSON output
-                        .build()
-                }
-                else -> {
-                    logger.warn("Unknown provider for lesson goals evaluation, using soft enforcement")
-                    null
-                }
-            }
+            // Use the factory to get provider-specific options
+            val chatOptions = chatOptionsFactory.createOptions(chatModel, jsonSchema)
 
             // Create prompt with appropriate options
             val prompt = if (chatOptions != null) {
                 Prompt(listOf(UserMessage(renderedPrompt)), chatOptions)
             } else {
+                logger.warn("No supported provider found for lesson goals evaluation, using soft enforcement")
                 Prompt(listOf(UserMessage(renderedPrompt)))
             }
 

@@ -5,6 +5,7 @@ import ch.obermuhlner.aitutor.chat.domain.ChatMessageEntity
 import ch.obermuhlner.aitutor.chat.domain.ChatSessionEntity
 import ch.obermuhlner.aitutor.chat.domain.MessageRole
 import ch.obermuhlner.aitutor.chat.repository.ChatSessionRepository
+import ch.obermuhlner.aitutor.conversation.service.ChatOptionsFactory
 import ch.obermuhlner.aitutor.conversation.service.UserChatModelFactory
 import ch.obermuhlner.aitutor.core.model.CEFRLevel
 import ch.obermuhlner.aitutor.fixtures.TestDataFactory
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.ai.chat.model.ChatModel
+import org.springframework.ai.chat.prompt.Prompt
 import java.util.UUID
 
 class LessonGoalsEvaluationServiceTest {
@@ -30,6 +32,7 @@ class LessonGoalsEvaluationServiceTest {
     private lateinit var userChatModelFactory: UserChatModelFactory
     private lateinit var languageService: LanguageService
     private lateinit var chatSessionRepository: ChatSessionRepository
+    private lateinit var chatOptionsFactory: ChatOptionsFactory
     private lateinit var chatModel: ChatModel
     private lateinit var objectMapper: ObjectMapper
 
@@ -45,6 +48,8 @@ class LessonGoalsEvaluationServiceTest {
         chatModel = mockk()
         objectMapper = jacksonObjectMapper()
 
+        chatOptionsFactory = mockk()
+
         service = LessonGoalsEvaluationService(
             lessonContentService,
             catalogService,
@@ -52,6 +57,7 @@ class LessonGoalsEvaluationServiceTest {
             languageService,
             chatSessionRepository,
             objectMapper,
+            chatOptionsFactory,
             testPrompt
         )
     }
@@ -95,7 +101,10 @@ class LessonGoalsEvaluationServiceTest {
         every { languageService.getLanguageName("de-DE") } returns "German"
         every { languageService.getLanguageName("en") } returns "English"
         every { userChatModelFactory.getChatModelForUser(session.userId) } returns chatModel
-        every { chatModel.call(any<String>()) } returns """{"goalsCompleted": true, "reasoning": "Good progress"}"""
+        every { chatOptionsFactory.createOptions(any(), any()) } returns null  // Return null to force fallback to soft enforcement
+        every { chatModel.call(any<org.springframework.ai.chat.prompt.Prompt>()) } returns mockk {
+            every { result.output.text } returns """{"goalsCompleted": true, "reasoning": "Good progress"}"""
+        }
         every { chatSessionRepository.save(any()) } answers { firstArg() }
 
         service.evaluateLessonGoals(session, messages)
@@ -190,7 +199,8 @@ class LessonGoalsEvaluationServiceTest {
         every { languageService.getLanguageName("de-DE") } returns "German"
         every { languageService.getLanguageName("en") } returns "English"
         every { userChatModelFactory.getChatModelForUser(session.userId) } returns chatModel
-        every { chatModel.call(any() as String) } throws RuntimeException("LLM Error")
+        every { chatOptionsFactory.createOptions(any(), any()) } returns null  // Return null to force fallback to soft enforcement
+        every { chatModel.call(any<Prompt>()) } throws RuntimeException("LLM Error")
 
         // Should not throw exception
         service.evaluateLessonGoals(session, emptyList())
@@ -230,12 +240,15 @@ class LessonGoalsEvaluationServiceTest {
         every { lessonContentService.getLesson(any(), lessonId) } returns lessonContent
         every { languageService.getLanguageName(any()) } returns "English"
         every { userChatModelFactory.getChatModelForUser(session.userId) } returns chatModel
-        every { chatModel.call(any<String>()) } returns """{"goalsCompleted": false, "reasoning": "Test"}"""
+        every { chatOptionsFactory.createOptions(any(), any()) } returns null  // Return null to force fallback to soft enforcement
+        every { chatModel.call(any<Prompt>()) } returns mockk {
+            every { result.output.text } returns """{"goalsCompleted": false, "reasoning": "Test"}"""
+        }
         every { chatSessionRepository.save(any()) } answers { firstArg() }
 
         service.evaluateLessonGoals(session, emptyList())
 
-        verify { chatModel.call(match<String> { it.contains("Learn vocabulary") && it.contains("Practice speaking") && !it.contains("Next Section") }) }
+        verify { chatModel.call(match<Prompt> { it.instructions[0].text.contains("Learn vocabulary") && it.instructions[0].text.contains("Practice speaking") && !it.instructions[0].text.contains("Next Section") }) }
     }
 
     @Test
@@ -268,12 +281,15 @@ class LessonGoalsEvaluationServiceTest {
         every { lessonContentService.getLesson(any(), lessonId) } returns lessonContent
         every { languageService.getLanguageName(any()) } returns "English"
         every { userChatModelFactory.getChatModelForUser(session.userId) } returns chatModel
-        every { chatModel.call(any<String>()) } returns """{"goalsCompleted": false, "reasoning": "Test"}"""
+        every { chatOptionsFactory.createOptions(any(), any()) } returns null  // Return null to force fallback to soft enforcement
+        every { chatModel.call(any<Prompt>()) } returns mockk {
+            every { result.output.text } returns """{"goalsCompleted": false, "reasoning": "Test"}"""
+        }
         every { chatSessionRepository.save(any()) } answers { firstArg() }
 
         service.evaluateLessonGoals(session, emptyList())
 
-        verify { chatModel.call(match<String> { it.contains("Master pronunciation") && !it.contains("Activities") }) }
+        verify { chatModel.call(match<Prompt> { it.instructions[0].text.contains("Master pronunciation") && !it.instructions[0].text.contains("Activities") }) }
     }
 
     private fun createTestSession(): ChatSessionEntity {
