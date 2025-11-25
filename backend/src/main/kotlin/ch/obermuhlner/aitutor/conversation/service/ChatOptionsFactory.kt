@@ -1,8 +1,8 @@
 package ch.obermuhlner.aitutor.conversation.service
 
-import org.springframework.ai.chat.prompt.ChatOptions
-import org.springframework.ai.chat.model.ChatModel
 import org.slf4j.LoggerFactory
+import org.springframework.ai.chat.model.ChatModel
+import org.springframework.ai.chat.prompt.ChatOptions
 import org.springframework.stereotype.Service
 
 /**

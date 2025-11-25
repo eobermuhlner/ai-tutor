@@ -7,16 +7,13 @@ import ch.obermuhlner.aitutor.chat.repository.ChatSessionRepository
 import ch.obermuhlner.aitutor.conversation.service.ChatOptionsFactory
 import ch.obermuhlner.aitutor.conversation.service.UserChatModelFactory
 import ch.obermuhlner.aitutor.language.service.LanguageService
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.fasterxml.jackson.annotation.JsonProperty
 import org.slf4j.LoggerFactory
 import org.springframework.ai.chat.messages.UserMessage
 import org.springframework.ai.chat.prompt.Prompt
 import org.springframework.ai.converter.BeanOutputConverter
-import org.springframework.ai.ollama.api.OllamaChatOptions
-import org.springframework.ai.openai.OpenAiChatOptions
-import org.springframework.ai.openai.api.ResponseFormat
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service

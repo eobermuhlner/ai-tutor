@@ -2,10 +2,10 @@ package ch.obermuhlner.aitutor.conversation.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import org.springframework.ai.chat.prompt.ChatOptions
-import org.springframework.ai.chat.model.ChatModel
-import org.springframework.ai.ollama.api.OllamaChatOptions
 import org.slf4j.LoggerFactory
+import org.springframework.ai.chat.model.ChatModel
+import org.springframework.ai.chat.prompt.ChatOptions
+import org.springframework.ai.ollama.api.OllamaChatOptions
 
 /**
  * ChatOptionsProvider implementation for Ollama models with JSON schema format enforcement.

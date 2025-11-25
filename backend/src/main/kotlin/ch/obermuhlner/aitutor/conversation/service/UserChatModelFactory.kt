@@ -5,6 +5,7 @@ import ch.obermuhlner.aitutor.user.domain.LlmProvider
 import ch.obermuhlner.aitutor.user.domain.UserEntity
 import ch.obermuhlner.aitutor.user.repository.UserRepository
 import io.micrometer.observation.ObservationRegistry
+import java.util.UUID
 import org.slf4j.LoggerFactory
 import org.springframework.ai.anthropic.AnthropicChatModel
 import org.springframework.ai.anthropic.AnthropicChatOptions
@@ -12,7 +13,6 @@ import org.springframework.ai.anthropic.api.AnthropicApi
 import org.springframework.ai.azure.openai.AzureOpenAiChatModel
 import org.springframework.ai.azure.openai.AzureOpenAiChatOptions
 import org.springframework.ai.chat.model.ChatModel
-import org.springframework.ai.ollama.OllamaChatModel
 import org.springframework.ai.model.tool.ToolCallingManager
 import org.springframework.ai.openai.OpenAiChatModel
 import org.springframework.ai.openai.OpenAiChatOptions
@@ -20,7 +20,6 @@ import org.springframework.ai.openai.api.OpenAiApi
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.retry.support.RetryTemplate
 import org.springframework.stereotype.Service
-import java.util.UUID
 
 /**
  * Factory service for creating per-user ChatModel instances.

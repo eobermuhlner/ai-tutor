@@ -4,16 +4,15 @@ import ch.obermuhlner.aitutor.auth.exception.InsufficientPermissionsException
 import ch.obermuhlner.aitutor.auth.service.AuthorizationService
 import ch.obermuhlner.aitutor.catalog.domain.CourseTemplateEntity
 import ch.obermuhlner.aitutor.catalog.domain.CurriculumRuleEntity
-import ch.obermuhlner.aitutor.catalog.dto.*
+import ch.obermuhlner.aitutor.catalog.dto.CourseManagementResponse
+import ch.obermuhlner.aitutor.catalog.dto.CreateCourseRequest
+import ch.obermuhlner.aitutor.catalog.dto.UpdateCourseRequest
 import ch.obermuhlner.aitutor.catalog.repository.CourseTemplateRepository
 import ch.obermuhlner.aitutor.catalog.repository.CurriculumRuleRepository
-import ch.obermuhlner.aitutor.core.model.CEFRLevel
-import ch.obermuhlner.aitutor.core.model.catalog.CourseCategory
-import ch.obermuhlner.aitutor.tutor.domain.ConversationPhase
+import java.time.Instant
+import java.util.UUID
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import java.time.Instant
-import java.util.*
 
 @Service
 class CourseManagementService(

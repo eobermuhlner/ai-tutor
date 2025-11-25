@@ -4,10 +4,10 @@ import ch.obermuhlner.aitutor.catalog.config.CatalogProperties
 import ch.obermuhlner.aitutor.catalog.domain.LanguageEntity
 import ch.obermuhlner.aitutor.catalog.repository.LanguageRepository
 import jakarta.annotation.PostConstruct
+import java.time.Instant
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
-import java.time.Instant
 
 @Component
 @ConditionalOnProperty(name = ["ai-tutor.catalog.use-seeding"], havingValue = "true", matchIfMissing = true)

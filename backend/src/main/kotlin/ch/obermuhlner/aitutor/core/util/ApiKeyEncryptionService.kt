@@ -1,14 +1,14 @@
 package ch.obermuhlner.aitutor.core.util
 
-import org.springframework.beans.factory.annotation.Value
-import org.springframework.stereotype.Service
 import java.security.SecureRandom
-import java.util.*
+import java.util.Base64
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 import javax.crypto.spec.SecretKeySpec
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.stereotype.Service
 
 /**
  * Service for encrypting and decrypting API keys using AES-256-GCM.

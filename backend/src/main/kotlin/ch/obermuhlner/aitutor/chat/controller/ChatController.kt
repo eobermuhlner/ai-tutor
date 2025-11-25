@@ -15,10 +15,10 @@ import ch.obermuhlner.aitutor.chat.dto.UpdatePhaseRequest
 import ch.obermuhlner.aitutor.chat.dto.UpdateTopicRequest
 import ch.obermuhlner.aitutor.chat.dto.UpdateVocabularyReviewModeRequest
 import ch.obermuhlner.aitutor.chat.service.ChatService
+import ch.obermuhlner.aitutor.conversation.config.AudioProperties
 import ch.obermuhlner.aitutor.conversation.dto.SynthesizeRequest
 import ch.obermuhlner.aitutor.conversation.dto.VoiceListResponse
 import ch.obermuhlner.aitutor.conversation.service.AiAudioService
-import ch.obermuhlner.aitutor.conversation.config.AudioProperties
 import ch.obermuhlner.aitutor.core.model.catalog.TutorVoice
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag

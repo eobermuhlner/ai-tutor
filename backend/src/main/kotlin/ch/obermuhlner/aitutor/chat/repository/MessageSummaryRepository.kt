@@ -1,10 +1,10 @@
 package ch.obermuhlner.aitutor.chat.repository
 
 import ch.obermuhlner.aitutor.chat.domain.MessageSummaryEntity
+import java.util.UUID
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
-import java.util.UUID
 
 interface MessageSummaryRepository : JpaRepository<MessageSummaryEntity, UUID> {
     /**

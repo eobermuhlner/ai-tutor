@@ -1,10 +1,10 @@
 package ch.obermuhlner.aitutor.conversation.service
 
-import org.springframework.ai.chat.prompt.ChatOptions
+import org.slf4j.LoggerFactory
 import org.springframework.ai.chat.model.ChatModel
+import org.springframework.ai.chat.prompt.ChatOptions
 import org.springframework.ai.openai.OpenAiChatOptions
 import org.springframework.ai.openai.api.ResponseFormat
-import org.slf4j.LoggerFactory
 
 /**
  * ChatOptionsProvider implementation for OpenAI models with strict JSON schema enforcement.

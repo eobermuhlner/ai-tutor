@@ -1,7 +1,6 @@
 package ch.obermuhlner.aitutor.user.dto
 
 import ch.obermuhlner.aitutor.user.domain.LlmProvider
-import jakarta.validation.constraints.NotBlank
 
 /**
  * Response showing API key configuration status for the system's active provider.

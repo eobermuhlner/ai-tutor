@@ -1,7 +1,13 @@
 package ch.obermuhlner.aitutor.payment.exception
 
 import ch.obermuhlner.aitutor.auth.exception.ErrorResponse
-import com.stripe.exception.*
+import com.stripe.exception.ApiConnectionException
+import com.stripe.exception.ApiException
+import com.stripe.exception.AuthenticationException
+import com.stripe.exception.CardException
+import com.stripe.exception.InvalidRequestException
+import com.stripe.exception.RateLimitException
+import com.stripe.exception.StripeException
 import java.time.Instant
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus

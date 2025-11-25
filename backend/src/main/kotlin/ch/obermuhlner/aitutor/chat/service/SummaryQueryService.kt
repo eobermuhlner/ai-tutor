@@ -9,9 +9,9 @@ import ch.obermuhlner.aitutor.chat.repository.MessageSummaryRepository
 import ch.obermuhlner.aitutor.tutor.service.ProgressiveSummarizationService
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import org.springframework.stereotype.Service
 import java.time.Instant
 import java.util.UUID
+import org.springframework.stereotype.Service
 
 @Service
 class SummaryQueryService(

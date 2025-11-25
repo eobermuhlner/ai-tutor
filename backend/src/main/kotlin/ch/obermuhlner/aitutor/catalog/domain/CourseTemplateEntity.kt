@@ -1,6 +1,5 @@
 package ch.obermuhlner.aitutor.catalog.domain
 
-import ch.obermuhlner.aitutor.catalog.domain.SourceType
 import ch.obermuhlner.aitutor.core.model.CEFRLevel
 import ch.obermuhlner.aitutor.core.model.catalog.CourseCategory
 import ch.obermuhlner.aitutor.tutor.domain.ConversationPhase

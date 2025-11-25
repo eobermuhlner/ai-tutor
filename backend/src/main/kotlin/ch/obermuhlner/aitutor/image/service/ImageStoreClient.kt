@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service
 import org.springframework.web.client.RestClient
 import org.springframework.web.client.body
 import org.springframework.web.util.UriBuilder
-import org.springframework.web.util.UriComponentsBuilder.*
+import org.springframework.web.util.UriComponentsBuilder.fromPath
 
 @Service
 @EnableConfigurationProperties(ImageStoreProperties::class)

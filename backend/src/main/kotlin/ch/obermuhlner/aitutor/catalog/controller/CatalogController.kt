@@ -10,7 +10,6 @@ import ch.obermuhlner.aitutor.catalog.dto.UpdateTutorRequest
 import ch.obermuhlner.aitutor.catalog.service.CatalogService
 import ch.obermuhlner.aitutor.image.service.ImageService
 import ch.obermuhlner.aitutor.language.service.LocalizationService
-import org.springframework.web.bind.annotation.PutMapping
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import java.util.UUID
@@ -18,6 +17,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam

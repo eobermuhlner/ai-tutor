@@ -10,21 +10,16 @@ import ch.obermuhlner.aitutor.catalog.repository.CurriculumRuleRepository
 import ch.obermuhlner.aitutor.catalog.repository.LanguageRepository
 import ch.obermuhlner.aitutor.catalog.repository.LessonContentRepository
 import ch.obermuhlner.aitutor.catalog.repository.TutorProfileRepository
-import ch.obermuhlner.aitutor.catalog.service.FileImportService
-import ch.obermuhlner.aitutor.lesson.domain.CourseCurriculum
-import ch.obermuhlner.aitutor.lesson.domain.ProgressionMode
 import ch.obermuhlner.aitutor.tutor.domain.ConversationPhase
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import jakarta.annotation.PostConstruct
+import java.time.Instant
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
-import org.springframework.context.annotation.Profile
 import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
-import java.time.Instant
 
 @Component
 @ConditionalOnProperty(name = ["ai-tutor.catalog.use-seeding"], havingValue = "true", matchIfMissing = true)

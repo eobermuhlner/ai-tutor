@@ -3,15 +3,14 @@ package ch.obermuhlner.aitutor.payment.service
 import ch.obermuhlner.aitutor.payment.domain.StripeSubscriptionEntity
 import ch.obermuhlner.aitutor.payment.repository.StripeSubscriptionRepository
 import ch.obermuhlner.aitutor.user.domain.SubscriptionPlan
-import ch.obermuhlner.aitutor.user.domain.UserEntity
 import ch.obermuhlner.aitutor.user.repository.UserRepository
 import ch.obermuhlner.aitutor.user.service.RateLimitingService
 import com.stripe.model.Subscription
+import java.time.Instant
+import java.util.UUID
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.Instant
-import java.util.UUID
 
 @Service
 class SubscriptionService(

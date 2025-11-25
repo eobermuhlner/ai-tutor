@@ -1,18 +1,25 @@
 package ch.obermuhlner.aitutor.catalog.service
 
-import ch.obermuhlner.aitutor.catalog.domain.*
-import ch.obermuhlner.aitutor.lesson.domain.CourseCurriculum
-import ch.obermuhlner.aitutor.lesson.domain.LessonMetadata
+import ch.obermuhlner.aitutor.catalog.domain.CourseImport
+import ch.obermuhlner.aitutor.catalog.domain.CourseTemplateEntity
+import ch.obermuhlner.aitutor.catalog.domain.CurriculumImport
+import ch.obermuhlner.aitutor.catalog.domain.LanguageEntity
+import ch.obermuhlner.aitutor.catalog.domain.LanguageImport
+import ch.obermuhlner.aitutor.catalog.domain.LessonContentEntity
+import ch.obermuhlner.aitutor.catalog.domain.SourceType
+import ch.obermuhlner.aitutor.catalog.domain.TutorArchetypeImport
+import ch.obermuhlner.aitutor.catalog.domain.TutorImport
+import ch.obermuhlner.aitutor.catalog.domain.TutorProfileEntity
+import ch.obermuhlner.aitutor.catalog.domain.UnifiedCatalogImport
 import ch.obermuhlner.aitutor.tutor.domain.ConversationPhase
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
-import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import java.time.Instant
+import java.util.UUID
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
-import java.time.Instant
-import java.util.UUID
 
 /**
  * Service for importing catalog data from unified YAML format.

@@ -20,8 +20,6 @@ import ch.obermuhlner.aitutor.image.service.ImageService
 import ch.obermuhlner.aitutor.tutor.domain.ConversationPhase
 import ch.obermuhlner.aitutor.tutor.domain.ConversationState
 import ch.obermuhlner.aitutor.tutor.domain.Tutor
-import ch.obermuhlner.aitutor.tutor.service.PhaseDecision
-import ch.obermuhlner.aitutor.tutor.service.TopicDecision
 import ch.obermuhlner.aitutor.tutor.service.TutorService
 import ch.obermuhlner.aitutor.vocabulary.dto.NewVocabularyDTO
 import ch.obermuhlner.aitutor.vocabulary.service.VocabularyService

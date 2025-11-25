@@ -1,9 +1,9 @@
 package ch.obermuhlner.aitutor.auth.dto
 
+import ch.obermuhlner.aitutor.user.domain.AuthProvider
+import ch.obermuhlner.aitutor.user.domain.PronunciationPreference
 import ch.obermuhlner.aitutor.user.domain.SubscriptionPlan
 import ch.obermuhlner.aitutor.user.domain.UserRole
-import ch.obermuhlner.aitutor.user.domain.PronunciationPreference
-import ch.obermuhlner.aitutor.user.domain.AuthProvider
 import java.time.Instant
 import java.util.UUID
 

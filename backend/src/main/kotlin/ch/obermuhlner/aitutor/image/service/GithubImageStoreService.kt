@@ -2,14 +2,14 @@ package ch.obermuhlner.aitutor.image.service
 
 import ch.obermuhlner.aitutor.image.dto.GithubImageMetadata
 import ch.obermuhlner.aitutor.image.dto.ImageMetadataResponse
-import kotlinx.serialization.json.Json
-import org.slf4j.LoggerFactory
-import org.springframework.stereotype.Service
-import org.springframework.web.client.RestClient
 import java.time.Instant
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.read
 import kotlin.concurrent.write
+import kotlinx.serialization.json.Json
+import org.slf4j.LoggerFactory
+import org.springframework.stereotype.Service
+import org.springframework.web.client.RestClient
 
 @Service
 class GithubImageStoreService {

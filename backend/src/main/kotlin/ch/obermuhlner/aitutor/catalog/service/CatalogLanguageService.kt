@@ -3,8 +3,8 @@ package ch.obermuhlner.aitutor.catalog.service
 import ch.obermuhlner.aitutor.catalog.domain.LanguageEntity
 import ch.obermuhlner.aitutor.catalog.repository.LanguageRepository
 import ch.obermuhlner.aitutor.core.model.catalog.LanguageMetadata
-import org.springframework.stereotype.Service
 import java.time.Instant
+import org.springframework.stereotype.Service
 
 @Service
 class CatalogLanguageService(

@@ -9,10 +9,10 @@ import ch.obermuhlner.aitutor.core.model.ErrorSeverity
 import ch.obermuhlner.aitutor.core.model.ErrorType
 import java.time.Instant
 import java.util.UUID
+import org.slf4j.LoggerFactory
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import org.slf4j.LoggerFactory
 
 @Service
 class ErrorAnalyticsService(

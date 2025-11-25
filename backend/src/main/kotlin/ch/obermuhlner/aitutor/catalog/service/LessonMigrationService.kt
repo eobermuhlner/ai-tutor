@@ -3,15 +3,15 @@ package ch.obermuhlner.aitutor.catalog.service
 import ch.obermuhlner.aitutor.catalog.domain.LessonContentEntity
 import ch.obermuhlner.aitutor.catalog.repository.CourseTemplateRepository
 import ch.obermuhlner.aitutor.catalog.repository.LessonContentRepository
+import java.nio.charset.StandardCharsets
+import java.time.Instant
+import java.util.UUID
 import org.slf4j.LoggerFactory
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.event.EventListener
 import org.springframework.core.io.Resource
 import org.springframework.core.io.ResourceLoader
 import org.springframework.stereotype.Service
-import java.nio.charset.StandardCharsets
-import java.time.Instant
-import java.util.*
 
 @Service
 class LessonMigrationService(

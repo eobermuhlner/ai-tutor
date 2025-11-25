@@ -2,12 +2,12 @@ package ch.obermuhlner.aitutor.payment.service
 
 import ch.obermuhlner.aitutor.user.domain.UserEntity
 import com.stripe.model.Subscription
-import com.stripe.model.checkout.Session
 import com.stripe.model.billingportal.Session as PortalSession
+import com.stripe.model.checkout.Session
+import java.util.UUID
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
-import java.util.UUID
 
 /**
  * No-op implementation of StripeService used when Stripe integration is disabled.

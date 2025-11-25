@@ -6,7 +6,6 @@ import ch.obermuhlner.aitutor.vocabulary.dto.VocabularyItemResponse
 import ch.obermuhlner.aitutor.vocabulary.dto.VocabularyItemWithContextsResponse
 import ch.obermuhlner.aitutor.vocabulary.dto.toResponse
 import ch.obermuhlner.aitutor.vocabulary.service.VocabularyQueryService
-import ch.obermuhlner.aitutor.image.service.ImageService
 import ch.obermuhlner.aitutor.vocabulary.service.VocabularyReviewService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag

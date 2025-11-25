@@ -7,6 +7,7 @@ import ch.obermuhlner.aitutor.chat.domain.SummarySourceType
 import ch.obermuhlner.aitutor.chat.repository.ChatMessageRepository
 import ch.obermuhlner.aitutor.chat.repository.MessageSummaryRepository
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import java.util.UUID
 import org.slf4j.LoggerFactory
 import org.springframework.ai.chat.messages.AssistantMessage
 import org.springframework.ai.chat.messages.Message
@@ -19,7 +20,6 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.util.UUID
 
 @Service
 class ProgressiveSummarizationService(

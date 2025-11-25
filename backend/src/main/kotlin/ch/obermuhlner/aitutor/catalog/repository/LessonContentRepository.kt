@@ -1,9 +1,9 @@
 package ch.obermuhlner.aitutor.catalog.repository
 
 import ch.obermuhlner.aitutor.catalog.domain.LessonContentEntity
+import java.util.UUID
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
-import java.util.UUID
 
 @Repository
 interface LessonContentRepository : JpaRepository<LessonContentEntity, UUID> {

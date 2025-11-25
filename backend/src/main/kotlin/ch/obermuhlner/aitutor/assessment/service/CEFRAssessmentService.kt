@@ -6,11 +6,11 @@ import ch.obermuhlner.aitutor.chat.domain.MessageRole
 import ch.obermuhlner.aitutor.chat.repository.ChatMessageRepository
 import ch.obermuhlner.aitutor.core.model.CEFRLevel
 import ch.obermuhlner.aitutor.vocabulary.service.VocabularyQueryService
-import org.slf4j.LoggerFactory
-import org.springframework.stereotype.Service
 import java.time.Instant
 import java.util.UUID
 import kotlin.math.roundToInt
+import org.slf4j.LoggerFactory
+import org.springframework.stereotype.Service
 
 @Service
 class CEFRAssessmentService(

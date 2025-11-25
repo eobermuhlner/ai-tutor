@@ -2,8 +2,8 @@ package ch.obermuhlner.aitutor.payment.service
 
 import ch.obermuhlner.aitutor.user.domain.UserEntity
 import com.stripe.model.Subscription
-import com.stripe.model.checkout.Session
 import com.stripe.model.billingportal.Session as PortalSession
+import com.stripe.model.checkout.Session
 import java.util.UUID
 
 /**

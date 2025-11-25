@@ -5,17 +5,16 @@ import ch.obermuhlner.aitutor.user.domain.UserEntity
 import ch.obermuhlner.aitutor.user.repository.UserRepository
 import com.stripe.model.Customer
 import com.stripe.model.Subscription
-import com.stripe.model.checkout.Session
 import com.stripe.model.billingportal.Session as PortalSession
+import com.stripe.model.checkout.Session
 import com.stripe.param.CustomerCreateParams
-import com.stripe.param.checkout.SessionCreateParams
 import com.stripe.param.billingportal.SessionCreateParams as PortalSessionCreateParams
-import com.stripe.param.SubscriptionCancelParams
+import com.stripe.param.checkout.SessionCreateParams
+import java.util.UUID
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.util.UUID
 
 @Service
 @ConditionalOnProperty(name = ["stripe.enabled"], havingValue = "true")

@@ -1,7 +1,7 @@
 package ch.obermuhlner.aitutor.conversation.service
 
-import org.springframework.ai.chat.prompt.ChatOptions
 import org.springframework.ai.chat.model.ChatModel
+import org.springframework.ai.chat.prompt.ChatOptions
 
 /**
  * Interface for generating provider-specific ChatOptions with JSON schema support.

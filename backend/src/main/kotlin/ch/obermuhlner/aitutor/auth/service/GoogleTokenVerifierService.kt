@@ -6,9 +6,9 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier
 import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.gson.GsonFactory
+import java.util.Collections
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import java.util.Collections
 
 /**
  * Data class representing verified Google user information.

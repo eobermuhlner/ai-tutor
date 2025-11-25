@@ -1,6 +1,5 @@
 package ch.obermuhlner.aitutor.catalog.domain
 
-import ch.obermuhlner.aitutor.catalog.domain.SourceType
 import ch.obermuhlner.aitutor.core.model.catalog.TutorGender
 import ch.obermuhlner.aitutor.core.model.catalog.TutorPersonality
 import ch.obermuhlner.aitutor.core.model.catalog.TutorVoice

@@ -8,12 +8,11 @@ import io.github.bucket4j.Bandwidth
 import io.github.bucket4j.Bucket
 import io.github.bucket4j.ConsumptionProbe
 import io.github.bucket4j.Refill
-import org.slf4j.LoggerFactory
-import org.springframework.stereotype.Service
 import java.time.Duration
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.math.min
+import org.slf4j.LoggerFactory
+import org.springframework.stereotype.Service
 
 /**
  * Service for rate limiting AI LLM calls using bucket4j token bucket algorithm.

@@ -1,5 +1,6 @@
 package ch.obermuhlner.aitutor
 
+import ch.obermuhlner.aitutor.config.OpenApiConfig
 import io.swagger.v3.oas.annotations.OpenAPIDefinition
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType
 import io.swagger.v3.oas.annotations.info.Contact
@@ -10,7 +11,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Import
-import ch.obermuhlner.aitutor.config.OpenApiConfig
 
 @OpenAPIDefinition(
     info = Info(
