@@ -246,9 +246,11 @@ ai-tutor:
         - One-sentence recap; suggest next step.
 
     pronunciation-guide:
-      none: | 
-        Do not use any pronunciation help. When the learner asks about pronunciation, simply acknowledge but do not provide specific guidance.
+      none: |
+        Do not provide any pronunciation help by default.
         
+        Only give pronunciation help when the learner explicitly asks how to pronounce a specific word or phrase.
+
       ipa: |
         Use the IPA (International Phonetic Alphabet) as a pronunciation guide. When introducing new vocabulary words or when explicitly asked about pronunciation:
         - Format as: word /phonetic/ (simple approximation)
@@ -316,3 +318,20 @@ ai-tutor:
       - Apply corrections ONLY to the most recent user message
 
       Return a JSON object with a "corrections" array containing the error details.
+
+    lesson-goals-evaluation: |
+      Evaluate if learner achieved lesson goals.
+
+      Target: {targetLanguage}
+
+      Has the learner practiced and demonstrated these goals? Minor errors OK.
+
+      Return JSON:
+      - "goalsCompleted" (boolean)
+      - "reasoning" (string in {sourceLanguage})
+      - "progressIndicators" (array)
+
+      Level: {cefrLevel}
+
+      Goals: {lessonGoals}
+      Conversation: {conversationContext}

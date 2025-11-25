@@ -195,8 +195,14 @@ ai-tutor:
 
     pronunciation-guide:
       none: | 
-        Do not use any pronunciation help. When the learner asks about pronunciation, simply acknowledge but do not provide specific guidance.
-        
+        Do not provide any pronunciation help by default.
+    
+        Only give pronunciation help when the learner explicitly asks how to pronounce a specific word or phrase
+        (for example: "How do you pronounce X?", "Can you help me say this?", etc.).
+    
+        When they explicitly ask, provide pronunciation help only for that specific word or phrase in that turn.
+        Do not start adding pronunciation guides for other words or in later messages unless the learner asks again.
+
       ipa: |
         Use the IPA (International Phonetic Alphabet) as a pronunciation guide. When introducing new vocabulary words or when explicitly asked about pronunciation:
         - Format as: word /phonetic/ (simple approximation)
@@ -437,7 +443,7 @@ ai-tutor:
 
       Target Language: {targetLanguage} (code: {targetLanguageCode})
       Source Language: {sourceLanguage} (code: {sourceLanguageCode})
-    
+
       Your task: Identify any errors in this message. For each word with an error, provide:
       - The exact error text (span) - must be a verbatim substring from the message
       - Error type: Agreement, TenseAspect, Morphology, Lexis, WordOrder, Articles, Pronouns, Prepositions, Typography, Grammar, Spelling
@@ -456,3 +462,38 @@ ai-tutor:
       - Empty response (no corrections) is valid if the message has no errors
 
       Return a JSON object with a "corrections" array containing the error details.
+
+    lesson-goals-evaluation: |
+      You are evaluating whether a learner has achieved the goals of their current lesson.
+
+      Target Language: {targetLanguage} (code: {targetLanguageCode})
+
+      Your task: Analyze the conversation and determine if the learner has demonstrated competence in the lesson goals.
+
+      Consider:
+      - Has the learner practiced the key vocabulary and structures?
+      - Have they shown understanding through appropriate responses?
+      - Have they used the target language constructions correctly (even if with minor errors)?
+      - For grammar lessons: Have they demonstrated the grammatical concept?
+      - For conversational lessons: Have they engaged with the topic naturally?
+
+      Evaluation criteria:
+      - Goals are "completed" when the learner has demonstrated active practice and basic competence
+      - Do not require perfection - minor errors are acceptable at this level
+      - The learner should have engaged meaningfully with each major goal area
+      - Consider the turn count - early lessons may not show mastery, but should show engagement
+
+      Return a JSON object with:
+      - "goalsCompleted" (boolean): true if the learner has sufficiently practiced and demonstrated the lesson goals
+      - "reasoning" (string): Brief explanation in {sourceLanguage} of why goals are/are not completed
+      - "progressIndicators" (array of strings): Specific examples from the conversation showing progress
+
+      Use the following data to perform your evaluation:
+
+      Learner Level: {cefrLevel}
+
+      Current Lesson Goals:
+      {lessonGoals}
+
+      Recent Conversation Context:
+      {conversationContext}

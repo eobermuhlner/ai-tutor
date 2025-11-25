@@ -22,7 +22,7 @@ class MetadataEvaluationConfig {
     var cefrLevelInterval: Int = 10      // Evaluate CEFR level every N turns
     var topicInterval: Int = 5           // Evaluate topic every N turns
     var phaseInterval: Int = 5           // Evaluate phase every N turns
-    var lessonCheckInterval: Int = 3     // Check lesson progression every N turns
+    var lessonCheckInterval: Int = 3     // Check lesson progression every N turns (also evaluates goals)
 }
 
 /**
@@ -47,6 +47,7 @@ class MetadataEvaluationService(
     private val phaseDecisionService: PhaseDecisionService,
     private val topicDecisionService: TopicDecisionService,
     private val lessonProgressionService: LessonProgressionService,
+    private val lessonGoalsEvaluationService: ch.obermuhlner.aitutor.lesson.service.LessonGoalsEvaluationService,
     private val chatSessionRepository: ChatSessionRepository,
     private val chatMessageRepository: ChatMessageRepository,
     private val objectMapper: ObjectMapper
@@ -91,8 +92,9 @@ class MetadataEvaluationService(
 
         // Check lesson progression if interval reached and session is course-based
         if (session.courseTemplateId != null && shouldCheckLessonProgression(turnCount)) {
-            // LessonProgressionService handles its own persistence
+            lessonGoalsEvaluationService.evaluateLessonGoals(session, messages)
             lessonProgressionService.checkAndProgressLesson(sessionId)
+
         }
 
         // Save session if any metadata was updated

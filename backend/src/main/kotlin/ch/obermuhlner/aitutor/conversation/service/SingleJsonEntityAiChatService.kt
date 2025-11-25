@@ -2,11 +2,14 @@ package ch.obermuhlner.aitutor.conversation.service
 
 import ch.obermuhlner.aitutor.conversation.dto.AiChatRequest
 import ch.obermuhlner.aitutor.conversation.dto.AiChatResponse
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import org.slf4j.LoggerFactory
 import org.springframework.ai.chat.client.ChatClient
 import org.springframework.ai.chat.model.ChatModel
 import org.springframework.ai.chat.prompt.Prompt
 import org.springframework.ai.converter.BeanOutputConverter
+import org.springframework.ai.ollama.api.OllamaChatOptions
 import org.springframework.ai.openai.OpenAiChatOptions
 import org.springframework.ai.openai.api.ResponseFormat
 import org.springframework.beans.factory.annotation.Value
@@ -19,6 +22,7 @@ import org.springframework.stereotype.Service
 @Profile("!test")  // Exclude from test profile
 class SingleJsonEntityAiChatService(
     val chatModel: ChatModel,
+    private val chatOptionsFactory: ChatOptionsFactory,
     @Value("\${ai-tutor.chat.strict-schema-enforcement:true}") private val strictSchemaEnforcement: Boolean
 ) : AiChatService {
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -54,31 +58,12 @@ class SingleJsonEntityAiChatService(
         val outputConverter = BeanOutputConverter(AiChatResponse::class.java)
         val jsonSchema = outputConverter.jsonSchema
 
-        // Detect provider and use appropriate strict enforcement
-        val chatOptions = when {
-            isOpenAiProvider(effectiveChatModel) -> {
-                logger.debug("Using OpenAI strict JSON schema enforcement")
-                OpenAiChatOptions.builder()
-                    .reasoningEffort("minimal")
-                    .temperature(1.0)
-                    .responseFormat(
-                        ResponseFormat.builder()
-                            .type(ResponseFormat.Type.JSON_SCHEMA)
-                            .jsonSchema(
-                                ResponseFormat.JsonSchema.builder()
-                                    .name("AiChatResponse")
-                                    .schema(jsonSchema)
-                                    .strict(true)
-                                    .build()
-                            )
-                            .build()
-                    )
-                    .build()
-            }
-            else -> {
-                logger.warn("Unknown provider, falling back to soft enforcement")
-                return callWithSoftEnforcement(request, effectiveChatModel)
-            }
+        // Use the factory to get provider-specific options
+        val chatOptions = chatOptionsFactory.createOptions(effectiveChatModel, jsonSchema)
+
+        if (chatOptions == null) {
+            logger.warn("No supported provider found, falling back to soft enforcement")
+            return callWithSoftEnforcement(request, effectiveChatModel)
         }
 
         val prompt = Prompt(request.messages, chatOptions)
@@ -96,11 +81,4 @@ class SingleJsonEntityAiChatService(
             .entity(AiChatResponse::class.java)
     }
 
-    private fun isOpenAiProvider(model: ChatModel): Boolean {
-        return model.javaClass.name.contains("OpenAi", ignoreCase = true)
-    }
-
-    private fun isOllamaProvider(model: ChatModel): Boolean {
-        return model.javaClass.name.contains("Ollama", ignoreCase = true)
-    }
 }

@@ -3,6 +3,8 @@ package ch.obermuhlner.aitutor.conversation.service
 import ch.obermuhlner.aitutor.conversation.dto.AiChatRequest
 import ch.obermuhlner.aitutor.conversation.dto.AiChatResponse
 import ch.obermuhlner.aitutor.core.util.LlmJson
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import org.slf4j.LoggerFactory
 import org.springframework.ai.chat.messages.Message
 import org.springframework.ai.chat.messages.SystemMessage
@@ -10,6 +12,7 @@ import org.springframework.ai.chat.model.ChatModel
 import org.springframework.ai.chat.prompt.Prompt
 import org.springframework.ai.chat.prompt.PromptTemplate
 import org.springframework.ai.converter.BeanOutputConverter
+import org.springframework.ai.ollama.api.OllamaChatOptions
 import org.springframework.ai.openai.OpenAiChatOptions
 import org.springframework.ai.openai.api.ResponseFormat
 import org.springframework.ai.util.json.schema.JsonSchemaGenerator
@@ -21,6 +24,7 @@ import org.springframework.stereotype.Service
 @Profile("!test")  // Exclude from test profile
 class StreamReplyThenJsonEntityAiChatService(
     val chatModel: ChatModel,
+    private val chatOptionsFactory: ChatOptionsFactory,
     @Value("\${ai-tutor.prompts.json-response-format}") private val jsonResponseFormatPrompt: String,
     @Value("\${ai-tutor.chat.strict-schema-enforcement:true}") private val strictSchemaEnforcement: Boolean
 ) : AiChatService {
@@ -36,7 +40,7 @@ class StreamReplyThenJsonEntityAiChatService(
 
         logger.debug("AI chat request with ${request.messages.size} messages")
 
-        if (strictSchemaEnforcement && (isOpenAiProvider(effectiveChatModel) || isOllamaProvider(effectiveChatModel))) {
+        if (strictSchemaEnforcement && chatOptionsFactory.isSupported(effectiveChatModel)) {
             return callWithStrictEnforcement(request, onReplyText, effectiveChatModel)
         } else {
             return callWithSoftEnforcement(request, onReplyText, effectiveChatModel)
@@ -51,29 +55,12 @@ class StreamReplyThenJsonEntityAiChatService(
         val outputConverter = BeanOutputConverter(AiChatResponse::class.java)
         val jsonSchema = outputConverter.jsonSchema
 
-        // Detect provider and use appropriate strict enforcement
-        val chatOptions = when {
-            isOpenAiProvider(effectiveChatModel) -> {
-                logger.debug("Using OpenAI strict JSON schema enforcement for streaming")
-                OpenAiChatOptions.builder()
-                    .responseFormat(
-                        ResponseFormat.builder()
-                            .type(ResponseFormat.Type.JSON_SCHEMA)
-                            .jsonSchema(
-                                ResponseFormat.JsonSchema.builder()
-                                    .name("AiChatResponse")
-                                    .schema(jsonSchema)
-                                    .strict(true)
-                                    .build()
-                            )
-                            .build()
-                    )
-                    .build()
-            }
-            else -> {
-                logger.warn("Unknown provider, falling back to soft enforcement")
-                return callWithSoftEnforcement(request, onReplyText, effectiveChatModel)
-            }
+        // Use the factory to get provider-specific options
+        val chatOptions = chatOptionsFactory.createOptions(effectiveChatModel, jsonSchema)
+
+        if (chatOptions == null) {
+            logger.warn("No supported provider found, falling back to soft enforcement")
+            return callWithSoftEnforcement(request, onReplyText, effectiveChatModel)
         }
 
         logger.debug("Request: ${request.messages.size} messages")
@@ -212,11 +199,4 @@ class StreamReplyThenJsonEntityAiChatService(
         return parsed
     }
 
-    private fun isOpenAiProvider(model: ChatModel): Boolean {
-        return model.javaClass.name.contains("OpenAi", ignoreCase = true)
-    }
-
-    private fun isOllamaProvider(model: ChatModel): Boolean {
-        return model.javaClass.name.contains("Ollama", ignoreCase = true)
-    }
 }

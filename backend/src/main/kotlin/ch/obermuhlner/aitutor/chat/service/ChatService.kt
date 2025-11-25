@@ -353,6 +353,9 @@ class ChatService(
         )
         chatMessageRepository.save(userMessage)
 
+        // Increment lesson turn count for user messages
+        incrementLessonTurnCount(session)
+
         // Build message history
         val messageHistory = buildMessageHistory(sessionId)
 
@@ -967,5 +970,66 @@ class ChatService(
             errorMessage = errorMessage,
             createdAt = entity.createdAt ?: java.time.Instant.now()
         )
+    }
+
+    /**
+     * Increments the turn count in the lesson progress JSON.
+     * This tracks how many user turns have occurred in the current lesson.
+     * Uses optimistic locking with retry logic to handle concurrent updates.
+     */
+    private fun incrementLessonTurnCount(session: ChatSessionEntity) {
+        if (session.currentLessonId == null) {
+            // No active lesson, nothing to increment
+            return
+        }
+
+        val maxRetries = 3
+        var attempt = 0
+
+        while (attempt < maxRetries) {
+            try {
+                // Fetch fresh session to get latest version
+                val freshSession = if (attempt > 0) {
+                    chatSessionRepository.findById(session.id).orElse(null) ?: run {
+                        logger.warn("Session ${session.id} not found during retry $attempt")
+                        return
+                    }
+                } else {
+                    session
+                }
+
+                freshSession.lessonProgressTurnCount = freshSession.lessonProgressTurnCount + 1
+                chatSessionRepository.save(freshSession)
+
+                logger.debug("Incremented lesson turn count for session ${freshSession.id}, lesson ${freshSession.currentLessonId}: ${freshSession.lessonProgressTurnCount}")
+                return // Success!
+
+            } catch (e: jakarta.persistence.OptimisticLockException) {
+                attempt++
+                if (attempt < maxRetries) {
+                    val backoffMs = (50L * (1 shl attempt)) // Exponential backoff: 100ms, 200ms
+                    logger.debug("Optimistic lock conflict on session ${session.id}, retrying in ${backoffMs}ms (attempt $attempt/$maxRetries)")
+                    Thread.sleep(backoffMs)
+                } else {
+                    logger.error("Failed to increment lesson turn count after $maxRetries attempts due to optimistic locking", e)
+                }
+            } catch (e: Exception) {
+                logger.error("Failed to increment lesson turn count for session ${session.id}", e)
+                // For parsing errors, try to reset with valid JSON (only on first attempt)
+                if (attempt == 0 && e !is jakarta.persistence.OptimisticLockException) {
+                    try {
+                        val freshSession = chatSessionRepository.findById(session.id).orElse(null)
+                        if (freshSession != null) {
+                            freshSession.lessonProgressTurnCount = 1
+                            freshSession.lessonProgressGoalsCompleted = false
+                            chatSessionRepository.save(freshSession)
+                        }
+                    } catch (resetException: Exception) {
+                        logger.error("Failed to reset progress JSON for session ${session.id}", resetException)
+                    }
+                }
+                return // Don't retry for non-locking exceptions
+            }
+        }
     }
 }

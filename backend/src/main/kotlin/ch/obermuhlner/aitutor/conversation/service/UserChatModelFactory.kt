@@ -95,8 +95,14 @@ class UserChatModelFactory(
                 .apiKey(apiKey)
                 .build()
 
+            // GPT-5 models (gpt-5*, o1*, o3*) only support temperature=1.0
+            val isGpt5 = defaultOpenAiModel.lowercase().startsWith("gpt-5") ||
+                         defaultOpenAiModel.lowercase().startsWith("o1") ||
+                         defaultOpenAiModel.lowercase().startsWith("o3")
+
             val openAiChatOptions = OpenAiChatOptions.builder()
                 .model(defaultOpenAiModel)
+                .apply { if (isGpt5) temperature(1.0) }
                 .build()
 
             OpenAiChatModel(openAiApi, openAiChatOptions, null, retryTemplate, observationRegistry)

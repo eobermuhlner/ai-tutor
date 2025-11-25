@@ -16,6 +16,7 @@ import ch.obermuhlner.aitutor.tutor.service.TutorService
 import ch.obermuhlner.aitutor.vocabulary.service.VocabularyService
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
@@ -1601,5 +1602,112 @@ class ChatServiceTest {
         assertNotNull(result)
         verify { vocabularyReviewService.getDueCount(TestDataFactory.TEST_USER_ID, session.targetLanguageCode) }
         verify { tutorService.respond(any(), match { it.vocabularyReviewMode && it.dueVocabularyCount == 10L }, any(), any(), any(), any(), any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun `should increment lesson turn count when lesson is active`() {
+        val session = TestDataFactory.createSessionEntity()
+        session.currentLessonId = "lesson-01"
+        session.lessonProgressTurnCount = 5
+        session.lessonProgressGoalsCompleted = false
+
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+        every { chatSessionRepository.save(any<ChatSessionEntity>()) } answers { firstArg() }
+
+        // Trigger incrementLessonTurnCount by sending a message
+        val userMessage = TestDataFactory.createMessageEntity(session)
+        val assistantMessage = TestDataFactory.createMessageEntity(session, MessageRole.ASSISTANT, "Reply")
+        val tutorResponse = TutorService.TutorResponse(
+            reply = "Reply",
+            conversationResponse = ConversationResponse(
+                newVocabulary = emptyList(),
+                wordCards = emptyList(),
+                characterCards = emptyList()
+            )
+        )
+
+        every { chatMessageRepository.save(any<ChatMessageEntity>()) } returns userMessage andThen assistantMessage
+        every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(any()) } returns emptyList()
+        every { topicDecisionService.decideTopic(any(), any(), any(), any()) } returns TopicDecision(null, 0, "Free", emptyList())
+        every { tutorService.respond(any(), any(), any(), any(), any(), any(), any(), any(), any(), any()) } returns tutorResponse
+        every { chatMessageRepository.countBySessionId(any()) } returns 0L
+        every { phaseDecisionService.decidePhase(any(), any()) } returns PhaseDecision(ConversationPhase.Correction, "Default", 0.0)
+
+        chatService.sendMessage(TestDataFactory.TEST_SESSION_ID, "Test", TestDataFactory.TEST_USER_ID)
+
+        // Verify turn count was incremented
+        verify { chatSessionRepository.save(match { session ->
+            session.lessonProgressTurnCount == 6
+        }) }
+    }
+
+    @Test
+    fun `should skip incrementing turn count when no active lesson`() {
+        val session = TestDataFactory.createSessionEntity()
+        session.currentLessonId = null  // No active lesson
+        session.lessonProgressTurnCount = 0
+        session.lessonProgressGoalsCompleted = false
+
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+        every { chatSessionRepository.save(any<ChatSessionEntity>()) } answers { firstArg() }
+
+        val userMessage = TestDataFactory.createMessageEntity(session)
+        val assistantMessage = TestDataFactory.createMessageEntity(session, MessageRole.ASSISTANT, "Reply")
+        val tutorResponse = TutorService.TutorResponse(
+            reply = "Reply",
+            conversationResponse = ConversationResponse(
+                newVocabulary = emptyList(),
+                wordCards = emptyList(),
+                characterCards = emptyList()
+            )
+        )
+
+        every { chatMessageRepository.save(any<ChatMessageEntity>()) } returns userMessage andThen assistantMessage
+        every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(any()) } returns emptyList()
+        every { topicDecisionService.decideTopic(any(), any(), any(), any()) } returns TopicDecision(null, 0, "Free", emptyList())
+        every { tutorService.respond(any(), any(), any(), any(), any(), any(), any(), any(), any(), any()) } returns tutorResponse
+        every { chatMessageRepository.countBySessionId(any()) } returns 0L
+        every { phaseDecisionService.decidePhase(any(), any()) } returns PhaseDecision(ConversationPhase.Correction, "Default", 0.0)
+
+        chatService.sendMessage(TestDataFactory.TEST_SESSION_ID, "Test", TestDataFactory.TEST_USER_ID)
+
+        // Verify lesson progress was not modified
+        verify { chatSessionRepository.save(match { it.lessonProgressTurnCount == 0 && it.lessonProgressGoalsCompleted == false }) }
+    }
+
+    @Test
+    fun `should initialize turn count with default JSON when not set`() {
+        val session = TestDataFactory.createSessionEntity()
+        session.currentLessonId = "lesson-01"
+        session.lessonProgressTurnCount = 0  // Initialized to 0 by default
+        session.lessonProgressGoalsCompleted = false  // Initialized to false by default
+
+        every { chatSessionRepository.findById(TestDataFactory.TEST_SESSION_ID) } returns Optional.of(session)
+        every { chatSessionRepository.save(any<ChatSessionEntity>()) } answers { firstArg() }
+
+        val userMessage = TestDataFactory.createMessageEntity(session)
+        val assistantMessage = TestDataFactory.createMessageEntity(session, MessageRole.ASSISTANT, "Reply")
+        val tutorResponse = TutorService.TutorResponse(
+            reply = "Reply",
+            conversationResponse = ConversationResponse(
+                newVocabulary = emptyList(),
+                wordCards = emptyList(),
+                characterCards = emptyList()
+            )
+        )
+
+        every { chatMessageRepository.save(any<ChatMessageEntity>()) } returns userMessage andThen assistantMessage
+        every { chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(any()) } returns emptyList()
+        every { topicDecisionService.decideTopic(any(), any(), any(), any()) } returns TopicDecision(null, 0, "Free", emptyList())
+        every { tutorService.respond(any(), any(), any(), any(), any(), any(), any(), any(), any(), any()) } returns tutorResponse
+        every { chatMessageRepository.countBySessionId(any()) } returns 0L
+        every { phaseDecisionService.decidePhase(any(), any()) } returns PhaseDecision(ConversationPhase.Correction, "Default", 0.0)
+
+        chatService.sendMessage(TestDataFactory.TEST_SESSION_ID, "Test", TestDataFactory.TEST_USER_ID)
+
+        // Verify turn count was set to 1
+        verify { chatSessionRepository.save(match { session ->
+            session.lessonProgressTurnCount == 1
+        }) }
     }
 }
