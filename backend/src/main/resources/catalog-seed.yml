@@ -796,6 +796,23 @@ courses:
     displayOrder: 3
   - languageCode: es-ES
     name:
+      en: TEST short lessons
+    shortDescription:
+      en: TEST short lessons
+    description:
+      en: TEST short lessons
+    category: General
+    targetAudience:
+      en: TEST short lessons
+    startingLevel: None
+    targetLevel: C2
+    requiresCurriculum: true
+    learningGoals:
+      en:
+        - TEST short lessons
+    displayOrder: 4
+  - languageCode: es-ES
+    name:
       en: Free Conversation
     shortDescription:
       en: Practice Spanish naturally without structured lessons

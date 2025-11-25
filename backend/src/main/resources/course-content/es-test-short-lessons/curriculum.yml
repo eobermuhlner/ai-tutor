@@ -1,0 +1,37 @@
+---
+courseId: es-test-short-lessons
+progressionMode: COMPLETION_BASED
+lessons:
+#  - id: lesson-01-basic-food-vocabulary
+#    file: lesson-01-basic-food-vocabulary.md
+#    minimumDays: 0
+#    requiredTurns: 10
+#  - id: lesson-02-expressions-of-want
+#    file: lesson-02-expressions-of-want.md
+#    minimumDays: 0
+#    requiredTurns: 10
+#  - id: lesson-03-restaurant-basics
+#    file: lesson-03-restaurant-basics.md
+#    minimumDays: 0
+#    requiredTurns: 10
+#  - id: lesson-04-gustar-intro
+#    file: lesson-04-gustar-intro.md
+#    minimumDays: 0
+#    requiredTurns: 10
+#  - id: lesson-05-advanced-gustar
+#    file: lesson-05-advanced-gustar.md
+#    minimumDays: 0
+#    requiredTurns: 10
+#  - id: lesson-06-dietary-needs
+#    file: lesson-06-dietary-needs.md
+#    minimumDays: 0
+#    requiredTurns: 10
+  - id: lesson-07-colors
+    file: lesson-07-colors.md
+    minimumDays: 0
+    requiredTurns: 1
+  - id: lesson-08-weekdays
+    file: lesson-08-weekdays.md
+    minimumDays: 0
+    requiredTurns: 1
+---
