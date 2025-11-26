@@ -1,25 +1,26 @@
 # Refactoring Proposals Overview
 
 **Last Updated**: 2025-11-26
-**Total Proposals**: 1
+**Total Proposals**: 2
 **Completed**: 0
 **In Progress**: 0
-**Pending**: 1
+**Pending**: 2
 
 ## Quick Stats by Category
 
 - **Architecture**: 1 proposal
 - **Performance**: 0 proposals
-- **Maintainability**: 0 proposals
+- **Maintainability**: 1 proposal
 - **Testing**: 0 proposals
 - **Security**: 0 proposals
 
 ## Priority Summary
 
-### High Priority (1 proposal)
+### High Priority (2 proposals)
 
 | Title | Category | Effort | Risk | Status | Proposed | Updated | File |
 |-------|----------|--------|------|--------|----------|---------|------|
+| Extract Shared Tutor Orchestration Logic to Eliminate Code Duplication | maintainability | Small (2-4 hours) | Low | Proposed | 2025-11-26 | N/A | [extract-tutor-orchestration-duplication.md](maintainability/extract-tutor-orchestration-duplication.md) |
 | Decompose ChatService God Class into Domain-Focused Services | architecture | Large (4-6 days) | Medium | Proposed | 2025-11-26 | N/A | [decompose-chatservice-god-class.md](architecture/decompose-chatservice-god-class.md) |
 
 ### Medium Priority (0 proposals)
@@ -33,6 +34,33 @@ _No low priority proposals at this time._
 ---
 
 ## Detailed Proposals by Category
+
+### Maintainability (1 proposal)
+
+#### Extract Shared Tutor Orchestration Logic to Eliminate Code Duplication
+
+**File**: `refactorings/maintainability/extract-tutor-orchestration-duplication.md`
+**Priority**: High
+**Effort**: Small (2-4 hours)
+**Risk**: Low
+**Status**: Proposed
+**Proposed Date**: 2025-11-26
+**Updated Date**: N/A
+
+**Summary**: Extract 170+ duplicated lines of orchestration logic from `sendMessage()` and `initiateTutorMessage()` methods into a single `orchestrateTutorResponse()` method with helper functions. This is a surgical refactoring that eliminates 85% code duplication, prevents bugs from divergent behavior (historical issue: vocabulary review mode bug), and delivers the main value of the larger ChatService decomposition in 2-4 hours instead of 6-10 days.
+
+**Key Benefits**:
+
+- Eliminates 170+ duplicated lines (85% similarity between sendMessage and initiateTutorMessage)
+- Single source of truth for tutor orchestration prevents divergent behavior bugs
+- Low-risk internal refactoring with comprehensive test coverage
+- Foundation for future decomposition if needed (but delivers value now)
+
+**Affected Areas**:
+- `backend/src/main/kotlin/ch/obermuhlner/aitutor/chat/service/ChatService.kt` (lines 325-727)
+- Existing ChatServiceTest validates behavior (no test changes needed)
+
+---
 
 ### Architecture (1 proposal)
 
@@ -67,16 +95,22 @@ _No low priority proposals at this time._
 
 ### Recommended Implementation Order
 
-**Phase 1: Foundation Refactorings** (No dependencies)
-1. **Decompose ChatService God Class** - Establishes service decomposition pattern and reduces technical debt in core conversation flow
+**Phase 1: Quick Wins** (High value, low risk, no dependencies)
+1. **Extract Shared Tutor Orchestration Logic** (2-4 hours) - Eliminates 170+ duplicated lines, prevents bugs, delivers 70% of full decomposition value with minimal risk
 
-**Phase 2: Enabled by Phase 1** (Can run in parallel after ChatService decomposition)
+**Phase 2: Evaluate Need for Full Decomposition** (After monitoring for 1 month)
+- Monitor merge conflicts, bugs, and developer complaints in ChatService
+- If pain points emerge: Proceed with full **Decompose ChatService God Class** refactoring
+- If no pain: Accept current structure and reinvest time in user-facing features
+
+**Phase 3: Enabled by Full Decomposition** (If Phase 2 is implemented)
 - ChatController decomposition (follows service boundaries)
 - Interface extraction for services
 - Testing improvements (reduced mocking complexity)
 
 ### Notes on Sequencing
 
-- **Foundation Refactoring**: The ChatService decomposition is a foundation refactoring that enables 3 other high-value improvements
-- **Parallel Development**: After Phase 1, multiple frontend and backend refactorings can proceed in parallel
-- **Risk Mitigation**: Use phased implementation strategy (SessionProgress → SessionManagement → SessionConfiguration → MessageOrchestration) to minimize regression risk
+- **Quick Win Strategy**: The orchestration extraction is a pragmatic first step that delivers immediate value
+- **Evidence-Based Decision**: Full decomposition should only proceed if metrics show actual pain (not theoretical SOLID concerns)
+- **Foundation Refactoring**: If full decomposition happens, it enables 3 other high-value improvements
+- **Parallel Development**: The small orchestration refactoring can run in parallel with any other work (low coordination overhead)
