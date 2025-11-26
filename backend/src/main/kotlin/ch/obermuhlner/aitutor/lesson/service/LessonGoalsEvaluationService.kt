@@ -79,13 +79,6 @@ class LessonGoalsEvaluationService(
             // Get lesson content to extract goals
             val lessonContent = lessonContentService.getLesson(courseSlug, session.currentLessonId!!) ?: return
 
-            // Extract goals section from lesson markdown
-            val goalsSection = extractLessonGoals(lessonContent.fullMarkdown)
-            if (goalsSection.isBlank()) {
-                logger.debug("No goals section found in lesson ${session.currentLessonId}")
-                return
-            }
-
             // Get recent conversation context (last 10 messages)
             val recentMessages = messages.takeLast(10)
             val conversationContext = recentMessages.joinToString("\n") { msg ->
@@ -103,7 +96,7 @@ class LessonGoalsEvaluationService(
                 "sourceLanguage" to sourceLanguage,
                 "sourceLanguageCode" to session.sourceLanguageCode,
                 "cefrLevel" to session.estimatedCEFRLevel.name,
-                "lessonGoals" to goalsSection,
+                "lessonContent" to lessonContent.fullMarkdown,
                 "conversationContext" to conversationContext
             ))
 
@@ -144,35 +137,4 @@ class LessonGoalsEvaluationService(
             logger.error("Failed to evaluate lesson goals for session ${session.id}", e)
         }
     }
-
-    /**
-     * Extracts the "This Week's Goals" or "Lesson Goals" section from lesson markdown.
-     *
-     * @param markdown The full lesson markdown content
-     * @return The goals section text, or empty string if not found
-     */
-    private fun extractLessonGoals(markdown: String): String {
-        val lines = markdown.lines()
-        val goalsSectionStart = lines.indexOfFirst {
-            it.trim().startsWith("##") &&
-            (it.contains("Goal", ignoreCase = true) || it.contains("Objective", ignoreCase = true))
-        }
-
-        if (goalsSectionStart == -1) {
-            return ""
-        }
-
-        // Find next section (starting with ##)
-        val nextSectionStart = lines.subList(goalsSectionStart + 1, lines.size)
-            .indexOfFirst { it.trim().startsWith("##") }
-
-        val goalsSectionEnd = if (nextSectionStart == -1) {
-            lines.size
-        } else {
-            goalsSectionStart + 1 + nextSectionStart
-        }
-
-        return lines.subList(goalsSectionStart, goalsSectionEnd).joinToString("\n").trim()
-    }
-
 }

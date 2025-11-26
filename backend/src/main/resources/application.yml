@@ -86,7 +86,7 @@ ai-tutor:
     cefr-level-interval: 20       # Evaluate CEFR level every N turns
     topic-interval: 5             # Evaluate topic every N turns
     phase-interval: 5             # Evaluate phase every N turns
-    lesson-check-interval: 1     # Check lesson progression every N turns
+    lesson-check-interval: 5      # Check lesson progression every N turns
   context:
     max-tokens: 100000  # Safety margin below model's 128k limit
     recent-messages: 10  # Keep last 10 messages at full fidelity

@@ -38,7 +38,8 @@
       "Bash(docker logs:*)",
       "Bash(bash:*)",
       "Bash(test:*)",
-      "Bash(git log:*)"
+      "Bash(git log:*)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []

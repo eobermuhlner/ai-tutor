@@ -64,6 +64,7 @@ class SingleJsonEntityAiChatService(
         val prompt = Prompt(request.messages, chatOptions)
         val response = effectiveChatModel.call(prompt)
         logger.debug("Response metadata: {}", response.metadata)
+        logger.debug("Response native metadata: {}", response.metadata.usage.nativeUsage)
         val content = response.result.output.text ?: ""
 
         return outputConverter.convert(content)

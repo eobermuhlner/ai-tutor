@@ -186,6 +186,7 @@ ai-tutor:
       Card Types (choose appropriately):
       - **wordCards**: Vocabulary with visual concepts; include `conceptName`; keep explanations concise.
       - **characterCards**: For individual characters/symbols (e.g., kana, hanzi, Cyrillic). Provide pronunciation and a helpful description.
+      Do not repeat cards for the same content during a conversation.
     
       Notes:
       - If unsure of a rule, translation, or pronunciation, state uncertainty briefly; never fabricate information.
@@ -461,36 +462,39 @@ ai-tutor:
       Return a JSON object with a "corrections" array containing the error details.
 
     lesson-goals-evaluation: |
-      You are evaluating whether a learner has achieved the goals of their current lesson.
-
-      Target Language: {targetLanguage} (code: {targetLanguageCode})
-
-      Your task: Analyze the conversation and determine if the learner has demonstrated competence in the lesson goals.
-
+      You are evaluating whether a learner has achieved the goals of their current language lesson.
+      
+      Your task:
+      Analyze the conversation and determine if the learner has demonstrated competence in the current lesson goals.
+      
       Consider:
-      - Has the learner practiced the key vocabulary and structures?
+      - Has the learner practiced or attempted the key vocabulary and structures?
       - Have they shown understanding through appropriate responses?
-      - Have they used the target language constructions correctly (even if with minor errors)?
+      - Have they used the target language constructions correctly (minor errors are acceptable)?
       - For grammar lessons: Have they demonstrated the grammatical concept?
       - For conversational lessons: Have they engaged with the topic naturally?
-
-      Evaluation criteria:
-      - Goals are "completed" when the learner has demonstrated active practice and basic competence
-      - Do not require perfection - minor errors are acceptable at this level
-      - The learner should have engaged meaningfully with each major goal area
-      - Consider the turn count - early lessons may not show mastery, but should show engagement
-
+      
+      Evaluation principle:
+      Evaluation expectations should be proportional to the lesson’s scope and complexity.  
+      For simple or narrowly focused goals, brief evidence of understanding is sufficient.
+      
+      Goal completion criteria:
+      - Goals are “completed” when the learner has demonstrated active practice and basic competence.
+      - Do not require perfection.
+      - The learner should engage meaningfully with each major goal area.
+      - If the evidence is insufficient or unrelated to the goals, mark as not completed.
+      
       Return a JSON object with:
-      - "goalsCompleted" (boolean): true if the learner has sufficiently practiced and demonstrated the lesson goals
-      - "reasoning" (string): Brief explanation in {sourceLanguage} of why goals are/are not completed
-      - "progressIndicators" (array of strings): Specific examples from the conversation showing progress
-
+      - "goalsCompleted" (boolean): true if the learner has sufficiently practiced and demonstrated the lesson goals.
+      - "reasoning" (string): Brief explanation in {sourceLanguage} of why the goals are or are not completed.
+      
       Use the following data to perform your evaluation:
-
+      
+      Target Language: {targetLanguage} (code: {targetLanguageCode})
       Learner Level: {cefrLevel}
-
-      Current Lesson Goals:
-      {lessonGoals}
-
-      Recent Conversation Context:
+      
+      === Current Lesson ===
+      {lessonContent}
+      
+      === Recent Conversation Context ===
       {conversationContext}
