@@ -36,7 +36,7 @@ class LessonGoalsEvaluationServiceTest {
     private lateinit var chatModel: ChatModel
     private lateinit var objectMapper: ObjectMapper
 
-    private val testPrompt = "Evaluate lesson goals: {lessonGoals}"
+    private val testPrompt = "Evaluate lesson content: {lessonContent} for conversation: {conversationContext}"
 
     @BeforeEach
     fun setup() {
@@ -139,7 +139,7 @@ class LessonGoalsEvaluationServiceTest {
     }
 
     @Test
-    fun `should skip evaluation when goals section not found`() {
+    fun `should evaluate even when no explicit goals section exists`() {
         val session = createTestSession()
         val courseId = session.courseTemplateId!!
         val lessonId = session.currentLessonId!!
@@ -159,16 +159,24 @@ class LessonGoalsEvaluationServiceTest {
                 # Test Lesson
 
                 ## Content
-                No goals section here
+                No explicit goals section, but lesson content is provided to LLM
             """.trimIndent()
         )
 
         every { catalogService.getCourseById(courseId) } returns course
         every { lessonContentService.getLesson("de-test-course", lessonId) } returns lessonContent
+        every { languageService.getLanguageName("de-DE") } returns "German"
+        every { languageService.getLanguageName("en") } returns "English"
+        every { userChatModelFactory.getChatModelForUser(session.userId) } returns chatModel
+        every { chatOptionsFactory.createOptions(any(), any()) } returns null
+        every { chatModel.call(any<Prompt>()) } returns mockk {
+            every { result.output.text } returns """{"goalsCompleted": true, "reasoning": "Content covered"}"""
+        }
+        every { chatSessionRepository.save(any()) } answers { firstArg() }
 
         service.evaluateLessonGoals(session, emptyList())
 
-        verify(exactly = 0) { chatSessionRepository.save(any()) }
+        verify { chatSessionRepository.save(match { it.lessonProgressGoalsCompleted == true }) }
     }
 
     @Test
@@ -210,7 +218,7 @@ class LessonGoalsEvaluationServiceTest {
     }
 
     @Test
-    fun `should extract goals section with Goals header`() {
+    fun `should pass full lesson content to LLM including all sections`() {
         val session = createTestSession()
         val courseId = session.courseTemplateId!!
         val lessonId = session.currentLessonId!!
@@ -248,11 +256,17 @@ class LessonGoalsEvaluationServiceTest {
 
         service.evaluateLessonGoals(session, emptyList())
 
-        verify { chatModel.call(match<Prompt> { it.instructions[0].text.contains("Learn vocabulary") && it.instructions[0].text.contains("Practice speaking") && !it.instructions[0].text.contains("Next Section") }) }
+        // Verify that full lesson content is passed (including both Goals and Next Section)
+        verify { chatModel.call(match<Prompt> {
+            it.instructions[0].text.contains("Learn vocabulary") &&
+            it.instructions[0].text.contains("Practice speaking") &&
+            it.instructions[0].text.contains("Next Section") &&
+            it.instructions[0].text.contains("Other content")
+        }) }
     }
 
     @Test
-    fun `should extract goals section with Objectives header`() {
+    fun `should pass full lesson content including activities and objectives`() {
         val session = createTestSession()
         val courseId = session.courseTemplateId!!
         val lessonId = session.currentLessonId!!
@@ -289,7 +303,12 @@ class LessonGoalsEvaluationServiceTest {
 
         service.evaluateLessonGoals(session, emptyList())
 
-        verify { chatModel.call(match<Prompt> { it.instructions[0].text.contains("Master pronunciation") && !it.instructions[0].text.contains("Activities") }) }
+        // Verify that full lesson content is passed (including both Objectives and Activities sections)
+        verify { chatModel.call(match<Prompt> {
+            it.instructions[0].text.contains("Master pronunciation") &&
+            it.instructions[0].text.contains("Activities") &&
+            it.instructions[0].text.contains("Practice time")
+        }) }
     }
 
     private fun createTestSession(): ChatSessionEntity {

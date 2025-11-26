@@ -366,8 +366,8 @@ ai-tutor:
 
       Learner Level: {cefrLevel}
 
-      Lesson Goals:
-      {lessonGoals}
+      Lesson Content:
+      {lessonContent}
 
       Recent Conversation:
       {conversationContext}

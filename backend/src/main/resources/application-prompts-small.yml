@@ -333,5 +333,5 @@ ai-tutor:
 
       Level: {cefrLevel}
 
-      Goals: {lessonGoals}
+      Lesson: {lessonContent}
       Conversation: {conversationContext}
