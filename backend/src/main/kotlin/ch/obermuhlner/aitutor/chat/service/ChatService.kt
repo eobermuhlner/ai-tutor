@@ -329,17 +329,10 @@ class ChatService(
         corrections: List<Correction>? = null,
         onReplyChunk: (String) -> Unit = {}
     ): MessageResponse? {
-        val session = chatSessionRepository.findById(sessionId).orElse(null) ?: return null
-
-        // Validate ownership
-        if (session.userId != currentUserId) {
-            return null
-        }
+        val session = getAndValidateSession(sessionId, currentUserId) ?: return null
 
         // Calculate next sequence number
-        val maxSequence = chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(sessionId)
-            .maxOfOrNull { it.sequenceNumber } ?: -1
-        val nextSequence = maxSequence + 1
+        val nextSequence = calculateNextSequence(sessionId)
 
         // Save user message with corrections if provided
         val userMessage = ChatMessageEntity(
@@ -354,157 +347,15 @@ class ChatService(
         // Increment lesson turn count for user messages
         incrementLessonTurnCount(session)
 
-        // Build message history
-        val messageHistory = buildMessageHistory(sessionId)
-
-        // Call tutor service
-        val tutor = Tutor(
-            name = session.tutorName,
-            persona = session.tutorPersona,
-            domain = session.tutorDomain,
-            teachingStyle = session.tutorTeachingStyle,
-            sourceLanguageCode = session.sourceLanguageCode,
-            targetLanguageCode = session.targetLanguageCode,
-            gender = session.tutorGender,
-            age = session.tutorAge,
-            location = session.tutorLocation
-        )
-
-        // Initialize effectivePhase if null (migration case)
-        if (session.effectivePhase == null) {
-            session.effectivePhase = if (session.conversationPhase == ConversationPhase.Auto) {
-                ConversationPhase.Correction  // Default for Auto mode
-            } else {
-                session.conversationPhase
-            }
-        }
-
-        // Get message history for context
-        val allMessages = chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(sessionId)
-
-        // Parse past topics from session
-        val pastTopics = session.pastTopicsJson?.let {
-            try {
-                objectMapper.readValue<List<String>>(it)
-            } catch (e: Exception) {
-                emptyList()
-            }
-        } ?: emptyList()
-
-        // Get due vocabulary count if review mode enabled
-        val dueCount = if (session.vocabularyReviewMode) {
-            val count = vocabularyReviewService.getDueCount(session.userId, session.targetLanguageCode)
-            if (count > 0) {
-                logger.info("Vocabulary review mode active: session=$sessionId, dueCount=$count")
-            }
-            count
-        } else {
-            null
-        }
-
-        // Build ConversationState from stored session values (updated periodically by MetadataEvaluationService)
-        val conversationState = ConversationState(
-            phase = session.effectivePhase ?: ConversationPhase.Correction,
-            estimatedCEFRLevel = session.estimatedCEFRLevel,
-            currentTopic = session.currentTopic,
-            phaseReason = session.phaseReason ?: "Balanced default phase",
-            topicEligibilityStatus = session.topicEligibilityStatus ?: "Active conversation",
-            pastTopics = pastTopics,
-            vocabularyReviewMode = session.vocabularyReviewMode,
-            dueVocabularyCount = dueCount
-        )
-
-        // Check rate limit before making AI call
-        val user = userRepository.findById(session.userId).orElse(null)
-        if (user != null) {
-            rateLimitingService.checkRateLimit(session.userId, user.subscriptionPlan)
-        }
-
-        // Get user-specific ChatModel (or null to use system default)
-        val userChatModel = try {
-            userChatModelFactory.getChatModelForUser(session.userId)
-        } catch (e: Exception) {
-            logger.warn("Failed to get user ChatModel for user ${session.userId}, using system default", e)
-            null
-        }
-
-        val userName = if (user != null) {
-            val nameParts = listOfNotNull(user.firstName, user.lastName).filter { it.isNotBlank() }
-            if (nameParts.isNotEmpty()) nameParts.joinToString(" ") else user.username
-        } else {
-            null
-        }
-
-        val tutorResponse = try {
-            tutorService.respond(
-                tutor = tutor,
-                conversationState = conversationState,
-                userId = session.userId,
-                messages = messageHistory,
-                sessionId = session.id,
-                session = session,
-                userName = userName,
-                pronunciationPreference = user?.pronunciationPreference,
-                onReplyChunk = onReplyChunk,
-                chatModel = userChatModel
-            )
-        } catch (e: Exception) {
-            logger.error("ChatModel call failed for session ${session.id}, user ${session.userId}", e)
-            null
-        }
-
-        if (tutorResponse == null) {
-            // Create an error message response
-            val errorMessage = technicalErrorMessage
-            val errorAssistantMessage = ChatMessageEntity(
-                session = session,
-                role = MessageRole.ASSISTANT,
-                content = errorMessage,
-                sequenceNumber = nextSequence + 1
-            )
-            val savedAssistantMessage = chatMessageRepository.save(errorAssistantMessage)
-            return toMessageResponse(savedAssistantMessage, errorMessage)
-        }
-
-        // Metadata (phase, CEFR level, topic, lesson progression) is now evaluated periodically
-        // by MetadataEvaluationService instead of on every message
-
-        chatSessionRepository.save(session)
-
-        // Save assistant message with next sequence number (no corrections yet)
-        val assistantMessage = ChatMessageEntity(
+        // Delegate to shared generation logic (assistant message follows user message)
+        return generateTutorResponse(
             session = session,
-            role = MessageRole.ASSISTANT,
-            content = tutorResponse.reply,
-            vocabularyJson = if (tutorResponse.conversationResponse.newVocabulary.isNotEmpty())
-                objectMapper.writeValueAsString(tutorResponse.conversationResponse.newVocabulary) else null,
-            wordCardsJson = if (tutorResponse.conversationResponse.wordCards.isNotEmpty())
-                objectMapper.writeValueAsString(tutorResponse.conversationResponse.wordCards) else null,
-            characterCardsJson = if (tutorResponse.conversationResponse.characterCards.isNotEmpty())
-                objectMapper.writeValueAsString(tutorResponse.conversationResponse.characterCards) else null,
-            sequenceNumber = nextSequence + 1
+            nextSequence = nextSequence + 1,
+            initiationContext = null,
+            includeUserMessageInEvaluation = true,
+            userMessageForEvaluation = userMessage,
+            onReplyChunk = onReplyChunk
         )
-        val savedAssistantMessage = chatMessageRepository.save(assistantMessage)
-
-        // Track vocabulary
-        if (tutorResponse.conversationResponse.newVocabulary.isNotEmpty()) {
-            vocabularyService.addNewVocabulary(
-                userId = session.userId,
-                lang = session.targetLanguageCode,
-                items = tutorResponse.conversationResponse.newVocabulary.map {
-                    NewVocabularyDTO(it.lemma, it.context, it.conceptName)
-                },
-                turnId = savedAssistantMessage.id
-            )
-        }
-
-        // Evaluate session metadata periodically (CEFR level, topic, phase, lesson progression)
-        metadataEvaluationService.evaluateIfNeeded(
-            sessionId = sessionId,
-            messageHistory = allMessages + listOf(userMessage, savedAssistantMessage)
-        )
-
-        return toMessageResponse(savedAssistantMessage)
     }
 
     /**
@@ -557,35 +408,66 @@ class ChatService(
         initiationContext: String = "welcome",
         onReplyChunk: (String) -> Unit = {}
     ): MessageResponse? {
-        val session = chatSessionRepository.findById(sessionId).orElse(null) ?: return null
-
-        // Validate ownership
-        if (session.userId != currentUserId) {
-            return null
-        }
+        val session = getAndValidateSession(sessionId, currentUserId) ?: return null
 
         logger.info("Tutor initiating message for session $sessionId (context: $initiationContext)")
 
         // Calculate next sequence number (no user message to save)
-        val maxSequence = chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(sessionId)
-            .maxOfOrNull { it.sequenceNumber } ?: -1
-        val nextSequence = maxSequence + 1
+        val nextSequence = calculateNextSequence(sessionId)
 
-        // Build message history (may be empty for new sessions)
-        val messageHistory = buildMessageHistory(sessionId)
+        // Delegate to shared generation logic (assistant message is first message)
+        return generateTutorResponse(
+            session = session,
+            nextSequence = nextSequence,
+            initiationContext = initiationContext,
+            includeUserMessageInEvaluation = false,
+            userMessageForEvaluation = null,
+            onReplyChunk = onReplyChunk
+        )?.also {
+            logger.info("Tutor message initiated successfully for session $sessionId (context: $initiationContext)")
+        }
+    }
 
-        // Call tutor service with initiation context
-        val tutor = Tutor(
-            name = session.tutorName,
-            persona = session.tutorPersona,
-            domain = session.tutorDomain,
-            teachingStyle = session.tutorTeachingStyle,
-            sourceLanguageCode = session.sourceLanguageCode,
-            targetLanguageCode = session.targetLanguageCode,
-            gender = session.tutorGender,
-            age = session.tutorAge,
-            location = session.tutorLocation
-        )
+    /**
+     * Shared logic for generating tutor responses.
+     * Handles both user-initiated messages (sendMessage) and tutor-initiated messages (initiateTutorMessage).
+     *
+     * This method encapsulates the common pipeline:
+     * 1. Build message history and conversation state
+     * 2. Resolve user-specific ChatModel and check rate limits
+     * 3. Call TutorService to generate response
+     * 4. Handle errors with technical error message
+     * 5. Save assistant message with vocabulary/cards
+     * 6. Track new vocabulary
+     * 7. Trigger metadata evaluation
+     *
+     * @param session The chat session (already validated)
+     * @param nextSequence The sequence number for the assistant message
+     * @param initiationContext Optional context for tutor-initiated messages ("welcome", "reengage-light", "reengage")
+     * @param includeUserMessageInEvaluation Whether to include user message in metadata evaluation
+     * @param userMessageForEvaluation The user message to include in evaluation (if applicable)
+     * @param onReplyChunk Callback for streaming response chunks
+     * @return The saved assistant message response
+     */
+    private fun generateTutorResponse(
+        session: ChatSessionEntity,
+        nextSequence: Int,
+        initiationContext: String?,
+        includeUserMessageInEvaluation: Boolean,
+        userMessageForEvaluation: ChatMessageEntity?,
+        onReplyChunk: (String) -> Unit
+    ): MessageResponse? {
+        // Get message history for both AI call and metadata evaluation (single query)
+        val allMessages = chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(session.id)
+        val messageHistory = allMessages.map { entity ->
+            when (entity.role) {
+                MessageRole.USER -> UserMessage(entity.content)
+                MessageRole.ASSISTANT -> AssistantMessage(entity.content)
+            }
+        }
+
+        // Build Tutor object
+        val tutor = buildTutorFromSession(session)
 
         // Initialize effectivePhase if null (migration case)
         if (session.effectivePhase == null) {
@@ -596,31 +478,129 @@ class ChatService(
             }
         }
 
-        // Get message history for context
-        val allMessages = chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(sessionId)
-
         // Parse past topics from session
-        val pastTopics = session.pastTopicsJson?.let {
+        val pastTopics = parsePastTopics(session)
+
+        // Get due vocabulary count if review mode enabled
+        val dueCount = if (session.vocabularyReviewMode) {
+            vocabularyReviewService.getDueCount(session.userId, session.targetLanguageCode)
+                .also { count ->
+                    if (count > 0) {
+                        logger.info("Vocabulary review mode active: session=${session.id}, dueCount=$count")
+                    }
+                }
+        } else null
+
+        // Build ConversationState
+        val conversationState = buildConversationState(
+            session = session,
+            pastTopics = pastTopics,
+            dueCount = dueCount,
+            initiationContext = initiationContext
+        )
+
+        // Resolve user and check rate limit
+        val user = userRepository.findById(session.userId).orElse(null)
+        if (user != null) {
+            rateLimitingService.checkRateLimit(session.userId, user.subscriptionPlan)
+        }
+
+        // Get user-specific ChatModel (or null to use system default)
+        val userChatModel = resolveUserChatModel(session.userId)
+
+        // Extract user's display name
+        val userName = extractUserName(user)
+
+        // Call TutorService
+        val tutorResponse = invokeTutorService(
+            tutor = tutor,
+            conversationState = conversationState,
+            session = session,
+            user = user,
+            userName = userName,
+            messageHistory = messageHistory,
+            userChatModel = userChatModel,
+            onReplyChunk = onReplyChunk
+        )
+
+        // Handle error case
+        if (tutorResponse == null) {
+            return handleTutorServiceError(session, nextSequence)
+        }
+
+        // Save session updates
+        chatSessionRepository.save(session)
+
+        // Save assistant message with vocabulary and cards
+        val assistantMessage = buildAssistantMessage(
+            session = session,
+            tutorResponse = tutorResponse,
+            sequenceNumber = nextSequence
+        )
+        val savedAssistantMessage = chatMessageRepository.save(assistantMessage)
+
+        // Track new vocabulary
+        if (tutorResponse.conversationResponse.newVocabulary.isNotEmpty()) {
+            trackVocabulary(session, tutorResponse, savedAssistantMessage)
+        }
+
+        // Evaluate session metadata (CEFR level, topic, phase, lesson progression)
+        val messagesForEvaluation = if (includeUserMessageInEvaluation && userMessageForEvaluation != null) {
+            allMessages + listOf(userMessageForEvaluation, savedAssistantMessage)
+        } else {
+            allMessages + listOf(savedAssistantMessage)
+        }
+
+        metadataEvaluationService.evaluateIfNeeded(
+            sessionId = session.id,
+            messageHistory = messagesForEvaluation
+        )
+
+        return toMessageResponse(savedAssistantMessage)
+    }
+
+    private fun getAndValidateSession(sessionId: UUID, userId: UUID): ChatSessionEntity? {
+        val session = chatSessionRepository.findById(sessionId).orElse(null) ?: return null
+        if (session.userId != userId) return null
+        return session
+    }
+
+    private fun calculateNextSequence(sessionId: UUID): Int {
+        return chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(sessionId)
+            .maxOfOrNull { it.sequenceNumber }?.plus(1) ?: 0
+    }
+
+    private fun buildTutorFromSession(session: ChatSessionEntity): Tutor {
+        return Tutor(
+            name = session.tutorName,
+            persona = session.tutorPersona,
+            domain = session.tutorDomain,
+            teachingStyle = session.tutorTeachingStyle,
+            sourceLanguageCode = session.sourceLanguageCode,
+            targetLanguageCode = session.targetLanguageCode,
+            gender = session.tutorGender,
+            age = session.tutorAge,
+            location = session.tutorLocation
+        )
+    }
+
+    private fun parsePastTopics(session: ChatSessionEntity): List<String> {
+        return session.pastTopicsJson?.let {
             try {
                 objectMapper.readValue<List<String>>(it)
             } catch (e: Exception) {
                 emptyList()
             }
         } ?: emptyList()
+    }
 
-        // Get due vocabulary count if review mode enabled
-        val dueCount = if (session.vocabularyReviewMode) {
-            val count = vocabularyReviewService.getDueCount(session.userId, session.targetLanguageCode)
-            if (count > 0) {
-                logger.info("Vocabulary review mode active: session=$sessionId, dueCount=$count")
-            }
-            count
-        } else {
-            null
-        }
-
-        // Build ConversationState from stored session values (updated periodically by MetadataEvaluationService)
-        val conversationState = ConversationState(
+    private fun buildConversationState(
+        session: ChatSessionEntity,
+        pastTopics: List<String>,
+        dueCount: Long?,
+        initiationContext: String?
+    ): ConversationState {
+        return ConversationState(
             phase = session.effectivePhase ?: ConversationPhase.Correction,
             estimatedCEFRLevel = session.estimatedCEFRLevel,
             currentTopic = session.currentTopic,
@@ -629,31 +609,36 @@ class ChatService(
             pastTopics = pastTopics,
             vocabularyReviewMode = session.vocabularyReviewMode,
             dueVocabularyCount = dueCount,
-            initiationContext = initiationContext  // Special flag for tutor-initiated messages
+            initiationContext = initiationContext
         )
+    }
 
-        // Check rate limit before making AI call
-        val user = userRepository.findById(session.userId).orElse(null)
-        if (user != null) {
-            rateLimitingService.checkRateLimit(session.userId, user.subscriptionPlan)
-        }
-
-        // Get user-specific ChatModel (or null to use system default)
-        val userChatModel = try {
-            userChatModelFactory.getChatModelForUser(session.userId)
+    private fun resolveUserChatModel(userId: UUID): org.springframework.ai.chat.model.ChatModel? {
+        return try {
+            userChatModelFactory.getChatModelForUser(userId)
         } catch (e: Exception) {
-            logger.warn("Failed to get user ChatModel for user ${session.userId}, using system default", e)
+            logger.warn("Failed to get user ChatModel for user $userId, using system default", e)
             null
         }
+    }
 
-        val userName = if (user != null) {
-            val nameParts = listOfNotNull(user.firstName, user.lastName).filter { it.isNotBlank() }
-            if (nameParts.isNotEmpty()) nameParts.joinToString(" ") else user.username
-        } else {
-            null
-        }
+    private fun extractUserName(user: ch.obermuhlner.aitutor.user.domain.UserEntity?): String? {
+        if (user == null) return null
+        val nameParts = listOfNotNull(user.firstName, user.lastName).filter { it.isNotBlank() }
+        return if (nameParts.isNotEmpty()) nameParts.joinToString(" ") else user.username
+    }
 
-        val tutorResponse = try {
+    private fun invokeTutorService(
+        tutor: Tutor,
+        conversationState: ConversationState,
+        session: ChatSessionEntity,
+        user: ch.obermuhlner.aitutor.user.domain.UserEntity?,
+        userName: String?,
+        messageHistory: List<Message>,
+        userChatModel: org.springframework.ai.chat.model.ChatModel?,
+        onReplyChunk: (String) -> Unit
+    ): TutorService.TutorResponse? {
+        return try {
             tutorService.respond(
                 tutor = tutor,
                 conversationState = conversationState,
@@ -667,29 +652,29 @@ class ChatService(
                 chatModel = userChatModel
             )
         } catch (e: Exception) {
-            logger.error("ChatModel call failed for tutor-initiated message: session=${session.id}, user=${session.userId}", e)
+            logger.error("ChatModel call failed for session ${session.id}, user ${session.userId}", e)
             null
         }
+    }
 
-        if (tutorResponse == null) {
-            val errorMessage = technicalErrorMessage
-            val errorAssistantMessage = ChatMessageEntity(
-                session = session,
-                role = MessageRole.ASSISTANT,
-                content = errorMessage,
-                sequenceNumber = nextSequence
-            )
-            val savedAssistantMessage = chatMessageRepository.save(errorAssistantMessage)
-            return toMessageResponse(savedAssistantMessage, errorMessage)
-        }
+    private fun handleTutorServiceError(session: ChatSessionEntity, sequenceNumber: Int): MessageResponse {
+        val errorMessage = technicalErrorMessage
+        val errorAssistantMessage = ChatMessageEntity(
+            session = session,
+            role = MessageRole.ASSISTANT,
+            content = errorMessage,
+            sequenceNumber = sequenceNumber
+        )
+        val savedAssistantMessage = chatMessageRepository.save(errorAssistantMessage)
+        return toMessageResponse(savedAssistantMessage, errorMessage)
+    }
 
-        // Metadata (phase, CEFR level, topic, lesson progression) is now evaluated periodically
-        // by MetadataEvaluationService instead of on every message
-
-        chatSessionRepository.save(session)
-
-        // Save assistant message
-        val assistantMessage = ChatMessageEntity(
+    private fun buildAssistantMessage(
+        session: ChatSessionEntity,
+        tutorResponse: TutorService.TutorResponse,
+        sequenceNumber: Int
+    ): ChatMessageEntity {
+        return ChatMessageEntity(
             session = session,
             role = MessageRole.ASSISTANT,
             content = tutorResponse.reply,
@@ -697,33 +682,25 @@ class ChatService(
                 objectMapper.writeValueAsString(tutorResponse.conversationResponse.newVocabulary) else null,
             wordCardsJson = if (tutorResponse.conversationResponse.wordCards.isNotEmpty())
                 objectMapper.writeValueAsString(tutorResponse.conversationResponse.wordCards) else null,
-            sequenceNumber = nextSequence
+            characterCardsJson = if (tutorResponse.conversationResponse.characterCards.isNotEmpty())
+                objectMapper.writeValueAsString(tutorResponse.conversationResponse.characterCards) else null,
+            sequenceNumber = sequenceNumber
         )
-        val savedAssistantMessage = chatMessageRepository.save(assistantMessage)
+    }
 
-        // Track vocabulary
-        if (tutorResponse.conversationResponse.newVocabulary.isNotEmpty()) {
-            vocabularyService.addNewVocabulary(
-                userId = session.userId,
-                lang = session.targetLanguageCode,
-                items = tutorResponse.conversationResponse.newVocabulary.map {
-                    NewVocabularyDTO(it.lemma, it.context, it.conceptName)
-                },
-                turnId = savedAssistantMessage.id
-            )
-        }
-
-        // Note: We don't record error analytics for tutor-initiated messages
-        // since there's no user input to correct
-
-        // Evaluate session metadata periodically (CEFR level, topic, phase, lesson progression)
-        metadataEvaluationService.evaluateIfNeeded(
-            sessionId = sessionId,
-            messageHistory = allMessages + listOf(savedAssistantMessage)
+    private fun trackVocabulary(
+        session: ChatSessionEntity,
+        tutorResponse: TutorService.TutorResponse,
+        savedMessage: ChatMessageEntity
+    ) {
+        vocabularyService.addNewVocabulary(
+            userId = session.userId,
+            lang = session.targetLanguageCode,
+            items = tutorResponse.conversationResponse.newVocabulary.map { vocab ->
+                NewVocabularyDTO(vocab.lemma, vocab.context, vocab.conceptName)
+            },
+            turnId = savedMessage.id
         )
-
-        logger.info("Tutor message initiated successfully for session $sessionId (context: $initiationContext)")
-        return toMessageResponse(savedAssistantMessage)
     }
 
     /**
@@ -836,16 +813,6 @@ class ChatService(
             vocabularyCount = vocabularyCount,
             daysActive = daysActive
         )
-    }
-
-    private fun buildMessageHistory(sessionId: UUID): List<Message> {
-        return chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(sessionId)
-            .map { entity ->
-                when (entity.role) {
-                    MessageRole.USER -> UserMessage(entity.content)
-                    MessageRole.ASSISTANT -> AssistantMessage(entity.content)
-                }
-            }
     }
 
     /**
