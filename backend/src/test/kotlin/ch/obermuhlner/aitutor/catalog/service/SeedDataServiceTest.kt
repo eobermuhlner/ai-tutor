@@ -90,18 +90,18 @@ class SeedDataServiceTest {
         val spanishTutors = tutorProfileRepository.findByTargetLanguageCodeAndIsActiveTrueOrderByDisplayOrder("es-ES")
         assertEquals(4, spanishTutors.size, "Should have 4 Spanish tutors")
         assertTrue(spanishTutors.any { it.name == "María" })
-        assertTrue(spanishTutors.any { it.name == "Professor Rodríguez" })
+        assertTrue(spanishTutors.any { it.name == "Carlos Rodríguez" })
         assertTrue(spanishTutors.any { it.name == "Carlos" })
         assertTrue(spanishTutors.any { it.name == "Laura" })
 
         val frenchTutors = tutorProfileRepository.findByTargetLanguageCodeAndIsActiveTrueOrderByDisplayOrder("fr-FR")
         assertEquals(2, frenchTutors.size, "Should have 2 French tutors")
-        assertTrue(frenchTutors.any { it.name == "François" })
+        assertTrue(frenchTutors.any { it.name == "François Dubois" })
         assertTrue(frenchTutors.any { it.name == "Céline" })
 
         val germanTutors = tutorProfileRepository.findByTargetLanguageCodeAndIsActiveTrueOrderByDisplayOrder("de-DE")
         assertEquals(2, germanTutors.size, "Should have 2 German tutors")
-        assertTrue(germanTutors.any { it.name == "Herr Schmidt" })
+        assertTrue(germanTutors.any { it.name == "Johann Schmidt" })
         assertTrue(germanTutors.any { it.name == "Anna" })
 
         val japaneseTutors = tutorProfileRepository.findByTargetLanguageCodeAndIsActiveTrueOrderByDisplayOrder("ja-JP")

@@ -353,7 +353,7 @@ tutors:
     location: Madrid, Spain
     gender: Female
     age: 30
-  - name: Professor Rodríguez
+  - name: Carlos Rodríguez
     targetLanguage: es-ES
     archetypeId: strict-academic
     culturalNotes: in Spanish grammar and literature
@@ -383,7 +383,7 @@ tutors:
     location: Rome, Italy
     gender: Female
     age: 30
-  - name: Professor Bianchi
+  - name: Marco Bianchi
     targetLanguage: it-IT
     archetypeId: strict-academic
     culturalNotes: from Rome who teaches Italian grammar and literature
@@ -406,7 +406,7 @@ tutors:
     age: 20
 
   # French (France) tutors
-  - name: François
+  - name: François Dubois
     targetLanguage: fr-FR
     archetypeId: academic-professor
     culturalNotes: Parisian professor
@@ -422,7 +422,7 @@ tutors:
     age: 30
 
   # German (Germany) tutors
-  - name: Herr Schmidt
+  - name: Johann Schmidt
     targetLanguage: de-DE
     archetypeId: strict-academic
     culturalNotes: from Berlin who focuses on proper form
@@ -483,21 +483,21 @@ tutors:
     location: Beijing, China
     gender: Female
     age: 30
-  - name: Zhang Laoshi (张老师)
+  - name: Zhang Wei (张伟)
     targetLanguage: zh-CN
     archetypeId: strict-academic
     culturalNotes: focused on pronunciation accuracy and proper tone usage
     location: Beijing, China
     gender: Male
     age: 40
-  - name: Chen (陈)
+  - name: Chen Jie (陈杰)
     targetLanguage: zh-CN
     archetypeId: zh-romanization-specialist
     culturalNotes: from Shanghai who teaches entirely in pinyin for beginners not yet ready for Chinese characters
     location: Shanghai, China
     gender: Male
     age: 30
-  - name: Hua (华)
+  - name: Liu Hua (刘华)
     targetLanguage: zh-CN
     archetypeId: zh-character-bridge
     culturalNotes: who accepts pinyin input and responds in both characters and pinyin to help learners transition to Hanzi
@@ -513,67 +513,95 @@ tutors:
     location: Taipei, Taiwan
     gender: Female
     age: 30
-  - name: Wang Laoshi (王老師)
+  - name: Wang Jianhao (王建豪)
     targetLanguage: zh-TW
     archetypeId: strict-academic
     culturalNotes: focused on pronunciation and cultural expressions used in Taiwan
     location: Taipei, Taiwan
     gender: Male
     age: 30
+  - name: Huang Guanyu (黃冠宇)
+    targetLanguage: zh-TW
+    archetypeId: zh-romanization-specialist
+    culturalNotes: from Taipei who teaches entirely in pinyin for beginners not yet ready for Chinese characters
+    location: Taipei, Taiwan
+    gender: Male
+    age: 30
+  - name: Lin Xiaohui (林曉慧)
+    targetLanguage: zh-TW
+    archetypeId: zh-character-bridge
+    culturalNotes: who accepts pinyin input and responds in both characters and pinyin to help learners transition to Hanzi
+    location: Taipei, Taiwan
+    gender: Female
+    age: 30
 
   # Chinese (Cantonese, Hong Kong) tutors
-  - name: Mei-ling (美玲)
+  - name: Wong Mei-ling (黃美玲)
     targetLanguage: zh-HK
     archetypeId: encouraging-general
     culturalNotes: from Hong Kong who helps learners master conversational Cantonese
     location: Hong Kong, China
     gender: Female
     age: 30
-  - name: Chan Laoshi (陳老師)
+  - name: Chan Tai-man (陳大文)
     targetLanguage: zh-HK
     archetypeId: strict-academic
     culturalNotes: focused on tone precision and character comprehension
     location: Hong Kong, China
     gender: Male
     age: 40
+  - name: Leung Wai-ting (梁偉霆)
+    targetLanguage: zh-HK
+    archetypeId: zh-romanization-specialist
+    culturalNotes: who teaches Cantonese using Jyutping romanization for beginners not yet ready for Chinese characters
+    location: Hong Kong, China
+    gender: Male
+    age: 20
+  - name: Li Siu-wai (李小慧)
+    targetLanguage: zh-HK
+    archetypeId: zh-character-bridge
+    culturalNotes: who accepts Jyutping input and responds in both characters and romanization to help learners transition to Hanzi
+    location: Hong Kong, China
+    gender: Female
+    age: 30
 
   # Korean (South Korea) tutors
-  - name: Ji-won (지원)
+  - name: Park Ji-won (박지원)
     targetLanguage: ko-KR
     archetypeId: encouraging-general
     culturalNotes: from Seoul who makes learning Korean enjoyable and accessible
     location: Seoul, South Korea
     gender: Female
     age: 30
-  - name: Kim Seonsaengnim (김선생님)
+  - name: Kim Joon-ho (김준호)
     targetLanguage: ko-KR
     archetypeId: strict-academic
     culturalNotes: expert in Korean grammar and formal speech levels
     location: Seoul, South Korea
     gender: Male
     age: 40
-  - name: Min-ho (민호)
+  - name: Lee Min-ho (이민호)
     targetLanguage: ko-KR
     archetypeId: casual-friend
     culturalNotes: from Busan who teaches through K-pop and modern culture
     location: Busan, South Korea
     gender: Male
     age: 30
-  - name: Soo-jin (수진)
+  - name: Choi Soo-jin (최수진)
     targetLanguage: ko-KR
     archetypeId: casual-friend
     culturalNotes: from Seoul who loves sharing Korean culture and food
     location: Seoul, South Korea
     gender: Female
     age: 20
-  - name: Hye-jin (혜진)
+  - name: Kang Hye-jin (강혜진)
     targetLanguage: ko-KR
     archetypeId: ko-romanization-specialist
     culturalNotes: who teaches entirely in romanization for learners not yet ready for Hangul
     location: Incheon, South Korea
     gender: Female
     age: 30
-  - name: Dae-hyun (대현)
+  - name: Jung Dae-hyun (정대현)
     targetLanguage: ko-KR
     archetypeId: ko-hangul-bridge
     culturalNotes: who accepts romanized input and responds in Hangul to ease the script transition
@@ -589,7 +617,7 @@ tutors:
     location: Moscow, Russia
     gender: Female
     age: 30
-  - name: Dmitri Petrovich (Дмитрий Петрович)
+  - name: Dmitri Petrov (Дмитрий Петров)
     targetLanguage: ru-RU
     archetypeId: strict-academic
     culturalNotes: focused on proper grammar and the six-case system
@@ -633,7 +661,7 @@ tutors:
     location: Rio de Janeiro, Brazil
     gender: Male
     age: 30
-  - name: Professor Silva
+  - name: Paula Silva
     targetLanguage: pt-BR
     archetypeId: strict-academic
     culturalNotes: in Brazilian Portuguese grammar and literature
@@ -656,7 +684,7 @@ tutors:
     location: Porto, Portugal
     gender: Male
     age: 30
-  - name: Professor Oliveira
+  - name: Miguel Oliveira
     targetLanguage: pt-PT
     archetypeId: strict-academic
     culturalNotes: focused on proper European Portuguese grammar and formal register
@@ -679,7 +707,7 @@ tutors:
     location: San Francisco, USA
     gender: Male
     age: 30
-  - name: Professor Johnson
+  - name: Rebecca Johnson
     targetLanguage: en-US
     archetypeId: strict-academic
     culturalNotes: from Boston with expertise in American English grammar and literature
@@ -709,7 +737,7 @@ tutors:
     location: Manchester, UK
     gender: Male
     age: 30
-  - name: Professor Williams
+  - name: Thomas Williams
     targetLanguage: en-GB
     archetypeId: strict-academic
     culturalNotes: from Oxford with expertise in British English grammar and literature
