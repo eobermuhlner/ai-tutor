@@ -172,8 +172,8 @@ languages:
     difficulty: Medium
     isActive: true
     description:
-      en: "Standard German from Germany with precise grammar rules"
-      de: "Standarddeutsch aus Deutschland mit präzisen Grammatikregeln"
+      en: "Standard German from Germany"
+      de: "Standarddeutsch aus Deutschland"
   - code: de-CH
     name:
       en: "German (Switzerland)"
@@ -310,8 +310,8 @@ languages:
     difficulty: Easy
     isActive: true
     description:
-      en: "American English with standard spelling"
-      es: "Inglés americano con ortografía estándar"
+      en: "American English"
+      es: "Inglés americano"
   - code: en-GB
     name:
       en: "English (UK)"
@@ -323,8 +323,8 @@ languages:
     difficulty: Easy
     isActive: true
     description:
-      en: "British English with UK spelling"
-      es: "Inglés británico con ortografía británica"
+      en: "British English"
+      es: "Inglés británico"
   - code: mul-ipa
     name:
       en: "International Phonetic Alphabet"
