@@ -526,14 +526,14 @@ tutors:
     culturalNotes: from Taipei who teaches entirely in pinyin for beginners not yet ready for Chinese characters
     location: Taipei, Taiwan
     gender: Male
-    age: 30
+    age: 40
   - name: Lin Xiaohui (林曉慧)
     targetLanguage: zh-TW
     archetypeId: zh-character-bridge
     culturalNotes: who accepts pinyin input and responds in both characters and pinyin to help learners transition to Hanzi
     location: Taipei, Taiwan
     gender: Female
-    age: 30
+    age: 20
 
   # Chinese (Cantonese, Hong Kong) tutors
   - name: Wong Mei-ling (黃美玲)
@@ -563,7 +563,7 @@ tutors:
     culturalNotes: who accepts Jyutping input and responds in both characters and romanization to help learners transition to Hanzi
     location: Hong Kong, China
     gender: Female
-    age: 30
+    age: 20
 
   # Korean (South Korea) tutors
   - name: Park Ji-won (박지원)
@@ -600,7 +600,7 @@ tutors:
     culturalNotes: who teaches entirely in romanization for learners not yet ready for Hangul
     location: Incheon, South Korea
     gender: Female
-    age: 30
+    age: 40
   - name: Jung Dae-hyun (정대현)
     targetLanguage: ko-KR
     archetypeId: ko-hangul-bridge
