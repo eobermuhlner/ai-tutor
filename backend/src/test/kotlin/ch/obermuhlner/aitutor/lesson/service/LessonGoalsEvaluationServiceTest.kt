@@ -75,8 +75,8 @@ class LessonGoalsEvaluationServiceTest {
         val lessonContent = LessonContent(
             id = lessonId,
             title = "Test Lesson",
-            weekNumber = 1,
-            estimatedDuration = "30 min",
+            lessonNumber = 1,
+            
             focusAreas = listOf("greetings", "phrases"),
             targetCEFR = CEFRLevel.A1,
             fullMarkdown = """
@@ -151,8 +151,8 @@ class LessonGoalsEvaluationServiceTest {
         val lessonContent = LessonContent(
             id = lessonId,
             title = "Test Lesson",
-            weekNumber = 1,
-            estimatedDuration = "30 min",
+            lessonNumber = 1,
+            
             focusAreas = listOf("content"),
             targetCEFR = CEFRLevel.A1,
             fullMarkdown = """
@@ -192,8 +192,8 @@ class LessonGoalsEvaluationServiceTest {
         val lessonContent = LessonContent(
             id = lessonId,
             title = "Test Lesson",
-            weekNumber = 1,
-            estimatedDuration = "30 min",
+            lessonNumber = 1,
+            
             focusAreas = listOf("test"),
             targetCEFR = CEFRLevel.A1,
             fullMarkdown = """
@@ -230,8 +230,8 @@ class LessonGoalsEvaluationServiceTest {
         val lessonContent = LessonContent(
             id = lessonId,
             title = "Test",
-            weekNumber = 1,
-            estimatedDuration = "30 min",
+            lessonNumber = 1,
+            
             focusAreas = listOf("vocabulary", "speaking"),
             targetCEFR = CEFRLevel.A1,
             fullMarkdown = """
@@ -278,8 +278,8 @@ class LessonGoalsEvaluationServiceTest {
         val lessonContent = LessonContent(
             id = lessonId,
             title = "Test",
-            weekNumber = 1,
-            estimatedDuration = "30 min",
+            lessonNumber = 1,
+            
             focusAreas = listOf("pronunciation"),
             targetCEFR = CEFRLevel.A1,
             fullMarkdown = """

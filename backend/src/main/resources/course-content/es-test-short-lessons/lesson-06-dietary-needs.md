@@ -1,8 +1,7 @@
 ---
 lessonId: lesson-06-dietary-needs
 title: Dietary Restrictions and Preferences
-weekNumber: 6
-estimatedDuration: 10-15 minutes
+lessonNumber: 6
 focusAreas:
   - Expressing dietary restrictions
   - Asking about ingredients

@@ -1,21 +1,21 @@
 courseId: mul-ipa-grammar-fundamentals
 progressionMode: COMPLETION_BASED
 lessons:
-  - id: week-01-ipa-foundations
-    file: week-01-ipa-foundations.md
+  - id: lesson-01-ipa-foundations
+    file: lesson-01-ipa-foundations.md
     requiredTurns: 20
-  - id: week-02-vowels-advanced
-    file: week-02-vowels-advanced.md
+  - id: lesson-02-vowels-advanced
+    file: lesson-02-vowels-advanced.md
     requiredTurns: 25
-  - id: week-03-plosives-nasals
-    file: week-03-plosives-nasals.md
+  - id: lesson-03-plosives-nasals
+    file: lesson-03-plosives-nasals.md
     requiredTurns: 25
-  - id: week-04-fricatives-affricates
-    file: week-04-fricatives-affricates.md
+  - id: lesson-04-fricatives-affricates
+    file: lesson-04-fricatives-affricates.md
     requiredTurns: 25
-  - id: week-05-approximants-liquids
-    file: week-05-approximants-liquids.md
+  - id: lesson-05-approximants-liquids
+    file: lesson-05-approximants-liquids.md
     requiredTurns: 25
-  - id: week-06-diacritics-suprasegmentals
-    file: week-06-diacritics-suprasegmentals.md
+  - id: lesson-06-diacritics-suprasegmentals
+    file: lesson-06-diacritics-suprasegmentals.md
     requiredTurns: 30

@@ -1,33 +1,33 @@
 courseId: zh-cn-mandarin-for-travelers
 progressionMode: COMPLETION_BASED
 lessons:
-  - id: week-01-airport-basics
-    file: week-01-airport-basics.md
+  - id: lesson-01-airport-basics
+    file: lesson-01-airport-basics.md
     requiredTurns: 5
-  - id: week-02-hotel-checkin
-    file: week-02-hotel-checkin.md
+  - id: lesson-02-hotel-checkin
+    file: lesson-02-hotel-checkin.md
     requiredTurns: 6
-  - id: week-03-transportation
-    file: week-03-transportation.md
+  - id: lesson-03-transportation
+    file: lesson-03-transportation.md
     requiredTurns: 6
-  - id: week-04-restaurant-ordering
-    file: week-04-restaurant-ordering.md
+  - id: lesson-04-restaurant-ordering
+    file: lesson-04-restaurant-ordering.md
     requiredTurns: 7
-  - id: week-05-shopping
-    file: week-05-shopping.md
+  - id: lesson-05-shopping
+    file: lesson-05-shopping.md
     requiredTurns: 6
-  - id: week-06-asking-directions
-    file: week-06-asking-directions.md
+  - id: lesson-06-asking-directions
+    file: lesson-06-asking-directions.md
     requiredTurns: 6
-  - id: week-07-emergencies
-    file: week-07-emergencies.md
+  - id: lesson-07-emergencies
+    file: lesson-07-emergencies.md
     requiredTurns: 6
-  - id: week-08-cultural-tips
-    file: week-08-cultural-tips.md
+  - id: lesson-08-cultural-tips
+    file: lesson-08-cultural-tips.md
     requiredTurns: 5
-  - id: week-09-travel-situations
-    file: week-09-travel-situations.md
+  - id: lesson-09-travel-situations
+    file: lesson-09-travel-situations.md
     requiredTurns: 6
-  - id: week-10-travel-review
-    file: week-10-travel-review.md
+  - id: lesson-10-travel-review
+    file: lesson-10-travel-review.md
     requiredTurns: 7

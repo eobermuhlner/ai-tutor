@@ -1,8 +1,7 @@
 ---
 lessonId: lesson-18-booking-activities
 title: Reservar Actividades y Tours
-weekNumber: 18
-estimatedDuration: 1 week
+lessonNumber: 18
 focusAreas:
   - Booking tours and experiences
   - Understanding activity details
@@ -10,7 +9,7 @@ focusAreas:
 targetCEFR: A1
 ---
 
-## This Week's Goals
+## Lesson Goals
 
 - Book tours and activities online or in person
 - Ask about schedules, prices, and what's included

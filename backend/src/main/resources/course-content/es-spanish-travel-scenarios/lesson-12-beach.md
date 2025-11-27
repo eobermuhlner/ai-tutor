@@ -1,8 +1,7 @@
 ---
 lessonId: lesson-12-beach
 title: En la Playa
-weekNumber: 12
-estimatedDuration: 1 week
+lessonNumber: 12
 focusAreas:
   - Beach facilities and equipment rental
   - Water activities and safety
@@ -10,7 +9,7 @@ focusAreas:
 targetCEFR: A1
 ---
 
-## This Week's Goals
+## Lesson Goals
 
 - Navigate beach facilities and services
 - Rent beach equipment like umbrellas and chairs

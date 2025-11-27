@@ -1,8 +1,7 @@
 ---
 lessonId: lesson-05-advanced-gustar
 title: Advanced 'Gustar' Patterns
-weekNumber: 5
-estimatedDuration: 10-15 minutes
+lessonNumber: 5
 focusAreas:
   - 'Gustar' with plural nouns
   - 'Gustar' with infinitive verbs

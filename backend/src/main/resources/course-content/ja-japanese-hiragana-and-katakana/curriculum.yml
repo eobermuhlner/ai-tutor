@@ -1,15 +1,15 @@
 courseId: ja-japanese-hiragana-and-katakana
 progressionMode: COMPLETION_BASED
 lessons:
-  - id: week-01-hiragana-vowels-consonants
-    file: week-01-hiragana-vowels-consonants.md
+  - id: lesson-01-hiragana-vowels-consonants
+    file: lesson-01-hiragana-vowels-consonants.md
     requiredTurns: 10
-  - id: week-02-hiragana-complex-syllables
-    file: week-02-hiragana-complex-syllables.md
+  - id: lesson-02-hiragana-complex-syllables
+    file: lesson-02-hiragana-complex-syllables.md
     requiredTurns: 10
-  - id: week-03-katakana-basics
-    file: week-03-katakana-basics.md
+  - id: lesson-03-katakana-basics
+    file: lesson-03-katakana-basics.md
     requiredTurns: 10
-  - id: week-04-katakana-advanced
-    file: week-04-katakana-advanced.md
+  - id: lesson-04-katakana-advanced
+    file: lesson-04-katakana-advanced.md
     requiredTurns: 10

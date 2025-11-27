@@ -1,33 +1,33 @@
 courseId: ko-korean-for-manhwa-and-webtoon-fans
 progressionMode: COMPLETION_BASED
 lessons:
-  - id: week-01-introduction
-    file: week-01-introduction.md
+  - id: lesson-01-introduction
+    file: lesson-01-introduction.md
     requiredTurns: 10
-  - id: week-02-basic-manhwa-vocabulary
-    file: week-02-basic-manhwa-vocabulary.md
+  - id: lesson-02-basic-manhwa-vocabulary
+    file: lesson-02-basic-manhwa-vocabulary.md
     requiredTurns: 10
-  - id: week-03-character-emotions
-    file: week-03-character-emotions.md
+  - id: lesson-03-character-emotions
+    file: lesson-03-character-emotions.md
     requiredTurns: 10
-  - id: week-04-action-scenes
-    file: week-04-action-scenes.md
+  - id: lesson-04-action-scenes
+    file: lesson-04-action-scenes.md
     requiredTurns: 10
-  - id: week-05-romance-dialogue
-    file: week-05-romance-dialogue.md
+  - id: lesson-05-romance-dialogue
+    file: lesson-05-romance-dialogue.md
     requiredTurns: 10
-  - id: week-06-dramatic-scenes
-    file: week-06-dramatic-scenes.md
+  - id: lesson-06-dramatic-scenes
+    file: lesson-06-dramatic-scenes.md
     requiredTurns: 10
-  - id: week-07-fantasy-elements
-    file: week-07-fantasy-elements.md
+  - id: lesson-07-fantasy-elements
+    file: lesson-07-fantasy-elements.md
     requiredTurns: 10
-  - id: week-08-slice-of-life
-    file: week-08-slice-of-life.md
+  - id: lesson-08-slice-of-life
+    file: lesson-08-slice-of-life.md
     requiredTurns: 10
-  - id: week-09-comedy-and-humor
-    file: week-09-comedy-and-humor.md
+  - id: lesson-09-comedy-and-humor
+    file: lesson-09-comedy-and-humor.md
     requiredTurns: 10
-  - id: week-10-advanced-dialogue
-    file: week-10-advanced-dialogue.md
+  - id: lesson-10-advanced-dialogue
+    file: lesson-10-advanced-dialogue.md
     requiredTurns: 15

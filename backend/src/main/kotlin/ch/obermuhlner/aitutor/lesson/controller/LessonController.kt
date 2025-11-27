@@ -138,8 +138,7 @@ class LessonController(
         return LessonContentResponse(
             id = lesson.id,
             title = lesson.title,
-            weekNumber = lesson.weekNumber,
-            estimatedDuration = lesson.estimatedDuration,
+            lessonNumber = lesson.lessonNumber,
             focusAreas = lesson.focusAreas,
             targetCEFR = lesson.targetCEFR,
             fullMarkdown = lesson.fullMarkdown

@@ -40,7 +40,7 @@ class LessonContentServiceTest {
         assertNotNull(curriculum)
         assertEquals("es-conversational-spanish", curriculum?.courseId)
         assertEquals(10, curriculum?.lessons?.size)
-        assertEquals("week-01-greetings", curriculum?.lessons?.first()?.id)
+        assertEquals("lesson-01-greetings", curriculum?.lessons?.first()?.id)
     }
 
     @Test
@@ -52,19 +52,19 @@ class LessonContentServiceTest {
 
     @Test
     fun `should load Spanish week 1 lesson successfully`() {
-        val lesson = lessonContentService.getLesson("es-conversational-spanish", "week-01-greetings")
+        val lesson = lessonContentService.getLesson("es-conversational-spanish", "lesson-01-greetings")
 
         assertNotNull(lesson)
-        assertEquals("week-01-greetings", lesson?.id)
+        assertEquals("lesson-01-greetings", lesson?.id)
         assertEquals("Greetings and Basic Expressions", lesson?.title)
-        assertEquals(1, lesson?.weekNumber)
+        assertEquals(1, lesson?.lessonNumber)
         assertEquals(CEFRLevel.A1, lesson?.targetCEFR)
         assertEquals(3, lesson?.focusAreas?.size)
     }
 
     @Test
     fun `should load lesson with valid content`() {
-        val lesson = lessonContentService.getLesson("es-conversational-spanish", "week-01-greetings")
+        val lesson = lessonContentService.getLesson("es-conversational-spanish", "lesson-01-greetings")
 
         assertNotNull(lesson)
         assertNotNull(lesson?.fullMarkdown)
@@ -73,17 +73,17 @@ class LessonContentServiceTest {
 
     @Test
     fun `should load lesson with metadata`() {
-        val lesson = lessonContentService.getLesson("es-conversational-spanish", "week-01-greetings")
+        val lesson = lessonContentService.getLesson("es-conversational-spanish", "lesson-01-greetings")
 
         assertNotNull(lesson)
-        assertEquals("week-01-greetings", lesson?.id)
+        assertEquals("lesson-01-greetings", lesson?.id)
         assertEquals("Greetings and Basic Expressions", lesson?.title)
-        assertEquals(1, lesson?.weekNumber)
+        assertEquals(1, lesson?.lessonNumber)
     }
 
     @Test
     fun `should load lesson with proper focus areas`() {
-        val lesson = lessonContentService.getLesson("es-conversational-spanish", "week-01-greetings")
+        val lesson = lessonContentService.getLesson("es-conversational-spanish", "lesson-01-greetings")
 
         assertNotNull(lesson)
         assertNotNull(lesson?.focusAreas)
@@ -92,25 +92,25 @@ class LessonContentServiceTest {
 
     @Test
     fun `should load lesson with proper metadata`() {
-        val lesson = lessonContentService.getLesson("es-conversational-spanish", "week-01-greetings")
+        val lesson = lessonContentService.getLesson("es-conversational-spanish", "lesson-01-greetings")
 
         assertNotNull(lesson)
-        assertEquals("week-01-greetings", lesson?.id)
+        assertEquals("lesson-01-greetings", lesson?.id)
         assertEquals("Greetings and Basic Expressions", lesson?.title)
-        assertEquals(1, lesson?.weekNumber)
+        assertEquals(1, lesson?.lessonNumber)
     }
 
     @Test
     fun `should return null for non-existent lesson`() {
-        val lesson = lessonContentService.getLesson("es-conversational-spanish", "week-99-nonexistent")
+        val lesson = lessonContentService.getLesson("es-conversational-spanish", "lesson-99-nonexistent")
 
         assertNull(lesson)
     }
 
     @Test
     fun `should cache lesson content`() {
-        val lesson1 = lessonContentService.getLesson("es-conversational-spanish", "week-01-greetings")
-        val lesson2 = lessonContentService.getLesson("es-conversational-spanish", "week-01-greetings")
+        val lesson1 = lessonContentService.getLesson("es-conversational-spanish", "lesson-01-greetings")
+        val lesson2 = lessonContentService.getLesson("es-conversational-spanish", "lesson-01-greetings")
 
         assertNotNull(lesson1)
         assertNotNull(lesson2)
@@ -151,16 +151,16 @@ class LessonContentServiceTest {
     @Test
     @Disabled("TODO: Fix lesson parsing - test expects specific lesson ID")
     fun `should parse lesson with minimal content`() {
-        val lesson = lessonContentService.getLesson("fr-conversational-french", "week-01-greetings")
+        val lesson = lessonContentService.getLesson("fr-conversational-french", "lesson-01-greetings")
 
         assertNotNull(lesson)
-        assertEquals("week-01-placeholder", lesson?.id)
+        assertEquals("lesson-01-placeholder", lesson?.id)
         assertNotNull(lesson?.fullMarkdown)
     }
 
     @Test
     fun `should handle lesson without optional fields gracefully`() {
-        val lesson = lessonContentService.getLesson("fr-conversational-french", "week-01-greetings")
+        val lesson = lessonContentService.getLesson("fr-conversational-french", "lesson-01-greetings")
 
         assertNotNull(lesson)
         // Should not crash even with minimal content

@@ -1,8 +1,7 @@
 ---
 lessonId: lesson-13-nightlife
 title: Vida Nocturna
-weekNumber: 13
-estimatedDuration: 1 week
+lessonNumber: 13
 focusAreas:
   - Going out to bars and clubs
   - Ordering drinks and socializing
@@ -10,7 +9,7 @@ focusAreas:
 targetCEFR: A1
 ---
 
-## This Week's Goals
+## Lesson Goals
 
 - Order drinks at bars and clubs
 - Understand Spanish nightlife timing and culture

@@ -1,8 +1,7 @@
 ---
 lessonId: lesson-20-socializing
 title: Conocer Gente y Socializar
-weekNumber: 20
-estimatedDuration: 1 week
+lessonNumber: 20
 focusAreas:
   - Meeting new people and making friends
   - Casual conversation and small talk
@@ -10,7 +9,7 @@ focusAreas:
 targetCEFR: A1
 ---
 
-## This Week's Goals
+## Lesson Goals
 
 - Start conversations with locals and other travelers
 - Talk about yourself and ask about others

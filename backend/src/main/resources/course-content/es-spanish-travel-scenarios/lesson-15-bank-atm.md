@@ -1,8 +1,7 @@
 ---
 lessonId: lesson-15-bank-atm
 title: Banco y Cajero Automático
-weekNumber: 15
-estimatedDuration: 1 week
+lessonNumber: 15
 focusAreas:
   - Using ATMs and understanding screens
   - Currency exchange
@@ -10,7 +9,7 @@ focusAreas:
 targetCEFR: A1
 ---
 
-## This Week's Goals
+## Lesson Goals
 
 - Successfully use Spanish ATMs
 - Understand ATM screen options and vocabulary

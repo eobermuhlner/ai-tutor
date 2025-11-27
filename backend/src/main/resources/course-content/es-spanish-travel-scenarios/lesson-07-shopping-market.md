@@ -1,8 +1,7 @@
 ---
 lessonId: lesson-07-shopping-market
 title: De Compras y en el Mercado
-weekNumber: 7
-estimatedDuration: 1 week
+lessonNumber: 7
 focusAreas:
   - Shopping in stores and markets
   - Asking about prices and sizes
@@ -10,7 +9,7 @@ focusAreas:
 targetCEFR: A1
 ---
 
-## This Week's Goals
+## Lesson Goals
 
 - Shop for souvenirs, clothes, and food at stores and markets
 - Ask about prices, sizes, and availability

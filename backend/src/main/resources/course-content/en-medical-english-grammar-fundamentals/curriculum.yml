@@ -1,39 +1,39 @@
 courseId: en-medical-english-grammar-fundamentals
 progressionMode: COMPLETION_BASED
 lessons:
-  - id: week-01-medical-terminology-basics
-    file: week-01-medical-terminology-basics.md
+  - id: lesson-01-medical-terminology-basics
+    file: lesson-01-medical-terminology-basics.md
     requiredTurns: 20
-  - id: week-02-patient-history-taking
-    file: week-02-patient-history-taking.md
+  - id: lesson-02-patient-history-taking
+    file: lesson-02-patient-history-taking.md
     requiredTurns: 25
-  - id: week-03-physical-examination
-    file: week-03-physical-examination.md
+  - id: lesson-03-physical-examination
+    file: lesson-03-physical-examination.md
     requiredTurns: 30
-  - id: week-04-diagnosis-treatment-plans
-    file: week-04-diagnosis-treatment-plans.md
+  - id: lesson-04-diagnosis-treatment-plans
+    file: lesson-04-diagnosis-treatment-plans.md
     requiredTurns: 30
-  - id: week-05-medical-reports-writing
-    file: week-05-medical-reports-writing.md
+  - id: lesson-05-medical-reports-writing
+    file: lesson-05-medical-reports-writing.md
     requiredTurns: 35
-  - id: week-06-informed-consent-communication
-    file: week-06-informed-consent-communication.md
+  - id: lesson-06-informed-consent-communication
+    file: lesson-06-informed-consent-communication.md
     requiredTurns: 35
-  - id: week-07-breaking-bad-news
-    file: week-07-breaking-bad-news.md
+  - id: lesson-07-breaking-bad-news
+    file: lesson-07-breaking-bad-news.md
     requiredTurns: 35
-  - id: week-08-medical-research-writing
-    file: week-08-medical-research-writing.md
+  - id: lesson-08-medical-research-writing
+    file: lesson-08-medical-research-writing.md
     requiredTurns: 40
-  - id: week-09-pharmaceutical-communication
-    file: week-09-pharmaceutical-communication.md
+  - id: lesson-09-pharmaceutical-communication
+    file: lesson-09-pharmaceutical-communication.md
     requiredTurns: 40
-  - id: week-10-medical-conferences-presentations
-    file: week-10-medical-conferences-presentations.md
+  - id: lesson-10-medical-conferences-presentations
+    file: lesson-10-medical-conferences-presentations.md
     requiredTurns: 40
-  - id: week-11-cross-cultural-medical-communication
-    file: week-11-cross-cultural-medical-communication.md
+  - id: lesson-11-cross-cultural-medical-communication
+    file: lesson-11-cross-cultural-medical-communication.md
     requiredTurns: 40
-  - id: week-12-medical-grammar-completion
-    file: week-12-medical-grammar-completion.md
+  - id: lesson-12-medical-grammar-completion
+    file: lesson-12-medical-grammar-completion.md
     requiredTurns: 40

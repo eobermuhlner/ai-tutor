@@ -1,8 +1,7 @@
 ---
 lessonId: lesson-02-expressions-of-want
 title: Expressions of Want with 'Querer'
-weekNumber: 2
-estimatedDuration: 10-15 minutes
+lessonNumber: 2
 focusAreas:
   - The verb 'querer' (to want)
   - Basic ordering expressions

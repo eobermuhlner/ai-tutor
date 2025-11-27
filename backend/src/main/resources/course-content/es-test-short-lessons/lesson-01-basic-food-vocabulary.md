@@ -1,8 +1,7 @@
 ---
 lessonId: lesson-01-basic-food-vocabulary
 title: Basic Restaurant Vocabulary
-weekNumber: 1
-estimatedDuration: 10-15 minutes
+lessonNumber: 1
 focusAreas:
   - Basic food/drink vocabulary
   - Expressions of hunger/thirst

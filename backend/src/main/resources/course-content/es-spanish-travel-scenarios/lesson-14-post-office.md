@@ -1,8 +1,7 @@
 ---
 lessonId: lesson-14-post-office
 title: En Correos
-weekNumber: 14
-estimatedDuration: 1 week
+lessonNumber: 14
 focusAreas:
   - Sending postcards and letters
   - Mailing packages internationally
@@ -10,7 +9,7 @@ focusAreas:
 targetCEFR: A1
 ---
 
-## This Week's Goals
+## Lesson Goals
 
 - Send postcards and letters from Spain
 - Mail packages back home

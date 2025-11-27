@@ -76,20 +76,20 @@ class LessonProgressionServiceTest {
             courseId = "es-conversational-spanish",
             progressionMode = ProgressionMode.COMPLETION_BASED,
             lessons = listOf(
-                LessonMetadata("week-01-greetings", "week-01-greetings.md", 5)
+                LessonMetadata("lesson-01-greetings", "lesson-01-greetings.md", 5)
             )
         )
         every { lessonContentService.getCurriculum("es-conversational-spanish") } returns curriculum
 
         val lessonContent = mockk<LessonContent>()
-        every { lessonContentService.getLesson("es-conversational-spanish", "week-01-greetings") } returns lessonContent
+        every { lessonContentService.getLesson("es-conversational-spanish", "lesson-01-greetings") } returns lessonContent
         every { chatSessionRepository.findById(session.id) } returns java.util.Optional.of(session)
         every { chatSessionRepository.save(any()) } returns session
 
         val result = lessonProgressionService.checkAndProgressLesson(session.id)
 
         assertNotNull(result)
-        assertEquals("week-01-greetings", session.currentLessonId)
+        assertEquals("lesson-01-greetings", session.currentLessonId)
         assertNotNull(session.lessonStartedAt)
         verify { chatSessionRepository.save(session) }
     }
@@ -132,7 +132,7 @@ class LessonProgressionServiceTest {
             effectivePhase = ConversationPhase.Correction,
             estimatedCEFRLevel = CEFRLevel.A1,
             courseTemplateId = courseId,
-            currentLessonId = "week-01-greetings",
+            currentLessonId = "lesson-01-greetings",
             lessonStartedAt = Instant.now(),
             lessonProgressTurnCount = 10, // Turns met
             lessonProgressGoalsCompleted = false // But goals not completed
@@ -147,20 +147,20 @@ class LessonProgressionServiceTest {
             courseId = "es-conversational-spanish",
             progressionMode = ProgressionMode.COMPLETION_BASED,
             lessons = listOf(
-                LessonMetadata("week-01-greetings", "week-01-greetings.md", 5),
-                LessonMetadata("week-02-introductions", "week-02-introductions.md", 8)
+                LessonMetadata("lesson-01-greetings", "lesson-01-greetings.md", 5),
+                LessonMetadata("lesson-02-introductions", "lesson-02-introductions.md", 8)
             )
         )
         every { lessonContentService.getCurriculum("es-conversational-spanish") } returns curriculum
 
         val lessonContent = mockk<LessonContent>()
-        every { lessonContentService.getLesson("es-conversational-spanish", "week-01-greetings") } returns lessonContent
+        every { lessonContentService.getLesson("es-conversational-spanish", "lesson-01-greetings") } returns lessonContent
         every { chatSessionRepository.findById(session.id) } returns java.util.Optional.of(session)
 
         val result = lessonProgressionService.checkAndProgressLesson(session.id)
 
         assertNotNull(result)
-        assertEquals("week-01-greetings", session.currentLessonId) // Should stay on same lesson
+        assertEquals("lesson-01-greetings", session.currentLessonId) // Should stay on same lesson
     }
 
     @Test
@@ -179,7 +179,7 @@ class LessonProgressionServiceTest {
             effectivePhase = ConversationPhase.Correction,
             estimatedCEFRLevel = CEFRLevel.A1,
             courseTemplateId = courseId,
-            currentLessonId = "week-01-greetings",
+            currentLessonId = "lesson-01-greetings",
             lessonStartedAt = Instant.now(),
             lessonProgressTurnCount = 10, // Turns met
             lessonProgressGoalsCompleted = true // Goals met
@@ -194,21 +194,21 @@ class LessonProgressionServiceTest {
             courseId = "es-conversational-spanish",
             progressionMode = ProgressionMode.COMPLETION_BASED,
             lessons = listOf(
-                LessonMetadata("week-01-greetings", "week-01-greetings.md", 5),
-                LessonMetadata("week-02-introductions", "week-02-introductions.md", 8)
+                LessonMetadata("lesson-01-greetings", "lesson-01-greetings.md", 5),
+                LessonMetadata("lesson-02-introductions", "lesson-02-introductions.md", 8)
             )
         )
         every { lessonContentService.getCurriculum("es-conversational-spanish") } returns curriculum
 
         val lessonContent = mockk<LessonContent>()
-        every { lessonContentService.getLesson("es-conversational-spanish", "week-02-introductions") } returns lessonContent
+        every { lessonContentService.getLesson("es-conversational-spanish", "lesson-02-introductions") } returns lessonContent
         every { chatSessionRepository.findById(sessionId) } returns java.util.Optional.of(session)
         every { chatSessionRepository.save(any()) } returns session
 
         val result = lessonProgressionService.checkAndProgressLesson(sessionId)
 
         assertNotNull(result)
-        assertEquals("week-02-introductions", session.currentLessonId)
+        assertEquals("lesson-02-introductions", session.currentLessonId)
         verify { chatSessionRepository.save(session) }
     }
 
@@ -228,7 +228,7 @@ class LessonProgressionServiceTest {
             effectivePhase = ConversationPhase.Correction,
             estimatedCEFRLevel = CEFRLevel.A1,
             courseTemplateId = courseId,
-            currentLessonId = "week-10-future-plans",
+            currentLessonId = "lesson-10-future-plans",
             lessonStartedAt = Instant.now(),
             lessonProgressTurnCount = 20,
             lessonProgressGoalsCompleted = true
@@ -243,13 +243,13 @@ class LessonProgressionServiceTest {
             courseId = "es-conversational-spanish",
             progressionMode = ProgressionMode.COMPLETION_BASED,
             lessons = listOf(
-                LessonMetadata("week-10-future-plans", "week-10-future-plans.md", 15)
+                LessonMetadata("lesson-10-future-plans", "lesson-10-future-plans.md", 15)
             )
         )
         every { lessonContentService.getCurriculum("es-conversational-spanish") } returns curriculum
 
         val lessonContent = mockk<LessonContent>()
-        every { lessonContentService.getLesson("es-conversational-spanish", "week-10-future-plans") } returns lessonContent
+        every { lessonContentService.getLesson("es-conversational-spanish", "lesson-10-future-plans") } returns lessonContent
         every { chatSessionRepository.findById(sessionId) } returns java.util.Optional.of(session)
 
         val result = lessonProgressionService.checkAndProgressLesson(sessionId)
@@ -257,7 +257,7 @@ class LessonProgressionServiceTest {
         // TODO: Service currently returns null when on last lesson and criteria met to advance
         // Consider returning current lesson content instead
         // For now, verify session state remains unchanged
-        assertEquals("week-10-future-plans", session.currentLessonId) // Stays on last lesson
+        assertEquals("lesson-10-future-plans", session.currentLessonId) // Stays on last lesson
     }
 
     @Test
@@ -276,7 +276,7 @@ class LessonProgressionServiceTest {
             effectivePhase = ConversationPhase.Correction,
             estimatedCEFRLevel = CEFRLevel.A1,
             courseTemplateId = courseId,
-            currentLessonId = "week-01-greetings"
+            currentLessonId = "lesson-01-greetings"
         )
 
         val course = mockk<CourseTemplateEntity>()
@@ -288,21 +288,21 @@ class LessonProgressionServiceTest {
             courseId = "es-conversational-spanish",
             progressionMode = ProgressionMode.COMPLETION_BASED,
             lessons = listOf(
-                LessonMetadata("week-01-greetings", "week-01-greetings.md", 5),
-                LessonMetadata("week-02-introductions", "week-02-introductions.md", 8)
+                LessonMetadata("lesson-01-greetings", "lesson-01-greetings.md", 5),
+                LessonMetadata("lesson-02-introductions", "lesson-02-introductions.md", 8)
             )
         )
         every { lessonContentService.getCurriculum("es-conversational-spanish") } returns curriculum
 
         val lessonContent = mockk<LessonContent>()
-        every { lessonContentService.getLesson("es-conversational-spanish", "week-02-introductions") } returns lessonContent
+        every { lessonContentService.getLesson("es-conversational-spanish", "lesson-02-introductions") } returns lessonContent
         every { chatSessionRepository.findById(sessionId) } returns java.util.Optional.of(session)
         every { chatSessionRepository.save(any()) } returns session
 
         val result = lessonProgressionService.forceAdvanceLesson(sessionId)
 
         assertNotNull(result)
-        assertEquals("week-02-introductions", session.currentLessonId)
+        assertEquals("lesson-02-introductions", session.currentLessonId)
         verify { chatSessionRepository.save(session) }
     }
 
@@ -320,7 +320,7 @@ class LessonProgressionServiceTest {
             effectivePhase = ConversationPhase.Correction,
             estimatedCEFRLevel = CEFRLevel.A1,
             courseTemplateId = courseId,
-            currentLessonId = "week-10-future-plans"
+            currentLessonId = "lesson-10-future-plans"
         )
 
         val course = mockk<CourseTemplateEntity>()
@@ -332,7 +332,7 @@ class LessonProgressionServiceTest {
             courseId = "es-conversational-spanish",
             progressionMode = ProgressionMode.COMPLETION_BASED,
             lessons = listOf(
-                LessonMetadata("week-10-future-plans", "week-10-future-plans.md", 15)
+                LessonMetadata("lesson-10-future-plans", "lesson-10-future-plans.md", 15)
             )
         )
         every { lessonContentService.getCurriculum("es-conversational-spanish") } returns curriculum

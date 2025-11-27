@@ -1,6 +1,6 @@
 courseId: pt-portuguese-conversation
 progressionMode: COMPLETION_BASED
 lessons:
-  - id: week-01-introduction
-    file: week-01-introduction.md
+  - id: lesson-01-introduction
+    file: lesson-01-introduction.md
     requiredTurns: 5

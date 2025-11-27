@@ -52,8 +52,8 @@ class LessonControllerTest {
             courseId = "es-conversational-spanish",
             progressionMode = ProgressionMode.COMPLETION_BASED,
             lessons = listOf(
-                LessonMetadata("week-01-greetings", "week-01-greetings.md", 5),
-                LessonMetadata("week-02-introductions", "week-02-introductions.md", 8)
+                LessonMetadata("lesson-01-greetings", "lesson-01-greetings.md", 5),
+                LessonMetadata("lesson-02-introductions", "lesson-02-introductions.md", 8)
             )
         )
 
@@ -82,24 +82,24 @@ class LessonControllerTest {
     @Test
     fun `should get specific lesson successfully`() {
         val lesson = LessonContent(
-            id = "week-01-greetings",
+            id = "lesson-01-greetings",
             title = "Greetings",
-            weekNumber = 1,
-            estimatedDuration = "1 week",
+            lessonNumber = 1,
+            
             focusAreas = listOf("greetings", "polite expressions"),
             targetCEFR = CEFRLevel.A1,
             fullMarkdown = "# Greetings"
         )
 
-        every { lessonContentService.getLesson("es-conversational-spanish", "week-01-greetings") } returns lesson
+        every { lessonContentService.getLesson("es-conversational-spanish", "lesson-01-greetings") } returns lesson
 
-        val response = lessonController.getLesson("es-conversational-spanish", "week-01-greetings")
+        val response = lessonController.getLesson("es-conversational-spanish", "lesson-01-greetings")
 
         assertEquals(HttpStatus.OK, response.statusCode)
         assertNotNull(response.body)
-        assertEquals("week-01-greetings", response.body?.id)
+        assertEquals("lesson-01-greetings", response.body?.id)
         assertEquals("Greetings", response.body?.title)
-        assertEquals(1, response.body?.weekNumber)
+        assertEquals(1, response.body?.lessonNumber)
     }
 
     @Test
@@ -131,14 +131,14 @@ class LessonControllerTest {
             effectivePhase = ConversationPhase.Correction,
             estimatedCEFRLevel = CEFRLevel.A1,
             courseTemplateId = courseId,
-            currentLessonId = "week-01-greetings"
+            currentLessonId = "lesson-01-greetings"
         )
 
         val lesson = LessonContent(
-            id = "week-01-greetings",
+            id = "lesson-01-greetings",
             title = "Greetings",
-            weekNumber = 1,
-            estimatedDuration = "1 week",
+            lessonNumber = 1,
+            
             focusAreas = listOf("greetings"),
             targetCEFR = CEFRLevel.A1,
             fullMarkdown = "# Greetings"
@@ -152,7 +152,7 @@ class LessonControllerTest {
 
         assertEquals(HttpStatus.OK, response.statusCode)
         assertNotNull(response.body)
-        assertEquals("week-01-greetings", response.body?.id)
+        assertEquals("lesson-01-greetings", response.body?.id)
     }
 
     @Test
@@ -240,14 +240,14 @@ class LessonControllerTest {
             effectivePhase = ConversationPhase.Correction,
             estimatedCEFRLevel = CEFRLevel.A1,
             courseTemplateId = courseId,
-            currentLessonId = "week-01-greetings"
+            currentLessonId = "lesson-01-greetings"
         )
 
         val nextLesson = LessonContent(
-            id = "week-02-introductions",
+            id = "lesson-02-introductions",
             title = "Introductions",
-            weekNumber = 2,
-            estimatedDuration = "1 week",
+            lessonNumber = 2,
+            
             focusAreas = listOf("introductions"),
             targetCEFR = CEFRLevel.A1,
             fullMarkdown = "# Introductions"
@@ -261,7 +261,7 @@ class LessonControllerTest {
 
         assertEquals(HttpStatus.OK, response.statusCode)
         assertNotNull(response.body)
-        assertEquals("week-02-introductions", response.body?.id)
+        assertEquals("lesson-02-introductions", response.body?.id)
         verify { lessonProgressionService.forceAdvanceLesson(sessionId) }
     }
 
@@ -282,7 +282,7 @@ class LessonControllerTest {
             effectivePhase = ConversationPhase.Correction,
             estimatedCEFRLevel = CEFRLevel.A1,
             courseTemplateId = courseId,
-            currentLessonId = "week-10-future-plans"
+            currentLessonId = "lesson-10-future-plans"
         )
 
         every { authorizationService.getCurrentUserId() } returns userId

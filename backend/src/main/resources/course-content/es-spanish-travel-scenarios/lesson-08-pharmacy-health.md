@@ -1,8 +1,7 @@
 ---
 lessonId: lesson-08-pharmacy-health
 title: En la Farmacia y Temas de Salud
-weekNumber: 8
-estimatedDuration: 1 week
+lessonNumber: 8
 focusAreas:
   - Getting medication at pharmacies
   - Describing symptoms and health problems
@@ -10,7 +9,7 @@ focusAreas:
 targetCEFR: A1
 ---
 
-## This Week's Goals
+## Lesson Goals
 
 - Communicate symptoms and health issues clearly
 - Request over-the-counter medications at pharmacies

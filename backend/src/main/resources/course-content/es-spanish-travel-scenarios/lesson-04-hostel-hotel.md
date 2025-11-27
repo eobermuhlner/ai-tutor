@@ -1,8 +1,7 @@
 ---
 lessonId: lesson-04-hostel-hotel
 title: En el Hostal o Hotel
-weekNumber: 4
-estimatedDuration: 1 week
+lessonNumber: 4
 focusAreas:
   - Checking in and out
   - Requesting services and amenities
@@ -10,7 +9,7 @@ focusAreas:
 targetCEFR: A1
 ---
 
-## This Week's Goals
+## Lesson Goals
 
 - Successfully check in and out of accommodations
 - Request room preferences and ask about amenities

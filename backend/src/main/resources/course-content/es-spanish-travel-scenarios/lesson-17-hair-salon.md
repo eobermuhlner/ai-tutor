@@ -1,8 +1,7 @@
 ---
 lessonId: lesson-17-hair-salon
 title: Peluquería y Barbería
-weekNumber: 17
-estimatedDuration: 1 week
+lessonNumber: 17
 focusAreas:
   - Getting a haircut or style
   - Describing what you want
@@ -10,7 +9,7 @@ focusAreas:
 targetCEFR: A1
 ---
 
-## This Week's Goals
+## Lesson Goals
 
 - Make appointments at hair salons or barbershops
 - Describe desired haircut or style

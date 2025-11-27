@@ -1,8 +1,7 @@
 ---
 lessonId: lesson-16-laundromat
 title: La Lavandería
-weekNumber: 16
-estimatedDuration: 1 week
+lessonNumber: 16
 focusAreas:
   - Using self-service laundromats
   - Dry cleaning services
@@ -10,7 +9,7 @@ focusAreas:
 targetCEFR: A1
 ---
 
-## This Week's Goals
+## Lesson Goals
 
 - Use self-service laundromats successfully
 - Understand washing machine and dryer controls

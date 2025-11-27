@@ -103,8 +103,7 @@ class LessonContentService(
         return LessonContent(
             id = lessonEntity.lessonId,
             title = lessonEntity.title,
-            weekNumber = null, // Extract from frontmatter if available
-            estimatedDuration = frontmatter["estimatedDuration"] as? String,
+            lessonNumber = (frontmatter["lessonNumber"] as? Number)?.toInt(),
             focusAreas = (frontmatter["focusAreas"] as? List<*>)?.mapNotNull { it as? String } ?: emptyList(),
             targetCEFR = CEFRLevel.valueOf(frontmatter["targetCEFR"] as? String ?: "A1"),
             fullMarkdown = lessonEntity.content
@@ -140,8 +139,7 @@ class LessonContentService(
         return LessonContent(
             id = frontmatter["lessonId"] as? String ?: lessonId,
             title = frontmatter["title"] as? String ?: "Untitled",
-            weekNumber = (frontmatter["weekNumber"] as? Number)?.toInt(),
-            estimatedDuration = frontmatter["estimatedDuration"] as? String,
+            lessonNumber = (frontmatter["lessonNumber"] as? Number)?.toInt(),
             focusAreas = (frontmatter["focusAreas"] as? List<*>)?.mapNotNull { it as? String } ?: emptyList(),
             targetCEFR = CEFRLevel.valueOf(frontmatter["targetCEFR"] as? String ?: "A1"),
             fullMarkdown = markdown

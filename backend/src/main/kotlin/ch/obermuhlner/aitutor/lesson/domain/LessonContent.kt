@@ -5,8 +5,7 @@ import ch.obermuhlner.aitutor.core.model.CEFRLevel
 data class LessonContent(
     val id: String,
     val title: String,
-    val weekNumber: Int?,
-    val estimatedDuration: String?,
+    val lessonNumber: Int?,
     val focusAreas: List<String>,
     val targetCEFR: CEFRLevel,
     val fullMarkdown: String

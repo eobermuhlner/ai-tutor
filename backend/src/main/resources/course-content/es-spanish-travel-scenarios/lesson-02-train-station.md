@@ -1,8 +1,7 @@
 ---
 lessonId: lesson-02-train-station
 title: En la Estación de Tren
-weekNumber: 2
-estimatedDuration: 1 week
+lessonNumber: 2
 focusAreas:
   - Train station navigation
   - Buying tickets and understanding schedules
@@ -10,7 +9,7 @@ focusAreas:
 targetCEFR: A1
 ---
 
-## This Week's Goals
+## Lesson Goals
 
 - Buy train tickets at the counter or machine
 - Understand train schedules and platform information

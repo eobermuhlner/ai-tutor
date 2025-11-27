@@ -1,8 +1,7 @@
 ---
 lessonId: lesson-08-weekdays
 title: Weekdays
-weekNumber: 6
-estimatedDuration: 5 minutes
+lessonNumber: 6
 focusAreas:
   - Expressing weekdays
 targetCEFR: A1

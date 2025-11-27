@@ -1,8 +1,7 @@
 ---
 lessonId: lesson-06-taxi-uber
 title: En el Taxi y Uber
-weekNumber: 6
-estimatedDuration: 1 week
+lessonNumber: 6
 focusAreas:
   - Taking taxis and ride-sharing services
   - Giving directions and destinations
@@ -10,7 +9,7 @@ focusAreas:
 targetCEFR: A1
 ---
 
-## This Week's Goals
+## Lesson Goals
 
 - Hail a taxi and communicate your destination
 - Give directions and understand driver questions

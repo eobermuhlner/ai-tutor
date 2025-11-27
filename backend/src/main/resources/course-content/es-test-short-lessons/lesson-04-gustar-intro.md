@@ -1,8 +1,7 @@
 ---
 lessonId: lesson-04-gustar-intro
 title: Introduction to 'Gustar' for Preferences
-weekNumber: 4
-estimatedDuration: 10-15 minutes
+lessonNumber: 4
 focusAreas:
   - Basic 'gustar' structure
   - Expressing likes for food

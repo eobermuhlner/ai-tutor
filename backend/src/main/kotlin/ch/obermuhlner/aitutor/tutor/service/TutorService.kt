@@ -259,10 +259,10 @@ class TutorService(
             append("\n")
         }
 
-        append("=== This Week's Lesson ===\n")
+        append("=== Current Lesson ===\n")
         append("Lesson: ${lesson.title}\n")
-        if (lesson.weekNumber != null) {
-            append("Week: ${lesson.weekNumber}\n")
+        if (lesson.lessonNumber != null) {
+            append("Lesson Number: ${lesson.lessonNumber}\n")
         }
         append("CEFR Level: ${lesson.targetCEFR.name}\n\n")
 

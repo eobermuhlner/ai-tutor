@@ -1,8 +1,7 @@
 ---
 lessonId: lesson-07-colors
 title: Colors
-weekNumber: 6
-estimatedDuration: 5 minutes
+lessonNumber: 6
 focusAreas:
   - Expressing colors
 targetCEFR: A1

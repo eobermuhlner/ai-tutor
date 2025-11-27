@@ -1,15 +1,15 @@
 courseId: ko-korean-hangul-and-pronunciation
 progressionMode: COMPLETION_BASED
 lessons:
-  - id: week-01-hangul-vowels-and-basic-consonants
-    file: week-01-hangul-vowels-and-basic-consonants.md
+  - id: lesson-01-hangul-vowels-and-basic-consonants
+    file: lesson-01-hangul-vowels-and-basic-consonants.md
     requiredTurns: 10
-  - id: week-02-hangul-advanced-consonants
-    file: week-02-hangul-advanced-consonants.md
+  - id: lesson-02-hangul-advanced-consonants
+    file: lesson-02-hangul-advanced-consonants.md
     requiredTurns: 10
-  - id: week-03-syllable-formation
-    file: week-03-syllable-formation.md
+  - id: lesson-03-syllable-formation
+    file: lesson-03-syllable-formation.md
     requiredTurns: 10
-  - id: week-04-pronunciation-and-practice
-    file: week-04-pronunciation-and-practice.md
+  - id: lesson-04-pronunciation-and-practice
+    file: lesson-04-pronunciation-and-practice.md
     requiredTurns: 10

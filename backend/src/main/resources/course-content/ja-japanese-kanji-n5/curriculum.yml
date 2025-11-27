@@ -1,33 +1,33 @@
 courseId: ja-japanese-kanji-n5
 progressionMode: COMPLETION_BASED
 lessons:
-  - id: week-01-hiragana-katakana-review
-    file: week-01-hiragana-katakana-review.md
+  - id: lesson-01-hiragana-katakana-review
+    file: lesson-01-hiragana-katakana-review.md
     requiredTurns: 10
-  - id: week-02-kanji-introduction
-    file: week-02-kanji-introduction.md
+  - id: lesson-02-kanji-introduction
+    file: lesson-02-kanji-introduction.md
     requiredTurns: 10
-  - id: week-03-basic-kanji-201-300
-    file: week-03-basic-kanji-201-300.md
+  - id: lesson-03-basic-kanji-201-300
+    file: lesson-03-basic-kanji-201-300.md
     requiredTurns: 10
-  - id: week-04-kanji-301-400
-    file: week-04-kanji-301-400.md
+  - id: lesson-04-kanji-301-400
+    file: lesson-04-kanji-301-400.md
     requiredTurns: 10
-  - id: week-05-kanji-401-500
-    file: week-05-kanji-401-500.md
+  - id: lesson-05-kanji-401-500
+    file: lesson-05-kanji-401-500.md
     requiredTurns: 10
-  - id: week-06-kanji-501-600
-    file: week-06-kanji-501-600.md
+  - id: lesson-06-kanji-501-600
+    file: lesson-06-kanji-501-600.md
     requiredTurns: 10
-  - id: week-07-kanji-601-700
-    file: week-07-kanji-601-700.md
+  - id: lesson-07-kanji-601-700
+    file: lesson-07-kanji-601-700.md
     requiredTurns: 10
-  - id: week-08-kanji-701-800
-    file: week-08-kanji-701-800.md
+  - id: lesson-08-kanji-701-800
+    file: lesson-08-kanji-701-800.md
     requiredTurns: 10
-  - id: week-09-kanji-801-900
-    file: week-09-kanji-801-900.md
+  - id: lesson-09-kanji-801-900
+    file: lesson-09-kanji-801-900.md
     requiredTurns: 10
-  - id: week-10-kanji-review
-    file: week-10-kanji-review.md
+  - id: lesson-10-kanji-review
+    file: lesson-10-kanji-review.md
     requiredTurns: 10

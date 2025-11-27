@@ -1,39 +1,39 @@
 courseId: ru-russian-grammar-fundamentals
 progressionMode: COMPLETION_BASED
 lessons:
-  - id: week-01-noun-cases-introduction
-    file: week-01-noun-cases-introduction.md
+  - id: lesson-01-noun-cases-introduction
+    file: lesson-01-noun-cases-introduction.md
     requiredTurns: 5
-  - id: week-02-accusative-case
-    file: week-02-accusative-case.md
+  - id: lesson-02-accusative-case
+    file: lesson-02-accusative-case.md
     requiredTurns: 6
-  - id: week-03-dative-case
-    file: week-03-dative-case.md
+  - id: lesson-03-dative-case
+    file: lesson-03-dative-case.md
     requiredTurns: 6
-  - id: week-04-genitive-case
-    file: week-04-genitive-case.md
+  - id: lesson-04-genitive-case
+    file: lesson-04-genitive-case.md
     requiredTurns: 7
-  - id: week-05-prepositional-case
-    file: week-05-prepositional-case.md
+  - id: lesson-05-prepositional-case
+    file: lesson-05-prepositional-case.md
     requiredTurns: 6
-  - id: week-06-instrumental-case
-    file: week-06-instrumental-case.md
+  - id: lesson-06-instrumental-case
+    file: lesson-06-instrumental-case.md
     requiredTurns: 6
-  - id: week-07-verb-aspects
-    file: week-07-verb-aspects.md
+  - id: lesson-07-verb-aspects
+    file: lesson-07-verb-aspects.md
     requiredTurns: 6
-  - id: week-08-verb-conjugation
-    file: week-08-verb-conjugation.md
+  - id: lesson-08-verb-conjugation
+    file: lesson-08-verb-conjugation.md
     requiredTurns: 5
-  - id: week-09-questions-and-answers
-    file: week-09-questions-and-answers.md
+  - id: lesson-09-questions-and-answers
+    file: lesson-09-questions-and-answers.md
     requiredTurns: 6
-  - id: week-10-grammar-review
-    file: week-10-grammar-review.md
+  - id: lesson-10-grammar-review
+    file: lesson-10-grammar-review.md
     requiredTurns: 7
-  - id: week-11-advanced-cases
-    file: week-11-advanced-cases.md
+  - id: lesson-11-advanced-cases
+    file: lesson-11-advanced-cases.md
     requiredTurns: 6
-  - id: week-12-grammar-completion
-    file: week-12-grammar-completion.md
+  - id: lesson-12-grammar-completion
+    file: lesson-12-grammar-completion.md
     requiredTurns: 7

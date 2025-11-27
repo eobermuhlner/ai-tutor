@@ -1,39 +1,39 @@
 courseId: en-business-english-grammar-fundamentals
 progressionMode: COMPLETION_BASED
 lessons:
-  - id: week-01-formal-vs-informal-language
-    file: week-01-formal-vs-informal-language.md
+  - id: lesson-01-formal-vs-informal-language
+    file: lesson-01-formal-vs-informal-language.md
     requiredTurns: 5
-  - id: week-02-business-email-writing
-    file: week-02-business-email-writing.md
+  - id: lesson-02-business-email-writing
+    file: lesson-02-business-email-writing.md
     requiredTurns: 6
-  - id: week-03-presentations-meetings
-    file: week-03-presentations-meetings.md
+  - id: lesson-03-presentations-meetings
+    file: lesson-03-presentations-meetings.md
     requiredTurns: 6
-  - id: week-04-reports-proposals
-    file: week-04-reports-proposals.md
+  - id: lesson-04-reports-proposals
+    file: lesson-04-reports-proposals.md
     requiredTurns: 7
-  - id: week-05-negotiations-contracts
-    file: week-05-negotiations-contracts.md
+  - id: lesson-05-negotiations-contracts
+    file: lesson-05-negotiations-contracts.md
     requiredTurns: 6
-  - id: week-06-telephone-conferences
-    file: week-06-telephone-conferences.md
+  - id: lesson-06-telephone-conferences
+    file: lesson-06-telephone-conferences.md
     requiredTurns: 6
-  - id: week-07-formal-correspondence
-    file: week-07-formal-correspondence.md
+  - id: lesson-07-formal-correspondence
+    file: lesson-07-formal-correspondence.md
     requiredTurns: 6
-  - id: week-08-business-vocabulary
-    file: week-08-business-vocabulary.md
+  - id: lesson-08-business-vocabulary
+    file: lesson-08-business-vocabulary.md
     requiredTurns: 5
-  - id: week-09-cross-cultural-communication
-    file: week-09-cross-cultural-communication.md
+  - id: lesson-09-cross-cultural-communication
+    file: lesson-09-cross-cultural-communication.md
     requiredTurns: 6
-  - id: week-10-advanced-business-structures
-    file: week-10-advanced-business-structures.md
+  - id: lesson-10-advanced-business-structures
+    file: lesson-10-advanced-business-structures.md
     requiredTurns: 7
-  - id: week-11-professional-writing
-    file: week-11-professional-writing.md
+  - id: lesson-11-professional-writing
+    file: lesson-11-professional-writing.md
     requiredTurns: 6
-  - id: week-12-business-grammar-completion
-    file: week-12-business-grammar-completion.md
+  - id: lesson-12-business-grammar-completion
+    file: lesson-12-business-grammar-completion.md
     requiredTurns: 7

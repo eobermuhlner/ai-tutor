@@ -1,8 +1,7 @@
 ---
 lessonId: lesson-05-restaurant-cafe
 title: En el Restaurante y Cafetería
-weekNumber: 5
-estimatedDuration: 1 week
+lessonNumber: 5
 focusAreas:
   - Ordering food and drinks
   - Understanding menus
@@ -10,7 +9,7 @@ focusAreas:
 targetCEFR: A1
 ---
 
-## This Week's Goals
+## Lesson Goals
 
 - Order meals and drinks confidently in restaurants
 - Ask about menu items and ingredients

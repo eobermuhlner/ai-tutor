@@ -1,8 +1,7 @@
 ---
 lessonId: lesson-03-bus-station
 title: En la Estación de Autobuses
-weekNumber: 3
-estimatedDuration: 1 week
+lessonNumber: 3
 focusAreas:
   - Bus station navigation
   - Buying bus tickets
@@ -10,7 +9,7 @@ focusAreas:
 targetCEFR: A1
 ---
 
-## This Week's Goals
+## Lesson Goals
 
 - Buy bus tickets for intercity or local buses
 - Understand bus schedules and departure bays

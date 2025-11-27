@@ -1,39 +1,39 @@
 courseId: en-legal-english-grammar-fundamentals
 progressionMode: COMPLETION_BASED
 lessons:
-  - id: week-01-legal-terminology-basics
-    file: week-01-legal-terminology-basics.md
+  - id: lesson-01-legal-terminology-basics
+    file: lesson-01-legal-terminology-basics.md
     requiredTurns: 20
-  - id: week-02-contract-drafting
-    file: week-02-contract-drafting.md
+  - id: lesson-02-contract-drafting
+    file: lesson-02-contract-drafting.md
     requiredTurns: 25
-  - id: week-03-legal-correspondence
-    file: week-03-legal-correspondence.md
+  - id: lesson-03-legal-correspondence
+    file: lesson-03-legal-correspondence.md
     requiredTurns: 30
-  - id: week-04-court-proceedings
-    file: week-04-court-proceedings.md
+  - id: lesson-04-court-proceedings
+    file: lesson-04-court-proceedings.md
     requiredTurns: 30
-  - id: week-05-legal-research-writing
-    file: week-05-legal-research-writing.md
+  - id: lesson-05-legal-research-writing
+    file: lesson-05-legal-research-writing.md
     requiredTurns: 35
-  - id: week-06-pleadings-motion-practice
-    file: week-06-pleadings-motion-practice.md
+  - id: lesson-06-pleadings-motion-practice
+    file: lesson-06-pleadings-motion-practice.md
     requiredTurns: 35
-  - id: week-07-deposition-examination
-    file: week-07-deposition-examination.md
+  - id: lesson-07-deposition-examination
+    file: lesson-07-deposition-examination.md
     requiredTurns: 35
-  - id: week-08-legal-opinions-advice
-    file: week-08-legal-opinions-advice.md
+  - id: lesson-08-legal-opinions-advice
+    file: lesson-08-legal-opinions-advice.md
     requiredTurns: 40
-  - id: week-09-regulatory-compliance
-    file: week-09-regulatory-compliance.md
+  - id: lesson-09-regulatory-compliance
+    file: lesson-09-regulatory-compliance.md
     requiredTurns: 40
-  - id: week-10-international-legal-practice
-    file: week-10-international-legal-practice.md
+  - id: lesson-10-international-legal-practice
+    file: lesson-10-international-legal-practice.md
     requiredTurns: 40
-  - id: week-11-advanced-legal-drafting
-    file: week-11-advanced-legal-drafting.md
+  - id: lesson-11-advanced-legal-drafting
+    file: lesson-11-advanced-legal-drafting.md
     requiredTurns: 40
-  - id: week-12-legal-grammar-completion
-    file: week-12-legal-grammar-completion.md
+  - id: lesson-12-legal-grammar-completion
+    file: lesson-12-legal-grammar-completion.md
     requiredTurns: 40

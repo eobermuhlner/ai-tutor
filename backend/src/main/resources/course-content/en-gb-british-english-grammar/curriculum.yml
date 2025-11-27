@@ -1,33 +1,33 @@
 courseId: en-gb-british-english-grammar
 progressionMode: COMPLETION_BASED
 lessons:
-  - id: week-01-introduction
-    file: week-01-introduction.md
+  - id: lesson-01-introduction
+    file: lesson-01-introduction.md
     requiredTurns: 5
-  - id: week-02-verbs-tenses-basics
-    file: week-02-verbs-tenses-basics.md
+  - id: lesson-02-verbs-tenses-basics
+    file: lesson-02-verbs-tenses-basics.md
     requiredTurns: 6
-  - id: week-03-nouns-articles
-    file: week-03-nouns-articles.md
+  - id: lesson-03-nouns-articles
+    file: lesson-03-nouns-articles.md
     requiredTurns: 6
-  - id: week-04-adjectives-adverbs
-    file: week-04-adjectives-adverbs.md
+  - id: lesson-04-adjectives-adverbs
+    file: lesson-04-adjectives-adverbs.md
     requiredTurns: 7
-  - id: week-05-prepositions
-    file: week-05-prepositions.md
+  - id: lesson-05-prepositions
+    file: lesson-05-prepositions.md
     requiredTurns: 6
-  - id: week-06-pronouns
-    file: week-06-pronouns.md
+  - id: lesson-06-pronouns
+    file: lesson-06-pronouns.md
     requiredTurns: 6
-  - id: week-07-modal-verbs
-    file: week-07-modal-verbs.md
+  - id: lesson-07-modal-verbs
+    file: lesson-07-modal-verbs.md
     requiredTurns: 6
-  - id: week-08-conditional-sentences
-    file: week-08-conditional-sentences.md
+  - id: lesson-08-conditional-sentences
+    file: lesson-08-conditional-sentences.md
     requiredTurns: 5
-  - id: week-09-passive-voice
-    file: week-09-passive-voice.md
+  - id: lesson-09-passive-voice
+    file: lesson-09-passive-voice.md
     requiredTurns: 6
-  - id: week-10-grammar-review
-    file: week-10-grammar-review.md
+  - id: lesson-10-grammar-review
+    file: lesson-10-grammar-review.md
     requiredTurns: 7

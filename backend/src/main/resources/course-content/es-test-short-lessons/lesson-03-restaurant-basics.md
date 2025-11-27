@@ -1,8 +1,7 @@
 ---
 lessonId: lesson-03-restaurant-basics
 title: Basic Restaurant Phrases
-weekNumber: 3
-estimatedDuration: 10-15 minutes
+lessonNumber: 3
 focusAreas:
   - Restaurant phrases
   - Asking for menu and bill

@@ -1,8 +1,7 @@
 ---
 lessonId: lesson-09-tourist-attractions
 title: Visitando Atracciones Turísticas
-weekNumber: 9
-estimatedDuration: 1 week
+lessonNumber: 9
 focusAreas:
   - Visiting museums and monuments
   - Buying tickets and understanding hours
@@ -10,7 +9,7 @@ focusAreas:
 targetCEFR: A1
 ---
 
-## This Week's Goals
+## Lesson Goals
 
 - Buy tickets for museums and attractions
 - Understand opening hours and admission policies

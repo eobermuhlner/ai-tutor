@@ -1,8 +1,7 @@
 ---
 lessonId: lesson-19-apartment-rental
 title: Alquilar un Apartamento
-weekNumber: 19
-estimatedDuration: 1 week
+lessonNumber: 19
 focusAreas:
   - Renting apartments for longer stays
   - Check-in procedures and key exchange
@@ -10,7 +9,7 @@ focusAreas:
 targetCEFR: A1
 ---
 
-## This Week's Goals
+## Lesson Goals
 
 - Navigate apartment rental platforms and listings
 - Communicate with hosts about check-in

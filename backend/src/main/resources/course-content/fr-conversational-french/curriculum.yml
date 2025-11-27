@@ -1,33 +1,33 @@
 courseId: fr-conversational-french
 progressionMode: COMPLETION_BASED
 lessons:
-  - id: week-01-greetings
-    file: week-01-greetings.md
+  - id: lesson-01-greetings
+    file: lesson-01-greetings.md
     requiredTurns: 20
-  - id: week-02-introductions
-    file: week-02-introductions.md
+  - id: lesson-02-introductions
+    file: lesson-02-introductions.md
     requiredTurns: 25
-  - id: week-03-numbers-time
-    file: week-03-numbers-time.md
+  - id: lesson-03-numbers-time
+    file: lesson-03-numbers-time.md
     requiredTurns: 30
-  - id: week-04-food-ordering
-    file: week-04-food-ordering.md
+  - id: lesson-04-food-ordering
+    file: lesson-04-food-ordering.md
     requiredTurns: 30
-  - id: week-05-directions
-    file: week-05-directions.md
+  - id: lesson-05-directions
+    file: lesson-05-directions.md
     requiredTurns: 35
-  - id: week-06-shopping
-    file: week-06-shopping.md
+  - id: lesson-06-shopping
+    file: lesson-06-shopping.md
     requiredTurns: 35
-  - id: week-07-family
-    file: week-07-family.md
+  - id: lesson-07-family
+    file: lesson-07-family.md
     requiredTurns: 35
-  - id: week-08-weather-activities
-    file: week-08-weather-activities.md
+  - id: lesson-08-weather-activities
+    file: lesson-08-weather-activities.md
     requiredTurns: 40
-  - id: week-09-past-tense
-    file: week-09-past-tense.md
+  - id: lesson-09-past-tense
+    file: lesson-09-past-tense.md
     requiredTurns: 40
-  - id: week-10-future-plans
-    file: week-10-future-plans.md
+  - id: lesson-10-future-plans
+    file: lesson-10-future-plans.md
     requiredTurns: 40

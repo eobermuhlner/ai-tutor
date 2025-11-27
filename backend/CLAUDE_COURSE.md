@@ -23,10 +23,10 @@ backend/src/main/resources/course-content/
 ```
 
 ## File Naming Convention
-- Pattern: `week-{NN}-{topic-slug}.md`
-- Examples: `week-01-greetings.md`, `week-04-food-ordering.md`, `week-09-past-tense.md`
+- Pattern: `lesson-{NN}-{topic-slug}.md`
+- Examples: `lesson-01-greetings.md`, `lesson-04-food-ordering.md`, `lesson-09-past-tense.md`
 - Use lowercase, hyphen-separated topic names
-- Week numbers are zero-padded (01, 02, ..., 10)
+- Lesson numbers are zero-padded (01, 02, ..., 10)
 
 ## Course Types and Pedagogical Approaches
 
@@ -124,10 +124,9 @@ Every lesson must include these sections in order:
 ### 1. YAML Frontmatter (Required)
 ```yaml
 ---
-lessonId: week-01-greetings
+lessonId: lesson-01-greetings
 title: Grüße und erste Worte            # In target language
-weekNumber: 1
-estimatedDuration: 1 week
+lessonNumber: 1
 focusAreas:
   - Basic greetings                     # 2-4 focus areas
   - Polite expressions
@@ -136,7 +135,7 @@ targetCEFR: A1                          # A1, A2, B1, B2, C1, or C2
 ---
 ```
 
-### 2. This Week's Goals
+### 2. Lesson Goals
 - 3-5 bullet points describing learning objectives
 - Use active, learner-focused language
 - Example: "Greet people in formal and informal contexts"
@@ -454,7 +453,7 @@ Size requirements vary based on course type to maintain appropriate content dens
 - Be consistent with terminology throughout the course
 
 ### Pedagogical Completeness
-- Each lesson should be self-contained for one week of study
+- Each lesson should be self-contained and focused on specific learning objectives
 - Progressive difficulty: build on previous lessons
 - Balance comprehension (input) and production (output)
 - Include recognition and production vocabulary
@@ -502,27 +501,27 @@ Lessons are connected to courses via **explicit declaration** in `curriculum.yml
 courseId: de-conversational-german
 progressionMode: COMPLETION_BASED
 lessons:
-  - id: week-01-greetings            # Must match lessonId in frontmatter
-    file: week-01-greetings.md       # Filename in same directory
-    requiredTurns: 20                 # Minimum conversation turns to complete
-  - id: week-02-introductions
-    file: week-02-introductions.md
-    requiredTurns: 25                 # Minimum conversation turns to complete
+  - id: lesson-01-greetings            # Must match lessonId in frontmatter
+    file: lesson-01-greetings.md       # Filename in same directory
+    requiredTurns: 20                  # Minimum conversation turns to complete
+  - id: lesson-02-introductions
+    file: lesson-02-introductions.md
+    requiredTurns: 25                  # Minimum conversation turns to complete
   # ... additional lessons
 ```
 
 **Important:**
 - `lessonId` in YAML frontmatter must match `id` in curriculum.yml
 - `file` path is relative to the course directory
-- `progressionMode` is always COMPLETION_BASED (progression based on turns and goals, not calendar time)
+- `progressionMode` is always COMPLETION_BASED (progression based on completion, not calendar time)
 - `requiredTurns` sets minimum engagement before lesson completion
 
 ## Reference Examples
 
 **High-quality reference lessons:**
-- Spanish: `backend/src/main/resources/course-content/es-conversational-spanish/week-01-greetings.md` (117 lines)
-- German: `backend/src/main/resources/course-content/de-conversational-german/week-01-greetings.md` (165 lines)
-- French: `backend/src/main/resources/course-content/fr-conversational-french/week-02-introductions.md` (157 lines)
+- Spanish: `backend/src/main/resources/course-content/es-conversational-spanish/lesson-01-greetings.md`
+- German: `backend/src/main/resources/course-content/de-conversational-german/lesson-01-greetings.md`
+- French: `backend/src/main/resources/course-content/fr-conversational-french/lesson-02-introductions.md`
 
 Study these files for examples of:
 - Clear grammar explanations with multiple examples
@@ -534,7 +533,7 @@ Study these files for examples of:
 
 **Basic Requirements (All Course Types):**
 - [ ] YAML frontmatter is complete and valid
-- [ ] lessonId matches the pattern `week-NN-topic`
+- [ ] lessonId matches the pattern `lesson-NN-topic`
 - [ ] Course type (conversational/grammar/travel) is identified
 - [ ] All 8 required sections are present and in order
 - [ ] Grammar explanations are linguistically accurate with authoritative sources checked

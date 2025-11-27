@@ -1,8 +1,7 @@
 ---
 lessonId: lesson-01-airport
 title: En el Aeropuerto
-weekNumber: 1
-estimatedDuration: 1 week
+lessonNumber: 1
 focusAreas:
   - Airport navigation and communication
   - Check-in and boarding procedures
@@ -10,7 +9,7 @@ focusAreas:
 targetCEFR: A1
 ---
 
-## This Week's Goals
+## Lesson Goals
 
 - Successfully check in for your flight and handle luggage
 - Navigate airport facilities and find your gate

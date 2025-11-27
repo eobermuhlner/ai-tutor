@@ -1,39 +1,39 @@
 courseId: it-italian-grammar-fundamentals
 progressionMode: COMPLETION_BASED
 lessons:
-  - id: week-01-noun-genders-articles
-    file: week-01-noun-genders-articles.md
+  - id: lesson-01-noun-genders-articles
+    file: lesson-01-noun-genders-articles.md
     requiredTurns: 5
-  - id: week-02-present-tense
-    file: week-02-present-tense.md
+  - id: lesson-02-present-tense
+    file: lesson-02-present-tense.md
     requiredTurns: 6
-  - id: week-03-definite-indefinite-articles
-    file: week-03-definite-indefinite-articles.md
+  - id: lesson-03-definite-indefinite-articles
+    file: lesson-03-definite-indefinite-articles.md
     requiredTurns: 6
-  - id: week-04-adjectives-agreement
-    file: week-04-adjectives-agreement.md
+  - id: lesson-04-adjectives-agreement
+    file: lesson-04-adjectives-agreement.md
     requiredTurns: 7
-  - id: week-05-reflexive-verbs
-    file: week-05-reflexive-verbs.md
+  - id: lesson-05-reflexive-verbs
+    file: lesson-05-reflexive-verbs.md
     requiredTurns: 6
-  - id: week-06-direct-indirect-objects
-    file: week-06-direct-indirect-objects.md
+  - id: lesson-06-direct-indirect-objects
+    file: lesson-06-direct-indirect-objects.md
     requiredTurns: 6
-  - id: week-07-imperfect-tense
-    file: week-07-imperfect-tense.md
+  - id: lesson-07-imperfect-tense
+    file: lesson-07-imperfect-tense.md
     requiredTurns: 6
-  - id: week-08-passato-prossimo
-    file: week-08-passato-prossimo.md
+  - id: lesson-08-passato-prossimo
+    file: lesson-08-passato-prossimo.md
     requiredTurns: 5
-  - id: week-09-conditional-subjunctive
-    file: week-09-conditional-subjunctive.md
+  - id: lesson-09-conditional-subjunctive
+    file: lesson-09-conditional-subjunctive.md
     requiredTurns: 6
-  - id: week-10-prepositions-conjunctions
-    file: week-10-prepositions-conjunctions.md
+  - id: lesson-10-prepositions-conjunctions
+    file: lesson-10-prepositions-conjunctions.md
     requiredTurns: 7
-  - id: week-11-advanced-grammar
-    file: week-11-advanced-grammar.md
+  - id: lesson-11-advanced-grammar
+    file: lesson-11-advanced-grammar.md
     requiredTurns: 6
-  - id: week-12-grammar-completion
-    file: week-12-grammar-completion.md
+  - id: lesson-12-grammar-completion
+    file: lesson-12-grammar-completion.md
     requiredTurns: 7

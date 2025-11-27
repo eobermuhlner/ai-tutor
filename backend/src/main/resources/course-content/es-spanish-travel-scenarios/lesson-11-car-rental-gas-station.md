@@ -1,8 +1,7 @@
 ---
 lessonId: lesson-11-car-rental-gas-station
 title: Alquilar un Coche y la Gasolinera
-weekNumber: 11
-estimatedDuration: 1 week
+lessonNumber: 11
 focusAreas:
   - Renting a car and understanding rental terms
   - Getting gas and services at gas stations
@@ -10,7 +9,7 @@ focusAreas:
 targetCEFR: A1
 ---
 
-## This Week's Goals
+## Lesson Goals
 
 - Rent a car and understand insurance and rental terms
 - Fill up with gas and pay at gas stations

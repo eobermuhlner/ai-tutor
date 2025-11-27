@@ -1,8 +1,7 @@
 ---
 lessonId: lesson-10-emergencies
 title: Situaciones de Emergencia
-weekNumber: 10
-estimatedDuration: 1 week
+lessonNumber: 10
 focusAreas:
   - Handling medical emergencies
   - Reporting theft and loss
@@ -10,7 +9,7 @@ focusAreas:
 targetCEFR: A1
 ---
 
-## This Week's Goals
+## Lesson Goals
 
 - Call for help in emergency situations
 - Report lost or stolen items to police
