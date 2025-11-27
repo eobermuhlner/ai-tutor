@@ -219,10 +219,14 @@ class RateLimitingService {
         val planName: String
     ) {
         val percentageUsed: Double
-            get() = if (dailyLimit > 0) {
-                ((dailyLimit - availableTokens).toDouble() / dailyLimit.toDouble()) * 100.0
-            } else {
-                0.0
+            get() {
+                // Use the smaller (more restrictive) limit to calculate percentage
+                val effectiveLimit = minOf(hourlyLimit, dailyLimit)
+                return if (effectiveLimit > 0) {
+                    ((effectiveLimit - availableTokens).toDouble() / effectiveLimit.toDouble()) * 100.0
+                } else {
+                    0.0
+                }
             }
     }
 }
