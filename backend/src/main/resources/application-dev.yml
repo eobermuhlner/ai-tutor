@@ -10,4 +10,4 @@ logging:
     ch.obermuhlner.aitutor.conversation.service.SingleJsonEntityAiChatService: TRACE
     ch.obermuhlner.aitutor.conversation.service.StreamReplyThenJsonEntityAiChatService: TRACE
     ch.obermuhlner.aitutor.tutor.service.ConversationSummarizationService: TRACE
-
+    org.apache.tomcat.util.http.parser.Cookie: WARN

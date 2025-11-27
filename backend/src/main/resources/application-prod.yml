@@ -13,3 +13,9 @@ cors:
     - X-RateLimit-Limit-Day
     - X-RateLimit-Remaining-Day
     - X-RateLimit-Reset-Day
+
+logging:
+  level:
+    root: WARN
+    ch.obermuhlner.aitutor: INFO
+    org.apache.tomcat.util.http.parser.Cookie: WARN
