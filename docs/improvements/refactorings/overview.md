@@ -1,16 +1,17 @@
 # Refactoring Proposals Overview
 
-**Last Updated**: 2025-11-26
-**Total Proposals**: 2
+**Last Updated**: 2025-11-27
+**Total Proposals**: 3
 **Completed**: 0
 **In Progress**: 0
 **Pending**: 2
+**Deferred**: 1
 
 ## Quick Stats by Category
 
 - **Architecture**: 1 proposal
 - **Performance**: 0 proposals
-- **Maintainability**: 1 proposal
+- **Maintainability**: 2 proposals (1 deferred)
 - **Testing**: 0 proposals
 - **Security**: 0 proposals
 
@@ -31,11 +32,17 @@ _No medium priority proposals at this time._
 
 _No low priority proposals at this time._
 
+### Deferred (1 proposal)
+
+| Title | Category | Original Effort | Deferred Date | File |
+|-------|----------|----------------|---------------|------|
+| Add Global Exception Handler for Unhandled System Exceptions | maintainability | Small (2-4 hours) → Medium (6-10 hours) | 2025-11-27 | [add-global-exception-handler.md](maintainability/add-global-exception-handler.md) |
+
 ---
 
 ## Detailed Proposals by Category
 
-### Maintainability (1 proposal)
+### Maintainability (2 proposals: 1 active, 1 deferred)
 
 #### Extract Shared Tutor Orchestration Logic to Eliminate Code Duplication
 
@@ -59,6 +66,27 @@ _No low priority proposals at this time._
 **Affected Areas**:
 - `backend/src/main/kotlin/ch/obermuhlner/aitutor/chat/service/ChatService.kt` (lines 325-727)
 - Existing ChatServiceTest validates behavior (no test changes needed)
+
+---
+
+#### Add Global Exception Handler for Unhandled System Exceptions (DEFERRED)
+
+**File**: `refactorings/maintainability/add-global-exception-handler.md`
+**Priority**: Deferred
+**Status**: Deferred
+**Deferred Date**: 2025-11-27
+**Original Effort**: Small (2-4 hours)
+**Revised Effort**: Medium (6-10 hours)
+
+**Deferral Reason**: Re-validation found no production evidence of problems (zero git commits about 500 errors or stack leaks), effort underestimated (6-10 hours vs claimed 2-4), and better alternative exists (fix 5 empty responses with custom exceptions for 80% of value in 20% of effort). Deferred until production monitoring shows actual need.
+
+**Re-evaluation Criteria**:
+- Production monitoring shows frequent unhandled exceptions
+- User complaints about poor error messages
+- Frontend team requests structured error responses
+- Security audit flags stack trace leakage
+
+**Recommended Alternative**: Fix 5 empty `ResponseEntity.badRequest().build()` calls with custom `BadRequestException` (1-2 hours)
 
 ---
 
@@ -95,22 +123,37 @@ _No low priority proposals at this time._
 
 ### Recommended Implementation Order
 
-**Phase 1: Quick Wins** (High value, low risk, no dependencies)
+**Phase 1: Quick Wins - Code Quality** (High value, low risk, no dependencies)
 1. **Extract Shared Tutor Orchestration Logic** (2-4 hours) - Eliminates 170+ duplicated lines, prevents bugs, delivers 70% of full decomposition value with minimal risk
 
-**Phase 2: Evaluate Need for Full Decomposition** (After monitoring for 1 month)
+**Phase 2: Alternative Quick Win - Error Handling** (Optional, evidence-based)
+2. **Fix Empty Response Bodies** (1-2 hours) - Replace 5 instances of `ResponseEntity.badRequest().build()` with custom `BadRequestException` for structured error responses (80% of deferred global handler value with 20% of effort)
+
+**Phase 3: Evaluate Need for Full Decomposition** (After monitoring for 1 month)
 - Monitor merge conflicts, bugs, and developer complaints in ChatService
 - If pain points emerge: Proceed with full **Decompose ChatService God Class** refactoring
 - If no pain: Accept current structure and reinvest time in user-facing features
 
-**Phase 3: Enabled by Full Decomposition** (If Phase 2 is implemented)
+**Phase 4: Enabled by Full Decomposition** (If Phase 3 is implemented)
 - ChatController decomposition (follows service boundaries)
 - Interface extraction for services
 - Testing improvements (reduced mocking complexity)
 
 ### Notes on Sequencing
 
-- **Quick Win Strategy**: The orchestration extraction is a pragmatic first step that delivers immediate value
-- **Evidence-Based Decision**: Full decomposition should only proceed if metrics show actual pain (not theoretical SOLID concerns)
+- **Evidence-Based Approach**: Tutor orchestration extraction delivers proven value now; global exception handler deferred until production evidence justifies complexity
+- **Quick Win Strategy**: Focus on tutor orchestration extraction as primary quick win (2-4 hours, proven ROI)
+- **Alternative Path**: If error handling is priority, fix 5 empty responses directly (1-2 hours) instead of full global handler
 - **Foundation Refactoring**: If full decomposition happens, it enables 3 other high-value improvements
-- **Parallel Development**: The small orchestration refactoring can run in parallel with any other work (low coordination overhead)
+- **Parallel Development**: Tutor orchestration extraction can run in parallel with any other work (low coordination overhead)
+
+### Lessons Learned from Deferred Proposal
+
+The **Global Exception Handler** proposal demonstrates importance of re-validation:
+
+- **Measure before fixing**: No production evidence of problems (zero git commits about errors)
+- **Prefer targeted fixes**: Fix 5 empty responses directly (1-2 hours) vs building infrastructure (6-10 hours)
+- **Avoid premature optimization**: 4 existing domain handlers + 11 custom exceptions already handle most cases
+- **Challenge assumptions**: "45+ uncaught exceptions" sounds alarming but most are intentional fail-fast initialization code
+
+**Re-evaluation criteria ensure future decisions are evidence-based, not assumption-based.**
