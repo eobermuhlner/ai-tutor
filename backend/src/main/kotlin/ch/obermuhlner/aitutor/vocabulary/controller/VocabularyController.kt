@@ -52,7 +52,9 @@ class VocabularyController(
     ): ResponseEntity<VocabularyItemWithContextsResponse> {
         val currentUserId = authorizationService.getCurrentUserId()
         val result = vocabularyQueryService.getVocabularyItemWithContexts(itemId, currentUserId)
-            ?: return ResponseEntity.notFound().build()
+            ?: throw ch.obermuhlner.aitutor.core.exception.ResourceNotFoundException(
+                "Vocabulary item not found: $itemId"
+            )
 
         val contexts = result.contexts.map { ctx ->
             VocabularyContextResponse(

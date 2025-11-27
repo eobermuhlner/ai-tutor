@@ -1,19 +1,12 @@
 package ch.obermuhlner.aitutor.auth.exception
 
+import ch.obermuhlner.aitutor.core.dto.ErrorResponse
 import java.time.Instant
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.context.request.WebRequest
-
-data class ErrorResponse(
-    val timestamp: Instant,
-    val status: Int,
-    val error: String,
-    val message: String,
-    val path: String
-)
 
 @RestControllerAdvice
 class AuthExceptionHandler {

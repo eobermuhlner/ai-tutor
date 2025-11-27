@@ -7,27 +7,26 @@ import ch.obermuhlner.aitutor.chat.dto.CreateSessionRequest
 import ch.obermuhlner.aitutor.chat.dto.SendMessageRequest
 import ch.obermuhlner.aitutor.chat.dto.UpdateCorrectionsRequest
 import ch.obermuhlner.aitutor.chat.dto.UpdatePhaseRequest
-import ch.obermuhlner.aitutor.chat.dto.UpdateTopicRequest
 import ch.obermuhlner.aitutor.chat.dto.UpdateTeachingStyleRequest
+import ch.obermuhlner.aitutor.chat.dto.UpdateTopicRequest
 import ch.obermuhlner.aitutor.chat.dto.UpdateVocabularyReviewModeRequest
-import ch.obermuhlner.aitutor.chat.dto.UpdateLessonRequest
-import ch.obermuhlner.aitutor.core.model.Correction
-import ch.obermuhlner.aitutor.core.model.ErrorType
-import ch.obermuhlner.aitutor.core.model.ErrorSeverity
 import ch.obermuhlner.aitutor.chat.repository.ChatSessionRepository
 import ch.obermuhlner.aitutor.chat.service.ChatService
-import ch.obermuhlner.aitutor.conversation.service.AiAudioService
 import ch.obermuhlner.aitutor.conversation.config.AudioProperties
-import ch.obermuhlner.aitutor.user.service.RateLimitingService
+import ch.obermuhlner.aitutor.conversation.service.AiAudioService
+import ch.obermuhlner.aitutor.core.model.Correction
+import ch.obermuhlner.aitutor.core.model.ErrorSeverity
+import ch.obermuhlner.aitutor.core.model.ErrorType
 import ch.obermuhlner.aitutor.user.repository.UserRepository
+import ch.obermuhlner.aitutor.user.service.RateLimitingService
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import java.util.UUID
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
-import java.util.UUID
 
 class ChatControllerTest {
     private lateinit var chatService: ChatService
@@ -132,15 +131,17 @@ class ChatControllerTest {
             tutorProfileId = null,
             customName = null
         )
-        
+
         every { authorizationService.getCurrentUserId() } returns currentUserId
         every { catalogService.getTutorsForCourse(courseTemplateId) } returns emptyList()
 
-        val result = controller.createSessionFromCourse(request)
+        val exception = assertThrows<ch.obermuhlner.aitutor.core.exception.BadRequestException> {
+            controller.createSessionFromCourse(request)
+        }
 
         verify { authorizationService.getCurrentUserId() }
         verify { catalogService.getTutorsForCourse(courseTemplateId) }
-        assert(result.statusCode == HttpStatus.BAD_REQUEST)
+        assert(exception.message?.contains("No tutors available") == true)
     }
 
     @Test

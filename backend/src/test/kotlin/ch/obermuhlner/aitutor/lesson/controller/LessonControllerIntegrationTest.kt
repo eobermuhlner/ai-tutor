@@ -2,6 +2,7 @@ package ch.obermuhlner.aitutor.lesson.controller
 
 import ch.obermuhlner.aitutor.chat.dto.CreateSessionRequest
 import ch.obermuhlner.aitutor.chat.dto.SessionResponse
+import ch.obermuhlner.aitutor.core.dto.ErrorResponse
 import ch.obermuhlner.aitutor.testutil.BaseControllerIntegrationTest
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
@@ -18,10 +19,11 @@ class LessonControllerIntegrationTest : BaseControllerIntegrationTest() {
         val nonExistentCourseId = "non-existent-course"
         val response = restTemplate.getForEntity(
             baseUrl("/lessons/courses/$nonExistentCourseId/curriculum"),
-            ch.obermuhlner.aitutor.lesson.dto.CourseCurriculumResponse::class.java
+            ErrorResponse::class.java
         )
 
         Assertions.assertThat(response.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
+        Assertions.assertThat(response.body?.message).contains("Curriculum not found")
     }
 
     @Test
@@ -29,10 +31,11 @@ class LessonControllerIntegrationTest : BaseControllerIntegrationTest() {
         // Test getting a lesson that doesn't exist
         val response = restTemplate.getForEntity(
             baseUrl("/lessons/courses/non-existent-course/lessons/non-existent-lesson"),
-            ch.obermuhlner.aitutor.lesson.dto.LessonContentResponse::class.java
+            ErrorResponse::class.java
         )
 
         Assertions.assertThat(response.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
+        Assertions.assertThat(response.body?.message).contains("Lesson not found")
     }
 
     @Test
@@ -71,17 +74,15 @@ class LessonControllerIntegrationTest : BaseControllerIntegrationTest() {
         val sessionId = response.body!!.id
 
         // Try to get current lesson for the session
-        // This will likely return 400 (Bad Request) since the session is not course-based
-        try {
-            restTemplate.getForEntity(
-                baseUrl("/lessons/sessions/$sessionId/current"),
-                ch.obermuhlner.aitutor.lesson.dto.LessonContentResponse::class.java
-            )
-            // If successful, it means the call worked but there might not be a lesson
-        } catch (e: org.springframework.web.client.HttpClientErrorException) {
-            // Could return 400 since the session is not course-based (no courseTemplateId)
-            Assertions.assertThat(e.statusCode).isIn(HttpStatus.BAD_REQUEST, HttpStatus.NOT_FOUND)
-        }
+        // This will return 400 (Bad Request) since the session is not course-based
+        val lessonResponse = restTemplate.getForEntity(
+            baseUrl("/lessons/sessions/$sessionId/current"),
+            ErrorResponse::class.java
+        )
+
+        // Should return 400 since the session is not course-based (no courseTemplateId)
+        Assertions.assertThat(lessonResponse.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
+        Assertions.assertThat(lessonResponse.body?.message).contains("not associated with a course")
     }
 
     @Test

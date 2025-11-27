@@ -1,6 +1,6 @@
 package ch.obermuhlner.aitutor.payment.exception
 
-import ch.obermuhlner.aitutor.auth.exception.ErrorResponse
+import ch.obermuhlner.aitutor.core.dto.ErrorResponse
 import com.stripe.exception.ApiConnectionException
 import com.stripe.exception.ApiException
 import com.stripe.exception.AuthenticationException

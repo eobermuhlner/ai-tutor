@@ -1,6 +1,7 @@
 package ch.obermuhlner.aitutor.lesson.controller
 
 import ch.obermuhlner.aitutor.auth.service.AuthorizationService
+import org.junit.jupiter.api.assertThrows
 import ch.obermuhlner.aitutor.chat.domain.ChatSessionEntity
 import ch.obermuhlner.aitutor.chat.repository.ChatSessionRepository
 import ch.obermuhlner.aitutor.core.model.CEFRLevel
@@ -71,9 +72,11 @@ class LessonControllerTest {
     fun `should return 404 for non-existent curriculum`() {
         every { lessonContentService.getCurriculum("non-existent") } returns null
 
-        val response = lessonController.getCourseCurriculum("non-existent")
+        val exception = assertThrows<ch.obermuhlner.aitutor.core.exception.ResourceNotFoundException> {
+            lessonController.getCourseCurriculum("non-existent")
+        }
 
-        assertEquals(HttpStatus.NOT_FOUND, response.statusCode)
+        assert(exception.message?.contains("Curriculum not found") == true)
     }
 
     @Test
@@ -103,9 +106,11 @@ class LessonControllerTest {
     fun `should return 404 for non-existent lesson`() {
         every { lessonContentService.getLesson("es-conversational-spanish", "non-existent") } returns null
 
-        val response = lessonController.getLesson("es-conversational-spanish", "non-existent")
+        val exception = assertThrows<ch.obermuhlner.aitutor.core.exception.ResourceNotFoundException> {
+            lessonController.getLesson("es-conversational-spanish", "non-existent")
+        }
 
-        assertEquals(HttpStatus.NOT_FOUND, response.statusCode)
+        assert(exception.message?.contains("Lesson not found") == true)
     }
 
     @Test
@@ -157,9 +162,11 @@ class LessonControllerTest {
         every { authorizationService.getCurrentUserId() } returns UUID.randomUUID()
         every { chatSessionRepository.findById(sessionId) } returns Optional.empty()
 
-        val response = lessonController.getCurrentLesson(sessionId)
+        val exception = assertThrows<ch.obermuhlner.aitutor.core.exception.ResourceNotFoundException> {
+            lessonController.getCurrentLesson(sessionId)
+        }
 
-        assertEquals(HttpStatus.NOT_FOUND, response.statusCode)
+        assert(exception.message?.contains("Session not found") == true)
     }
 
     @Test
@@ -209,9 +216,11 @@ class LessonControllerTest {
         every { authorizationService.getCurrentUserId() } returns userId
         every { chatSessionRepository.findById(sessionId) } returns Optional.of(session)
 
-        val response = lessonController.getCurrentLesson(sessionId)
+        val exception = assertThrows<ch.obermuhlner.aitutor.core.exception.BadRequestException> {
+            lessonController.getCurrentLesson(sessionId)
+        }
 
-        assertEquals(HttpStatus.BAD_REQUEST, response.statusCode)
+        assert(exception.message?.contains("not associated with a course") == true)
     }
 
     @Test
@@ -280,8 +289,10 @@ class LessonControllerTest {
         every { chatSessionRepository.findById(sessionId) } returns Optional.of(session)
         every { lessonProgressionService.forceAdvanceLesson(sessionId) } returns null
 
-        val response = lessonController.advanceLesson(sessionId)
+        val exception = assertThrows<ch.obermuhlner.aitutor.core.exception.ResourceNotFoundException> {
+            lessonController.advanceLesson(sessionId)
+        }
 
-        assertEquals(HttpStatus.NOT_FOUND, response.statusCode)
+        assert(exception.message?.contains("No next lesson available") == true)
     }
 }

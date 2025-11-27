@@ -1,5 +1,6 @@
 package ch.obermuhlner.aitutor.auth.exception
 
+import ch.obermuhlner.aitutor.core.dto.ErrorResponse
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach

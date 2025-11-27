@@ -68,7 +68,9 @@ class ChatController(
         // Get tutor ID - either from request or first suggested tutor from course
         val tutorId = request.tutorProfileId ?: run {
             catalogService.getTutorsForCourse(request.courseTemplateId).firstOrNull()?.id
-                ?: return ResponseEntity.badRequest().build()
+                ?: throw ch.obermuhlner.aitutor.core.exception.BadRequestException(
+                    "No tutors available for course ${request.courseTemplateId}"
+                )
         }
 
         // Get source language - for now use English, should be from user profile
@@ -80,7 +82,9 @@ class ChatController(
             tutorProfileId = tutorId,
             sourceLanguageCode = sourceLanguageCode,
             customName = request.customName
-        ) ?: return ResponseEntity.badRequest().build()
+        ) ?: throw ch.obermuhlner.aitutor.core.exception.BadRequestException(
+            "Failed to create session for course ${request.courseTemplateId}"
+        )
 
         return ResponseEntity.status(HttpStatus.CREATED).body(session)
     }

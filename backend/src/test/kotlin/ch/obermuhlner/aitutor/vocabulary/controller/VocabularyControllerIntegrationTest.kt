@@ -1,5 +1,6 @@
 package ch.obermuhlner.aitutor.vocabulary.controller
 
+import ch.obermuhlner.aitutor.core.dto.ErrorResponse
 import ch.obermuhlner.aitutor.testutil.BaseControllerIntegrationTest
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
@@ -44,10 +45,11 @@ class VocabularyControllerIntegrationTest : BaseControllerIntegrationTest() {
         val nonExistentId = UUID.randomUUID()
         val response = restTemplate.getForEntity(
             baseUrl("/vocabulary/$nonExistentId"),
-            ch.obermuhlner.aitutor.vocabulary.dto.VocabularyItemWithContextsResponse::class.java
+            ErrorResponse::class.java
         )
 
         Assertions.assertThat(response.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
+        Assertions.assertThat(response.body?.message).contains("Vocabulary item not found")
     }
 
     @Test

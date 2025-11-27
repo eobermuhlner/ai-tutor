@@ -33,7 +33,9 @@ class LessonController(
         logger.debug("Get curriculum request: courseId=$courseId")
 
         val curriculum = lessonContentService.getCurriculum(courseId)
-            ?: return ResponseEntity.notFound().build()
+            ?: throw ch.obermuhlner.aitutor.core.exception.ResourceNotFoundException(
+                "Curriculum not found for course: $courseId"
+            )
 
         val response = CourseCurriculumResponse(
             courseId = curriculum.courseId,
@@ -59,7 +61,9 @@ class LessonController(
         logger.debug("Get lesson request: courseId=$courseId, lessonId=$lessonId")
 
         val lesson = lessonContentService.getLesson(courseId, lessonId)
-            ?: return ResponseEntity.notFound().build()
+            ?: throw ch.obermuhlner.aitutor.core.exception.ResourceNotFoundException(
+                "Lesson not found: $lessonId in course: $courseId"
+            )
 
         val response = toLessonContentResponse(lesson)
         return ResponseEntity.ok(response)
@@ -73,7 +77,9 @@ class LessonController(
         logger.debug("Get current lesson request: sessionId=$sessionId, userId=$currentUserId")
 
         val session = chatSessionRepository.findById(sessionId).orElse(null)
-            ?: return ResponseEntity.notFound().build()
+            ?: throw ch.obermuhlner.aitutor.core.exception.ResourceNotFoundException(
+                "Session not found: $sessionId"
+            )
 
         // Verify ownership
         if (session.userId != currentUserId) {
@@ -82,11 +88,15 @@ class LessonController(
 
         // Check if session is course-based
         if (session.courseTemplateId == null) {
-            return ResponseEntity.badRequest().build()
+            throw ch.obermuhlner.aitutor.core.exception.BadRequestException(
+                "Session $sessionId is not associated with a course"
+            )
         }
 
         val lesson = lessonProgressionService.checkAndProgressLesson(sessionId)
-            ?: return ResponseEntity.notFound().build()
+            ?: throw ch.obermuhlner.aitutor.core.exception.ResourceNotFoundException(
+                "No lesson progression available for session: $sessionId"
+            )
 
         val response = toLessonContentResponse(lesson)
         return ResponseEntity.ok(response)
@@ -100,7 +110,9 @@ class LessonController(
         logger.debug("Advance lesson request: sessionId=$sessionId, userId=$currentUserId")
 
         val session = chatSessionRepository.findById(sessionId).orElse(null)
-            ?: return ResponseEntity.notFound().build()
+            ?: throw ch.obermuhlner.aitutor.core.exception.ResourceNotFoundException(
+                "Session not found: $sessionId"
+            )
 
         // Verify ownership
         if (session.userId != currentUserId) {
@@ -109,11 +121,15 @@ class LessonController(
 
         // Check if session is course-based
         if (session.courseTemplateId == null) {
-            return ResponseEntity.badRequest().build()
+            throw ch.obermuhlner.aitutor.core.exception.BadRequestException(
+                "Session $sessionId is not associated with a course"
+            )
         }
 
         val nextLesson = lessonProgressionService.forceAdvanceLesson(sessionId)
-            ?: return ResponseEntity.notFound().build()
+            ?: throw ch.obermuhlner.aitutor.core.exception.ResourceNotFoundException(
+                "No next lesson available for session: $sessionId"
+            )
 
         val response = toLessonContentResponse(nextLesson)
         return ResponseEntity.ok(response)
