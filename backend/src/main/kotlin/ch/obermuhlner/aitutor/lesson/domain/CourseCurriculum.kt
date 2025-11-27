@@ -9,11 +9,9 @@ data class CourseCurriculum(
 data class LessonMetadata(
     val id: String,
     val file: String,
-    val minimumDays: Int,  // Minimum days to spend on this lesson
     val requiredTurns: Int
 )
 
 enum class ProgressionMode {
-    TIME_BASED,      // Advance after N days
-    COMPLETION_BASED // Advance after meeting criteria
+    COMPLETION_BASED // Advance after meeting turn and goal criteria
 }

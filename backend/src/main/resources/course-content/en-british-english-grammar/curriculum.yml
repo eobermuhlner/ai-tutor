@@ -1,43 +1,33 @@
 courseId: en-british-english-grammar
-progressionMode: TIME_BASED
+progressionMode: COMPLETION_BASED
 lessons:
   - id: week-01-introduction
     file: week-01-introduction.md
-    minimumDays: 0
     requiredTurns: 5
   - id: week-02-verbs-tenses-basics
     file: week-02-verbs-tenses-basics.md
-    minimumDays: 7
     requiredTurns: 6
   - id: week-03-nouns-articles
     file: week-03-nouns-articles.md
-    minimumDays: 14
     requiredTurns: 6
   - id: week-04-adjectives-adverbs
     file: week-04-adjectives-adverbs.md
-    minimumDays: 21
     requiredTurns: 7
   - id: week-05-prepositions
     file: week-05-prepositions.md
-    minimumDays: 28
     requiredTurns: 6
   - id: week-06-pronouns
     file: week-06-pronouns.md
-    minimumDays: 35
     requiredTurns: 6
   - id: week-07-modal-verbs
     file: week-07-modal-verbs.md
-    minimumDays: 42
     requiredTurns: 6
   - id: week-08-conditional-sentences
     file: week-08-conditional-sentences.md
-    minimumDays: 49
     requiredTurns: 5
   - id: week-09-passive-voice
     file: week-09-passive-voice.md
-    minimumDays: 56
     requiredTurns: 6
   - id: week-10-grammar-review
     file: week-10-grammar-review.md
-    minimumDays: 63
     requiredTurns: 7

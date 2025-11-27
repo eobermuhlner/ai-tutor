@@ -5,7 +5,6 @@ export interface LessonRequest {
   title: string;
   content: string;
   displayOrder: number;
-  minimumDays?: number | null;
   requiredTurns?: number | null;
 }
 
@@ -16,7 +15,6 @@ export interface LessonResponse {
   title: string;
   content: string;
   displayOrder: number;
-  minimumDays?: number | null;
   requiredTurns?: number | null;
   createdAt: string;
   updatedAt: string;

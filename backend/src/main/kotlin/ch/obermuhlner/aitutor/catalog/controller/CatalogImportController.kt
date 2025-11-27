@@ -129,13 +129,9 @@ class CatalogImportController(
             coursesWithLessons.forEach { (courseId, lessons) ->
                 val existingRule = curriculumRuleRepository.findByCourseId(courseId)
                 if (existingRule == null) {
-                    val hasTimeBased = lessons.any { lesson ->
-                        val minDays = lesson.minimumDays
-                        minDays != null && minDays > 0
-                    }
                     val rule = ch.obermuhlner.aitutor.catalog.domain.CurriculumRuleEntity(
                         courseId = courseId,
-                        progressionMode = if (hasTimeBased) "TIME_BASED" else "LINEAR",
+                        progressionMode = "COMPLETION_BASED",
                         allowSkipping = false,
                         requireCompletion = true,
                         createdAt = java.time.Instant.now(),

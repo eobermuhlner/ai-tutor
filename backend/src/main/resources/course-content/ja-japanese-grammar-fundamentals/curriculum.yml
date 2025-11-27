@@ -1,51 +1,39 @@
 courseId: ja-japanese-grammar-fundamentals
-progressionMode: TIME_BASED
+progressionMode: COMPLETION_BASED
 lessons:
   - id: week-01-hiragana-katakana-introduction
     file: week-01-hiragana-katakana-introduction.md
-    minimumDays: 0
     requiredTurns: 5
   - id: week-02-particle-usage
     file: week-02-particle-usage.md
-    minimumDays: 7
     requiredTurns: 6
   - id: week-03-present-tense-politeness
     file: week-03-present-tense-politeness.md
-    minimumDays: 14
     requiredTurns: 6
   - id: week-04-question-forms
     file: week-04-question-forms.md
-    minimumDays: 21
     requiredTurns: 7
   - id: week-05-negative-forms
     file: week-05-negative-forms.md
-    minimumDays: 28
     requiredTurns: 6
   - id: week-06-past-tense
     file: week-06-past-tense.md
-    minimumDays: 35
     requiredTurns: 6
   - id: week-07-te-form-usage
     file: week-07-te-form-usage.md
-    minimumDays: 42
     requiredTurns: 6
   - id: week-08-adjectives-descriptive
     file: week-08-adjectives-descriptive.md
-    minimumDays: 49
     requiredTurns: 5
   - id: week-09-verbs-potential-causative
     file: week-09-verbs-potential-causative.md
-    minimumDays: 56
     requiredTurns: 6
   - id: week-10-conditionals-hypotheticals
     file: week-10-conditionals-hypotheticals.md
-    minimumDays: 63
     requiredTurns: 7
   - id: week-11-keigo-honorifics
     file: week-11-keigo-honorifics.md
-    minimumDays: 70
     requiredTurns: 6
   - id: week-12-grammar-completion
     file: week-12-grammar-completion.md
-    minimumDays: 77
     requiredTurns: 7

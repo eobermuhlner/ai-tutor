@@ -105,7 +105,7 @@ class CourseImportController(
             // Create curriculum rule
             val curriculumRule = CurriculumRuleEntity(
                 courseId = savedCourse.id,
-                progressionMode = result.lessons.firstOrNull()?.minimumDays?.let { "TIME_BASED" } ?: "LINEAR",
+                progressionMode = "COMPLETION_BASED",
                 allowSkipping = false,
                 requireCompletion = true,
                 createdAt = Instant.now(),

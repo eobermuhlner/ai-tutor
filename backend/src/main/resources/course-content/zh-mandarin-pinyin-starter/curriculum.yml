@@ -1,7 +1,6 @@
 courseId: zh-mandarin-pinyin-starter
-progressionMode: TIME_BASED
+progressionMode: COMPLETION_BASED
 lessons:
   - id: week-01-introduction
     file: week-01-introduction.md
-    minimumDays: 0
     requiredTurns: 5

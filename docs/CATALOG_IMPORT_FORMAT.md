@@ -351,13 +351,12 @@ Lessons can be defined within a course's curriculum. Supports **two approaches**
 courses:
   - # ... course fields ...
     curriculum:
-      progressionMode: enum            # TIME_BASED | LINEAR (required)
-      lessons: [...]                   # Array of lessons (required)
+      progressionMode: COMPLETION_BASED  # Always COMPLETION_BASED (required)
+      lessons: [...]                     # Array of lessons (required)
 ```
 
-**Progression modes:**
-- `TIME_BASED` - Lessons unlock based on time + turn requirements
-- `LINEAR` - Sequential unlocking regardless of time
+**Progression mode:**
+- `COMPLETION_BASED` - Lessons advance based on turn count and goal completion (no calendar-based delays)
 
 #### Approach 1: Embedded Content
 
@@ -365,7 +364,6 @@ courses:
 lessons:
   - id: string                         # Unique lesson ID (required)
     title: string                      # Lesson title (optional)
-    minimumDays: integer               # Minimum days before next lesson (default: 0)
     requiredTurns: integer             # Required conversation turns (default: 0)
     content: string                    # Full markdown content with frontmatter (required for this approach)
 ```
@@ -376,7 +374,6 @@ lessons:
 lessons:
   - id: string                         # Unique lesson ID (required)
     title: string                      # Lesson title (optional)
-    minimumDays: integer               # Minimum days before next lesson (default: 0)
     requiredTurns: integer             # Required conversation turns (default: 0)
     file: string                       # Markdown filename (required for this approach)
 ```
@@ -390,11 +387,10 @@ courses:
       en: Quick German Basics
     # ... other course fields ...
     curriculum:
-      progressionMode: TIME_BASED
+      progressionMode: COMPLETION_BASED
       lessons:
         - id: lesson-01-greetings
           title: Greetings and Introductions
-          minimumDays: 3
           requiredTurns: 15
           content: |
             ---
@@ -422,15 +418,13 @@ courses:
       en: Conversational German
     # ... other course fields ...
     curriculum:
-      progressionMode: TIME_BASED
+      progressionMode: COMPLETION_BASED
       lessons:
         - id: week-01-greetings
           title: Greetings and Basic Expressions
-          minimumDays: 7
           requiredTurns: 20
           file: week-01-greetings.md
         - id: week-02-introductions
-          minimumDays: 7
           requiredTurns: 25
           file: week-02-introductions.md
 ```
@@ -585,11 +579,10 @@ courses:
     displayOrder: 1
     requiresCurriculum: true
     curriculum:
-      progressionMode: TIME_BASED
+      progressionMode: COMPLETION_BASED
       lessons:
         - id: lesson-01
           title: Greetings
-          minimumDays: 3
           requiredTurns: 15
           file: lesson-01-greetings.md
 ```

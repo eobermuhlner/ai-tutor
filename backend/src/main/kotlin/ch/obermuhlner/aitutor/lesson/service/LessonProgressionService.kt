@@ -6,10 +6,8 @@ import ch.obermuhlner.aitutor.chat.repository.ChatMessageRepository
 import ch.obermuhlner.aitutor.chat.repository.ChatSessionRepository
 import ch.obermuhlner.aitutor.lesson.domain.CourseCurriculum
 import ch.obermuhlner.aitutor.lesson.domain.LessonContent
-import ch.obermuhlner.aitutor.lesson.domain.ProgressionMode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import java.time.Duration
 import java.time.Instant
 import java.util.UUID
 import org.slf4j.LoggerFactory
@@ -161,25 +159,11 @@ class LessonProgressionService(
     ): ProgressionResult {
         val metadata = curriculum.lessons.find { it.id == currentLessonId } ?: return ProgressionResult(false)
 
-        // Calculate days elapsed since this specific lesson started
-        val daysSinceLessonStart = Duration.between(
-            session.lessonStartedAt ?: Instant.now(),
-            Instant.now()
-        ).toDays()
-
         // Get turn count and goals completed from lesson progress fields (lesson-specific, not total session messages)
         val turnCount = session.lessonProgressTurnCount
         val goalsCompleted = session.lessonProgressGoalsCompleted
 
-        val shouldAdvance = when (curriculum.progressionMode) {
-            ProgressionMode.TIME_BASED -> {
-                // Standard TIME_BASED behavior: must meet both time and turn requirements
-                // minimumDays represents minimum days to spend on this lesson
-                daysSinceLessonStart >= metadata.minimumDays && turnCount >= metadata.requiredTurns
-            }
-            ProgressionMode.COMPLETION_BASED ->
-                turnCount >= metadata.requiredTurns && goalsCompleted
-        }
+        val shouldAdvance = turnCount >= metadata.requiredTurns && goalsCompleted
 
         return ProgressionResult(shouldAdvance)
     }

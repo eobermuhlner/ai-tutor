@@ -72,7 +72,6 @@ data class LessonRequest(
     val title: String,
     val content: String, // markdown content
     val displayOrder: Int,
-    val minimumDays: Int? = null,
     val requiredTurns: Int? = null
 )
 
@@ -83,7 +82,6 @@ data class LessonResponse(
     val title: String,
     val content: String, // markdown content
     val displayOrder: Int,
-    val minimumDays: Int? = null,
     val requiredTurns: Int? = null,
     val createdAt: Instant,
     val updatedAt: Instant

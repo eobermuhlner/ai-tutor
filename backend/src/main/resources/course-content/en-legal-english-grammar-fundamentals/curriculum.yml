@@ -1,51 +1,39 @@
 courseId: en-legal-english-grammar-fundamentals
-progressionMode: TIME_BASED
+progressionMode: COMPLETION_BASED
 lessons:
   - id: week-01-legal-terminology-basics
     file: week-01-legal-terminology-basics.md
-    minimumDays: 1
     requiredTurns: 20
   - id: week-02-contract-drafting
     file: week-02-contract-drafting.md
-    minimumDays: 7
     requiredTurns: 25
   - id: week-03-legal-correspondence
     file: week-03-legal-correspondence.md
-    minimumDays: 7
     requiredTurns: 30
   - id: week-04-court-proceedings
     file: week-04-court-proceedings.md
-    minimumDays: 7
     requiredTurns: 30
   - id: week-05-legal-research-writing
     file: week-05-legal-research-writing.md
-    minimumDays: 7
     requiredTurns: 35
   - id: week-06-pleadings-motion-practice
     file: week-06-pleadings-motion-practice.md
-    minimumDays: 7
     requiredTurns: 35
   - id: week-07-deposition-examination
     file: week-07-deposition-examination.md
-    minimumDays: 7
     requiredTurns: 35
   - id: week-08-legal-opinions-advice
     file: week-08-legal-opinions-advice.md
-    minimumDays: 7
     requiredTurns: 40
   - id: week-09-regulatory-compliance
     file: week-09-regulatory-compliance.md
-    minimumDays: 7
     requiredTurns: 40
   - id: week-10-international-legal-practice
     file: week-10-international-legal-practice.md
-    minimumDays: 7
     requiredTurns: 40
   - id: week-11-advanced-legal-drafting
     file: week-11-advanced-legal-drafting.md
-    minimumDays: 7
     requiredTurns: 40
   - id: week-12-legal-grammar-completion
     file: week-12-legal-grammar-completion.md
-    minimumDays: 7
     requiredTurns: 40

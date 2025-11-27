@@ -51,7 +51,6 @@ class LessonMigrationService(
                                     title = lessonId.replace('-', ' ').replaceFirstChar { it.uppercase() },
                                     content = lessonContent,
                                     displayOrder = getNextDisplayOrder(course.id), // Assign order based on file sequence
-                                    minimumDays = null,
                                     requiredTurns = null,
                                     createdAt = Instant.now(),
                                     updatedAt = Instant.now()

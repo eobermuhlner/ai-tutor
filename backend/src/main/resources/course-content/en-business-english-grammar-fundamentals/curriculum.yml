@@ -1,51 +1,39 @@
 courseId: en-business-english-grammar-fundamentals
-progressionMode: TIME_BASED
+progressionMode: COMPLETION_BASED
 lessons:
   - id: week-01-formal-vs-informal-language
     file: week-01-formal-vs-informal-language.md
-    minimumDays: 0
     requiredTurns: 5
   - id: week-02-business-email-writing
     file: week-02-business-email-writing.md
-    minimumDays: 7
     requiredTurns: 6
   - id: week-03-presentations-meetings
     file: week-03-presentations-meetings.md
-    minimumDays: 14
     requiredTurns: 6
   - id: week-04-reports-proposals
     file: week-04-reports-proposals.md
-    minimumDays: 21
     requiredTurns: 7
   - id: week-05-negotiations-contracts
     file: week-05-negotiations-contracts.md
-    minimumDays: 28
     requiredTurns: 6
   - id: week-06-telephone-conferences
     file: week-06-telephone-conferences.md
-    minimumDays: 35
     requiredTurns: 6
   - id: week-07-formal-correspondence
     file: week-07-formal-correspondence.md
-    minimumDays: 42
     requiredTurns: 6
   - id: week-08-business-vocabulary
     file: week-08-business-vocabulary.md
-    minimumDays: 49
     requiredTurns: 5
   - id: week-09-cross-cultural-communication
     file: week-09-cross-cultural-communication.md
-    minimumDays: 56
     requiredTurns: 6
   - id: week-10-advanced-business-structures
     file: week-10-advanced-business-structures.md
-    minimumDays: 63
     requiredTurns: 7
   - id: week-11-professional-writing
     file: week-11-professional-writing.md
-    minimumDays: 70
     requiredTurns: 6
   - id: week-12-business-grammar-completion
     file: week-12-business-grammar-completion.md
-    minimumDays: 77
     requiredTurns: 7

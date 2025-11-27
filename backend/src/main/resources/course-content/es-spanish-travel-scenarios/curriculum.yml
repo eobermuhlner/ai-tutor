@@ -1,83 +1,63 @@
 courseId: es-spanish-travel-scenarios
-progressionMode: TIME_BASED
+progressionMode: COMPLETION_BASED
 lessons:
   - id: lesson-01-airport
     file: lesson-01-airport.md
-    minimumDays: 0
     requiredTurns: 8
   - id: lesson-02-train-station
     file: lesson-02-train-station.md
-    minimumDays: 7
     requiredTurns: 8
   - id: lesson-03-bus-station
     file: lesson-03-bus-station.md
-    minimumDays: 14
     requiredTurns: 8
   - id: lesson-04-hostel-hotel
     file: lesson-04-hostel-hotel.md
-    minimumDays: 21
     requiredTurns: 8
   - id: lesson-05-restaurant-cafe
     file: lesson-05-restaurant-cafe.md
-    minimumDays: 28
     requiredTurns: 8
   - id: lesson-06-taxi-uber
     file: lesson-06-taxi-uber.md
-    minimumDays: 35
     requiredTurns: 7
   - id: lesson-07-shopping-market
     file: lesson-07-shopping-market.md
-    minimumDays: 42
     requiredTurns: 7
   - id: lesson-08-pharmacy-health
     file: lesson-08-pharmacy-health.md
-    minimumDays: 49
     requiredTurns: 8
   - id: lesson-09-tourist-attractions
     file: lesson-09-tourist-attractions.md
-    minimumDays: 56
     requiredTurns: 7
   - id: lesson-10-emergencies
     file: lesson-10-emergencies.md
-    minimumDays: 63
     requiredTurns: 8
   - id: lesson-11-car-rental-gas-station
     file: lesson-11-car-rental-gas-station.md
-    minimumDays: 70
     requiredTurns: 8
   - id: lesson-12-beach
     file: lesson-12-beach.md
-    minimumDays: 77
     requiredTurns: 7
   - id: lesson-13-nightlife
     file: lesson-13-nightlife.md
-    minimumDays: 84
     requiredTurns: 7
   - id: lesson-14-post-office
     file: lesson-14-post-office.md
-    minimumDays: 91
     requiredTurns: 7
   - id: lesson-15-bank-atm
     file: lesson-15-bank-atm.md
-    minimumDays: 98
     requiredTurns: 7
   - id: lesson-16-laundromat
     file: lesson-16-laundromat.md
-    minimumDays: 105
     requiredTurns: 6
   - id: lesson-17-hair-salon
     file: lesson-17-hair-salon.md
-    minimumDays: 112
     requiredTurns: 6
   - id: lesson-18-booking-activities
     file: lesson-18-booking-activities.md
-    minimumDays: 119
     requiredTurns: 7
   - id: lesson-19-apartment-rental
     file: lesson-19-apartment-rental.md
-    minimumDays: 126
     requiredTurns: 7
   - id: lesson-20-socializing
     file: lesson-20-socializing.md
-    minimumDays: 133
     requiredTurns: 8

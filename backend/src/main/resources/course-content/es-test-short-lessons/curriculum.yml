@@ -28,10 +28,8 @@ lessons:
 #    requiredTurns: 10
   - id: lesson-07-colors
     file: lesson-07-colors.md
-    minimumDays: 0
     requiredTurns: 1
   - id: lesson-08-weekdays
     file: lesson-08-weekdays.md
-    minimumDays: 0
     requiredTurns: 1
 ---

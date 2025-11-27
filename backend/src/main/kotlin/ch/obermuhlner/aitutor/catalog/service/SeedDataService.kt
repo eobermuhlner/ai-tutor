@@ -102,13 +102,9 @@ class SeedDataService(
             // Create curriculum rules for embedded lessons
             val coursesWithEmbeddedLessons = result.lessons.groupBy { it.courseId }
             coursesWithEmbeddedLessons.forEach { (courseId, lessons) ->
-                val hasTimeBased = lessons.any { lesson ->
-                    val minDays = lesson.minimumDays
-                    minDays != null && minDays > 0
-                }
                 val rule = CurriculumRuleEntity(
                     courseId = courseId,
-                    progressionMode = if (hasTimeBased) "TIME_BASED" else "LINEAR",
+                    progressionMode = "COMPLETION_BASED",
                     allowSkipping = false,
                     requireCompletion = true,
                     createdAt = Instant.now(),
@@ -332,7 +328,6 @@ class SeedDataService(
                                 courseId = course.id,
                                 lessonParseResult = parsed,
                                 displayOrder = index,
-                                minimumDays = metadata.minimumDays,
                                 requiredTurns = metadata.requiredTurns
                             )
                         }
@@ -345,14 +340,9 @@ class SeedDataService(
                         // Create curriculum rule if doesn't exist
                         val existingRule = curriculumRuleRepository.findByCourseId(course.id)
                         if (existingRule == null) {
-                            val progressionMode = when (curriculum.progressionMode) {
-                                ch.obermuhlner.aitutor.lesson.domain.ProgressionMode.TIME_BASED -> "TIME_BASED"
-                                ch.obermuhlner.aitutor.lesson.domain.ProgressionMode.COMPLETION_BASED -> "COMPLETION_BASED"
-                            }
-
                             val rule = ch.obermuhlner.aitutor.catalog.domain.CurriculumRuleEntity(
                                 courseId = course.id,
-                                progressionMode = progressionMode,
+                                progressionMode = "COMPLETION_BASED",
                                 allowSkipping = false,
                                 requireCompletion = true,
                                 createdAt = Instant.now(),

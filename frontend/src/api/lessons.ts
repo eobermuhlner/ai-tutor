@@ -3,14 +3,13 @@ import type { LessonContent } from '../types';
 
 export interface CourseCurriculum {
   courseId: string;
-  progressionMode: string; // e.g., "TIME_BASED" or "COMPLETION_BASED"
+  progressionMode: string; // Always "COMPLETION_BASED"
   lessons: LessonMetadata[];
 }
 
 export interface LessonMetadata {
   id: string;
   file: string;
-  minimumDays: number;
   requiredTurns: number;
 }
 

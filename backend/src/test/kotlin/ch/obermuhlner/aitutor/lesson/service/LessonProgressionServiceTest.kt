@@ -74,9 +74,9 @@ class LessonProgressionServiceTest {
 
         val curriculum = CourseCurriculum(
             courseId = "es-conversational-spanish",
-            progressionMode = ProgressionMode.TIME_BASED,
+            progressionMode = ProgressionMode.COMPLETION_BASED,
             lessons = listOf(
-                LessonMetadata("week-01-greetings", "week-01-greetings.md", 0, 5)
+                LessonMetadata("week-01-greetings", "week-01-greetings.md", 5)
             )
         )
         every { lessonContentService.getCurriculum("es-conversational-spanish") } returns curriculum
@@ -119,7 +119,7 @@ class LessonProgressionServiceTest {
     }
 
     @Test
-    fun `should not advance when time criteria not met`() {
+    fun `should not advance when goals not completed`() {
         val courseId = UUID.randomUUID()
         val session = ChatSessionEntity(
             userId = UUID.randomUUID(),
@@ -133,9 +133,9 @@ class LessonProgressionServiceTest {
             estimatedCEFRLevel = CEFRLevel.A1,
             courseTemplateId = courseId,
             currentLessonId = "week-01-greetings",
-            lessonStartedAt = Instant.now().minus(3, ChronoUnit.DAYS), // Only 3 days
-            lessonProgressTurnCount = 0,
-            lessonProgressGoalsCompleted = false
+            lessonStartedAt = Instant.now(),
+            lessonProgressTurnCount = 10, // Turns met
+            lessonProgressGoalsCompleted = false // But goals not completed
         )
 
         val course = mockk<CourseTemplateEntity>()
@@ -145,17 +145,16 @@ class LessonProgressionServiceTest {
 
         val curriculum = CourseCurriculum(
             courseId = "es-conversational-spanish",
-            progressionMode = ProgressionMode.TIME_BASED,
+            progressionMode = ProgressionMode.COMPLETION_BASED,
             lessons = listOf(
-                LessonMetadata("week-01-greetings", "week-01-greetings.md", 7, 5), // Requires 7 days
-                LessonMetadata("week-02-introductions", "week-02-introductions.md", 14, 8)
+                LessonMetadata("week-01-greetings", "week-01-greetings.md", 5),
+                LessonMetadata("week-02-introductions", "week-02-introductions.md", 8)
             )
         )
         every { lessonContentService.getCurriculum("es-conversational-spanish") } returns curriculum
 
         val lessonContent = mockk<LessonContent>()
         every { lessonContentService.getLesson("es-conversational-spanish", "week-01-greetings") } returns lessonContent
-        every { chatMessageRepository.countBySessionId(any()) } returns 10L
         every { chatSessionRepository.findById(session.id) } returns java.util.Optional.of(session)
 
         val result = lessonProgressionService.checkAndProgressLesson(session.id)
@@ -165,7 +164,7 @@ class LessonProgressionServiceTest {
     }
 
     @Test
-    fun `should advance when time and turn criteria met`() {
+    fun `should advance when turn and goal criteria met`() {
         val courseId = UUID.randomUUID()
         val sessionId = UUID.randomUUID()
         val session = ChatSessionEntity(
@@ -181,9 +180,9 @@ class LessonProgressionServiceTest {
             estimatedCEFRLevel = CEFRLevel.A1,
             courseTemplateId = courseId,
             currentLessonId = "week-01-greetings",
-            lessonStartedAt = Instant.now().minus(8, ChronoUnit.DAYS), // 8 days
-            lessonProgressTurnCount = 10,
-            lessonProgressGoalsCompleted = false
+            lessonStartedAt = Instant.now(),
+            lessonProgressTurnCount = 10, // Turns met
+            lessonProgressGoalsCompleted = true // Goals met
         )
 
         val course = mockk<CourseTemplateEntity>()
@@ -193,17 +192,16 @@ class LessonProgressionServiceTest {
 
         val curriculum = CourseCurriculum(
             courseId = "es-conversational-spanish",
-            progressionMode = ProgressionMode.TIME_BASED,
+            progressionMode = ProgressionMode.COMPLETION_BASED,
             lessons = listOf(
-                LessonMetadata("week-01-greetings", "week-01-greetings.md", 7, 5),
-                LessonMetadata("week-02-introductions", "week-02-introductions.md", 14, 8)
+                LessonMetadata("week-01-greetings", "week-01-greetings.md", 5),
+                LessonMetadata("week-02-introductions", "week-02-introductions.md", 8)
             )
         )
         every { lessonContentService.getCurriculum("es-conversational-spanish") } returns curriculum
 
         val lessonContent = mockk<LessonContent>()
         every { lessonContentService.getLesson("es-conversational-spanish", "week-02-introductions") } returns lessonContent
-        every { chatMessageRepository.countBySessionId(sessionId) } returns 10L // Exceeds required 5 turns
         every { chatSessionRepository.findById(sessionId) } returns java.util.Optional.of(session)
         every { chatSessionRepository.save(any()) } returns session
 
@@ -231,9 +229,9 @@ class LessonProgressionServiceTest {
             estimatedCEFRLevel = CEFRLevel.A1,
             courseTemplateId = courseId,
             currentLessonId = "week-10-future-plans",
-            lessonStartedAt = Instant.now().minus(70, ChronoUnit.DAYS),
+            lessonStartedAt = Instant.now(),
             lessonProgressTurnCount = 20,
-            lessonProgressGoalsCompleted = false
+            lessonProgressGoalsCompleted = true
         )
 
         val course = mockk<CourseTemplateEntity>()
@@ -243,16 +241,15 @@ class LessonProgressionServiceTest {
 
         val curriculum = CourseCurriculum(
             courseId = "es-conversational-spanish",
-            progressionMode = ProgressionMode.TIME_BASED,
+            progressionMode = ProgressionMode.COMPLETION_BASED,
             lessons = listOf(
-                LessonMetadata("week-10-future-plans", "week-10-future-plans.md", 63, 15)
+                LessonMetadata("week-10-future-plans", "week-10-future-plans.md", 15)
             )
         )
         every { lessonContentService.getCurriculum("es-conversational-spanish") } returns curriculum
 
         val lessonContent = mockk<LessonContent>()
         every { lessonContentService.getLesson("es-conversational-spanish", "week-10-future-plans") } returns lessonContent
-        every { chatMessageRepository.countBySessionId(sessionId) } returns 20L
         every { chatSessionRepository.findById(sessionId) } returns java.util.Optional.of(session)
 
         val result = lessonProgressionService.checkAndProgressLesson(sessionId)
@@ -289,10 +286,10 @@ class LessonProgressionServiceTest {
 
         val curriculum = CourseCurriculum(
             courseId = "es-conversational-spanish",
-            progressionMode = ProgressionMode.TIME_BASED,
+            progressionMode = ProgressionMode.COMPLETION_BASED,
             lessons = listOf(
-                LessonMetadata("week-01-greetings", "week-01-greetings.md", 7, 5),
-                LessonMetadata("week-02-introductions", "week-02-introductions.md", 14, 8)
+                LessonMetadata("week-01-greetings", "week-01-greetings.md", 5),
+                LessonMetadata("week-02-introductions", "week-02-introductions.md", 8)
             )
         )
         every { lessonContentService.getCurriculum("es-conversational-spanish") } returns curriculum
@@ -333,9 +330,9 @@ class LessonProgressionServiceTest {
 
         val curriculum = CourseCurriculum(
             courseId = "es-conversational-spanish",
-            progressionMode = ProgressionMode.TIME_BASED,
+            progressionMode = ProgressionMode.COMPLETION_BASED,
             lessons = listOf(
-                LessonMetadata("week-10-future-plans", "week-10-future-plans.md", 63, 15)
+                LessonMetadata("week-10-future-plans", "week-10-future-plans.md", 15)
             )
         )
         every { lessonContentService.getCurriculum("es-conversational-spanish") } returns curriculum

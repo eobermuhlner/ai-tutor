@@ -1,51 +1,39 @@
 courseId: pt-pt-european-portuguese-grammar-fundamentals
-progressionMode: TIME_BASED
+progressionMode: COMPLETION_BASED
 lessons:
   - id: week-01-noun-genders-articles
     file: week-01-noun-genders-articles.md
-    minimumDays: 0
     requiredTurns: 5
   - id: week-02-present-tense
     file: week-02-present-tense.md
-    minimumDays: 7
     requiredTurns: 6
   - id: week-03-definite-indefinite-articles
     file: week-03-definite-indefinite-articles.md
-    minimumDays: 14
     requiredTurns: 6
   - id: week-04-adjectives-agreement
     file: week-04-adjectives-agreement.md
-    minimumDays: 21
     requiredTurns: 7
   - id: week-05-reflexive-verbs
     file: week-05-reflexive-verbs.md
-    minimumDays: 28
     requiredTurns: 6
   - id: week-06-direct-indirect-objects
     file: week-06-direct-indirect-objects.md
-    minimumDays: 35
     requiredTurns: 6
   - id: week-07-imperfect-tense
     file: week-07-imperfect-tense.md
-    minimumDays: 42
     requiredTurns: 6
   - id: week-08-preterite-tense
     file: week-08-preterite-tense.md
-    minimumDays: 49
     requiredTurns: 5
   - id: week-09-conditional-subjunctive
     file: week-09-conditional-subjunctive.md
-    minimumDays: 56
     requiredTurns: 6
   - id: week-10-prepositions-conjunctions
     file: week-10-prepositions-conjunctions.md
-    minimumDays: 63
     requiredTurns: 7
   - id: week-11-advanced-grammar
     file: week-11-advanced-grammar.md
-    minimumDays: 70
     requiredTurns: 6
   - id: week-12-grammar-completion
     file: week-12-grammar-completion.md
-    minimumDays: 77
     requiredTurns: 7

@@ -193,8 +193,8 @@ class LessonContentService(
      * Reconstructs CourseCurriculum from CurriculumRuleEntity and LessonContentEntity.
      */
     private fun loadCurriculumFromDatabase(courseId: UUID): CourseCurriculum? {
-        // Get curriculum rules
-        val curriculumRule = curriculumRuleRepository.findByCourseId(courseId) ?: return null
+        // Check if curriculum rule exists for this course
+        if (curriculumRuleRepository.findByCourseId(courseId) == null) return null
 
         // Get all lessons for this course, ordered by displayOrder
         val lessons = lessonContentRepository.findByCourseIdOrderByDisplayOrder(courseId)
@@ -208,17 +208,12 @@ class LessonContentService(
             LessonMetadata(
                 id = lesson.lessonId,
                 file = "${lesson.lessonId}.md",  // Synthetic file name for compatibility
-                minimumDays = lesson.minimumDays ?: 7,
                 requiredTurns = lesson.requiredTurns ?: 20
             )
         }
 
-        // Convert progression mode
-        val progressionMode = when (curriculumRule.progressionMode) {
-            "TIME_BASED" -> ProgressionMode.TIME_BASED
-            "COMPLETION_BASED" -> ProgressionMode.COMPLETION_BASED
-            else -> ProgressionMode.TIME_BASED
-        }
+        // Convert progression mode (only COMPLETION_BASED is supported)
+        val progressionMode = ProgressionMode.COMPLETION_BASED
 
         logger.debug("Loaded curriculum from database for course $courseId with ${lessonMetadata.size} lessons")
 

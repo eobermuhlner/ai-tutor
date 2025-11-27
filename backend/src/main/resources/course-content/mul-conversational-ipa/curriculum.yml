@@ -1,27 +1,21 @@
 courseId: mul-conversational-ipa
-progressionMode: TIME_BASED
+progressionMode: COMPLETION_BASED
 lessons:
   - id: week-01-reading-simple-ipa
     file: week-01-reading-simple-ipa.md
-    minimumDays: 7
     requiredTurns: 20
   - id: week-02-european-languages
     file: week-02-european-languages.md
-    minimumDays: 7
     requiredTurns: 25
   - id: week-03-challenging-consonants
     file: week-03-challenging-consonants.md
-    minimumDays: 7
     requiredTurns: 25
   - id: week-04-vowel-variation
     file: week-04-vowel-variation.md
-    minimumDays: 7
     requiredTurns: 25
   - id: week-05-connected-speech
     file: week-05-connected-speech.md
-    minimumDays: 7
     requiredTurns: 25
   - id: week-06-dictionary-entries
     file: week-06-dictionary-entries.md
-    minimumDays: 7
     requiredTurns: 30

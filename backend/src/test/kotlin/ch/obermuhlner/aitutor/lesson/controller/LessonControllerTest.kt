@@ -50,10 +50,10 @@ class LessonControllerTest {
     fun `should get course curriculum successfully`() {
         val curriculum = CourseCurriculum(
             courseId = "es-conversational-spanish",
-            progressionMode = ProgressionMode.TIME_BASED,
+            progressionMode = ProgressionMode.COMPLETION_BASED,
             lessons = listOf(
-                LessonMetadata("week-01-greetings", "week-01-greetings.md", 0, 5),
-                LessonMetadata("week-02-introductions", "week-02-introductions.md", 7, 8)
+                LessonMetadata("week-01-greetings", "week-01-greetings.md", 5),
+                LessonMetadata("week-02-introductions", "week-02-introductions.md", 8)
             )
         )
 
@@ -65,7 +65,7 @@ class LessonControllerTest {
         assertNotNull(response.body)
         assertEquals("es-conversational-spanish", response.body?.courseId)
         assertEquals(2, response.body?.lessons?.size)
-        assertEquals(ProgressionMode.TIME_BASED, response.body?.progressionMode)
+        assertEquals(ProgressionMode.COMPLETION_BASED, response.body?.progressionMode)
     }
 
     @Test

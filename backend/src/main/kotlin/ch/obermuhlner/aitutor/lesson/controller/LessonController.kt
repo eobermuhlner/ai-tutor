@@ -44,7 +44,6 @@ class LessonController(
                 LessonMetadataResponse(
                     id = metadata.id,
                     file = metadata.file,
-                    minimumDays = metadata.minimumDays,
                     requiredTurns = metadata.requiredTurns
                 )
             }

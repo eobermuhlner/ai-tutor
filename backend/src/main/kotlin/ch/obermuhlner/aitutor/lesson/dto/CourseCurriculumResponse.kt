@@ -11,6 +11,5 @@ data class CourseCurriculumResponse(
 data class LessonMetadataResponse(
     val id: String,
     val file: String,
-    val minimumDays: Int,
     val requiredTurns: Int
 )

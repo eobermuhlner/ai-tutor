@@ -187,7 +187,6 @@ class FileImportService(
         courseId: UUID,
         lessonParseResult: LessonParseResult,
         displayOrder: Int,
-        minimumDays: Int? = null,
         requiredTurns: Int? = null
     ): LessonContentEntity {
         return LessonContentEntity(
@@ -196,7 +195,6 @@ class FileImportService(
             title = lessonParseResult.title,
             content = lessonParseResult.markdown,
             displayOrder = displayOrder,
-            minimumDays = minimumDays,
             requiredTurns = requiredTurns,
             createdAt = Instant.now(),
             updatedAt = Instant.now()
@@ -259,7 +257,6 @@ class FileImportService(
                         courseId = course.id,
                         lessonParseResult = parsed,
                         displayOrder = index,
-                        minimumDays = metadata.minimumDays,
                         requiredTurns = metadata.requiredTurns
                     )
                 }

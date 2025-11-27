@@ -367,7 +367,6 @@ class UnifiedCatalogImportService(
                     title = lesson.title ?: "Untitled Lesson",
                     content = markdown,
                     displayOrder = index,
-                    minimumDays = lesson.minimumDays.takeIf { it > 0 },
                     requiredTurns = lesson.requiredTurns.takeIf { it > 0 },
                     createdAt = Instant.now(),
                     updatedAt = Instant.now()

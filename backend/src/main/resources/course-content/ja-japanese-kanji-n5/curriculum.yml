@@ -1,43 +1,33 @@
 courseId: ja-japanese-kanji-n5
-progressionMode: TIME_BASED
+progressionMode: COMPLETION_BASED
 lessons:
   - id: week-01-hiragana-katakana-review
     file: week-01-hiragana-katakana-review.md
-    minimumDays: 1
     requiredTurns: 10
   - id: week-02-kanji-introduction
     file: week-02-kanji-introduction.md
-    minimumDays: 1
     requiredTurns: 10
   - id: week-03-basic-kanji-201-300
     file: week-03-basic-kanji-201-300.md
-    minimumDays: 1
     requiredTurns: 10
   - id: week-04-kanji-301-400
     file: week-04-kanji-301-400.md
-    minimumDays: 1
     requiredTurns: 10
   - id: week-05-kanji-401-500
     file: week-05-kanji-401-500.md
-    minimumDays: 1
     requiredTurns: 10
   - id: week-06-kanji-501-600
     file: week-06-kanji-501-600.md
-    minimumDays: 1
     requiredTurns: 10
   - id: week-07-kanji-601-700
     file: week-07-kanji-601-700.md
-    minimumDays: 1
     requiredTurns: 10
   - id: week-08-kanji-701-800
     file: week-08-kanji-701-800.md
-    minimumDays: 1
     requiredTurns: 10
   - id: week-09-kanji-801-900
     file: week-09-kanji-801-900.md
-    minimumDays: 1
     requiredTurns: 10
   - id: week-10-kanji-review
     file: week-10-kanji-review.md
-    minimumDays: 1
     requiredTurns: 10

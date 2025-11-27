@@ -62,7 +62,6 @@ class LessonManagementController(
             title = request.title,
             content = request.content,
             displayOrder = request.displayOrder,
-            minimumDays = request.minimumDays,
             requiredTurns = request.requiredTurns,
             createdAt = Instant.now(),
             updatedAt = Instant.now()
@@ -90,7 +89,6 @@ class LessonManagementController(
         existingLesson.title = request.title
         existingLesson.content = request.content
         existingLesson.displayOrder = request.displayOrder
-        existingLesson.minimumDays = request.minimumDays
         existingLesson.requiredTurns = request.requiredTurns
         existingLesson.updatedAt = Instant.now()
         
@@ -159,7 +157,6 @@ class LessonManagementController(
             title = lesson.title,
             content = lesson.content,
             displayOrder = lesson.displayOrder,
-            minimumDays = lesson.minimumDays,
             requiredTurns = lesson.requiredTurns,
             createdAt = lesson.createdAt,
             updatedAt = lesson.updatedAt

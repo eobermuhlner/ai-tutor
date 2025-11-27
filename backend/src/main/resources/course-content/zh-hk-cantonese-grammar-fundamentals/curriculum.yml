@@ -1,51 +1,39 @@
 courseId: zh-hk-cantonese-grammar-fundamentals
-progressionMode: TIME_BASED
+progressionMode: COMPLETION_BASED
 lessons:
   - id: week-01-jyutping-tones-introduction
     file: week-01-jyutping-tones-introduction.md
-    minimumDays: 0
     requiredTurns: 5
   - id: week-02-basic-sentence-structure
     file: week-02-basic-sentence-structure.md
-    minimumDays: 7
     requiredTurns: 6
   - id: week-03-present-tense-verbs
     file: week-03-present-tense-verbs.md
-    minimumDays: 14
     requiredTurns: 6
   - id: week-04-question-forms
     file: week-04-question-forms.md
-    minimumDays: 21
     requiredTurns: 7
   - id: week-05-negative-forms
     file: week-05-negative-forms.md
-    minimumDays: 28
     requiredTurns: 6
   - id: week-06-past-tense
     file: week-06-past-tense.md
-    minimumDays: 35
     requiredTurns: 6
   - id: week-07-future-tense
     file: week-07-future-tense.md
-    minimumDays: 42
     requiredTurns: 6
   - id: week-08-adjectives-descriptive
     file: week-08-adjectives-descriptive.md
-    minimumDays: 49
     requiredTurns: 5
   - id: week-09-measure-words-quantifiers
     file: week-09-measure-words-quantifiers.md
-    minimumDays: 56
     requiredTurns: 6
   - id: week-10-conditionals-hypotheticals
     file: week-10-conditionals-hypotheticals.md
-    minimumDays: 63
     requiredTurns: 7
   - id: week-11-complex-sentences
     file: week-11-complex-sentences.md
-    minimumDays: 70
     requiredTurns: 6
   - id: week-12-grammar-completion
     file: week-12-grammar-completion.md
-    minimumDays: 77
     requiredTurns: 7

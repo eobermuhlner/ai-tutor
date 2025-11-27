@@ -1,43 +1,33 @@
 courseId: conversational-european-portuguese
-progressionMode: TIME_BASED
+progressionMode: COMPLETION_BASED
 lessons:
   - id: week-01-greetings
     file: week-01-greetings.md
-    minimumDays: 7
     requiredTurns: 5
   - id: week-02-introductions
     file: week-02-introductions.md
-    minimumDays: 7
     requiredTurns: 8
   - id: week-03-numbers-time
     file: week-03-numbers-time.md
-    minimumDays: 7
     requiredTurns: 10
   - id: week-04-food-ordering
     file: week-04-food-ordering.md
-    minimumDays: 7
     requiredTurns: 10
   - id: week-05-directions
     file: week-05-directions.md
-    minimumDays: 7
     requiredTurns: 12
   - id: week-06-shopping
     file: week-06-shopping.md
-    minimumDays: 7
     requiredTurns: 12
   - id: week-07-family
     file: week-07-family.md
-    minimumDays: 7
     requiredTurns: 12
   - id: week-08-weather-activities
     file: week-08-weather-activities.md
-    minimumDays: 7
     requiredTurns: 15
   - id: week-09-past-tense
     file: week-09-past-tense.md
-    minimumDays: 7
     requiredTurns: 15
   - id: week-10-future-plans
     file: week-10-future-plans.md
-    minimumDays: 7
     requiredTurns: 15

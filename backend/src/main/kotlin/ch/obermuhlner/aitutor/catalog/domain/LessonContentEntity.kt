@@ -31,9 +31,6 @@ class LessonContentEntity(
     @Column(name = "display_order", nullable = false)
     var displayOrder: Int,
 
-    @Column(name = "minimum_days")
-    var minimumDays: Int? = null,
-
     @Column(name = "required_turns")
     var requiredTurns: Int? = null,
 

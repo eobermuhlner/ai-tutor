@@ -164,14 +164,9 @@ class CourseMigrationApplication {
                     logger.info("Created course entity: ${savedCourse.id}")
 
                     // Create curriculum rule
-                    val progressionMode = when (curriculum.progressionMode) {
-                        ProgressionMode.TIME_BASED -> "TIME_BASED"
-                        ProgressionMode.COMPLETION_BASED -> "COMPLETION_BASED"
-                    }
-
                     val curriculumRule = CurriculumRuleEntity(
                         courseId = savedCourse.id,
-                        progressionMode = progressionMode,
+                        progressionMode = "COMPLETION_BASED",
                         allowSkipping = false,
                         requireCompletion = true,
                         createdAt = Instant.now(),
@@ -191,7 +186,6 @@ class CourseMigrationApplication {
                                 courseId = savedCourse.id,
                                 lessonParseResult = parsed,
                                 displayOrder = index,
-                                minimumDays = metadata.minimumDays,
                                 requiredTurns = metadata.requiredTurns
                             )
                         }

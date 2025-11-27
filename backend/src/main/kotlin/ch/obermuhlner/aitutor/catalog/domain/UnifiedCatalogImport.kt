@@ -117,7 +117,6 @@ data class CurriculumImport(
 data class LessonImport(
     val id: String,
     val title: String? = null,
-    val minimumDays: Int = 0,
     val requiredTurns: Int = 0,
 
     // Option 1: Embedded markdown content (single-file import)

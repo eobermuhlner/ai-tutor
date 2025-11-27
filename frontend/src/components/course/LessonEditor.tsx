@@ -22,7 +22,6 @@ interface InternalLesson {
   title: string;
   content: string;
   displayOrder: number;
-  minimumDays?: number | null;
   requiredTurns?: number | null;
   createdAt: string;
   updatedAt: string;
@@ -37,7 +36,6 @@ interface TemporaryLesson {
   title: string;
   content: string;
   displayOrder: number;
-  minimumDays?: number | null;
   requiredTurns?: number | null;
   createdAt: string;
   updatedAt: string;
@@ -68,7 +66,6 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
         title: 'New Lesson',
         content: `# New Lesson\n\nThis is a new lesson. Add your content here.`,
         displayOrder: internalLessons.length,
-        minimumDays: 1,
         requiredTurns: 5,
         createdAt: new Date().toISOString(), // Set current date for temporary lesson
         updatedAt: new Date().toISOString(),
@@ -86,7 +83,6 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
       title: 'New Lesson',
       content: `# New Lesson\n\nThis is a new lesson. Add your content here.`,
       displayOrder: lessons.length,
-      minimumDays: 1,
       requiredTurns: 5,
     };
     
@@ -177,7 +173,6 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
       title: lessonToSave.title,
       content: lessonToSave.content,
       displayOrder: lessonToSave.displayOrder,
-      minimumDays: lessonToSave.minimumDays,
       requiredTurns: lessonToSave.requiredTurns,
     };
     
@@ -327,34 +322,21 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
                     </div>
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-1">
-                        Minimum Days
-                      </label>
-                      <Input
-                        type="number"
-                        value={lesson.minimumDays || ''}
-                        onChange={(e) => handleFieldChange(lesson.id, 'minimumDays', 
-                          e.target.value ? parseInt(e.target.value) : null)}
-                        min="1"
-                        disabled={loading}
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-1">
-                        Required Turns
-                      </label>
-                      <Input
-                        type="number"
-                        value={lesson.requiredTurns || ''}
-                        onChange={(e) => handleFieldChange(lesson.id, 'requiredTurns', 
-                          e.target.value ? parseInt(e.target.value) : null)}
-                        min="1"
-                        disabled={loading}
-                      />
-                    </div>
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
+                      Required Turns
+                    </label>
+                    <Input
+                      type="number"
+                      value={lesson.requiredTurns || ''}
+                      onChange={(e) => handleFieldChange(lesson.id, 'requiredTurns',
+                        e.target.value ? parseInt(e.target.value) : null)}
+                      min="1"
+                      disabled={loading}
+                    />
+                    <p className="mt-1 text-xs text-slate-500">
+                      Number of conversation turns required before advancing to next lesson
+                    </p>
                   </div>
                   
                   <div className="mb-4">

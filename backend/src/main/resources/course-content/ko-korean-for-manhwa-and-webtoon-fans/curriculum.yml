@@ -1,43 +1,33 @@
 courseId: ko-korean-for-manhwa-and-webtoon-fans
-progressionMode: TIME_BASED
+progressionMode: COMPLETION_BASED
 lessons:
   - id: week-01-introduction
     file: week-01-introduction.md
-    minimumDays: 1
     requiredTurns: 10
   - id: week-02-basic-manhwa-vocabulary
     file: week-02-basic-manhwa-vocabulary.md
-    minimumDays: 1
     requiredTurns: 10
   - id: week-03-character-emotions
     file: week-03-character-emotions.md
-    minimumDays: 1
     requiredTurns: 10
   - id: week-04-action-scenes
     file: week-04-action-scenes.md
-    minimumDays: 1
     requiredTurns: 10
   - id: week-05-romance-dialogue
     file: week-05-romance-dialogue.md
-    minimumDays: 1
     requiredTurns: 10
   - id: week-06-dramatic-scenes
     file: week-06-dramatic-scenes.md
-    minimumDays: 1
     requiredTurns: 10
   - id: week-07-fantasy-elements
     file: week-07-fantasy-elements.md
-    minimumDays: 1
     requiredTurns: 10
   - id: week-08-slice-of-life
     file: week-08-slice-of-life.md
-    minimumDays: 1
     requiredTurns: 10
   - id: week-09-comedy-and-humor
     file: week-09-comedy-and-humor.md
-    minimumDays: 1
     requiredTurns: 10
   - id: week-10-advanced-dialogue
     file: week-10-advanced-dialogue.md
-    minimumDays: 1
     requiredTurns: 15

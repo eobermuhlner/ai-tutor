@@ -500,15 +500,13 @@ Lessons are connected to courses via **explicit declaration** in `curriculum.yml
 
 ```yaml
 courseId: de-conversational-german
-progressionMode: TIME_BASED           # or SEQUENTIAL
+progressionMode: COMPLETION_BASED
 lessons:
   - id: week-01-greetings            # Must match lessonId in frontmatter
     file: week-01-greetings.md       # Filename in same directory
-    minimumDays: 1                    # Must spend at least 1 day on this lesson
     requiredTurns: 20                 # Minimum conversation turns to complete
   - id: week-02-introductions
     file: week-02-introductions.md
-    minimumDays: 7                    # Must spend at least 7 days on this lesson
     requiredTurns: 25                 # Minimum conversation turns to complete
   # ... additional lessons
 ```
@@ -516,7 +514,7 @@ lessons:
 **Important:**
 - `lessonId` in YAML frontmatter must match `id` in curriculum.yml
 - `file` path is relative to the course directory
-- `minimumDays` controls time-based progression (minimum days to spend on current lesson)
+- `progressionMode` is always COMPLETION_BASED (progression based on turns and goals, not calendar time)
 - `requiredTurns` sets minimum engagement before lesson completion
 
 ## Reference Examples
