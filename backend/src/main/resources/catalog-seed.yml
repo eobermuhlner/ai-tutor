@@ -841,6 +841,30 @@ courses:
     displayOrder: 4
   - languageCode: es-ES
     name:
+      en: Spanish Etymology
+    shortDescription:
+      en: Discover the fascinating origins and evolution of Spanish words
+    description:
+      en: "Explore the rich history of Spanish vocabulary through its linguistic roots. This course traces words back to Latin, Arabic, Celtic, and other ancestral languages that shaped modern Spanish. Learn how historical events, cultural exchanges, and regional variations influenced the Spanish language we use today. Perfect for language lovers and history enthusiasts who want to understand the deeper meanings behind Spanish words and expressions."
+    category: General
+    targetAudience:
+      en: Language enthusiasts, students of linguistics, or anyone fascinated by the history and evolution of Spanish vocabulary
+    startingLevel: None
+    targetLevel: C2
+    estimatedWeeks: 8
+    requiresCurriculum: true
+    learningGoals:
+      en:
+        - Understand the Latin origins of Spanish vocabulary
+        - Recognize Arabic influences in Spanish (especially in science, agriculture, and daily life)
+        - Identify Celtic and other pre-Roman influences on Spanish
+        - Explore words borrowed from indigenous American languages
+        - Trace the evolution of Spanish from Vulgar Latin
+        - Use etymology knowledge to expand vocabulary more effectively
+        - Appreciate the cultural and historical context of Spanish expressions
+    displayOrder: 5
+  - languageCode: es-ES
+    name:
       en: Free Conversation
     shortDescription:
       en: Practice Spanish naturally without structured lessons

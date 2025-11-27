@@ -9,6 +9,7 @@ import ch.obermuhlner.aitutor.core.model.catalog.LanguageMetadata
 import ch.obermuhlner.aitutor.language.service.LanguageService
 import ch.obermuhlner.aitutor.lesson.domain.CourseCurriculum
 import ch.obermuhlner.aitutor.lesson.domain.LessonContent
+import ch.obermuhlner.aitutor.lesson.domain.ProgressionMode
 import ch.obermuhlner.aitutor.lesson.service.LessonContentService
 import ch.obermuhlner.aitutor.lesson.service.LessonProgressionService
 import ch.obermuhlner.aitutor.tutor.domain.ConversationPhase
@@ -39,6 +40,7 @@ class TutorService(
     private val objectMapper: ObjectMapper,
     private val supportedLanguages: Map<String, LanguageMetadata>,
     @Value("\${ai-tutor.prompts.system}") private val systemPromptTemplate: String,
+    @Value("\${ai-tutor.prompts.special}") private val specialSystemPromptTemplate: String,
     @Value("\${ai-tutor.prompts.level-none}") private val levelNonePromptTemplate: String,
     @Value("\${ai-tutor.prompts.level-a1}") private val levelA1PromptTemplate: String,
     @Value("\${ai-tutor.prompts.level-a2}") private val levelA2PromptTemplate: String,
@@ -292,8 +294,14 @@ class TutorService(
         userName: String? = null,
         pronunciationPreference: ch.obermuhlner.aitutor.user.domain.PronunciationPreference? = null
     ): String = buildString {
+        val basePromptTemplate = if (curriculum?.progressionMode == ProgressionMode.SPECIAL) {
+            specialSystemPromptTemplate
+        } else {
+            systemPromptTemplate
+        }
+
         // Base system prompt (role, persona, languages)
-        append(PromptTemplate(systemPromptTemplate).render(mapOf(
+        append(PromptTemplate(basePromptTemplate).render(mapOf(
             "targetLanguage" to targetLanguage,
             "targetLanguageCode" to targetLanguageCode,
             "sourceLanguage" to sourceLanguage,

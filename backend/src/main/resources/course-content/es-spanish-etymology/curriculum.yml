@@ -1,0 +1,8 @@
+---
+courseId: es-spanish-etymology
+progressionMode: SPECIAL
+lessons:
+  - id: lesson-01-etymology
+    file: lesson-01-etymology.md
+    requiredTurns: 999
+---

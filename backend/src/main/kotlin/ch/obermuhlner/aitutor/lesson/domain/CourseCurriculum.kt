@@ -13,5 +13,6 @@ data class LessonMetadata(
 )
 
 enum class ProgressionMode {
-    COMPLETION_BASED // Advance after meeting turn and goal criteria
+    COMPLETION_BASED, // Advance after meeting turn and goal criteria
+    SPECIAL,
 }

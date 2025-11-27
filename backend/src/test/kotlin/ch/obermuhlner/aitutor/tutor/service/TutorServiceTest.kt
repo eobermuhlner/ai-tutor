@@ -3,9 +3,6 @@ package ch.obermuhlner.aitutor.tutor.service
 import ch.obermuhlner.aitutor.conversation.dto.AiChatResponse
 import ch.obermuhlner.aitutor.conversation.service.AiChatService
 import ch.obermuhlner.aitutor.core.model.CEFRLevel
-import ch.obermuhlner.aitutor.core.model.Correction
-import ch.obermuhlner.aitutor.core.model.ErrorSeverity
-import ch.obermuhlner.aitutor.core.model.ErrorType
 import ch.obermuhlner.aitutor.core.model.catalog.Difficulty
 import ch.obermuhlner.aitutor.core.model.catalog.LanguageMetadata
 import ch.obermuhlner.aitutor.language.service.LanguageService
@@ -88,7 +85,7 @@ class TutorServiceTest {
             catalogService = catalogService,
             objectMapper = objectMapper,
             supportedLanguages = supportedLanguages,
-            systemPromptTemplate = systemPromptTemplate,
+            mainTutorPromptTemplate = systemPromptTemplate,
             levelNonePromptTemplate = "CEFR Level None template",
             levelA1PromptTemplate = "CEFR Level A1 template",
             levelA2PromptTemplate = "CEFR Level A2 template",
