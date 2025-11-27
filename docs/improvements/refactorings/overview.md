@@ -1,26 +1,27 @@
 # Refactoring Proposals Overview
 
 **Last Updated**: 2025-11-27
-**Total Proposals**: 3
+**Total Proposals**: 4
 **Completed**: 0
 **In Progress**: 0
-**Pending**: 2
+**Pending**: 3
 **Deferred**: 1
 
 ## Quick Stats by Category
 
 - **Architecture**: 1 proposal
 - **Performance**: 0 proposals
-- **Maintainability**: 2 proposals (1 deferred)
+- **Maintainability**: 3 proposals (1 deferred)
 - **Testing**: 0 proposals
 - **Security**: 0 proposals
 
 ## Priority Summary
 
-### High Priority (2 proposals)
+### High Priority (3 proposals)
 
 | Title | Category | Effort | Risk | Status | Proposed | Updated | File |
 |-------|----------|--------|------|--------|----------|---------|------|
+| Fix Empty Response Bodies with Custom Exceptions | maintainability | Small (1-2 hours) | Low | Proposed | 2025-11-27 | N/A | [fix-empty-response-bodies.md](maintainability/fix-empty-response-bodies.md) |
 | Extract Shared Tutor Orchestration Logic to Eliminate Code Duplication | maintainability | Small (2-4 hours) | Low | Proposed | 2025-11-26 | N/A | [extract-tutor-orchestration-duplication.md](maintainability/extract-tutor-orchestration-duplication.md) |
 | Decompose ChatService God Class into Domain-Focused Services | architecture | Large (4-6 days) | Medium | Proposed | 2025-11-26 | N/A | [decompose-chatservice-god-class.md](architecture/decompose-chatservice-god-class.md) |
 
@@ -42,7 +43,36 @@ _No low priority proposals at this time._
 
 ## Detailed Proposals by Category
 
-### Maintainability (2 proposals: 1 active, 1 deferred)
+### Maintainability (3 proposals: 2 active, 1 deferred)
+
+#### Fix Empty Response Bodies with Custom Exceptions
+
+**File**: `refactorings/maintainability/fix-empty-response-bodies.md`
+**Priority**: High
+**Effort**: Small (1-2 hours)
+**Risk**: Low
+**Status**: Proposed
+**Proposed Date**: 2025-11-27
+**Updated Date**: N/A
+
+**Summary**: Create two simple custom exceptions (`ResourceNotFoundException`, `BadRequestException`) following the existing `AuthExceptions.kt` pattern. Replace 10 instances of empty `ResponseEntity.badRequest().build()` and `ResponseEntity.notFound().build()` calls across 3 controllers (ChatController, LessonController, VocabularyController) with throw statements that provide meaningful error messages. Existing `AuthExceptionHandler` will catch these exceptions and return structured `ErrorResponse` JSON automatically.
+
+**Key Benefits**:
+
+- Eliminates 10 empty response bodies (REST API standards violation)
+- Provides structured JSON error responses for all affected endpoints
+- Improves API debugging (error messages include context like course IDs, session IDs)
+- Delivers 80% of deferred global handler value with 20% of effort
+
+**Affected Areas**:
+- `ChatController.kt` (2 instances: lines 71, 83)
+- `LessonController.kt` (7 instances: lines 36, 62, 76, 85, 89, 103, 112, 116)
+- `VocabularyController.kt` (1 instance: line 55)
+- `AuthExceptionHandler.kt` (add 2 new handlers) or new `CoreExceptionHandler.kt`
+
+**Relationship**: High-value alternative to deferred "Add Global Exception Handler" proposal. Addresses actual user-facing problem (empty responses) without infrastructure complexity.
+
+---
 
 #### Extract Shared Tutor Orchestration Logic to Eliminate Code Duplication
 
@@ -123,29 +153,30 @@ _No low priority proposals at this time._
 
 ### Recommended Implementation Order
 
-**Phase 1: Quick Wins - Code Quality** (High value, low risk, no dependencies)
-1. **Extract Shared Tutor Orchestration Logic** (2-4 hours) - Eliminates 170+ duplicated lines, prevents bugs, delivers 70% of full decomposition value with minimal risk
+**Phase 1: Quick Wins - High ROI Improvements** (Prioritized by value/effort ratio)
 
-**Phase 2: Alternative Quick Win - Error Handling** (Optional, evidence-based)
-2. **Fix Empty Response Bodies** (1-2 hours) - Replace 5 instances of `ResponseEntity.badRequest().build()` with custom `BadRequestException` for structured error responses (80% of deferred global handler value with 20% of effort)
+1. **Fix Empty Response Bodies** (1-2 hours) - **HIGHEST ROI** - Eliminates 10 REST API violations, provides structured errors, 80% value of deferred global handler with 20% effort
+2. **Extract Shared Tutor Orchestration Logic** (2-4 hours) - Eliminates 170+ duplicated lines, prevents bugs, delivers 70% of full decomposition value with minimal risk
 
-**Phase 3: Evaluate Need for Full Decomposition** (After monitoring for 1 month)
+**Note**: These can run in parallel or sequentially based on availability
+
+**Phase 2: Evaluate Need for Full Decomposition** (After monitoring for 1 month)
 - Monitor merge conflicts, bugs, and developer complaints in ChatService
 - If pain points emerge: Proceed with full **Decompose ChatService God Class** refactoring
 - If no pain: Accept current structure and reinvest time in user-facing features
 
-**Phase 4: Enabled by Full Decomposition** (If Phase 3 is implemented)
+**Phase 3: Enabled by Full Decomposition** (If Phase 2 is implemented)
 - ChatController decomposition (follows service boundaries)
 - Interface extraction for services
 - Testing improvements (reduced mocking complexity)
 
 ### Notes on Sequencing
 
-- **Evidence-Based Approach**: Tutor orchestration extraction delivers proven value now; global exception handler deferred until production evidence justifies complexity
-- **Quick Win Strategy**: Focus on tutor orchestration extraction as primary quick win (2-4 hours, proven ROI)
-- **Alternative Path**: If error handling is priority, fix 5 empty responses directly (1-2 hours) instead of full global handler
+- **Evidence-Based Approach**: Quick wins (empty responses, tutor orchestration) deliver proven value now; global exception handler deferred until production evidence justifies complexity
+- **Highest ROI First**: Fix empty responses (1-2 hours) provides immediate user-facing value - structured error messages in frontend
+- **Quick Win Strategy**: Both quick wins can be done in parallel (3-4 hours total) or sequentially based on availability
 - **Foundation Refactoring**: If full decomposition happens, it enables 3 other high-value improvements
-- **Parallel Development**: Tutor orchestration extraction can run in parallel with any other work (low coordination overhead)
+- **Parallel Development**: All quick wins can run in parallel with any other work (low coordination overhead)
 
 ### Lessons Learned from Deferred Proposal
 
