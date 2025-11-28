@@ -841,30 +841,6 @@ courses:
     displayOrder: 4
   - languageCode: es-ES
     name:
-      en: Spanish Etymology
-    shortDescription:
-      en: Discover the fascinating origins and evolution of Spanish words
-    description:
-      en: "Explore the rich history of Spanish vocabulary through its linguistic roots. This course traces words back to Latin, Arabic, Celtic, and other ancestral languages that shaped modern Spanish. Learn how historical events, cultural exchanges, and regional variations influenced the Spanish language we use today. Perfect for language lovers and history enthusiasts who want to understand the deeper meanings behind Spanish words and expressions."
-    category: General
-    targetAudience:
-      en: Language enthusiasts, students of linguistics, or anyone fascinated by the history and evolution of Spanish vocabulary
-    startingLevel: None
-    targetLevel: C2
-    estimatedWeeks: 8
-    requiresCurriculum: true
-    learningGoals:
-      en:
-        - Understand the Latin origins of Spanish vocabulary
-        - Recognize Arabic influences in Spanish (especially in science, agriculture, and daily life)
-        - Identify Celtic and other pre-Roman influences on Spanish
-        - Explore words borrowed from indigenous American languages
-        - Trace the evolution of Spanish from Vulgar Latin
-        - Use etymology knowledge to expand vocabulary more effectively
-        - Appreciate the cultural and historical context of Spanish expressions
-    displayOrder: 5
-  - languageCode: es-ES
-    name:
       en: Free Conversation
     shortDescription:
       en: Practice Spanish naturally without structured lessons
@@ -2142,3 +2118,389 @@ courses:
         - Discuss various phonetic topics
         - Receive real-time corrections
     displayOrder: 0
+
+  # Etymology courses for all languages
+  - languageCode: es-ES
+    name:
+      en: Spanish Etymology
+    shortDescription:
+      en: Discover the fascinating origins and evolution of Spanish words
+    description:
+      en: "Explore the rich history of Spanish vocabulary through its linguistic roots. This course traces words back to Latin, Arabic, Celtic, and other ancestral languages that shaped modern Spanish. Learn how historical events, cultural exchanges, and regional variations influenced the Spanish language we use today. Perfect for language lovers and history enthusiasts who want to understand the deeper meanings behind Spanish words and expressions."
+    category: General
+    targetAudience:
+      en: Language enthusiasts, students of linguistics, or anyone fascinated by the history and evolution of Spanish vocabulary
+    startingLevel: None
+    targetLevel: C2
+    estimatedWeeks: 8
+    requiresCurriculum: true
+    learningGoals:
+      en:
+        - Understand the Latin origins of Spanish vocabulary
+        - Recognize Arabic influences in Spanish (especially in science, agriculture, and daily life)
+        - Identify Celtic and other pre-Roman influences on Spanish
+        - Explore words borrowed from indigenous American languages
+        - Trace the evolution of Spanish from Vulgar Latin
+        - Use etymology knowledge to expand vocabulary more effectively
+        - Appreciate the cultural and historical context of Spanish expressions
+    displayOrder: 5
+  - languageCode: it-IT
+    name:
+      en: Italian Etymology
+    shortDescription:
+      en: Discover the fascinating origins and evolution of Italian words
+    description:
+      en: "Explore the rich history of Italian vocabulary through its linguistic roots. This course traces words back to Latin, Greek, Germanic, and other ancestral languages that shaped modern Italian. Learn how historical events, cultural exchanges, and regional variations influenced the Italian language we use today. Perfect for language lovers and history enthusiasts who want to understand the deeper meanings behind Italian words and expressions."
+    category: General
+    targetAudience:
+      en: Language enthusiasts, students of linguistics, or anyone fascinated by the history and evolution of Italian vocabulary
+    startingLevel: None
+    targetLevel: C2
+    estimatedWeeks: 8
+    requiresCurriculum: true
+    learningGoals:
+      en:
+        - Understand the Latin origins of Italian vocabulary
+        - Recognize Greek and Germanic influences in Italian
+        - Identify regional variations and dialectal influences on Italian
+        - Explore words borrowed from other Romance languages
+        - Trace the evolution of Italian from Vulgar Latin
+        - Use etymology knowledge to expand vocabulary more effectively
+        - Appreciate the cultural and historical context of Italian expressions
+    displayOrder: 5
+  - languageCode: fr-FR
+    name:
+      en: French Etymology
+    shortDescription:
+      en: Discover the fascinating origins and evolution of French words
+    description:
+      en: "Explore the rich history of French vocabulary through its linguistic roots. This course traces words back to Latin, Germanic, Frankish, Celtic, and other ancestral languages that shaped modern French. Learn how historical events, cultural exchanges, and regional variations influenced the French language we use today. Perfect for language lovers and history enthusiasts who want to understand the deeper meanings behind French words and expressions."
+    category: General
+    targetAudience:
+      en: Language enthusiasts, students of linguistics, or anyone fascinated by the history and evolution of French vocabulary
+    startingLevel: None
+    targetLevel: C2
+    estimatedWeeks: 8
+    requiresCurriculum: true
+    learningGoals:
+      en:
+        - Understand the Latin origins of French vocabulary
+        - Recognize Germanic and Frankish influences in French
+        - Identify Celtic and other pre-Latin influences on French
+        - Explore words borrowed from Italian and other European languages
+        - Trace the evolution of French from Vulgar Latin
+        - Use etymology knowledge to expand vocabulary more effectively
+        - Appreciate the cultural and historical context of French expressions
+    displayOrder: 5
+  - languageCode: de-DE
+    name:
+      en: German Etymology
+    shortDescription:
+      en: Discover the fascinating origins and evolution of German words
+    description:
+      en: "Explore the rich history of German vocabulary through its linguistic roots. This course traces words back to Proto-Germanic, Old High German, Latin, and other ancestral languages that shaped modern German. Learn how historical events, cultural exchanges, and regional variations influenced the German language we use today. Perfect for language lovers and history enthusiasts who want to understand the deeper meanings behind German words and expressions."
+    category: General
+    targetAudience:
+      en: Language enthusiasts, students of linguistics, or anyone fascinated by the history and evolution of German vocabulary
+    startingLevel: None
+    targetLevel: C2
+    estimatedWeeks: 8
+    requiresCurriculum: true
+    learningGoals:
+      en:
+        - Understand the Proto-Germanic origins of German vocabulary
+        - Recognize Latin influences in German (Lehnwörter)
+        - Identify Slavic and other neighboring language influences
+        - Explore loanwords from French, Dutch, and other European languages
+        - Trace the evolution of German from Old High German to modern standard
+        - Use etymology knowledge to expand vocabulary more effectively
+        - Appreciate the cultural and historical context of German expressions
+    displayOrder: 5
+  - languageCode: de-CH
+    name:
+      en: Swiss German Etymology
+    shortDescription:
+      en: Discover the fascinating origins and evolution of Swiss Standard German words
+    description:
+      en: "Explore the rich history of Swiss Standard German vocabulary through its linguistic roots. This course traces words back to Alemannic dialects, Middle High German, Latin, French, Italian, and other ancestral languages that shaped modern Swiss Standard German. Learn how historical events, cultural exchanges, and multilingual influences from surrounding countries influenced the Swiss German language we use today. Perfect for language lovers and history enthusiasts who want to understand the deeper meanings behind Swiss German words and expressions."
+    category: General
+    targetAudience:
+      en: Language enthusiasts, students of linguistics, or anyone fascinated by the history and evolution of Swiss Standard German vocabulary
+    startingLevel: None
+    targetLevel: C2
+    estimatedWeeks: 8
+    requiresCurriculum: true
+    learningGoals:
+      en:
+        - Understand the Alemannic origins of Swiss German vocabulary
+        - Recognize Latin influences in Swiss German
+        - Identify French and Italian influences due to multilingual Switzerland
+        - Explore Alemannic dialectal contributions to Swiss Standard German
+        - Trace the evolution from Middle High German to modern Swiss Standard German
+        - Use etymology knowledge to expand vocabulary more effectively
+        - Appreciate the cultural and historical context of Swiss German expressions
+    displayOrder: 5
+  - languageCode: ja-JP
+    name:
+      en: Japanese Etymology
+    shortDescription:
+      en: Discover the fascinating origins and evolution of Japanese words
+    description:
+      en: "Explore the rich history of Japanese vocabulary through its linguistic roots. This course traces words back to Old Japanese, Chinese (Kanji/Kun'yomi), Ainu, Korean, Portuguese, Dutch, German, English, and other ancestral sources that shaped modern Japanese. Learn how historical events, cultural exchanges, and periods of isolation influenced the Japanese language we use today. Perfect for language lovers and history enthusiasts who want to understand the deeper meanings behind Japanese words and expressions."
+    category: General
+    targetAudience:
+      en: Language enthusiasts, students of linguistics, or anyone fascinated by the history and evolution of Japanese vocabulary
+    startingLevel: None
+    targetLevel: C2
+    estimatedWeeks: 8
+    requiresCurriculum: true
+    learningGoals:
+      en:
+        - Understand the Old Japanese origins of native vocabulary
+        - Recognize Chinese influences (Kanji readings and loanwords)
+        - Identify Ainu and other indigenous language influences
+        - Explore European loanwords from Portuguese, Dutch, German, and English
+        - Trace the evolution through different historical periods
+        - Use etymology knowledge to expand vocabulary more effectively
+        - Appreciate the cultural and historical context of Japanese expressions
+    displayOrder: 5
+  - languageCode: zh-CN
+    name:
+      en: Mandarin Chinese Etymology
+    shortDescription:
+      en: Discover the fascinating origins and evolution of Mandarin Chinese words
+    description:
+      en: "Explore the rich history of Mandarin Chinese vocabulary through its linguistic roots. This course traces words back to Old Chinese, Middle Chinese, ancient dialects, and foreign loanwords that shaped modern Mandarin. Learn how historical events, dynastic changes, political developments, and cultural exchanges influenced the Chinese language we use today. Perfect for language lovers and history enthusiasts who want to understand the deeper meanings behind Chinese characters and expressions."
+    category: General
+    targetAudience:
+      en: Language enthusiasts, students of linguistics, or anyone fascinated by the history and evolution of Mandarin Chinese vocabulary
+    startingLevel: None
+    targetLevel: C2
+    estimatedWeeks: 8
+    requiresCurriculum: true
+    learningGoals:
+      en:
+        - Understand the Old Chinese origins of Chinese characters
+        - Recognize Middle Chinese sound changes and evolution
+        - Identify dialectal influences from various Chinese regions
+        - Explore foreign loanwords and modern adaptations
+        - Trace the evolution of characters through different historical periods
+        - Use etymology knowledge to expand character knowledge more effectively
+        - Appreciate the cultural and historical context of Chinese expressions
+    displayOrder: 5
+  - languageCode: zh-TW
+    name:
+      en: Taiwanese Mandarin Etymology
+    shortDescription:
+      en: Discover the fascinating origins and evolution of Traditional Mandarin Chinese words with Taiwan perspective
+    description:
+      en: "Explore the rich history of Traditional Mandarin Chinese vocabulary through its linguistic roots with a focus on Taiwan's linguistic context. This course traces words back to Old Chinese, Middle Chinese, Southern Chinese dialects (Minnan, Hakka), Japanese colonial influences, and foreign loanwords that shaped modern Taiwanese Mandarin. Learn how Taiwan's unique history, cultural exchanges, and linguistic diversity influenced the Chinese language we use today. Perfect for language lovers and history enthusiasts who want to understand the deeper meanings behind traditional characters and Taiwan's linguistic variations."
+    category: General
+    targetAudience:
+      en: Language enthusiasts, students of linguistics, or anyone fascinated by the history and evolution of Traditional Mandarin Chinese vocabulary in Taiwan context
+    startingLevel: None
+    targetLevel: C2
+    estimatedWeeks: 8
+    requiresCurriculum: true
+    learningGoals:
+      en:
+        - Understand the Old Chinese origins of Traditional Chinese characters
+        - Recognize Middle Chinese sound changes and evolution
+        - Identify Southern Chinese dialectal influences (Minnan, Hakka)
+        - Explore Japanese colonial era loanwords and influences
+        - Trace the evolution of characters through different historical periods in Taiwan
+        - Use etymology knowledge to expand character knowledge more effectively
+        - Appreciate Taiwan's cultural and historical context of Chinese expressions
+    displayOrder: 5
+  - languageCode: zh-HK
+    name:
+      en: Cantonese Etymology
+    shortDescription:
+      en: Discover the fascinating origins and evolution of Cantonese words
+    description:
+      en: "Explore the rich history of Cantonese vocabulary through its linguistic roots. This course traces words back to Old Chinese, Middle Chinese, Southern Chinese substrates, and foreign loanwords that shaped modern Cantonese. Learn how Hong Kong's history as a trading port, its colonial period, and its unique cultural position influenced the Cantonese language we use today. Perfect for language lovers and history enthusiasts who want to understand the deeper meanings behind Cantonese words and expressions."
+    category: General
+    targetAudience:
+      en: Language enthusiasts, students of linguistics, or anyone fascinated by the history and evolution of Cantonese vocabulary
+    startingLevel: None
+    targetLevel: C2
+    estimatedWeeks: 8
+    requiresCurriculum: true
+    learningGoals:
+      en:
+        - Understand the Old Chinese origins of Cantonese vocabulary
+        - Recognize Middle Chinese sound preservation in Cantonese
+        - Identify Southern Chinese substratal influences
+        - Explore English loanwords from Hong Kong's colonial history
+        - Trace the evolution of spoken and written forms in Cantonese
+        - Use etymology knowledge to expand vocabulary more effectively
+        - Appreciate the cultural and historical context of Cantonese expressions
+    displayOrder: 5
+  - languageCode: ko-KR
+    name:
+      en: Korean Etymology
+    shortDescription:
+      en: Discover the fascinating origins and evolution of Korean words
+    description:
+      en: "Explore the rich history of Korean vocabulary through its linguistic roots. This course traces words back to Proto-Korean, Middle Korean, Chinese (Hanja), Mongolic, Tungusic, Japanese colonial influences, and modern loanwords that shaped modern Korean. Learn how historical events, cultural exchanges, and periods of national division influenced the Korean language we use today. Perfect for language lovers and history enthusiasts who want to understand the deeper meanings behind Korean words and expressions."
+    category: General
+    targetAudience:
+      en: Language enthusiasts, students of linguistics, or anyone fascinated by the history and evolution of Korean vocabulary
+    startingLevel: None
+    targetLevel: C2
+    estimatedWeeks: 8
+    requiresCurriculum: true
+    learningGoals:
+      en:
+        - Understand the Proto-Korean origins of Korean vocabulary
+        - Recognize Chinese influences (Hanja and Sino-Korean vocabulary)
+        - Identify Mongolic and Tungusic substrate influences
+        - Explore Japanese colonial era loanwords and influences
+        - Trace the evolution of Korean from Middle Korean to modern standard
+        - Use etymology knowledge to expand vocabulary more effectively
+        - Appreciate the cultural and historical context of Korean expressions
+    displayOrder: 5
+  - languageCode: ru-RU
+    name:
+      en: Russian Etymology
+    shortDescription:
+      en: Discover the fascinating origins and evolution of Russian words
+    description:
+      en: "Explore the rich history of Russian vocabulary through its linguistic roots. This course traces words back to Proto-Slavic, Old Church Slavonic, East Slavic, Finno-Ugric, Turkic, Scandinavian, German, French, and other ancestral languages that shaped modern Russian. Learn how historical events, cultural exchanges, and periods of reform influenced the Russian language we use today. Perfect for language lovers and history enthusiasts who want to understand the deeper meanings behind Russian words and expressions."
+    category: General
+    targetAudience:
+      en: Language enthusiasts, students of linguistics, or anyone fascinated by the history and evolution of Russian vocabulary
+    startingLevel: None
+    targetLevel: C2
+    estimatedWeeks: 8
+    requiresCurriculum: true
+    learningGoals:
+      en:
+        - Understand the Proto-Slavic origins of Russian vocabulary
+        - Recognize Old Church Slavonic influences (church vocabulary)
+        - Identify Finno-Ugric and Turkic substrate influences
+        - Explore German and French loanwords from imperial periods
+        - Trace the evolution of Russian through historic reforms
+        - Use etymology knowledge to expand vocabulary more effectively
+        - Appreciate the cultural and historical context of Russian expressions
+    displayOrder: 5
+  - languageCode: pt-BR
+    name:
+      en: Brazilian Portuguese Etymology
+    shortDescription:
+      en: Discover the fascinating origins and evolution of Brazilian Portuguese words
+    description:
+      en: "Explore the rich history of Brazilian Portuguese vocabulary through its linguistic roots. This course traces words back to Latin, Portuguese (European), Indigenous languages (Tupi-Guarani), African languages (Bantu), Italian, Spanish, German, and other ancestral languages that shaped modern Brazilian Portuguese. Learn how historical events, colonization, immigration waves, and cultural exchanges influenced the Portuguese language we use in Brazil today. Perfect for language lovers and history enthusiasts who want to understand the deeper meanings behind Brazilian Portuguese words and expressions."
+    category: General
+    targetAudience:
+      en: Language enthusiasts, students of linguistics, or anyone fascinated by the history and evolution of Brazilian Portuguese vocabulary
+    startingLevel: None
+    targetLevel: C2
+    estimatedWeeks: 8
+    requiresCurriculum: true
+    learningGoals:
+      en:
+        - Understand the Latin origins of Brazilian Portuguese vocabulary
+        - Recognize Indigenous (Tupi-Guarani) influences on Brazilian Portuguese
+        - Identify African language influences (Bantu vocabulary)
+        - Explore European immigrant loanwords (Italian, German, Spanish)
+        - Trace the evolution from European to Brazilian Portuguese
+        - Use etymology knowledge to expand vocabulary more effectively
+        - Appreciate the cultural and historical context of Brazilian expressions
+    displayOrder: 5
+  - languageCode: pt-PT
+    name:
+      en: European Portuguese Etymology
+    shortDescription:
+      en: Discover the fascinating origins and evolution of European Portuguese words
+    description:
+      en: "Explore the rich history of European Portuguese vocabulary through its linguistic roots. This course traces words back to Latin, Visigothic, Arabic, Germanic, and other ancestral languages that shaped modern European Portuguese. Learn how historical events, Moorish occupation, maritime expansion, and cultural exchanges influenced the Portuguese language we use in Europe today. Perfect for language lovers and history enthusiasts who want to understand the deeper meanings behind European Portuguese words and expressions."
+    category: General
+    targetAudience:
+      en: Language enthusiasts, students of linguistics, or anyone fascinated by the history and evolution of European Portuguese vocabulary
+    startingLevel: None
+    targetLevel: C2
+    estimatedWeeks: 8
+    requiresCurriculum: true
+    learningGoals:
+      en:
+        - Understand the Latin origins of European Portuguese vocabulary
+        - Recognize Arabic influences from the Moorish period
+        - Identify Visigothic and Germanic influences
+        - Explore discoveries-era loanwords from maritime expansion
+        - Trace the evolution from Galician-Portuguese to modern standard
+        - Use etymology knowledge to expand vocabulary more effectively
+        - Appreciate the cultural and historical context of European expressions
+    displayOrder: 5
+  - languageCode: en-US
+    name:
+      en: American English Etymology
+    shortDescription:
+      en: Discover the fascinating origins and evolution of American English words
+    description:
+      en: "Explore the rich history of American English vocabulary through its linguistic roots. This course traces words back to Old English, Middle English, Germanic, Norman French, Celtic, Native American languages, African languages, and immigrant contributions that shaped modern American English. Learn how historical events, colonization, westward expansion, immigration waves, and cultural exchanges influenced the English language we use in America today. Perfect for language lovers and history enthusiasts who want to understand the deeper meanings behind American English words and expressions."
+    category: General
+    targetAudience:
+      en: Language enthusiasts, students of linguistics, or anyone fascinated by the history and evolution of American English vocabulary
+    startingLevel: None
+    targetLevel: C2
+    estimatedWeeks: 8
+    requiresCurriculum: true
+    learningGoals:
+      en:
+        - Understand the Germanic origins of English vocabulary
+        - Recognize Norman French influences in American English
+        - Identify Native American language contributions
+        - Explore immigrant language influences (German, Irish, Italian, etc.)
+        - Trace the evolution from British to American English variations
+        - Use etymology knowledge to expand vocabulary more effectively
+        - Appreciate the cultural and historical context of American expressions
+    displayOrder: 5
+  - languageCode: en-GB
+    name:
+      en: British English Etymology
+    shortDescription:
+      en: Discover the fascinating origins and evolution of British English words
+    description:
+      en: "Explore the rich history of British English vocabulary through its linguistic roots. This course traces words back to Old English, Middle English, Anglo-Saxon, Norse, Norman French, Celtic, and other ancestral languages that shaped modern British English. Learn how historical events, invasions, conquests, colonial expansion, and cultural exchanges influenced the English language we use in Britain today. Perfect for language lovers and history enthusiasts who want to understand the deeper meanings behind British English words and expressions."
+    category: General
+    targetAudience:
+      en: Language enthusiasts, students of linguistics, or anyone fascinated by the history and evolution of British English vocabulary
+    startingLevel: None
+    targetLevel: C2
+    estimatedWeeks: 8
+    requiresCurriculum: true
+    learningGoals:
+      en:
+        - Understand the Anglo-Saxon origins of English vocabulary
+        - Recognize Norse Viking influences on English
+        - Identify Norman French influences from 1066 conquest
+        - Explore Celtic substrate influences from pre-Saxon Britain
+        - Trace the evolution of English through historical periods
+        - Use etymology knowledge to expand vocabulary more effectively
+        - Appreciate the cultural and historical context of British expressions
+    displayOrder: 5
+  - languageCode: mul-ipa
+    name:
+      en: IPA and Cross-Language Etymology
+    shortDescription:
+      en: Discover the fascinating origins and evolution of sounds and linguistic elements across languages
+    description:
+      en: "Explore the rich history of linguistic sounds, symbols, and elements across multiple languages through the lens of the International Phonetic Alphabet. This course traces the origins of phonetic concepts, sound changes, and how similar sounds evolved in different language families. Learn how historical sound changes, language contact, and universal tendencies influenced the pronunciation patterns we see across languages today. Perfect for language lovers and history enthusiasts who want to understand the deeper connections between sounds in different languages."
+    category: General
+    targetAudience:
+      en: Language enthusiasts, students of linguistics, or anyone fascinated by the history and evolution of phonetic systems and cross-language sound patterns
+    startingLevel: None
+    targetLevel: C2
+    estimatedWeeks: 8
+    requiresCurriculum: true
+    learningGoals:
+      en:
+        - Understand the origins of the International Phonetic Alphabet
+        - Recognize cross-linguistic sound patterns and evolutions
+        - Identify sound change phenomena across language families
+        - Explore the evolution of phonetic notation systems
+        - Trace the historical development of phonetic concepts
+        - Use phonetic etymology knowledge to improve pronunciation
+        - Appreciate the cultural and historical context of linguistic sounds
+    displayOrder: 5

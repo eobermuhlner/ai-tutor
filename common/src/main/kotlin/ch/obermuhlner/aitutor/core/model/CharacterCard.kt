@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyDescription
 
 data class CharacterCard(
     @field:JsonProperty(required = true)
-    @field:JsonPropertyDescription("Character(s) in target language shown on front (e.g., 'あ', 'あい', 'Д', '食'). Typically 1-3 characters.")
+    @field:JsonPropertyDescription("Character(s) in target language shown on front (e.g., 'あ', 'あい', 'Д', '食'). Typically 1-3 characters. No additional text or description.")
     val character: String,
 
     @field:JsonProperty(required = true)
