@@ -360,17 +360,22 @@ class TutorService(
         append(pronunciationGuidance)
         append("\n\n")
 
-        // Phase-specific behavior
-        val phasePrompt = when (conversationState.phase) {
-            ConversationPhase.Free -> phaseFreePromptTemplate
-            ConversationPhase.Correction -> phaseCorrectionPromptTemplate
-            ConversationPhase.Drill -> phaseDrillPromptTemplate
-            ConversationPhase.Auto -> phaseCorrectionPromptTemplate // Should never happen (resolved in ChatService)
+        // Phase-specific behavior (skip in SPECIAL mode - SPECIAL courses follow lesson instructions instead)
+        if (curriculum?.progressionMode != ProgressionMode.SPECIAL) {
+            val phasePrompt = when (conversationState.phase) {
+                ConversationPhase.Free -> phaseFreePromptTemplate
+                ConversationPhase.Correction -> phaseCorrectionPromptTemplate
+                ConversationPhase.Drill -> phaseDrillPromptTemplate
+                ConversationPhase.Auto -> phaseCorrectionPromptTemplate // Should never happen (resolved in ChatService)
+            }
+            append(PromptTemplate(phasePrompt).render(mapOf(
+                "targetLanguage" to targetLanguage,
+                "sourceLanguage" to sourceLanguage
+            )))
+        } else {
+            // In SPECIAL mode, provide guidance for following lesson instructions instead of phase constraints
+            append("In this SPECIAL mode session, follow the lesson content instructions rather than standard phase behavior.\n")
         }
-        append(PromptTemplate(phasePrompt).render(mapOf(
-            "targetLanguage" to targetLanguage,
-            "sourceLanguage" to sourceLanguage
-        )))
 
         append("\n\n")
 

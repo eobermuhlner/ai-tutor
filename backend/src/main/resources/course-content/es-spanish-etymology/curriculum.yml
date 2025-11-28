@@ -4,5 +4,5 @@ progressionMode: SPECIAL
 lessons:
   - id: lesson-01-etymology
     file: lesson-01-etymology.md
-    requiredTurns: 999
+    requiredTurns: 1  # Not relevant in SPECIAL mode which disables auto-progression
 ---

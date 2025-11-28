@@ -6,6 +6,7 @@ import ch.obermuhlner.aitutor.chat.repository.ChatMessageRepository
 import ch.obermuhlner.aitutor.chat.repository.ChatSessionRepository
 import ch.obermuhlner.aitutor.lesson.domain.CourseCurriculum
 import ch.obermuhlner.aitutor.lesson.domain.LessonContent
+import ch.obermuhlner.aitutor.lesson.domain.ProgressionMode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import java.time.Instant
@@ -157,6 +158,11 @@ class LessonProgressionService(
         curriculum: CourseCurriculum,
         currentLessonId: String
     ): ProgressionResult {
+        // SPECIAL mode: Never auto-advance lessons, regardless of turn count or goals
+        if (curriculum.progressionMode == ProgressionMode.SPECIAL) {
+            return ProgressionResult(shouldAdvance = false)
+        }
+
         val metadata = curriculum.lessons.find { it.id == currentLessonId } ?: return ProgressionResult(false)
 
         // Get turn count and goals completed from lesson progress fields (lesson-specific, not total session messages)
