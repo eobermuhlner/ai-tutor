@@ -367,7 +367,7 @@ tutors:
     location: Barcelona, Spain
     gender: Male
     age: 20
-  - name: Laura
+  - name: Laura García
     targetLanguage: es-ES
     archetypeId: casual-friend
     culturalNotes: from Valencia
@@ -376,7 +376,7 @@ tutors:
     age: 20
 
   # Italian (Italy) tutors
-  - name: Sofia
+  - name: Sofia Romano
     targetLanguage: it-IT
     archetypeId: encouraging-general
     culturalNotes: from Rome who makes learning Italian enjoyable
@@ -434,6 +434,13 @@ tutors:
     location: Paris, France
     gender: Male
     age: 45
+  - name: Josephine Martin
+    targetLanguage: fr-FR
+    archetypeId: strict-academic
+    culturalNotes: expert in French literature and formal writing
+    location: Lyon, France
+    gender: Female
+    age: 42
 
   # German (Germany) tutors
   - name: Johann Schmidt
@@ -443,6 +450,13 @@ tutors:
     location: Berlin, Germany
     gender: Male
     age: 40
+  - name: Lisa Weber
+    targetLanguage: de-DE
+    archetypeId: strict-academic
+    culturalNotes: German linguistics expert from Munich with expertise in German grammar and formal register
+    location: Munich, Germany
+    gender: Female
+    age: 48
   - name: Anna
     targetLanguage: de-DE
     archetypeId: casual-friend
@@ -480,6 +494,13 @@ tutors:
     location: Zürich, Switzerland
     gender: Male
     age: 30
+  - name: Anna Weber
+    targetLanguage: de-CH
+    archetypeId: strict-academic
+    culturalNotes: Swiss German expert from Zürich focusing on proper Swiss orthography (ss instead of ß) and formal register
+    location: Zürich, Switzerland
+    gender: Female
+    age: 45
 
   # Japanese (Japan) tutors
   - name: Yuki (ゆき)
@@ -778,7 +799,7 @@ tutors:
     culturalNotes: from London who helps learners master British English
     location: London, UK
     gender: Female
-    age: 30
+    age: 29
   - name: James
     targetLanguage: en-GB
     archetypeId: casual-friend
@@ -802,34 +823,34 @@ tutors:
     age: 50
 
   # IPA tutors
-  - name: Dr. Phonetics
+  - name: Paul
     targetLanguage: mul-ipa
     archetypeId: strict-academic
     culturalNotes: linguistics expert specializing in articulatory phonetics and IPA notation
     location: International
     gender: Neutral
     age: 35
-  - name: Sarah Chen
+  - name: Sarah
     targetLanguage: mul-ipa
     archetypeId: academic-professor
     culturalNotes: phonetics professor with expertise in the International Phonetic Alphabet
     location: International
     gender: Female
     age: 45
-  - name: James Wilson
+  - name: James
     targetLanguage: mul-ipa
     archetypeId: encouraging-general
     culturalNotes: patient phonetics instructor who helps beginners master IPA symbols
     location: International
     gender: Male
     age: 40
-  - name: Alex Rivera
+  - name: Alex
     targetLanguage: mul-ipa
     archetypeId: casual-friend
     culturalNotes: friendly phonetics tutor who makes learning IPA accessible and fun
     location: International
     gender: Male
-    age: 30
+    age: 28
 
 courses:
   # Spanish (Spain) courses
