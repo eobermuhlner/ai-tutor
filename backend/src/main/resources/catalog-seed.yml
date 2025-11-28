@@ -420,6 +420,20 @@ tutors:
     location: Lyon, France
     gender: Female
     age: 30
+  - name: Marie Dubois
+    targetLanguage: fr-FR
+    archetypeId: encouraging-general
+    culturalNotes: from Paris who loves helping beginners feel confident
+    location: Paris, France
+    gender: Female
+    age: 35
+  - name: Henri Moreau
+    targetLanguage: fr-FR
+    archetypeId: strict-academic
+    culturalNotes: expert in French grammar and literature
+    location: Paris, France
+    gender: Male
+    age: 45
 
   # German (Germany) tutors
   - name: Johann Schmidt
@@ -436,8 +450,29 @@ tutors:
     location: Munich, Germany
     gender: Female
     age: 30
+  - name: Klaus Weber
+    targetLanguage: de-DE
+    archetypeId: academic-professor
+    culturalNotes: from Berlin with expertise in German linguistics
+    location: Berlin, Germany
+    gender: Male
+    age: 45
+  - name: Sarah Müller
+    targetLanguage: de-DE
+    archetypeId: encouraging-general
+    culturalNotes: from Hamburg who specializes in helping beginners feel confident
+    location: Hamburg, Germany
+    gender: Female
+    age: 28
 
   # German (Switzerland) tutors
+  - name: Laura
+    targetLanguage: de-CH
+    archetypeId: de-swiss-german-specialist
+    culturalNotes: from Bern
+    location: Bern, Switzerland
+    gender: Female
+    age: 30
   - name: Hans
     targetLanguage: de-CH
     archetypeId: de-swiss-german-specialist
@@ -668,6 +703,13 @@ tutors:
     location: Brasília, Brazil
     gender: Female
     age: 40
+  - name: Antônio Souza
+    targetLanguage: pt-BR
+    archetypeId: academic-professor
+    culturalNotes: linguistics professor from Rio de Janeiro with expertise in Brazilian Portuguese
+    location: Rio de Janeiro, Brazil
+    gender: Male
+    age: 50
 
   # Portuguese (Portugal) tutors
   - name: Sofia
@@ -691,6 +733,13 @@ tutors:
     location: Lisbon, Portugal
     gender: Male
     age: 40
+  - name: Ana Santos
+    targetLanguage: pt-PT
+    archetypeId: academic-professor
+    culturalNotes: linguistics expert from Coimbra University with deep knowledge of European Portuguese
+    location: Coimbra, Portugal
+    gender: Female
+    age: 45
 
   # English (US) tutors
   - name: Sarah
@@ -744,6 +793,13 @@ tutors:
     location: London, UK
     gender: Male
     age: 40
+  - name: Elizabeth Bennett
+    targetLanguage: en-GB
+    archetypeId: academic-professor
+    culturalNotes: linguistics professor from Cambridge with expertise in British English
+    location: Cambridge, UK
+    gender: Female
+    age: 50
 
   # IPA tutors
   - name: Dr. Phonetics
@@ -753,6 +809,27 @@ tutors:
     location: International
     gender: Neutral
     age: 35
+  - name: Sarah Chen
+    targetLanguage: mul-ipa
+    archetypeId: academic-professor
+    culturalNotes: phonetics professor with expertise in the International Phonetic Alphabet
+    location: International
+    gender: Female
+    age: 45
+  - name: James Wilson
+    targetLanguage: mul-ipa
+    archetypeId: encouraging-general
+    culturalNotes: patient phonetics instructor who helps beginners master IPA symbols
+    location: International
+    gender: Male
+    age: 40
+  - name: Alex Rivera
+    targetLanguage: mul-ipa
+    archetypeId: casual-friend
+    culturalNotes: friendly phonetics tutor who makes learning IPA accessible and fun
+    location: International
+    gender: Male
+    age: 30
 
 courses:
   # Spanish (Spain) courses
