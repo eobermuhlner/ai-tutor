@@ -101,8 +101,8 @@ class ImageService(
         val ageLower = (age / 10) * 10
         val ageUpper = ageLower + 10
 
-        val requiredTags = listOf("person", countryCode, gender.toString(), "age_$age", "age_${ageLower}_${ageUpper}")
-        val optionalTags = listOf("age_$age", "age_${ageLower}_${ageUpper}")
+        val requiredTags = listOf("person")
+        val optionalTags = listOf(countryCode, gender.toString(), "age_$age", "age_${ageLower}_${ageUpper}")
 
         val textTags = text.split(separatorRegex)
             .map { it.trim() }
