@@ -13,8 +13,24 @@ export interface RateLimitStatus {
   subscriptionPlan: string;
 }
 
+export interface PlanLimits {
+  hourlyLimit: number;
+  dailyLimit: number;
+}
+
+export interface SubscriptionPlanLimits {
+  free: PlanLimits;
+  freeByok: PlanLimits;
+  premium: PlanLimits;
+}
+
 export async function getRateLimitStatus(): Promise<RateLimitStatus> {
   const response = await apiClient.get<RateLimitStatus>('/rate-limits/status');
+  return response.data;
+}
+
+export async function getPlanLimits(): Promise<SubscriptionPlanLimits> {
+  const response = await apiClient.get<SubscriptionPlanLimits>('/rate-limits/plan-limits');
   return response.data;
 }
 

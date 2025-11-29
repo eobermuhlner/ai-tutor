@@ -13,8 +13,8 @@ import java.time.Duration
  */
 enum class SubscriptionPlan(
     val displayName: String,
-    val messagesPerHour: Long,
-    val messagesPerDay: Long,
+    val messagesPerHourDefault: Long,
+    val messagesPerDayDefault: Long,
     val description: String
 ) {
     /**
@@ -23,8 +23,8 @@ enum class SubscriptionPlan(
      */
     FREE(
         displayName = "Free",
-        messagesPerHour = 10,
-        messagesPerDay = 50,
+        messagesPerHourDefault = 10,
+        messagesPerDayDefault = 50,
         description = "Basic free access with limited AI interactions"
     ),
 
@@ -34,8 +34,8 @@ enum class SubscriptionPlan(
      */
     FREE_BYOK(
         displayName = "Free + BYOK",
-        messagesPerHour = 60,
-        messagesPerDay = 300,
+        messagesPerHourDefault = 60,
+        messagesPerDayDefault = 300,
         description = "Free access using your own AI provider API key"
     ),
 
@@ -45,8 +45,8 @@ enum class SubscriptionPlan(
      */
     SUBSCRIPTION_10(
         displayName = "Premium ($10/month)",
-        messagesPerHour = 100,
-        messagesPerDay = 500,
+        messagesPerHourDefault = 100,
+        messagesPerDayDefault = 500,
         description = "Premium subscription with high message limits"
     );
 
@@ -56,7 +56,7 @@ enum class SubscriptionPlan(
      *
      * @return A new Bucket instance configured for this subscription plan
      */
-    fun createBucket(): Bucket {
+    fun createBucket(messagesPerHour: Long, messagesPerDay: Long): Bucket {
         // Hourly limit: refills at rate of messagesPerHour tokens per hour
         val hourlyLimit = Bandwidth.classic(
             messagesPerHour,
@@ -78,7 +78,7 @@ enum class SubscriptionPlan(
     /**
      * Returns a human-readable summary of rate limits.
      */
-    fun getRateLimitSummary(): String {
+    fun getRateLimitSummary(messagesPerHour: Long, messagesPerDay: Long): String {
         return "$messagesPerHour messages/hour, $messagesPerDay messages/day"
     }
 }

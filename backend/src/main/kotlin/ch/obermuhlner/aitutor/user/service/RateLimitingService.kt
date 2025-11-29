@@ -3,6 +3,7 @@
 package ch.obermuhlner.aitutor.user.service
 
 import ch.obermuhlner.aitutor.core.exception.RateLimitExceededException
+import ch.obermuhlner.aitutor.user.config.RateLimitProperties
 import ch.obermuhlner.aitutor.user.domain.SubscriptionPlan
 import io.github.bucket4j.Bandwidth
 import io.github.bucket4j.Bucket
@@ -19,7 +20,9 @@ import org.springframework.stereotype.Service
  * Each user has their own bucket configured according to their subscription plan.
  */
 @Service
-class RateLimitingService {
+class RateLimitingService(
+    private val rateLimitProperties: RateLimitProperties
+) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     // Cache of buckets per user ID - separate for hourly and daily limits
@@ -37,15 +40,19 @@ class RateLimitingService {
     fun checkRateLimit(userId: UUID, subscriptionPlan: SubscriptionPlan) {
         val hourlyBucket = getHourlyBucketForUser(userId, subscriptionPlan)
         val dailyBucket = getDailyBucketForUser(userId, subscriptionPlan)
-        
+
+        // Get the configured rate limits based on subscription plan
+        val (hourlyLimit, dailyLimit) = getRateLimitsForPlan(subscriptionPlan)
+
         // Check hourly limit first
         val hourlyProbe: ConsumptionProbe = hourlyBucket.tryConsumeAndReturnRemaining(1)
         if (!hourlyProbe.isConsumed) {
             val waitTime = Duration.ofNanos(hourlyProbe.nanosToWaitForRefill)
             logger.warn(
-                "Hourly rate limit exceeded for user {} with plan {}. Retry after {} seconds",
+                "Hourly rate limit exceeded for user {} with plan {} (limit: {}). Retry after {} seconds",
                 userId,
                 subscriptionPlan.name,
+                hourlyLimit,
                 waitTime.seconds
             )
 
@@ -55,15 +62,16 @@ class RateLimitingService {
                 limitType = "hourly"
             )
         }
-        
+
         // Check daily limit
         val dailyProbe: ConsumptionProbe = dailyBucket.tryConsumeAndReturnRemaining(1)
         if (!dailyProbe.isConsumed) {
             val waitTime = Duration.ofNanos(dailyProbe.nanosToWaitForRefill)
             logger.warn(
-                "Daily rate limit exceeded for user {} with plan {}. Retry after {} seconds",
+                "Daily rate limit exceeded for user {} with plan {} (limit: {}). Retry after {} seconds",
                 userId,
                 subscriptionPlan.name,
+                dailyLimit,
                 waitTime.seconds
             )
 
@@ -92,23 +100,26 @@ class RateLimitingService {
     fun getRateLimitStatus(userId: UUID, subscriptionPlan: SubscriptionPlan): RateLimitStatus {
         val hourlyBucket = getHourlyBucketForUser(userId, subscriptionPlan)
         val dailyBucket = getDailyBucketForUser(userId, subscriptionPlan)
-        
+
+        // Get the configured rate limits based on subscription plan
+        val (hourlyLimit, dailyLimit) = getRateLimitsForPlan(subscriptionPlan)
+
         // Get available tokens for each bucket
         val hourlyAvailable = hourlyBucket.availableTokens
         val dailyAvailable = dailyBucket.availableTokens
-        
+
         // For reset times, we need to determine when the next refill would occur
         // Using a conservative approach: estimate based on refill rate
-        val hourlyResetSeconds = estimateResetTime(hourlyAvailable, subscriptionPlan.messagesPerHour, 3600L)
-        val dailyResetSeconds = estimateResetTime(dailyAvailable, subscriptionPlan.messagesPerDay, 86400L)
-        
+        val hourlyResetSeconds = estimateResetTime(hourlyAvailable, hourlyLimit, 3600L)
+        val dailyResetSeconds = estimateResetTime(dailyAvailable, dailyLimit, 86400L)
+
         // For available tokens, we return the minimum since that's what limits the user
         val availableTokens = minOf(hourlyAvailable, dailyAvailable)
 
         return RateLimitStatus(
             availableTokens = availableTokens,
-            hourlyLimit = subscriptionPlan.messagesPerHour,
-            dailyLimit = subscriptionPlan.messagesPerDay,
+            hourlyLimit = hourlyLimit,
+            dailyLimit = dailyLimit,
             hourlyRemaining = hourlyAvailable,
             dailyRemaining = dailyAvailable,
             hourlyResetSeconds = hourlyResetSeconds,
@@ -159,7 +170,7 @@ class RateLimitingService {
             createHourlyBucket(subscriptionPlan)
         }
     }
-    
+
     /**
      * Gets or creates a daily bucket for the specified user.
      * Buckets are cached in memory for the lifetime of the application.
@@ -176,6 +187,25 @@ class RateLimitingService {
     }
     
     /**
+     * Helper method to get the configured rate limits for a subscription plan.
+     */
+    private fun getRateLimitsForPlan(subscriptionPlan: SubscriptionPlan): Pair<Long, Long> {
+        val hourlyLimit = when (subscriptionPlan) {
+            SubscriptionPlan.FREE -> rateLimitProperties.free.messagesPerHour
+            SubscriptionPlan.FREE_BYOK -> rateLimitProperties.freeByok.messagesPerHour
+            SubscriptionPlan.SUBSCRIPTION_10 -> rateLimitProperties.premium.messagesPerHour
+        }
+
+        val dailyLimit = when (subscriptionPlan) {
+            SubscriptionPlan.FREE -> rateLimitProperties.free.messagesPerDay
+            SubscriptionPlan.FREE_BYOK -> rateLimitProperties.freeByok.messagesPerDay
+            SubscriptionPlan.SUBSCRIPTION_10 -> rateLimitProperties.premium.messagesPerDay
+        }
+
+        return Pair(hourlyLimit, dailyLimit)
+    }
+
+    /**
      * Creates a new bucket configured with the hourly rate limit from the subscription plan.
      *
      * @param subscriptionPlan The subscription plan containing rate limits
@@ -183,13 +213,14 @@ class RateLimitingService {
      */
     @Suppress("DEPRECATION")
     private fun createHourlyBucket(subscriptionPlan: SubscriptionPlan): Bucket {
-        val hourlyLimit = Bandwidth.classic(
-            subscriptionPlan.messagesPerHour,
-            Refill.greedy(subscriptionPlan.messagesPerHour, Duration.ofHours(1))
+        val (hourlyLimit, _) = getRateLimitsForPlan(subscriptionPlan)
+        val bandwidth = Bandwidth.classic(
+            hourlyLimit,
+            Refill.greedy(hourlyLimit, Duration.ofHours(1))
         )
-        return Bucket.builder().addLimit(hourlyLimit).build()
+        return Bucket.builder().addLimit(bandwidth).build()
     }
-    
+
     /**
      * Creates a new bucket configured with the daily rate limit from the subscription plan.
      *
@@ -198,11 +229,12 @@ class RateLimitingService {
      */
     @Suppress("DEPRECATION")
     private fun createDailyBucket(subscriptionPlan: SubscriptionPlan): Bucket {
-        val dailyLimit = Bandwidth.classic(
-            subscriptionPlan.messagesPerDay,
-            Refill.greedy(subscriptionPlan.messagesPerDay, Duration.ofDays(1))
+        val (_, dailyLimit) = getRateLimitsForPlan(subscriptionPlan)
+        val bandwidth = Bandwidth.classic(
+            dailyLimit,
+            Refill.greedy(dailyLimit, Duration.ofDays(1))
         )
-        return Bucket.builder().addLimit(dailyLimit).build()
+        return Bucket.builder().addLimit(bandwidth).build()
     }
 
     /**

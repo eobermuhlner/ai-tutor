@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { DollarSign, Check, Loader2 } from 'lucide-react';
 import Button from '../ui/Button';
-import { getRateLimitStatus, updateUserSubscriptionPlan, type RateLimitStatus } from '../../api/rateLimits';
+import { getPlanLimits, getRateLimitStatus, updateUserSubscriptionPlan, type RateLimitStatus, type SubscriptionPlanLimits } from '../../api/rateLimits';
 import { createCheckoutSession, createBillingPortalSession, getSubscriptionStatus, cancelSubscription, type SubscriptionStatusResponse } from '../../api/payment';
 import { useAuthStore } from '../../store/authStore';
 import toast from 'react-hot-toast';
@@ -20,66 +20,142 @@ interface PlanOption {
   selectable: boolean; // Whether this plan can be manually selected by the user
 }
 
-const planOptions: PlanOption[] = [
-  {
-    id: 'FREE',
-    name: 'Free',
-    description: 'Basic access for trying out the platform',
-    price: 'Free',
-    hourlyLimit: 10,
-    dailyLimit: 50,
-    features: [
-      '50 messages per day',
-      '10 messages per hour',
-      'Standard AI models',
-      'Basic language courses'
-    ],
-    selectable: true
-  },
-  {
-    id: 'FREE_BYOK',
-    name: 'Free + BYOK',
-    description: 'Higher limits when using your own API key',
-    price: 'Free (your API costs)',
-    hourlyLimit: 60,
-    dailyLimit: 300,
-    features: [
-      '300 messages per day',
-      '60 messages per hour',
-      'Use your own API key',
-      'Access to premium models',
-      'All language courses'
-    ],
-    selectable: false // This plan is automatically applied when user has an API key
-  },
-  {
-    id: 'SUBSCRIPTION_10',
-    name: 'Premium',
-    description: 'Unlimited access for regular learners',
-    price: '$10/month',
-    hourlyLimit: 100,
-    dailyLimit: 500,
-    features: [
-      '500 messages per day',
-      '100 messages per hour',
-      'Priority access',
-      'All premium features',
-      'All language courses',
-      'Custom tutors'
-    ],
-    selectable: true
-  }
-];
+
 
 export default function SubscriptionPlanSection() {
   const user = useAuthStore((state) => state.user);
   const [status, setStatus] = useState<RateLimitStatus | null>(null);
   const [subscriptionStatus, setSubscriptionStatus] = useState<SubscriptionStatusResponse | null>(null);
+  const [planLimits, setPlanLimits] = useState<SubscriptionPlanLimits | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [updatingPlan, setUpdatingPlan] = useState<SubscriptionPlan | null>(null);
   // Simple flag to track if we're currently processing a cancellation
   const [isProcessingCancellation, setIsProcessingCancellation] = useState(false);
+
+  // Fetch the configured plan limits from the backend
+  const loadPlanLimits = async () => {
+    try {
+      const limits = await getPlanLimits();
+      setPlanLimits(limits);
+    } catch (err) {
+      console.error('Failed to load plan limits:', err);
+      // Continue with default values if API fails
+      setPlanLimits({
+        free: { hourlyLimit: 10, dailyLimit: 50 },
+        freeByok: { hourlyLimit: 60, dailyLimit: 300 },
+        premium: { hourlyLimit: 100, dailyLimit: 500 }
+      });
+    }
+  };
+
+  // Function to get plan options with dynamic limits
+  const getPlanOptions = (): PlanOption[] => {
+    if (!planLimits) {
+      // Fallback to hardcoded values if limits not loaded yet
+      return [
+        {
+          id: 'FREE',
+          name: 'Free',
+          description: 'Basic access for trying out the platform',
+          price: 'Free',
+          hourlyLimit: 10,
+          dailyLimit: 50,
+          features: [
+            '50 messages per day',
+            '10 messages per hour',
+            'Standard AI models',
+            'Basic language courses'
+          ],
+          selectable: true
+        },
+        {
+          id: 'FREE_BYOK',
+          name: 'Free + BYOK',
+          description: 'Higher limits when using your own API key',
+          price: 'Free (your API costs)',
+          hourlyLimit: 60,
+          dailyLimit: 300,
+          features: [
+            '300 messages per day',
+            '60 messages per hour',
+            'Use your own API key',
+            'Access to premium models',
+            'All language courses'
+          ],
+          selectable: false // This plan is automatically applied when user has an API key
+        },
+        {
+          id: 'SUBSCRIPTION_10',
+          name: 'Premium',
+          description: 'Unlimited access for regular learners',
+          price: '$10/month',
+          hourlyLimit: 100,
+          dailyLimit: 500,
+          features: [
+            '500 messages per day',
+            '100 messages per hour',
+            'Priority access',
+            'All premium features',
+            'All language courses',
+            'Custom tutors'
+          ],
+          selectable: true
+        }
+      ];
+    }
+
+    return [
+      {
+        id: 'FREE',
+        name: 'Free',
+        description: 'Basic access for trying out the platform',
+        price: 'Free',
+        hourlyLimit: planLimits.free.hourlyLimit,
+        dailyLimit: planLimits.free.dailyLimit,
+        features: [
+          `${planLimits.free.dailyLimit} messages per day`,
+          `${planLimits.free.hourlyLimit} messages per hour`,
+          'Standard AI models',
+          'Basic language courses'
+        ],
+        selectable: true
+      },
+      {
+        id: 'FREE_BYOK',
+        name: 'Free + BYOK',
+        description: 'Higher limits when using your own API key',
+        price: 'Free (your API costs)',
+        hourlyLimit: planLimits.freeByok.hourlyLimit,
+        dailyLimit: planLimits.freeByok.dailyLimit,
+        features: [
+          `${planLimits.freeByok.dailyLimit} messages per day`,
+          `${planLimits.freeByok.hourlyLimit} messages per hour`,
+          'Use your own API key',
+          'Access to premium models',
+          'All language courses'
+        ],
+        selectable: false // This plan is automatically applied when user has an API key
+      },
+      {
+        id: 'SUBSCRIPTION_10',
+        name: 'Premium',
+        description: 'Unlimited access for regular learners',
+        price: '$10/month',
+        hourlyLimit: planLimits.premium.hourlyLimit,
+        dailyLimit: planLimits.premium.dailyLimit,
+        features: [
+          `${planLimits.premium.dailyLimit} messages per day`,
+          `${planLimits.premium.hourlyLimit} messages per hour`,
+          'Priority access',
+          'All premium features',
+          'All language courses',
+          'Custom tutors'
+        ],
+        selectable: true
+      }
+    ];
+  };
 
   const loadRateLimitStatus = async () => {
     try {
@@ -101,8 +177,21 @@ export default function SubscriptionPlanSection() {
     }
   };
 
+  // Load initial data when component mounts
   useEffect(() => {
-    loadRateLimitStatus();
+    const loadData = async () => {
+      try {
+        await Promise.all([
+          loadPlanLimits(), // Load limits first
+          loadRateLimitStatus() // Then load status
+        ]);
+      } catch (err) {
+        console.error('Error loading initial data:', err);
+        setError('Failed to load initial data');
+        setLoading(false);
+      }
+    };
+    loadData();
   }, []); // Run once on mount to set initial state
 
   // Refresh rate limit status when user data changes (e.g., after API key changes)
@@ -145,7 +234,7 @@ export default function SubscriptionPlanSection() {
     }
 
     // For other plans, use the existing flow
-    if (!confirm(`Are you sure you want to change your subscription plan to ${planOptions.find(p => p.id === planId)?.name}?`)) {
+    if (!confirm(`Are you sure you want to change your subscription plan to ${getPlanOptions().find(p => p.id === planId)?.name}?`)) {
       return;
     }
 
@@ -159,7 +248,7 @@ export default function SubscriptionPlanSection() {
       // Update status with the new data
       setStatus(result);
 
-      toast.success(`Subscription plan updated to ${planOptions.find(p => p.id === planId)?.name}`);
+      toast.success(`Subscription plan updated to ${getPlanOptions().find(p => p.id === planId)?.name}`);
     } catch (err: unknown) {
       console.error('Failed to update subscription plan:', err);
       const error = err as { response?: { data?: { message?: string } } };
@@ -290,7 +379,7 @@ export default function SubscriptionPlanSection() {
     );
   }
 
-  const currentPlan = planOptions.find(p => p.id === (status.subscriptionPlan as SubscriptionPlan)) || planOptions[0];
+  const currentPlan = getPlanOptions().find(p => p.id === (status.subscriptionPlan as SubscriptionPlan)) || getPlanOptions()[0];
   const hourlyUsed = status.hourlyLimit - status.hourlyRemaining;
   const dailyUsed = status.dailyLimit - status.dailyRemaining;
 
@@ -315,7 +404,7 @@ export default function SubscriptionPlanSection() {
         <div>
           <h3 className="font-semibold text-slate-900 mb-4">Choose a Plan</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {planOptions
+            {getPlanOptions()
               .filter(plan => plan.selectable) // Only show selectable plans
               .map((plan) => {
                 const isCurrent = plan.id === (status.subscriptionPlan as SubscriptionPlan);

@@ -1,8 +1,10 @@
 package ch.obermuhlner.aitutor.user.controller
 
 import ch.obermuhlner.aitutor.auth.service.AuthorizationService
+import ch.obermuhlner.aitutor.user.config.RateLimitProperties
 import ch.obermuhlner.aitutor.user.domain.SubscriptionPlan
 import ch.obermuhlner.aitutor.user.dto.RateLimitStatusResponse
+import ch.obermuhlner.aitutor.user.dto.SubscriptionPlanLimitsResponse
 import ch.obermuhlner.aitutor.user.dto.UpdateUserSubscriptionPlanRequest
 import ch.obermuhlner.aitutor.user.repository.UserRepository
 import ch.obermuhlner.aitutor.user.service.RateLimitingService
@@ -22,7 +24,8 @@ import org.springframework.web.bind.annotation.RestController
 class RateLimitController(
     private val authorizationService: AuthorizationService,
     private val rateLimitingService: RateLimitingService,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val rateLimitProperties: RateLimitProperties
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -109,6 +112,32 @@ class RateLimitController(
             percentageUsed = status.percentageUsed,
             planName = status.planName,
             subscriptionPlan = user.subscriptionPlan.name
+        )
+
+        return ResponseEntity.ok(response)
+    }
+
+    /**
+     * Get the configured rate limits for all subscription plans.
+     * This allows the frontend to display accurate plan information.
+     *
+     * @return Configured rate limits for all subscription plans
+     */
+    @GetMapping("/plan-limits")
+    fun getPlanLimits(): ResponseEntity<SubscriptionPlanLimitsResponse> {
+        val response = SubscriptionPlanLimitsResponse(
+            free = SubscriptionPlanLimitsResponse.PlanLimits(
+                hourlyLimit = rateLimitProperties.free.messagesPerHour,
+                dailyLimit = rateLimitProperties.free.messagesPerDay
+            ),
+            freeByok = SubscriptionPlanLimitsResponse.PlanLimits(
+                hourlyLimit = rateLimitProperties.freeByok.messagesPerHour,
+                dailyLimit = rateLimitProperties.freeByok.messagesPerDay
+            ),
+            premium = SubscriptionPlanLimitsResponse.PlanLimits(
+                hourlyLimit = rateLimitProperties.premium.messagesPerHour,
+                dailyLimit = rateLimitProperties.premium.messagesPerDay
+            )
         )
 
         return ResponseEntity.ok(response)
