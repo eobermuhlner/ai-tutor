@@ -4,6 +4,7 @@ services:
       context: .
       dockerfile: backend/Dockerfile
     container_name: ai-tutor-backend
+    user: "1000:1000"
     ports:
       - "8080:8080"
     environment:
@@ -25,6 +26,10 @@ services:
       # JWT Configuration
       - JWT_SECRET=${JWT_SECRET:-default-secret-key-change-in-production}
 
+      # Google OAuth Configuration
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+
       # Admin User
       - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD:-adminadmin}
@@ -38,6 +43,8 @@ services:
       timeout: 3s
       start_period: 60s
       retries: 3
+    volumes:
+      - ./data:/app/data
     restart: unless-stopped
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -50,6 +57,7 @@ services:
       dockerfile: Dockerfile
       args:
         - VITE_API_URL=http://localhost:8080/api/v1
+        - VITE_GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
     container_name: ai-tutor-frontend
     ports:
       - "5173:80"

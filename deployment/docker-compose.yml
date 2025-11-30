@@ -67,18 +67,6 @@ services:
     networks:
       - ai-tutor-network
 
-#  db:
-#    image: h2database/h2:2.2.224
-#    container_name: ai-tutor-db
-#    restart: unless-stopped
-#    environment:
-#      - H2_OPTS=-Xmx1g
-#    volumes:
-#      - ./data:/data
-#    command: ["-tcp", "-tcpAllowOthers", "-tcpPort", "9092", "-baseDir", "/data"]
-#    networks:
-#      - ai-tutor-network
-
 networks:
   ai-tutor-network:
     driver: bridge
