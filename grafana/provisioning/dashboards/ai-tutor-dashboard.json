@@ -262,12 +262,32 @@
       "pluginVersion": "8.0.0",
       "targets": [
         {
-          "expr": "sum(ai_tutor_tokens_total{provider=\"openai\",model=\"gpt-4o\",token_type=\"prompt\"}) * 0.000005 + sum(ai_tutor_tokens_total{provider=\"openai\",model=\"gpt-4o\",token_type=\"completion\"}) * 0.000015",
-          "legendFormat": "Estimated Cost (GPT-4o)",
+          "expr": "sum(ai_tutor_tokens_total{provider=\"openai\",model=\"gpt-4o\",token_type=\"prompt\"}) * 0.0000025 + sum(ai_tutor_tokens_total{provider=\"openai\",model=\"gpt-4o\",token_type=\"completion\"}) * 0.00001",
+          "legendFormat": "GPT-4o",
           "refId": "A"
+        },
+        {
+          "expr": "sum(ai_tutor_tokens_total{provider=\"openai\",model=\"gpt-4.1\",token_type=\"prompt\"}) * 0.0000025 + sum(ai_tutor_tokens_total{provider=\"openai\",model=\"gpt-4.1\",token_type=\"completion\"}) * 0.00001",
+          "legendFormat": "GPT-4.1",
+          "refId": "B"
+        },
+        {
+          "expr": "sum(ai_tutor_tokens_total{provider=\"openai\",model=\"gpt-5\",token_type=\"prompt\"}) * 0.00000125 + sum(ai_tutor_tokens_total{provider=\"openai\",model=\"gpt-5\",token_type=\"completion\"}) * 0.00001",
+          "legendFormat": "GPT-5",
+          "refId": "C"
+        },
+        {
+          "expr": "sum(ai_tutor_tokens_total{provider=\"openai\",model=\"gpt-5-mini\",token_type=\"prompt\"}) * 0.00000025 + sum(ai_tutor_tokens_total{provider=\"openai\",model=\"gpt-5-mini\",token_type=\"completion\"}) * 0.000002",
+          "legendFormat": "GPT-5 Mini",
+          "refId": "D"
+        },
+        {
+          "expr": "sum(ai_tutor_tokens_total{provider=\"openai\",model=\"gpt-5.1\",token_type=\"prompt\"}) * 0.00000125 + sum(ai_tutor_tokens_total{provider=\"openai\",model=\"gpt-5.1\",token_type=\"completion\"}) * 0.00001",
+          "legendFormat": "GPT-5.1",
+          "refId": "E"
         }
       ],
-      "title": "Estimated AI Costs (OpenAI GPT-4o)",
+      "title": "Estimated AI Costs (OpenAI)",
       "type": "gauge"
     },
     {

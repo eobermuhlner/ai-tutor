@@ -506,8 +506,8 @@ class TutorService(
 
     /**
      * Detects the AI provider and model from the ChatModel instance.
-     * Uses reflection on class name to identify the provider since Spring AI 1.0.1
-     * doesn't expose provider metadata directly.
+     * Uses reflection on class name to identify the provider and extracts
+     * the configured model name from the defaultOptions field.
      */
     private fun detectProvider(chatModel: org.springframework.ai.chat.model.ChatModel?): Pair<String, String?> {
         if (chatModel == null) {
@@ -515,15 +515,45 @@ class TutorService(
         }
 
         val className = chatModel.javaClass.simpleName
+        val modelName = extractModelName(chatModel)
 
         return when {
-            className.contains("OpenAi", ignoreCase = true) -> Pair("openai", "gpt-4o")
-            className.contains("Ollama", ignoreCase = true) -> Pair("ollama", null)
-            className.contains("Anthropic", ignoreCase = true) -> Pair("anthropic", "claude-3")
+            className.contains("OpenAi", ignoreCase = true) -> Pair("openai", modelName ?: "unknown")
+            className.contains("Ollama", ignoreCase = true) -> Pair("ollama", modelName)
+            className.contains("Anthropic", ignoreCase = true) -> Pair("anthropic", modelName ?: "claude-3")
             else -> {
                 logger.warn("Unknown AI provider detected: $className")
-                Pair("unknown", null)
+                Pair("unknown", modelName)
             }
+        }
+    }
+
+    /**
+     * Extracts the model name from a ChatModel instance using reflection.
+     * Looks for common Spring AI field patterns like "defaultOptions.model".
+     */
+    private fun extractModelName(chatModel: org.springframework.ai.chat.model.ChatModel): String? {
+        return try {
+            // Try to access defaultOptions field (common in Spring AI implementations)
+            val defaultOptionsField = chatModel.javaClass.getDeclaredField("defaultOptions")
+            defaultOptionsField.isAccessible = true
+            val defaultOptions = defaultOptionsField.get(chatModel)
+
+            // Try to get model from options
+            if (defaultOptions != null) {
+                val modelField = defaultOptions.javaClass.getDeclaredField("model")
+                modelField.isAccessible = true
+                val model = modelField.get(defaultOptions)
+                model?.toString()
+            } else {
+                null
+            }
+        } catch (e: NoSuchFieldException) {
+            logger.debug("Could not extract model name from ChatModel: field not found", e)
+            null
+        } catch (e: Exception) {
+            logger.debug("Could not extract model name from ChatModel: {}", e.message)
+            null
         }
     }
 }

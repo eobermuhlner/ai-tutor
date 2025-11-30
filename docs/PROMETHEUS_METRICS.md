@@ -245,12 +245,26 @@ rate(ai_tutor_tokens_total[5m]) * 60
 ```
 
 ### Estimated Cost Calculation
+
+OpenAI pricing (as of 2025):
+- **GPT-4o**: $2.50/1M input, $10.00/1M output
+- **GPT-4.1**: $2.50/1M input, $10.00/1M output (estimated, same as 4o)
+- **GPT-5**: $1.25/1M input, $10.00/1M output
+- **GPT-5 Mini**: $0.25/1M input, $2.00/1M output
+- **GPT-5.1**: $1.25/1M input, $10.00/1M output (estimated, same as GPT-5)
+
 ```promql
-# Example for OpenAI GPT-4o pricing ($5/1M input, $15/1M output)
-(
-  sum(ai_tutor_tokens_total{provider="openai",model="gpt-4o",token_type="prompt"}) * 0.000005 +
-  sum(ai_tutor_tokens_total{provider="openai",model="gpt-4o",token_type="completion"}) * 0.000015
-)
+# GPT-4o cost ($2.50/1M input, $10.00/1M output)
+sum(ai_tutor_tokens_total{provider="openai",model="gpt-4o",token_type="prompt"}) * 0.0000025 +
+sum(ai_tutor_tokens_total{provider="openai",model="gpt-4o",token_type="completion"}) * 0.00001
+
+# GPT-5 cost ($1.25/1M input, $10.00/1M output)
+sum(ai_tutor_tokens_total{provider="openai",model="gpt-5",token_type="prompt"}) * 0.00000125 +
+sum(ai_tutor_tokens_total{provider="openai",model="gpt-5",token_type="completion"}) * 0.00001
+
+# GPT-5 Mini cost ($0.25/1M input, $2.00/1M output)
+sum(ai_tutor_tokens_total{provider="openai",model="gpt-5-mini",token_type="prompt"}) * 0.00000025 +
+sum(ai_tutor_tokens_total{provider="openai",model="gpt-5-mini",token_type="completion"}) * 0.000002
 ```
 
 ## Verification

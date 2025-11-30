@@ -427,7 +427,7 @@ The application includes comprehensive monitoring with Prometheus metrics and Gr
 1. AI Request Rate by Provider - Track which AI provider handles requests
 2. AI Request Duration (p95) - Monitor response times
 3. Token Usage Rate - Cost tracking (tokens/minute)
-4. Estimated AI Costs - Real-time cost estimates for GPT-4o
+4. Estimated AI Costs - Real-time cost estimates for all OpenAI models (GPT-4o, GPT-4.1, GPT-5, GPT-5 Mini, GPT-5.1)
 5. Chat Message Rate - User vs assistant message volume
 6. Error Detection Rate - Language errors by type and severity
 
