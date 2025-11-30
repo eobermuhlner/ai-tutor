@@ -119,7 +119,7 @@ jobs:
             BACKEND_URL=http://localhost:5000/api/v1
             FRONTEND_URL=https://ai-tutor.obermuhlner.ch
             GRAFANA_DOMAIN=ai-tutor.obermuhlner.ch
-            GRAFANA_ROOT_URL=http://ai-tutor.obermuhlner.ch/grafana
+            GRAFANA_ROOT_URL=https://ai-tutor.obermuhlner.ch/grafana
             JWT_SECRET=${{ secrets.JWT_SECRET_PROD }}
             OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
             GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
