@@ -97,21 +97,27 @@ All metrics use cached instances to prevent memory leaks and are wrapped in erro
 
 ### Development
 
-In development, the Prometheus endpoint is available at:
+In development (default), all actuator endpoints are on the main application port:
 - `http://localhost:8081/actuator/prometheus` (or your configured port)
+- `http://localhost:8081/actuator/health`
+- `http://localhost:8081/actuator/metrics`
+
+**This is the current configuration** when running without the `prod` profile.
 
 ### Production
 
-**IMPORTANT**: In production, use a separate management port for security:
+**IMPORTANT**: In production, use a separate management port for security.
 
-1. **Activate the production profile**:
+1. **Activate the production profile** (required for port 9090):
    ```bash
    export SPRING_PROFILES_ACTIVE=prod
+   ./gradlew :backend:bootRun
    ```
 
-2. **Management endpoints run on port 9090** (internal only):
+2. **With prod profile, management endpoints run on port 9090** (internal only):
    - Health: `http://localhost:9090/actuator/health`
    - Prometheus: `http://localhost:9090/actuator/prometheus`
+   - Main application remains on port 8080/8081
 
 3. **Configure Prometheus to scrape from internal port**:
    ```yaml
@@ -189,19 +195,22 @@ rate(ai_tutor_tokens_total[5m]) * 60
 After deployment, verify the metrics are working correctly:
 
 ```bash
-# Check that Prometheus endpoint is accessible (internal network only)
+# DEVELOPMENT (port 8081)
+curl http://localhost:8081/actuator/prometheus
+
+# PRODUCTION (port 9090 - requires prod profile)
 curl http://localhost:9090/actuator/prometheus
 
 # Verify NO high-cardinality tags are present
-curl http://localhost:9090/actuator/prometheus | grep -E "user_id|session_id"
+curl http://localhost:8081/actuator/prometheus | grep -E "user_id|session_id"
 # Should return NOTHING
 
 # Verify provider detection is working
-curl http://localhost:9090/actuator/prometheus | grep ai_tutor_ai_requests_total
+curl http://localhost:8081/actuator/prometheus | grep ai_tutor_ai_requests_total
 # Should show provider="openai" or "ollama" or "anthropic", NOT "ai_model"
 
 # Verify token usage is being tracked
-curl http://localhost:9090/actuator/prometheus | grep ai_tutor_tokens_total
+curl http://localhost:8081/actuator/prometheus | grep ai_tutor_tokens_total
 # Should show token_type="prompt" and token_type="completion" with counts
 ```
 
