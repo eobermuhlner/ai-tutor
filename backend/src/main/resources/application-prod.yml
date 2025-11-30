@@ -1,3 +1,20 @@
+# Production Management/Actuator Configuration
+# Separate management port for internal monitoring (should NOT be exposed to internet)
+management:
+  server:
+    port: 9090  # Internal port for Prometheus scraping
+  endpoint:
+    health:
+      show-details: never  # Don't expose internal details in production
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
 cors:
   # Prefer exact origins; if you truly need subdomains, use allowed-origin-patterns
   allowed-origins: ${CORS_ALLOWED_ORIGINS}

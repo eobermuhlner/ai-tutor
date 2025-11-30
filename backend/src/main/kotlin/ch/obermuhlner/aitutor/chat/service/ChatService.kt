@@ -346,7 +346,7 @@ class ChatService(
         chatMessageRepository.save(userMessage)
 
         // Record user message metrics
-        metricsService.recordChatMessage(currentUserId.toString(), sessionId.toString(), "user")
+        metricsService.recordChatMessage("user")
 
         // Increment lesson turn count for user messages
         incrementLessonTurnCount(session)
@@ -361,7 +361,7 @@ class ChatService(
             onReplyChunk = onReplyChunk
         )?.also {
             // Record assistant message metrics if we received a response
-            metricsService.recordChatMessage(currentUserId.toString(), sessionId.toString(), "assistant")
+            metricsService.recordChatMessage("assistant")
         }
     }
 
@@ -433,7 +433,7 @@ class ChatService(
         )?.also {
             logger.info("Tutor message initiated successfully for session $sessionId (context: $initiationContext)")
             // Record initiated message metrics
-            metricsService.recordChatMessage(currentUserId.toString(), sessionId.toString(), "assistant")
+            metricsService.recordChatMessage("assistant")
         }
     }
 

@@ -175,9 +175,10 @@ class TutorService(
         val response = aiChatService.call(AiChatRequest(compactedMessages), onReplyChunk, chatModel)
         val durationMs = System.currentTimeMillis() - aiStartTime
 
-        // Record metrics
-        metricsService.recordAiRequest("ai_model", "unknown")
-        metricsService.recordAiRequestDuration("ai_model", "unknown", durationMs)
+        // Record metrics with provider detection
+        val (provider, model) = detectProvider(chatModel)
+        metricsService.recordAiRequest(provider, model)
+        metricsService.recordAiRequestDuration(provider, model, durationMs)
 
         return response?.let {
             TutorResponse(
@@ -490,5 +491,28 @@ class TutorService(
         // Extract language part (before hyphen) to match filesystem structure
         val languageOnly = course.languageCode.lowercase().substringBefore("-")
         return "$languageOnly-${nameEnglish.lowercase().replace(" ", "-")}"
+    }
+
+    /**
+     * Detects the AI provider and model from the ChatModel instance.
+     * Uses reflection on class name to identify the provider since Spring AI 1.0.1
+     * doesn't expose provider metadata directly.
+     */
+    private fun detectProvider(chatModel: org.springframework.ai.chat.model.ChatModel?): Pair<String, String?> {
+        if (chatModel == null) {
+            return Pair("unknown", null)
+        }
+
+        val className = chatModel.javaClass.simpleName
+
+        return when {
+            className.contains("OpenAi", ignoreCase = true) -> Pair("openai", "gpt-4o")
+            className.contains("Ollama", ignoreCase = true) -> Pair("ollama", null)
+            className.contains("Anthropic", ignoreCase = true) -> Pair("anthropic", "claude-3")
+            else -> {
+                logger.warn("Unknown AI provider detected: $className")
+                Pair("unknown", null)
+            }
+        }
     }
 }
