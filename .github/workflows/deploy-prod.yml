@@ -130,13 +130,25 @@ jobs:
             GRAFANA_ADMIN_PASSWORD=${{ secrets.GRAFANA_ADMIN_PASSWORD }}
             EOL
             
+            # Update nginx configuration
+            echo "Updating nginx configuration..."
+            sudo cp ~/prod/nginx.conf /etc/nginx/nginx.conf
+            sudo nginx -t
+            if [ $? -eq 0 ]; then
+              sudo nginx -s reload
+              echo "Nginx configuration updated successfully"
+            else
+              echo "Nginx configuration test failed"
+              exit 1
+            fi
+
             # Pull and start containers
             docker compose pull
             docker compose up -d --force-recreate
-            
+
             # Wait for services to be healthy
             sleep 30
-            
+
             # Check if services are running
             if docker compose ps | grep -E "(backend|frontend).*healthy"; then
               echo "Production deployment successful!"

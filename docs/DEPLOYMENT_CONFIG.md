@@ -64,6 +64,22 @@ Two environments must be configured in GitHub (Settings > Environments):
 
 ## Deployment Process
 
+### Server Setup for Automated Nginx Updates
+
+**One-time setup**: Configure passwordless sudo for nginx operations on the deployment server:
+
+```bash
+# On the deployment server, create sudoers file:
+sudo visudo -f /etc/sudoers.d/aitutor-deploy
+
+# Add these lines (replace 'aitutor' with deployment username):
+aitutor ALL=(ALL) NOPASSWD: /usr/sbin/nginx -t
+aitutor ALL=(ALL) NOPASSWD: /usr/sbin/nginx -s reload
+aitutor ALL=(ALL) NOPASSWD: /bin/cp /home/aitutor/*/nginx.conf /etc/nginx/nginx.conf
+```
+
+This allows GitHub Actions to automatically update nginx configuration during deployment.
+
 ### Automatic Test Deployment
 
 **Trigger**: Push or merge to `master` branch
