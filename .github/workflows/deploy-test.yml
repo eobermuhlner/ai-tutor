@@ -115,7 +115,8 @@ jobs:
             PROMETHEUS_PORT=9101
             BACKEND_URL=http://localhost:5100/api/v1
             FRONTEND_URL=https://ai-tutor-test.obermuhlner.ch
-            GRAFANA_ROOT_URL=%(protocol)s://ai-tutor-test.obermuhlner.ch/grafana
+            GRAFANA_DOMAIN=ai-tutor-test.obermuhlner.ch
+            GRAFANA_ROOT_URL=http://ai-tutor-test.obermuhlner.ch/grafana
             JWT_SECRET=${{ secrets.JWT_SECRET_TEST }}
             OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
             GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
