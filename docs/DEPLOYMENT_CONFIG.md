@@ -31,6 +31,9 @@ Add these secrets in your GitHub repository settings (Settings > Secrets and var
 - `DEMO_USERNAME`: Demo username (defaults to 'demo' if not set)
 - `DEMO_PASSWORD`: Demo password (required for production)
 
+### Optional for Monitoring
+- `GRAFANA_ADMIN_PASSWORD`: Grafana admin password (required for production, defaults to 'admin' if not set)
+
 ### Optional Secrets (Auto-Generated)
 - `GITHUB_TOKEN`: Automatically provided by GitHub Actions for GHCR authentication
 - `CODECOV_TOKEN`: Optional, for uploading test coverage reports to Codecov
@@ -43,16 +46,20 @@ Two environments must be configured in GitHub (Settings > Environments):
 - **Name**: `test`
 - **Protection rules**: None (deploys automatically on master push)
 - **Deployment target**: `~/test` directory on server
-- **URL**: `https://ai-tutor-test.obermuhlner.ch`
-- **Ports**: Backend: 5100, Frontend: 5101
+- **URLs**:
+  - Application: `https://ai-tutor-test.obermuhlner.ch`
+  - Grafana: `https://ai-tutor-test.obermuhlner.ch/grafana`
+- **Ports**: Backend: 5100, Frontend: 5101, Grafana: 3101, Prometheus: 9101
 - **Image tags**: `:test` and `:test-{sha}`
 
 ### Production Environment
 - **Name**: `prod`
 - **Protection rules**: Recommended (require approvals, restrict to release tags)
 - **Deployment target**: `~/prod` directory on server
-- **URL**: `https://ai-tutor.obermuhlner.ch`
-- **Ports**: Backend: 5000, Frontend: 5001
+- **URLs**:
+  - Application: `https://ai-tutor.obermuhlner.ch`
+  - Grafana: `https://ai-tutor.obermuhlner.ch/grafana`
+- **Ports**: Backend: 5000, Frontend: 5001, Grafana: 3001, Prometheus: 9091
 - **Image tags**: `:latest`, `:prod-{sha}`, `:{version}`
 
 ## Deployment Process
