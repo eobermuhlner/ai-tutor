@@ -1,0 +1,23 @@
+# Prometheus configuration for AI Tutor monitoring
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'ai-tutor-monitor'
+
+# Scrape configurations
+scrape_configs:
+  # AI Tutor Backend metrics
+  - job_name: 'ai-tutor-backend'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['backend:8080']
+        labels:
+          application: 'ai-tutor'
+          environment: 'dev'
+
+# Alerting configuration (optional - uncomment to use)
+# alerting:
+#   alertmanagers:
+#     - static_configs:
+#         - targets: ['alertmanager:9093']

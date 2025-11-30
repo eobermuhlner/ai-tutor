@@ -68,6 +68,8 @@ docker build -f frontend/Dockerfile frontend -t ai-tutor-frontend
    - Backend API: http://localhost:8080
    - H2 Console: http://localhost:8080/h2-console
    - API Documentation: http://localhost:8080/swagger-ui.html
+   - Prometheus: http://localhost:9090 (metrics collection)
+   - Grafana: http://localhost:3000 (monitoring dashboards - default login: admin/admin)
 
 ### Standard Setup (without Docker)
 
@@ -275,6 +277,7 @@ The project includes HTTP request examples in `backend/src/test/http/http-client
 - **Database**: H2 (in-memory, JPA)
 - **AI Integration**: Spring AI 1.0.1 with OpenAI
 - **Build Tool**: Gradle
+- **Monitoring**: Prometheus & Grafana (metrics collection and visualization)
 
 ### Core Components
 
@@ -405,6 +408,34 @@ Access the H2 database console at: `http://localhost:8080/h2-console`
 - JDBC URL: `jdbc:h2:mem:testdb`
 - Username: `sa`
 - Password: (empty)
+
+### Monitoring
+
+The application includes comprehensive monitoring with Prometheus metrics and Grafana dashboards:
+
+**Metrics Tracked:**
+- AI request rate and duration by provider (OpenAI, Ollama, Anthropic)
+- Token usage for cost tracking (prompt vs completion tokens)
+- Chat message volume by role
+- Error detection patterns by type and severity
+
+**Access (when using Docker Compose):**
+- Prometheus: `http://localhost:9090` - Query and explore raw metrics
+- Grafana: `http://localhost:3000` - Pre-configured dashboards (login: admin/admin)
+
+**Pre-configured Dashboard Panels:**
+1. AI Request Rate by Provider - Track which AI provider handles requests
+2. AI Request Duration (p95) - Monitor response times
+3. Token Usage Rate - Cost tracking (tokens/minute)
+4. Estimated AI Costs - Real-time cost estimates for GPT-4o
+5. Chat Message Rate - User vs assistant message volume
+6. Error Detection Rate - Language errors by type and severity
+
+**For detailed monitoring setup, configuration, and troubleshooting, see:**
+- `docs/PROMETHEUS_METRICS.md` - Complete metrics documentation
+- `prometheus.yml` - Local development scrape configuration
+- `deployment/prometheus.yml` - Production scrape configuration
+- `grafana/provisioning/` - Auto-provisioned datasources and dashboards
 
 ### Building
 

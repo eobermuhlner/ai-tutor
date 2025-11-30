@@ -93,6 +93,54 @@ All metrics use cached instances to prevent memory leaks and are wrapped in erro
 - Metrics: `GET /actuator/metrics`
 - Prometheus: `GET /actuator/prometheus`
 
+## Docker Compose Monitoring Setup
+
+### Local Development
+
+The project includes a complete monitoring stack in `docker-compose.yml`:
+
+```bash
+docker-compose up -d
+```
+
+**Services**:
+- **Backend**: `http://localhost:8080` (application) + `http://localhost:8080/actuator/prometheus` (metrics)
+- **Prometheus**: `http://localhost:9090` (metrics collection and queries)
+- **Grafana**: `http://localhost:3000` (dashboards and visualization)
+  - Default credentials: `admin` / `admin` (or set via `GRAFANA_ADMIN_PASSWORD` in `.env`)
+
+**Pre-configured**:
+- Prometheus automatically scrapes backend metrics every 30s
+- Grafana includes pre-provisioned AI Tutor dashboard with 6 panels:
+  - AI Request Rate by Provider
+  - AI Request Duration (p95)
+  - Token Usage Rate (tokens/minute)
+  - Estimated AI Costs (GPT-4o)
+  - Chat Message Rate
+  - Error Detection Rate by Type
+
+### Production Deployment
+
+For production deployment, use `deployment/docker-compose.yml`:
+
+```bash
+cd deployment
+docker-compose up -d
+```
+
+**Key differences**:
+- Backend management port (9090) exposed internally only
+- Prometheus on port 9091 (external) to avoid conflicts
+- Grafana on port 3001 (external)
+- 30-day metrics retention configured
+- Management endpoints restricted (health details hidden)
+
+**Environment variables** (create `deployment/.env`):
+```bash
+GRAFANA_ADMIN_PASSWORD=your-secure-password
+PROMETHEUS_RETENTION=30d  # Optional: adjust retention period
+```
+
 ## Usage
 
 ### Development
@@ -103,6 +151,11 @@ In development (default), all actuator endpoints are on the main application por
 - `http://localhost:8081/actuator/metrics`
 
 **This is the current configuration** when running without the `prod` profile.
+
+**With Docker Compose**:
+- Backend metrics: `http://localhost:8080/actuator/prometheus`
+- Prometheus queries: `http://localhost:9090`
+- Grafana dashboards: `http://localhost:3000`
 
 ### Production
 
@@ -145,9 +198,19 @@ In development (default), all actuator endpoints are on the main application por
 - Application port (8080/8081): Public access
 - Management port (9090): Internal network only
 
-## Grafana Dashboard
+## Grafana Dashboards
 
-The collected metrics can be visualized using Grafana dashboards. Recommended queries:
+### Pre-Configured Dashboard
+
+When using Docker Compose, Grafana is automatically provisioned with the "AI Tutor Monitoring" dashboard. Access it at:
+- Local: `http://localhost:3000` (username: `admin`, password: `admin`)
+- Production: `http://your-host:3001` (username: `admin`, password: from `GRAFANA_ADMIN_PASSWORD`)
+
+The dashboard includes 6 pre-configured panels tracking all key metrics. No manual configuration needed!
+
+### Custom Queries
+
+For custom dashboards or panels, use these PromQL queries:
 
 ### AI Request Rate by Provider
 ```promql
@@ -195,23 +258,34 @@ rate(ai_tutor_tokens_total[5m]) * 60
 After deployment, verify the metrics are working correctly:
 
 ```bash
-# DEVELOPMENT (port 8081)
+# DEVELOPMENT (direct backend)
 curl http://localhost:8081/actuator/prometheus
+
+# DEVELOPMENT (Docker Compose)
+curl http://localhost:8080/actuator/prometheus
 
 # PRODUCTION (port 9090 - requires prod profile)
 curl http://localhost:9090/actuator/prometheus
 
 # Verify NO high-cardinality tags are present
-curl http://localhost:8081/actuator/prometheus | grep -E "user_id|session_id"
+curl http://localhost:8080/actuator/prometheus | grep -E "user_id|session_id"
 # Should return NOTHING
 
 # Verify provider detection is working
-curl http://localhost:8081/actuator/prometheus | grep ai_tutor_ai_requests_total
+curl http://localhost:8080/actuator/prometheus | grep ai_tutor_ai_requests_total
 # Should show provider="openai" or "ollama" or "anthropic", NOT "ai_model"
 
 # Verify token usage is being tracked
-curl http://localhost:8081/actuator/prometheus | grep ai_tutor_tokens_total
+curl http://localhost:8080/actuator/prometheus | grep ai_tutor_tokens_total
 # Should show token_type="prompt" and token_type="completion" with counts
+
+# Check Prometheus is scraping successfully
+curl http://localhost:9090/api/v1/query?query=up
+# Should show "value": [timestamp, "1"] for ai-tutor-backend job
+
+# Verify Grafana dashboard is accessible
+curl -I http://localhost:3000
+# Should return HTTP 200
 ```
 
 ## Cost Monitoring
@@ -230,3 +304,78 @@ Token usage metrics enable cost tracking and budget management:
    - Compare costs across providers
    - Identify expensive queries/sessions
    - Track impact of prompt engineering changes
+
+## Troubleshooting
+
+### Prometheus Not Scraping Metrics
+
+**Symptom**: Prometheus UI shows target as "DOWN" or "no data"
+
+**Solutions**:
+1. Check backend is running: `curl http://localhost:8080/actuator/prometheus`
+2. Check Prometheus config: `docker exec ai-tutor-prometheus cat /etc/prometheus/prometheus.yml`
+3. Check Prometheus logs: `docker logs ai-tutor-prometheus`
+4. Verify network connectivity: `docker exec ai-tutor-prometheus wget -O- http://backend:8080/actuator/prometheus`
+
+### Grafana Dashboard Shows No Data
+
+**Symptom**: Grafana panels show "No Data"
+
+**Solutions**:
+1. Check Prometheus datasource: Grafana → Configuration → Data Sources → Test
+2. Verify Prometheus has data: `curl http://localhost:9090/api/v1/query?query=ai_tutor_ai_requests_total`
+3. Check time range in dashboard (default is last 1 hour)
+4. Generate some traffic to create metrics: send chat messages in the application
+5. Check Grafana logs: `docker logs ai-tutor-grafana`
+
+### Metrics Endpoint Returns 403
+
+**Symptom**: `/actuator/prometheus` returns HTTP 403 Forbidden
+
+**Solutions**:
+1. Verify `management.metrics.export.prometheus.enabled: true` in application.yml
+2. Check SecurityConfig permits actuator endpoints
+3. Restart backend after configuration changes
+
+### Token Metrics Always Zero
+
+**Symptom**: `ai_tutor_tokens_total` shows 0 for all providers
+
+**Solutions**:
+1. Verify AI provider returns token usage in response metadata
+2. Check logs for "Could not extract token usage" warnings
+3. Some providers (Ollama) may not report token usage - this is expected
+4. Send test messages and check: `curl http://localhost:8080/actuator/prometheus | grep ai_tutor_tokens_total`
+
+### Grafana Dashboard Not Auto-Loading
+
+**Symptom**: Dashboard doesn't appear in Grafana after Docker Compose start
+
+**Solutions**:
+1. Verify provisioning files are mounted: `docker exec ai-tutor-grafana ls /etc/grafana/provisioning/dashboards`
+2. Check Grafana logs for provisioning errors: `docker logs ai-tutor-grafana | grep -i provision`
+3. Manually import dashboard from `grafana/provisioning/dashboards/ai-tutor-dashboard.json`
+4. Restart Grafana: `docker-compose restart grafana`
+
+### Port Conflicts
+
+**Symptom**: Docker Compose fails with "port is already in use"
+
+**Solutions**:
+1. Local development ports in use:
+   - Change ports in `docker-compose.yml` or `.env` file
+   - Stop conflicting services: `lsof -i :9090` to find process
+
+2. Production deployment ports in use:
+   - Set custom ports in `deployment/.env`:
+     ```bash
+     PROMETHEUS_PORT=9091
+     GRAFANA_PORT=3001
+     ```
+
+## Additional Resources
+
+- [Spring Boot Actuator Documentation](https://docs.spring.io/spring-boot/docs/current/reference/html/actuator.html)
+- [Micrometer Documentation](https://micrometer.io/docs)
+- [Prometheus Query Documentation](https://prometheus.io/docs/prometheus/latest/querying/basics/)
+- [Grafana Dashboard Best Practices](https://grafana.com/docs/grafana/latest/dashboards/build-dashboards/best-practices/)

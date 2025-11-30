@@ -5,6 +5,7 @@ services:
     restart: unless-stopped
     ports:
       - "${BACKEND_PORT}:8080"
+      - "9090:9090"  # Management port for Prometheus (internal network only)
     user: "${UID}:${GID}"
     environment:
       - UID=${UID}
@@ -67,6 +68,54 @@ services:
     networks:
       - ai-tutor-network
 
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: ai-tutor-prometheus-${IMAGE_TAG}
+    restart: unless-stopped
+    ports:
+      - "${PROMETHEUS_PORT:-9091}:9090"  # Map to different host port to avoid conflicts
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=${PROMETHEUS_RETENTION:-30d}'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - ai-tutor-network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: ai-tutor-grafana-${IMAGE_TAG}
+    restart: unless-stopped
+    ports:
+      - "${GRAFANA_PORT:-3001}:3000"  # Map to different host port
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ROOT_URL=${GRAFANA_ROOT_URL:-http://localhost:3001}
+      - GF_SECURITY_DISABLE_GRAVATAR=true
+      - GF_ANALYTICS_REPORTING_ENABLED=false
+      - GF_ANALYTICS_CHECK_FOR_UPDATES=false
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    user: "${UID}:${GID}"
+    depends_on:
+      - prometheus
+    networks:
+      - ai-tutor-network
+
 networks:
   ai-tutor-network:
     driver: bridge
+
+volumes:
+  prometheus-data:
+  grafana-data:

@@ -1,0 +1,29 @@
+# Prometheus configuration for AI Tutor production monitoring
+global:
+  scrape_interval: 30s  # Production: less frequent scraping
+  evaluation_interval: 30s
+  external_labels:
+    monitor: 'ai-tutor-prod'
+    environment: 'production'
+
+# Scrape configurations
+scrape_configs:
+  # AI Tutor Backend metrics (production uses separate management port)
+  - job_name: 'ai-tutor-backend'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['backend:9090']  # Management port for prod profile
+        labels:
+          application: 'ai-tutor'
+          environment: 'production'
+          instance: '${HOSTNAME:-unknown}'
+
+# Alerting configuration (optional)
+# alerting:
+#   alertmanagers:
+#     - static_configs:
+#         - targets: ['alertmanager:9093']
+
+# Rule files for alerts (optional)
+# rule_files:
+#   - 'alerts/*.yml'
