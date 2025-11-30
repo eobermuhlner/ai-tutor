@@ -75,7 +75,7 @@ class SecurityConfig(
                         "/webjars/**"
                     ).permitAll()
 
-                    // Actuator endpoints (health, info, metrics)
+                    // Actuator endpoints (health, info, metrics, prometheus)
                     .requestMatchers(
                         "/actuator",
                         "/actuator/**"

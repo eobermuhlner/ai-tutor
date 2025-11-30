@@ -75,6 +75,8 @@ class TutorServiceTest {
             )
         )
 
+        val metricsService = mockk<ch.obermuhlner.aitutor.metrics.MetricsService>(relaxed = true)
+
         tutorService = TutorService(
             aiChatService = aiChatService,
             languageService = languageService,
@@ -113,7 +115,8 @@ class TutorServiceTest {
             pronunciationGuideNoneTemplate = "Pronunciation guide none template",
             pronunciationGuideIpaTemplate = "Pronunciation guide IPA template",
             pronunciationGuideSourceLanguageTemplate = "Pronunciation guide source language template",
-            pronunciationGuideEnglishTemplate = "Pronunciation guide English template"
+            pronunciationGuideEnglishTemplate = "Pronunciation guide English template",
+            metricsService = metricsService
         )
     }
 

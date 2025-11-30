@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service
 class CorrectionService(
     private val chatModel: ChatModel,
     private val languageService: LanguageService,
+    private val metricsService: ch.obermuhlner.aitutor.metrics.MetricsService,
     @Value("\${ai-tutor.prompts.correction-analysis}") private val correctionAnalysisPrompt: String,
     @Value("\${ai-tutor.chat.strict-schema-enforcement:true}") private val strictSchemaEnforcement: Boolean
 ) {
@@ -84,6 +85,15 @@ class CorrectionService(
             }
 
             logger.info("Generated ${correctionResponse.corrections.size} corrections")
+
+            // Record error detection metrics
+            correctionResponse.corrections.forEach { correction ->
+                metricsService.recordErrorDetection(
+                    errorType = correction.errorType.name,
+                    severity = correction.severity.name
+                )
+            }
+
             return correctionResponse.corrections
 
         } catch (e: Exception) {

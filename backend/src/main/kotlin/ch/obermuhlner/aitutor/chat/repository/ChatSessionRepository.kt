@@ -14,4 +14,7 @@ interface ChatSessionRepository : JpaRepository<ChatSessionEntity, UUID> {
     fun findByUserIdAndIsActiveTrueOrderByUpdatedAtDesc(userId: UUID): List<ChatSessionEntity>
     fun findByUserIdAndCourseTemplateIdAndIsActiveTrue(userId: UUID, courseTemplateId: UUID): ChatSessionEntity?
     fun findByUserIdAndTutorProfileIdAndIsActiveTrue(userId: UUID, tutorProfileId: UUID): List<ChatSessionEntity>
+
+    // Metrics queries
+    fun countByIsActiveTrue(): Long
 }

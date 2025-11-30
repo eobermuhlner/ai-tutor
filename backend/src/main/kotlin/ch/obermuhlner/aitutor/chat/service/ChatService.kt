@@ -54,6 +54,7 @@ class ChatService(
     private val userRepository: ch.obermuhlner.aitutor.user.repository.UserRepository,
     private val imageService: ImageService,
     private val objectMapper: ObjectMapper,
+    private val metricsService: ch.obermuhlner.aitutor.metrics.MetricsService,
     @Value("\${ai-tutor.messages.technical-error}") private val technicalErrorMessage: String,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -344,6 +345,9 @@ class ChatService(
         )
         chatMessageRepository.save(userMessage)
 
+        // Record user message metrics
+        metricsService.recordChatMessage(currentUserId.toString(), sessionId.toString(), "user")
+
         // Increment lesson turn count for user messages
         incrementLessonTurnCount(session)
 
@@ -355,7 +359,10 @@ class ChatService(
             includeUserMessageInEvaluation = true,
             userMessageForEvaluation = userMessage,
             onReplyChunk = onReplyChunk
-        )
+        )?.also {
+            // Record assistant message metrics if we received a response
+            metricsService.recordChatMessage(currentUserId.toString(), sessionId.toString(), "assistant")
+        }
     }
 
     /**
@@ -425,6 +432,8 @@ class ChatService(
             onReplyChunk = onReplyChunk
         )?.also {
             logger.info("Tutor message initiated successfully for session $sessionId (context: $initiationContext)")
+            // Record initiated message metrics
+            metricsService.recordChatMessage(currentUserId.toString(), sessionId.toString(), "assistant")
         }
     }
 

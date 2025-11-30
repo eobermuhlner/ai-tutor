@@ -79,6 +79,8 @@ class ChatServiceTest {
         val testUser = TestDataFactory.createUserEntity()
         every { userRepository.findById(any()) } returns java.util.Optional.of(testUser)
 
+        val metricsService = mockk<ch.obermuhlner.aitutor.metrics.MetricsService>(relaxed = true)
+
         objectMapper = jacksonObjectMapper()
 
         chatService = ChatService(
@@ -100,6 +102,7 @@ class ChatServiceTest {
             userRepository,
             imageService,
             objectMapper,
+            metricsService,
             "An error occurred"
         )
     }

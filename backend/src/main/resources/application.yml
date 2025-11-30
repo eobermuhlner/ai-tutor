@@ -23,6 +23,12 @@ management:
   endpoint:
     health:
       show-details: when-authorized
+    prometheus:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
   health:
     defaults:
       enabled: true

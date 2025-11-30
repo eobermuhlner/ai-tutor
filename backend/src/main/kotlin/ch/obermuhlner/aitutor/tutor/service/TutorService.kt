@@ -39,6 +39,7 @@ class TutorService(
     private val catalogService: CatalogService,
     private val objectMapper: ObjectMapper,
     private val supportedLanguages: Map<String, LanguageMetadata>,
+    private val metricsService: ch.obermuhlner.aitutor.metrics.MetricsService,
     @Value("\${ai-tutor.prompts.system}") private val systemPromptTemplate: String,
     @Value("\${ai-tutor.prompts.special}") private val specialSystemPromptTemplate: String,
     @Value("\${ai-tutor.prompts.level-none}") private val levelNonePromptTemplate: String,
@@ -169,7 +170,14 @@ class TutorService(
 
         val compactedMessages = messageCompactionService.compactMessages(systemMessages, messages, sessionId)
 
+        // Record the AI request metrics
+        val aiStartTime = System.currentTimeMillis()
         val response = aiChatService.call(AiChatRequest(compactedMessages), onReplyChunk, chatModel)
+        val durationMs = System.currentTimeMillis() - aiStartTime
+
+        // Record metrics
+        metricsService.recordAiRequest("ai_model", "unknown")
+        metricsService.recordAiRequestDuration("ai_model", "unknown", durationMs)
 
         return response?.let {
             TutorResponse(
