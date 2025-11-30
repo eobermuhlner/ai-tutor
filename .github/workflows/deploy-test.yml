@@ -94,6 +94,14 @@ jobs:
             # Always download latest deployment files to ensure configuration is up-to-date
             curl -s -o docker-compose.yml https://raw.githubusercontent.com/${{ github.repository }}/master/deployment/docker-compose.yml
             curl -s -o nginx.conf https://raw.githubusercontent.com/${{ github.repository }}/master/deployment/nginx.conf
+            curl -s -o prometheus.yml https://raw.githubusercontent.com/${{ github.repository }}/master/deployment/prometheus.yml
+
+            # Download Grafana provisioning files
+            mkdir -p grafana/provisioning/dashboards
+            mkdir -p grafana/provisioning/datasources
+            curl -s -o grafana/provisioning/dashboards/dashboard.yml https://raw.githubusercontent.com/${{ github.repository }}/master/grafana/provisioning/dashboards/dashboard.yml
+            curl -s -o grafana/provisioning/dashboards/ai-tutor-dashboard.json https://raw.githubusercontent.com/${{ github.repository }}/master/grafana/provisioning/dashboards/ai-tutor-dashboard.json
+            curl -s -o grafana/provisioning/datasources/prometheus.yml https://raw.githubusercontent.com/${{ github.repository }}/master/grafana/provisioning/datasources/prometheus.yml
             
             # Create .env file for test environment
             cat > .env << 'EOL'
@@ -103,8 +111,11 @@ jobs:
             GID=1000
             BACKEND_PORT=5100
             FRONTEND_PORT=5101
+            GRAFANA_PORT=3101
+            PROMETHEUS_PORT=9101
             BACKEND_URL=http://localhost:5100/api/v1
             FRONTEND_URL=https://ai-tutor-test.obermuhlner.ch
+            GRAFANA_ROOT_URL=https://ai-tutor-test.obermuhlner.ch/grafana
             JWT_SECRET=${{ secrets.JWT_SECRET_TEST }}
             OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
             GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
@@ -113,6 +124,7 @@ jobs:
             ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}
             DEMO_USERNAME=${{ secrets.DEMO_USERNAME }}
             DEMO_PASSWORD=${{ secrets.DEMO_PASSWORD }}
+            GRAFANA_ADMIN_PASSWORD=${{ secrets.GRAFANA_ADMIN_PASSWORD }}
             EOL
             
             # Pull and start containers
