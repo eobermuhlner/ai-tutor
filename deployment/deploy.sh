@@ -125,7 +125,22 @@ echo "Copying deployment files to server..."
 scp -i "$TEMP_KEY_FILE" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
     ../deployment/docker-compose.yml \
     ../deployment/nginx.conf \
+    ../deployment/prometheus.yml \
     "$SSH_USER@$SSH_HOST:$DEPLOY_DIR/"
+
+# Copy Grafana provisioning files (create directory structure first)
+echo "Copying Grafana provisioning files..."
+ssh -i "$TEMP_KEY_FILE" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+    "$SSH_USER@$SSH_HOST" "mkdir -p $DEPLOY_DIR/grafana/provisioning/dashboards $DEPLOY_DIR/grafana/provisioning/datasources"
+
+scp -i "$TEMP_KEY_FILE" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+    ../grafana/provisioning/dashboards/dashboard.yml \
+    ../grafana/provisioning/dashboards/ai-tutor-dashboard.json \
+    "$SSH_USER@$SSH_HOST:$DEPLOY_DIR/grafana/provisioning/dashboards/"
+
+scp -i "$TEMP_KEY_FILE" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+    ../grafana/provisioning/datasources/prometheus.yml \
+    "$SSH_USER@$SSH_HOST:$DEPLOY_DIR/grafana/provisioning/datasources/"
 
 # Create environment file with the proper configuration
 echo "Creating environment file on server..."
