@@ -25,6 +25,7 @@ class MetricsService(
     private val aiRequestTimers = ConcurrentHashMap<String, Timer>()
     private val errorCounters = ConcurrentHashMap<String, Counter>()
     private val messageCounters = ConcurrentHashMap<String, Counter>()
+    private val tokenCounters = ConcurrentHashMap<String, Counter>()
 
     /**
      * Records an AI request for a specific provider.
@@ -114,6 +115,66 @@ class MetricsService(
             counter.increment()
         } catch (e: Exception) {
             logger.error("Failed to record chat message metric for role=$role", e)
+        }
+    }
+
+    /**
+     * Records token usage from AI requests.
+     * Tracks prompt tokens, completion tokens, and total tokens by provider and model.
+     * Safe to call - will not throw exceptions.
+     *
+     * @param provider AI provider (openai, ollama, anthropic, etc.)
+     * @param model Optional model name
+     * @param promptTokens Number of tokens in the prompt
+     * @param completionTokens Number of tokens in the completion
+     * @param totalTokens Total tokens used (prompt + completion)
+     */
+    fun recordTokenUsage(
+        provider: String,
+        model: String?,
+        promptTokens: Long,
+        completionTokens: Long,
+        totalTokens: Long
+    ) {
+        try {
+            val tags = mutableListOf(
+                Tag.of("provider", provider),
+                Tag.of("token_type", "prompt")
+            )
+            if (!model.isNullOrBlank()) {
+                tags.add(Tag.of("model", model))
+            }
+
+            // Record prompt tokens
+            val promptKey = "$provider${model?.let { "_$it" } ?: ""}_prompt"
+            val promptCounter = tokenCounters.computeIfAbsent(promptKey) {
+                Counter.builder("ai_tutor.tokens_total")
+                    .description("Total number of tokens used by AI requests")
+                    .tags(tags)
+                    .register(meterRegistry)
+            }
+            promptCounter.increment(promptTokens.toDouble())
+
+            // Record completion tokens
+            val completionTags = mutableListOf(
+                Tag.of("provider", provider),
+                Tag.of("token_type", "completion")
+            )
+            if (!model.isNullOrBlank()) {
+                completionTags.add(Tag.of("model", model))
+            }
+
+            val completionKey = "$provider${model?.let { "_$it" } ?: ""}_completion"
+            val completionCounter = tokenCounters.computeIfAbsent(completionKey) {
+                Counter.builder("ai_tutor.tokens_total")
+                    .description("Total number of tokens used by AI requests")
+                    .tags(completionTags)
+                    .register(meterRegistry)
+            }
+            completionCounter.increment(completionTokens.toDouble())
+
+        } catch (e: Exception) {
+            logger.error("Failed to record token usage metric for provider=$provider, model=$model", e)
         }
     }
 }

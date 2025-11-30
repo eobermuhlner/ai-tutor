@@ -307,4 +307,123 @@ class MetricsServiceTest {
             assertEquals(1.0, counter.count())
         }
     }
+
+    @Test
+    fun `recordTokenUsage should increment counters for prompt and completion tokens`() {
+        // When
+        metricsService.recordTokenUsage(
+            provider = "openai",
+            model = "gpt-4o",
+            promptTokens = 150,
+            completionTokens = 75,
+            totalTokens = 225
+        )
+
+        // Then
+        val promptCounter = meterRegistry.find("ai_tutor.tokens_total")
+            .tag("provider", "openai")
+            .tag("model", "gpt-4o")
+            .tag("token_type", "prompt")
+            .counter()
+
+        val completionCounter = meterRegistry.find("ai_tutor.tokens_total")
+            .tag("provider", "openai")
+            .tag("model", "gpt-4o")
+            .tag("token_type", "completion")
+            .counter()
+
+        assertNotNull(promptCounter)
+        assertNotNull(completionCounter)
+        assertEquals(150.0, promptCounter!!.count())
+        assertEquals(75.0, completionCounter!!.count())
+    }
+
+    @Test
+    fun `recordTokenUsage should accumulate tokens over multiple calls`() {
+        // When
+        metricsService.recordTokenUsage("openai", "gpt-4o", 100, 50, 150)
+        metricsService.recordTokenUsage("openai", "gpt-4o", 200, 100, 300)
+        metricsService.recordTokenUsage("openai", "gpt-4o", 150, 75, 225)
+
+        // Then
+        val promptCounter = meterRegistry.find("ai_tutor.tokens_total")
+            .tag("provider", "openai")
+            .tag("model", "gpt-4o")
+            .tag("token_type", "prompt")
+            .counter()
+
+        val completionCounter = meterRegistry.find("ai_tutor.tokens_total")
+            .tag("provider", "openai")
+            .tag("model", "gpt-4o")
+            .tag("token_type", "completion")
+            .counter()
+
+        assertEquals(450.0, promptCounter!!.count()) // 100 + 200 + 150
+        assertEquals(225.0, completionCounter!!.count()) // 50 + 100 + 75
+    }
+
+    @Test
+    fun `recordTokenUsage should cache counters`() {
+        // When
+        repeat(100) {
+            metricsService.recordTokenUsage("openai", "gpt-4o", 10, 5, 15)
+        }
+
+        // Then - should only have TWO counters (one for prompt, one for completion)
+        val allCounters = meterRegistry.find("ai_tutor.tokens_total")
+            .tag("provider", "openai")
+            .tag("model", "gpt-4o")
+            .counters()
+
+        assertEquals(2, allCounters.size) // prompt + completion
+    }
+
+    @Test
+    fun `recordTokenUsage should handle null model`() {
+        // When
+        metricsService.recordTokenUsage(
+            provider = "ollama",
+            model = null,
+            promptTokens = 100,
+            completionTokens = 50,
+            totalTokens = 150
+        )
+
+        // Then
+        val promptCounter = meterRegistry.find("ai_tutor.tokens_total")
+            .tag("provider", "ollama")
+            .tag("token_type", "prompt")
+            .counter()
+
+        assertNotNull(promptCounter)
+        assertEquals(100.0, promptCounter!!.count())
+    }
+
+    @Test
+    fun `recordTokenUsage should separate metrics by provider`() {
+        // When
+        metricsService.recordTokenUsage("openai", "gpt-4o", 100, 50, 150)
+        metricsService.recordTokenUsage("anthropic", "claude-3", 200, 100, 300)
+        metricsService.recordTokenUsage("ollama", null, 150, 75, 225)
+
+        // Then
+        val openaiPromptCounter = meterRegistry.find("ai_tutor.tokens_total")
+            .tag("provider", "openai")
+            .tag("token_type", "prompt")
+            .counter()
+
+        val anthropicPromptCounter = meterRegistry.find("ai_tutor.tokens_total")
+            .tag("provider", "anthropic")
+            .tag("token_type", "prompt")
+            .counter()
+
+        val ollamaPromptCounter = meterRegistry.find("ai_tutor.tokens_total")
+            .tag("provider", "ollama")
+            .tag("token_type", "prompt")
+            .counter()
+
+        assertEquals(100.0, openaiPromptCounter!!.count())
+        assertEquals(200.0, anthropicPromptCounter!!.count())
+        assertEquals(150.0, ollamaPromptCounter!!.count())
+    }
 }

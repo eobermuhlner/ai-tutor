@@ -65,6 +65,12 @@ The following custom business metrics are tracked:
   - Tags: `provider`, `model` (optional)
   - Measures response time by provider
 
+- `ai_tutor.tokens_total` - Counter for token usage
+  - Tags: `provider`, `model` (optional), `token_type` (prompt, completion)
+  - Tracks token consumption for cost analysis
+  - Extracted from AI provider response metadata
+  - **Important for cost tracking**: Multiply by provider pricing to calculate costs
+
 - `ai_tutor.error_detection_total` - Counter for error detections
   - Tags: `error_type` (GRAMMAR, SPELLING, etc.), `severity` (LOW, MEDIUM, HIGH, CRITICAL)
   - Tracks language errors detected by the tutor
@@ -157,6 +163,27 @@ rate(ai_tutor_error_detection_total[5m])
 rate(ai_tutor_chat_messages_total[5m])
 ```
 
+### Token Usage by Provider (for cost analysis)
+```promql
+# Total tokens per provider
+sum(ai_tutor_tokens_total) by (provider)
+
+# Prompt vs Completion tokens
+sum(ai_tutor_tokens_total) by (provider, token_type)
+
+# Token usage rate (tokens/minute)
+rate(ai_tutor_tokens_total[5m]) * 60
+```
+
+### Estimated Cost Calculation
+```promql
+# Example for OpenAI GPT-4o pricing ($5/1M input, $15/1M output)
+(
+  sum(ai_tutor_tokens_total{provider="openai",model="gpt-4o",token_type="prompt"}) * 0.000005 +
+  sum(ai_tutor_tokens_total{provider="openai",model="gpt-4o",token_type="completion"}) * 0.000015
+)
+```
+
 ## Verification
 
 After deployment, verify the metrics are working correctly:
@@ -172,4 +199,25 @@ curl http://localhost:9090/actuator/prometheus | grep -E "user_id|session_id"
 # Verify provider detection is working
 curl http://localhost:9090/actuator/prometheus | grep ai_tutor_ai_requests_total
 # Should show provider="openai" or "ollama" or "anthropic", NOT "ai_model"
+
+# Verify token usage is being tracked
+curl http://localhost:9090/actuator/prometheus | grep ai_tutor_tokens_total
+# Should show token_type="prompt" and token_type="completion" with counts
 ```
+
+## Cost Monitoring
+
+Token usage metrics enable cost tracking and budget management:
+
+1. **Track daily costs**:
+   - Monitor `ai_tutor_tokens_total` by provider and token_type
+   - Apply provider pricing (e.g., OpenAI: $5/1M input, $15/1M output)
+
+2. **Set up alerts**:
+   - Alert when daily token usage exceeds budget
+   - Alert when cost per request is unusually high
+
+3. **Optimize costs**:
+   - Compare costs across providers
+   - Identify expensive queries/sessions
+   - Track impact of prompt engineering changes

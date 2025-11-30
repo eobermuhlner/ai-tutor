@@ -180,6 +180,17 @@ class TutorService(
         metricsService.recordAiRequest(provider, model)
         metricsService.recordAiRequestDuration(provider, model, durationMs)
 
+        // Record token usage if available
+        response?.tokenUsage?.let { tokenUsage ->
+            metricsService.recordTokenUsage(
+                provider = provider,
+                model = model,
+                promptTokens = tokenUsage.promptTokens,
+                completionTokens = tokenUsage.completionTokens,
+                totalTokens = tokenUsage.totalTokens
+            )
+        }
+
         return response?.let {
             TutorResponse(
                 reply = it.reply,

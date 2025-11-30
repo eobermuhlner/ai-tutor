@@ -64,17 +64,73 @@ class SingleJsonEntityAiChatService(
         val prompt = Prompt(request.messages, chatOptions)
         val response = effectiveChatModel.call(prompt)
         logger.debug("Response metadata: {}", response.metadata)
-        logger.debug("Response native metadata: {}", response.metadata.usage.nativeUsage)
+        logger.debug("Response usage: {}", response.metadata.usage)
         val content = response.result.output.text ?: ""
 
-        return outputConverter.convert(content)
+        val parsedResponse = outputConverter.convert(content)
+
+        // Extract token usage from response metadata
+        val tokenUsage = try {
+            val usage = response.metadata?.usage
+            if (usage != null) {
+                val promptTokens = usage.promptTokens?.toLong() ?: 0L
+                val completionTokens = (usage.totalTokens?.toLong() ?: 0L) - promptTokens
+                ch.obermuhlner.aitutor.conversation.dto.TokenUsage(
+                    promptTokens = promptTokens,
+                    completionTokens = completionTokens,
+                    totalTokens = usage.totalTokens?.toLong() ?: 0L
+                )
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            logger.debug("Could not extract token usage from response metadata", e)
+            null
+        }
+
+        return parsedResponse?.copy(tokenUsage = tokenUsage)
     }
 
     private fun callWithSoftEnforcement(request: AiChatRequest, effectiveChatModel: ChatModel): AiChatResponse? {
-        return ChatClient.create(effectiveChatModel)
+        val response = ChatClient.create(effectiveChatModel)
             .prompt(Prompt(request.messages))
             .call()
-            .entity(AiChatResponse::class.java)
+            .chatResponse()
+
+        val parsedResponse = response?.let { chatResponse ->
+            // Parse the entity from response
+            val content = chatResponse.result.output.text ?: ""
+            try {
+                val outputConverter = BeanOutputConverter(AiChatResponse::class.java)
+                outputConverter.convert(content)
+            } catch (e: Exception) {
+                logger.error("Failed to parse AI response", e)
+                null
+            }
+        }
+
+        // Extract token usage
+        val tokenUsage = response?.let { chatResponse ->
+            try {
+                val usage = chatResponse.metadata?.usage
+                if (usage != null) {
+                    val promptTokens = usage.promptTokens?.toLong() ?: 0L
+                    val completionTokens = (usage.totalTokens?.toLong() ?: 0L) - promptTokens
+                    ch.obermuhlner.aitutor.conversation.dto.TokenUsage(
+                        promptTokens = promptTokens,
+                        completionTokens = completionTokens,
+                        totalTokens = usage.totalTokens?.toLong() ?: 0L
+                    )
+                } else {
+                    null
+                }
+            } catch (e: Exception) {
+                logger.debug("Could not extract token usage from response metadata", e)
+                null
+            }
+        }
+
+        return parsedResponse?.copy(tokenUsage = tokenUsage)
     }
 
 }
