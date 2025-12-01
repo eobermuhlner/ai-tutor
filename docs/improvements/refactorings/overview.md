@@ -1,17 +1,17 @@
 # Refactoring Proposals Overview
 
-**Last Updated**: 2025-11-27
-**Total Proposals**: 4
+**Last Updated**: 2025-12-01
+**Total Proposals**: 5
 **Completed**: 1
 **In Progress**: 0
-**Pending**: 2
+**Pending**: 3
 **Deferred**: 1
 
 ## Quick Stats by Category
 
 - **Architecture**: 1 proposal
 - **Performance**: 0 proposals
-- **Maintainability**: 3 proposals (1 completed, 1 deferred, 1 pending)
+- **Maintainability**: 4 proposals (1 completed, 1 deferred, 2 pending)
 - **Testing**: 0 proposals
 - **Security**: 0 proposals
 
@@ -23,10 +23,11 @@
 |-------|----------|--------|-------------|--------|-----------|------|
 | Fix Empty Response Bodies with Custom Exceptions | maintainability | Small (1-2 hours) | 3 hours | ✅ Completed | 2025-11-27 | [fix-empty-response-bodies.md](maintainability/fix-empty-response-bodies.md) |
 
-### High Priority (2 proposals)
+### High Priority (3 proposals)
 
 | Title | Category | Effort | Risk | Status | Proposed | Updated | File |
 |-------|----------|--------|------|--------|----------|---------|------|
+| Extract Duplicate toUserResponse() Mapping Logic to Shared Mapper Service | maintainability | Small (1-2 hours) | Low | Proposed | 2025-12-01 | N/A | [extract-user-response-mapper.md](maintainability/extract-user-response-mapper.md) |
 | Extract Shared Tutor Orchestration Logic to Eliminate Code Duplication | maintainability | Small (2-4 hours) | Low | Proposed | 2025-11-26 | N/A | [extract-tutor-orchestration-duplication.md](maintainability/extract-tutor-orchestration-duplication.md) |
 | Decompose ChatService God Class into Domain-Focused Services | architecture | Large (4-6 days) | Medium | Proposed | 2025-11-26 | N/A | [decompose-chatservice-god-class.md](architecture/decompose-chatservice-god-class.md) |
 
@@ -48,7 +49,36 @@ _No low priority proposals at this time._
 
 ## Detailed Proposals by Category
 
-### Maintainability (3 proposals: 2 active, 1 deferred)
+### Maintainability (4 proposals: 3 active, 1 deferred)
+
+#### Extract Duplicate toUserResponse() Mapping Logic to Shared Mapper Service
+
+**File**: `refactorings/maintainability/extract-user-response-mapper.md`
+**Priority**: High
+**Effort**: Small (1-2 hours)
+**Risk**: Low
+**Status**: Proposed
+**Proposed Date**: 2025-12-01
+**Updated Date**: N/A
+
+**Summary**: Extract identical 18-line UserEntity -> UserResponse mapping logic duplicated across 4 locations (AuthService, AdminController, AuthController x2) to a centralized UserMapper service. Eliminates 76 lines of duplication, reduces schema evolution burden from 4 locations to 1, and establishes reusable mapping pattern for 5+ other entities.
+
+**Key Benefits**:
+
+- Eliminates 76 lines of code duplication (DRY violation)
+- Single source of truth prevents inconsistent API responses
+- Future UserEntity schema changes require updating only 1 location instead of 4
+- Foundation refactoring that establishes mapping service pattern for entire codebase
+
+**Affected Areas**:
+- `AuthService.kt` (lines 451-469: remove toUserResponse method)
+- `AdminController.kt` (lines 322-340: remove toUserResponse method)
+- `AuthController.kt` (lines 72-91, 113-131: replace inline mappings)
+- NEW: `user/service/UserMapper.kt` (create centralized mapper service)
+
+**Assessment**: ⭐️ **Recommended** by improvement-value-assessor agent. Textbook justified refactoring with immediate ROI. Low risk (no API contract changes), comprehensive test coverage exists. Should be first or second in queue based on value/effort ratio.
+
+---
 
 #### Fix Empty Response Bodies with Custom Exceptions
 
@@ -158,12 +188,13 @@ _No low priority proposals at this time._
 
 ### Recommended Implementation Order
 
-**Phase 1: Quick Wins - High ROI Improvements** (Prioritized by value/effort ratio)
+**Phase 1: Quick Wins - Highest ROI Improvements** (Prioritized by value/effort ratio)
 
-1. **Fix Empty Response Bodies** (1-2 hours) - **HIGHEST ROI** - Eliminates 10 REST API violations, provides structured errors, 80% value of deferred global handler with 20% effort
-2. **Extract Shared Tutor Orchestration Logic** (2-4 hours) - Eliminates 170+ duplicated lines, prevents bugs, delivers 70% of full decomposition value with minimal risk
+1. **Extract Duplicate toUserResponse() Mapping Logic** (1-2 hours) - **NEW HIGHEST PRIORITY** - Eliminates 76 lines of duplication across 4 locations, establishes mapping service pattern, zero dependencies, immediate schema evolution benefits
+2. **Fix Empty Response Bodies** (1-2 hours) - Eliminates 10 REST API violations, provides structured errors, 80% value of deferred global handler with 20% effort
+3. **Extract Shared Tutor Orchestration Logic** (2-4 hours) - Eliminates 170+ duplicated lines, prevents bugs, delivers 70% of full decomposition value with minimal risk
 
-**Note**: These can run in parallel or sequentially based on availability
+**Note**: All Phase 1 refactorings can run in parallel or sequentially based on availability. Total effort: 4-8 hours.
 
 **Phase 2: Evaluate Need for Full Decomposition** (After monitoring for 1 month)
 - Monitor merge conflicts, bugs, and developer complaints in ChatService
@@ -177,10 +208,10 @@ _No low priority proposals at this time._
 
 ### Notes on Sequencing
 
-- **Evidence-Based Approach**: Quick wins (empty responses, tutor orchestration) deliver proven value now; global exception handler deferred until production evidence justifies complexity
-- **Highest ROI First**: Fix empty responses (1-2 hours) provides immediate user-facing value - structured error messages in frontend
-- **Quick Win Strategy**: Both quick wins can be done in parallel (3-4 hours total) or sequentially based on availability
-- **Foundation Refactoring**: If full decomposition happens, it enables 3 other high-value improvements
+- **Evidence-Based Approach**: Quick wins (user mapping, empty responses, tutor orchestration) deliver proven value now; global exception handler deferred until production evidence justifies complexity
+- **Highest ROI First**: Extract UserMapper (1-2 hours) provides immediate maintenance burden reduction and establishes reusable pattern
+- **Foundation Pattern**: UserMapper refactoring establishes mapping service pattern for 5+ other entities
+- **Quick Win Strategy**: All Phase 1 refactorings (4-8 hours total) can be done in parallel or sequentially
 - **Parallel Development**: All quick wins can run in parallel with any other work (low coordination overhead)
 
 ### Lessons Learned from Deferred Proposal
