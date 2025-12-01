@@ -104,6 +104,7 @@ jobs:
             mkdir -p grafana/provisioning/datasources
             curl -s -o grafana/provisioning/dashboards/dashboard.yml https://raw.githubusercontent.com/${{ github.repository }}/master/grafana/provisioning/dashboards/dashboard.yml
             curl -s -o grafana/provisioning/dashboards/ai-tutor-dashboard.json https://raw.githubusercontent.com/${{ github.repository }}/master/grafana/provisioning/dashboards/ai-tutor-dashboard.json
+            curl -s -o grafana/provisioning/dashboards/spring-jvm-dashboard.json https://raw.githubusercontent.com/${{ github.repository }}/master/grafana/provisioning/dashboards/spring-jvm-dashboard.json
             curl -s -o grafana/provisioning/datasources/prometheus.yml https://raw.githubusercontent.com/${{ github.repository }}/master/grafana/provisioning/datasources/prometheus.yml
 
             # Create .env file for production environment
