@@ -8,7 +8,7 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-aitutor_password}
       - PGDATA=/var/lib/postgresql/data/pgdata
     volumes:
-      - ./data/postgres:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql/data
       - ./data/postgres-init-scripts:/docker-entrypoint-initdb.d:ro  # For initialization scripts
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
@@ -179,6 +179,14 @@ volumes:
 #
 # 7. Stop and remove volumes:
 #    docker-compose down -v
+#
+# Data Management:
+# PostgreSQL data is stored in a named volume (postgres-data) for proper container isolation.
+# If you need to access/export PostgreSQL data to the ./data directory:
+#    docker exec ai-tutor-postgres pg_dump -U aitutor_user aitutor > ./data/postgres-dump.sql
+#
+# To restore data from a dump file:
+#    docker exec -i ai-tutor-postgres psql -U aitutor_user -d aitutor < ./data/postgres-dump.sql
 #
 # Access (default ports, customizable via .env):
 # - Frontend: http://localhost:5173 (FRONTEND_PORT)

@@ -125,6 +125,7 @@ jobs:
             ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}
             DEMO_USERNAME=${{ secrets.DEMO_USERNAME }}
             DEMO_PASSWORD=${{ secrets.DEMO_PASSWORD }}
+            POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD_TEST }}
             GRAFANA_ADMIN_PASSWORD=${{ secrets.GRAFANA_ADMIN_PASSWORD }}
             EOL
             
