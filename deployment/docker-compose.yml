@@ -35,7 +35,7 @@ services:
       - UID=${UID}
       - GUI=${GID}
       # Spring Profile - set to production for production deployment
-      - SPRING_PROFILES_ACTIVE=prod-postgres
+      - SPRING_PROFILES_ACTIVE=prod
 
       # Database Configuration
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/aitutor
