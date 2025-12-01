@@ -29,7 +29,7 @@ services:
     restart: unless-stopped
     ports:
       - "${BACKEND_PORT}:8080"
-      - "9090:9090"  # Management port for Prometheus (internal network only)
+      - "${MANAGEMENT_PORT:-9090}:9090"  # Management port for Prometheus (internal network only)
     user: "${UID}:${GID}"
     environment:
       - UID=${UID}

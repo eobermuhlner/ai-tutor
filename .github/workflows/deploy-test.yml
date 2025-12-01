@@ -111,6 +111,7 @@ jobs:
             GID=1000
             BACKEND_PORT=5100
             FRONTEND_PORT=5101
+            MANAGEMENT_PORT=9100
             GRAFANA_PORT=3101
             PROMETHEUS_PORT=9101
             BACKEND_URL=http://localhost:5100/api/v1
