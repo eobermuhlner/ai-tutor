@@ -7,6 +7,7 @@ import jakarta.persistence.Enumerated
 import jakarta.persistence.FetchType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
+import jakarta.persistence.Lob
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import java.time.Instant
@@ -47,7 +48,8 @@ class ChatMessageEntity(
     var sequenceNumber: Int = 0,
 
     // Audio caching fields (to avoid expensive TTS regeneration)
-    @Column(name = "audio_data", columnDefinition = "BLOB")
+    @Lob
+    @Column(name = "audio_data")
     var audioData: ByteArray? = null,
 
     @Column(name = "audio_voice_id", length = 32)

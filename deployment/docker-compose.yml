@@ -1,4 +1,26 @@
 services:
+  db:
+    image: postgres:16-alpine
+    container_name: ai-tutor-postgres-${IMAGE_TAG}
+    environment:
+      - POSTGRES_DB=aitutor
+      - POSTGRES_USER=aitutor_user
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./data/postgres-init-scripts:/docker-entrypoint-initdb.d:ro  # For initialization scripts
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aitutor_user -d aitutor"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - ai-tutor-network
+
   backend:
     image: ghcr.io/${GITHUB_USERNAME:-your-username}/ai-tutor-backend:${IMAGE_TAG}
     container_name: ai-tutor-backend-${IMAGE_TAG}
@@ -11,7 +33,13 @@ services:
       - UID=${UID}
       - GUI=${GID}
       # Spring Profile - set to production for production deployment
-      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_PROFILES_ACTIVE=prod-postgres
+
+      # Database Configuration
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/aitutor
+      - SPRING_DATASOURCE_USERNAME=aitutor_user
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
 
       # Required: OpenAI Configuration (or other AI provider configuration)
       - OPENAI_API_KEY=${OPENAI_API_KEY}
@@ -40,6 +68,9 @@ services:
     volumes:
       # Persistent data storage
       - ./data:/app/data
+    depends_on:
+      db:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9090/actuator/health"]
       interval: 30s
@@ -48,8 +79,6 @@ services:
       retries: 3
     networks:
       - ai-tutor-network
-  #    depends_on:
-  #      - db
 
   frontend:
     image: ghcr.io/${GITHUB_USERNAME:-your-username}/ai-tutor-frontend:${IMAGE_TAG}
@@ -123,5 +152,6 @@ networks:
     driver: bridge
 
 volumes:
+  postgres-data:
   prometheus-data:
   grafana-data:

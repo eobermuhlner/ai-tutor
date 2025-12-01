@@ -5,8 +5,9 @@ spring:
   profiles:
     active: dev-ollama
     group:
-      prod: prod,h2-file,ai-openai,prompts-large,stripe
+      prod: prod,postgres,ai-openai,prompts-large,stripe
       dev-openai: dev,h2-file,ai-openai,prompts-large
+      dev-openai-postgres: dev,postgres,ai-openai,prompts-large
       dev-azure-openai: dev,h2-file,ai-azure-openai,prompts-large
       dev-anthropic: dev,h2-file,ai-anthropic,prompts-large
       dev-ollama: dev,h2-file,ai-ollama,prompts-small
