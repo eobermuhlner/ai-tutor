@@ -273,6 +273,51 @@ export const keyboardLayouts: Record<string, KeyboardLayout> = {
       ['ァ', 'ィ', 'ゥ', 'ェ', 'ォ', 'ャ', 'ュ', 'ョ', 'ッ'],
     ],
   },
+  zh: {
+    languageCode: 'zh',
+    languageName: 'Chinese Pinyin',
+    config: {
+      cols: 10,
+      buttonSize: 'md',
+    },
+    simplified: [
+      // Basic vowels with tone marks - First tone (ˉ)
+      ['ā', 'ē', 'ī', 'ō', 'ū', 'ǖ'],
+      // Second tone (ˊ)
+      ['á', 'é', 'í', 'ó', 'ú', 'ǘ'],
+      // Third tone (ˇ)
+      ['ǎ', 'ě', 'ǐ', 'ǒ', 'ǔ', 'ǚ'],
+      // Fourth tone (ˋ)
+      ['à', 'è', 'ì', 'ò', 'ù', 'ǜ'],
+      // Fifth/neutral tone (no mark) - basic vowels
+      ['a', 'e', 'i', 'o', 'u', 'ü'],
+      // Additional Pinyin syllables with tone marks (common ones)
+      ['m̄', 'ḿ', 'm̌', 'm̀'], // m with tones (as in "hm")
+      ['n̄', 'ń', 'ň', 'ǹ'], // n with tones (as in "嗯")
+    ],
+  },
+  vi: {
+    languageCode: 'vi',
+    languageName: 'Vietnamese',
+    config: {
+      cols: 10,
+      buttonSize: 'md',
+    },
+    simplified: [
+      // A with tone marks
+      ['à', 'á', 'ả', 'ã', 'ạ', 'ă', 'ằ', 'ắ', 'ẳ', 'ẵ', 'ặ', 'â', 'ầ', 'ấ', 'ẩ', 'ẫ', 'ậ'],
+      // E with tone marks
+      ['è', 'é', 'ẻ', 'ẽ', 'ẹ', 'ê', 'ề', 'ế', 'ể', 'ễ', 'ệ'],
+      // I with tone marks
+      ['ì', 'í', 'ỉ', 'ĩ', 'ị'],
+      // O with tone marks
+      ['ò', 'ó', 'ỏ', 'õ', 'ọ', 'ô', 'ồ', 'ố', 'ổ', 'ỗ', 'ộ', 'ơ', 'ờ', 'ớ', 'ở', 'ỡ', 'ợ'],
+      // U with tone marks
+      ['ù', 'ú', 'ủ', 'ũ', 'ụ', 'ư', 'ừ', 'ứ', 'ử', 'ữ', 'ự'],
+      // Y with tone marks
+      ['ỳ', 'ý', 'ỷ', 'ỹ', 'ỵ'],
+    ],
+  },
 };
 
 /**
