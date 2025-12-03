@@ -37,6 +37,8 @@ class UserChatModelFactory(
     private val activeProviderDetectionService: ActiveProviderDetectionService,
     @Value("\${spring.ai.openai.chat.options.model:gpt-4o}")
     private val defaultOpenAiModel: String,
+    @Value("\${spring.ai.openai.chat.options.reasoning-effort:}")  // Optional parameter for GPT-5 reasoning (default blank for backwards compatibility)
+    private val reasoningEffort: String?,
     @Value("\${spring.ai.azure.openai.chat.options.deployment-name:gpt-4o}")
     private val defaultAzureDeploymentName: String,
     @Value("\${spring.ai.anthropic.chat.options.model:claude-3-5-sonnet-20241022}")
@@ -102,6 +104,7 @@ class UserChatModelFactory(
             val openAiChatOptions = OpenAiChatOptions.builder()
                 .model(defaultOpenAiModel)
                 .apply { if (isGpt5) temperature(1.0) }
+                .apply { if (reasoningEffort?.isNotBlank() == true) reasoningEffort(reasoningEffort) }
                 .build()
 
             OpenAiChatModel(openAiApi, openAiChatOptions, null, retryTemplate, observationRegistry)
