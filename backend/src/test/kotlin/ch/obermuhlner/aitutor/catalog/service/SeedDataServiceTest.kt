@@ -105,7 +105,7 @@ class SeedDataServiceTest {
         val germanTutors = tutorProfileRepository.findByTargetLanguageCodeAndIsActiveTrueOrderByDisplayOrder("de-DE")
         assertEquals(5, germanTutors.size, "Should have 5 German tutors")
         assertTrue(germanTutors.any { it.name == "Johann Schmidt" })
-        assertTrue(germanTutors.any { it.name == "Lisa Weber" })
+        assertTrue(germanTutors.any { it.name == "Lisa Meier" })
         assertTrue(germanTutors.any { it.name == "Anna" })
         assertTrue(germanTutors.any { it.name == "Klaus Weber" })
         assertTrue(germanTutors.any { it.name == "Sarah Müller" })

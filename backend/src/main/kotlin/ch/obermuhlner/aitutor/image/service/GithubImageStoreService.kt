@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service
 import org.springframework.web.client.RestClient
 
 @Service
-class GithubImageStoreService {
+open class GithubImageStoreService {
     private val logger = LoggerFactory.getLogger(GithubImageStoreService::class.java)
 
     private val restClient = RestClient.builder()
@@ -22,13 +22,21 @@ class GithubImageStoreService {
     private val githubIndexUrl = "https://eobermuhlner.github.io/ai-tutor-images/images/index.jsonl"
 
     // Cache for storing the image index
-    private var imageIndex: List<GithubImageMetadata> = emptyList()
-    private val cacheUpdateLock = ReentrantReadWriteLock()
+    protected var imageIndex: List<GithubImageMetadata> = emptyList()
+    protected val cacheUpdateLock = ReentrantReadWriteLock()
     private var lastCacheUpdate: Instant? = null
 
     companion object {
         // Maximum cache duration (1 hour)
         private const val CACHE_DURATION_MILLIS = 3600000L
+    }
+
+    // For testing purposes - allows setting the image index directly
+    fun setImageIndexForTesting(imageIndex: List<GithubImageMetadata>) {
+        cacheUpdateLock.write {
+            this.imageIndex = imageIndex
+            lastCacheUpdate = Instant.now()
+        }
     }
 
     fun searchImagesByTags(
@@ -47,32 +55,52 @@ class GithubImageStoreService {
         return cachedIndex.filter { metadata ->
             // Check required tags: all required tags must be present
             val hasAllRequired = required.all { tag -> tag.lowercase() in metadata.tags.map { it.lowercase() } }
-            
+
             // Check forbidden tags: none of the forbidden tags should be present
             val hasForbidden = forbidden.any { tag -> tag.lowercase() in metadata.tags.map { it.lowercase() } }
-            
+
             hasAllRequired && !hasForbidden
         }.map { metadata ->
-            // Calculate score based on how many optional tags match
-            val optionalMatchCount = optional.count { tag ->
-                tag.lowercase() in metadata.tags.map { it.lowercase() }
+            // Calculate weighted gradient score based on position in metadata.tags
+            val totalTags = metadata.tags.size
+            if (totalTags == 0) {
+                // If no tags, return score of 0
+                Pair(0.0, createImageMetadataResponse(metadata))
+            } else {
+                // Calculate score by summing weights of matching tags
+                var score = 0.0
+
+                // Calculate weights for all tags in metadata based on position
+                for ((index, tag) in metadata.tags.withIndex()) {
+                    val normalizedTag = tag.lowercase()
+                    val tagWeight = (totalTags + 1 - index) / (totalTags + 1.0)
+
+                    // Add weight to score if tag matches required or optional tags
+                    if (required.any { it.lowercase() == normalizedTag } ||
+                        optional.any { it.lowercase() == normalizedTag }) {
+                        score += tagWeight
+                    }
+                }
+
+                Pair(score, createImageMetadataResponse(metadata))
             }
-
-            // Sort results by how many optional tags match (higher score first)
-            // Create ImageMetadataResponse with a fake ID for compatibility
-            val fakeId = metadata.hashCode().toLong() and 0x7FFFFFFFFFFFFFFFL // Make sure it's positive
-
-            Pair(optionalMatchCount, ImageMetadataResponse(
-                id = fakeId,
-                filename = metadata.filename,
-                contentType = "image/jpeg", // Assume JPEG for now, could make this more dynamic
-                size = 0, // Size not available in index
-                uploadDate = Instant.now(), // Use current time as approximation
-                storageType = "GITHUB_PAGES",
-                tags = metadata.tags
-            ))
-        }.sortedByDescending { (matchCount, _) -> matchCount }
+        }.sortedByDescending { (score, _) -> score }
         .map { (_, response) -> response }
+    }
+
+    private fun createImageMetadataResponse(metadata: GithubImageMetadata): ImageMetadataResponse {
+        // Create ImageMetadataResponse with a fake ID for compatibility
+        val fakeId = metadata.hashCode().toLong() and 0x7FFFFFFFFFFFFFFFL // Make sure it's positive
+
+        return ImageMetadataResponse(
+            id = fakeId,
+            filename = metadata.filename,
+            contentType = "image/jpeg", // Assume JPEG for now, could make this more dynamic
+            size = 0, // Size not available in index
+            uploadDate = Instant.now(), // Use current time as approximation
+            storageType = "GITHUB_PAGES",
+            tags = metadata.tags
+        )
     }
 
     private fun updateImageIndexIfNeeded() {
