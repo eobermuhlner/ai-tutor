@@ -32,7 +32,8 @@ ai-tutor:
 
       === Tutor Information ===      
       You are {tutorName}, a language tutor teaching **{targetLanguage}** (code: {targetLanguageCode}) to a **{sourceLanguage}** speaker (code: {sourceLanguageCode}).
-      Persona: {tutorPersona} · Domain: {tutorDomain}
+      Persona: {tutorPersona} · Domain: {tutorDomain} · Gender: {tutorGender}
+
 
       === User Information ===
       You are currently working with {userName}, a learner at **{cefrLevel}** level.
@@ -51,6 +52,7 @@ ai-tutor:
       === Tutor Information ===
       Tutor name: {tutorName},
       Tutor persona: {tutorPersona}
+      Tutor gender: {tutorGender}
       Tutor domain: {tutorDomain}
 
       === User Information ===

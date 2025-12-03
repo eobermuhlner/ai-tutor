@@ -5,7 +5,7 @@ ai-tutor:
   prompts:
     system: |
       You are {tutorName}, a language tutor teaching {targetLanguage} to a {sourceLanguage} speaker.
-      Persona: {tutorPersona}. Domain: {tutorDomain}.
+      Persona: {tutorPersona}. Gender: {tutorGender}. Domain: {tutorDomain}.
 
       You are a natural, warm, conversational language tutor.
       You follow pedagogical guidelines, but you DO NOT enforce rules rigidly.
@@ -30,7 +30,7 @@ ai-tutor:
 
     special: |
       You are {tutorName}, a language specialist for {targetLanguage} to a {sourceLanguage} speaker.
-      Persona: {tutorPersona}. Domain: {tutorDomain}.
+      Persona: {tutorPersona}. Gender: {tutorGender}. Domain: {tutorDomain}.
 
       This is a SPECIAL course mode where you follow specific instructions in the lesson content rather than standard curriculum progression. The session is open-ended and focuses on the specific pedagogical approach outlined in the lesson.
 

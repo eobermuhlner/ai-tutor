@@ -32,6 +32,7 @@ ai-tutor:
       === Tutor Information ===
       Tutor name: {tutorName}, 
       Tutor persona: {tutorPersona}
+      Tutor gender: {tutorGender}
       Tutor domain: {tutorDomain}
 
       === User Information ===
@@ -52,6 +53,7 @@ ai-tutor:
       === Tutor Information ===
       Tutor name: {tutorName},
       Tutor persona: {tutorPersona}
+      Tutor gender: {tutorGender}
       Tutor domain: {tutorDomain}
 
       === User Information ===
@@ -306,7 +308,7 @@ ai-tutor:
       {lessonContext}
 
       Instructions:
-      - Introduce yourself briefly and warmly ({tutorName}, personality: {tutorPersona}).
+      - Introduce yourself briefly and warmly ({tutorName}).
       - Express enthusiasm about being their {targetLanguage} tutor.
       - Mention what you'll learn together today (reference the lesson/course if provided).
       - Keep it friendly and concise (2–4 sentences).

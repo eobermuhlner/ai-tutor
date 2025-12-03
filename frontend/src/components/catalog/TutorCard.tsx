@@ -78,11 +78,6 @@ export default function TutorCard({ tutor, isSelected, onClick }: TutorCardProps
           <p className="text-sm text-gray-600 mb-2">{tutor.persona}</p>
           <p className="text-sm text-gray-500">{tutor.description}</p>
           <div className="flex items-center gap-2 mt-1">
-            {tutor.culturalBackground && (
-              <p className="text-xs text-gray-400 italic">
-                {tutor.culturalBackground}
-              </p>
-            )}
             {tutor.location && (
               <div className="flex items-center text-xs text-gray-500">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
