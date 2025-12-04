@@ -79,7 +79,7 @@ class LessonProgressionServiceTest {
                 LessonMetadata("lesson-01-greetings", "lesson-01-greetings.md", 5)
             )
         )
-        every { lessonContentService.getCurriculum("es-conversational-spanish") } returns curriculum
+        every { lessonContentService.getCurriculum(courseId.toString()) } returns curriculum
 
         val lessonContent = mockk<LessonContent>()
         every { lessonContentService.getLesson("es-conversational-spanish", "lesson-01-greetings") } returns lessonContent
@@ -96,6 +96,7 @@ class LessonProgressionServiceTest {
 
     @Test
     fun `should return null when course not found`() {
+        val courseId = UUID.randomUUID()
         val session = ChatSessionEntity(
             userId = UUID.randomUUID(),
             tutorName = "Maria",
@@ -106,11 +107,11 @@ class LessonProgressionServiceTest {
             conversationPhase = ConversationPhase.Correction,
             effectivePhase = ConversationPhase.Correction,
             estimatedCEFRLevel = CEFRLevel.A1,
-            courseTemplateId = UUID.randomUUID(),
+            courseTemplateId = courseId,
             currentLessonId = null
         )
 
-        every { catalogService.getCourseById(any()) } returns null
+        every { lessonContentService.getCurriculum(courseId.toString()) } returns null
         every { chatSessionRepository.findById(session.id) } returns java.util.Optional.of(session)
 
         val result = lessonProgressionService.checkAndProgressLesson(session.id)
@@ -151,7 +152,7 @@ class LessonProgressionServiceTest {
                 LessonMetadata("lesson-02-introductions", "lesson-02-introductions.md", 8)
             )
         )
-        every { lessonContentService.getCurriculum("es-conversational-spanish") } returns curriculum
+        every { lessonContentService.getCurriculum(courseId.toString()) } returns curriculum
 
         val lessonContent = mockk<LessonContent>()
         every { lessonContentService.getLesson("es-conversational-spanish", "lesson-01-greetings") } returns lessonContent
@@ -198,7 +199,7 @@ class LessonProgressionServiceTest {
                 LessonMetadata("lesson-02-introductions", "lesson-02-introductions.md", 8)
             )
         )
-        every { lessonContentService.getCurriculum("es-conversational-spanish") } returns curriculum
+        every { lessonContentService.getCurriculum(courseId.toString()) } returns curriculum
 
         val lessonContent = mockk<LessonContent>()
         every { lessonContentService.getLesson("es-conversational-spanish", "lesson-02-introductions") } returns lessonContent
@@ -246,7 +247,7 @@ class LessonProgressionServiceTest {
                 LessonMetadata("lesson-10-future-plans", "lesson-10-future-plans.md", 15)
             )
         )
-        every { lessonContentService.getCurriculum("es-conversational-spanish") } returns curriculum
+        every { lessonContentService.getCurriculum(courseId.toString()) } returns curriculum
 
         val lessonContent = mockk<LessonContent>()
         every { lessonContentService.getLesson("es-conversational-spanish", "lesson-10-future-plans") } returns lessonContent
@@ -292,7 +293,7 @@ class LessonProgressionServiceTest {
                 LessonMetadata("lesson-02-introductions", "lesson-02-introductions.md", 8)
             )
         )
-        every { lessonContentService.getCurriculum("es-conversational-spanish") } returns curriculum
+        every { lessonContentService.getCurriculum(courseId.toString()) } returns curriculum
 
         val lessonContent = mockk<LessonContent>()
         every { lessonContentService.getLesson("es-conversational-spanish", "lesson-02-introductions") } returns lessonContent
@@ -335,7 +336,7 @@ class LessonProgressionServiceTest {
                 LessonMetadata("lesson-10-future-plans", "lesson-10-future-plans.md", 15)
             )
         )
-        every { lessonContentService.getCurriculum("es-conversational-spanish") } returns curriculum
+        every { lessonContentService.getCurriculum(courseId.toString()) } returns curriculum
         every { chatSessionRepository.findById(session.id) } returns java.util.Optional.of(session)
 
         val result = lessonProgressionService.forceAdvanceLesson(session.id)

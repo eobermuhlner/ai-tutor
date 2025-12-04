@@ -32,8 +32,11 @@ class LessonProgressionService(
      */
     fun getCurrentLesson(sessionId: UUID): LessonContent? {
         val session = chatSessionRepository.findById(sessionId).orElse(null) ?: return null
-        val courseSlug = getCourseSlug(session.courseTemplateId) ?: return null
-        val curriculum = lessonContentService.getCurriculum(courseSlug) ?: return null
+
+        // For database-backed courses, pass UUID directly instead of generating filesystem slug
+        // This allows LessonContentService.getCurriculum() to load from database
+        val courseId = session.courseTemplateId?.toString() ?: return null
+        val curriculum = lessonContentService.getCurriculum(courseId) ?: return null
 
         val currentLessonId = session.currentLessonId
 
@@ -53,9 +56,9 @@ class LessonProgressionService(
         // Reload session within transaction to avoid stale entity and lock contention
         val session = chatSessionRepository.findById(sessionId).orElse(null) ?: return null
 
-        // Convert UUID to course slug identifier
-        val courseSlug = getCourseSlug(session.courseTemplateId) ?: return null
-        val curriculum = lessonContentService.getCurriculum(courseSlug) ?: return null
+        // For database-backed courses, pass UUID directly instead of generating filesystem slug
+        val courseId = session.courseTemplateId?.toString() ?: return null
+        val curriculum = lessonContentService.getCurriculum(courseId) ?: return null
 
         val currentLessonId = session.currentLessonId
 
@@ -79,8 +82,8 @@ class LessonProgressionService(
         // Reload session within transaction to avoid stale entity and lock contention
         val session = chatSessionRepository.findById(sessionId).orElse(null) ?: return null
 
-        val courseSlug = getCourseSlug(session.courseTemplateId) ?: return null
-        val curriculum = lessonContentService.getCurriculum(courseSlug) ?: return null
+        val courseId = session.courseTemplateId?.toString() ?: return null
+        val curriculum = lessonContentService.getCurriculum(courseId) ?: return null
         val currentLessonId = session.currentLessonId ?: return null
 
         return advanceToNextLesson(session, curriculum, currentLessonId)
@@ -91,8 +94,8 @@ class LessonProgressionService(
         // Reload session within transaction to avoid stale entity and lock contention
         val session = chatSessionRepository.findById(sessionId).orElse(null) ?: return null
 
-        val courseSlug = getCourseSlug(session.courseTemplateId) ?: return null
-        val curriculum = lessonContentService.getCurriculum(courseSlug) ?: return null
+        val courseId = session.courseTemplateId?.toString() ?: return null
+        val curriculum = lessonContentService.getCurriculum(courseId) ?: return null
         val currentLessonId = session.currentLessonId ?: return null
 
         return advanceToNextLesson(session, curriculum, currentLessonId)
@@ -103,8 +106,8 @@ class LessonProgressionService(
         // Reload session within transaction to avoid stale entity and lock contention
         val session = chatSessionRepository.findById(sessionId).orElse(null) ?: return null
 
-        val courseSlug = getCourseSlug(session.courseTemplateId) ?: return null
-        val curriculum = lessonContentService.getCurriculum(courseSlug) ?: return null
+        val courseId = session.courseTemplateId?.toString() ?: return null
+        val curriculum = lessonContentService.getCurriculum(courseId) ?: return null
         val currentLessonId = session.currentLessonId ?: return null
 
         return advanceToPreviousLesson(session, curriculum, currentLessonId)
@@ -115,8 +118,8 @@ class LessonProgressionService(
         // Reload session within transaction to avoid stale entity and lock contention
         val session = chatSessionRepository.findById(sessionId).orElse(null) ?: return null
 
-        val courseSlug = getCourseSlug(session.courseTemplateId) ?: return null
-        val curriculum = lessonContentService.getCurriculum(courseSlug) ?: return null
+        val courseId = session.courseTemplateId?.toString() ?: return null
+        val curriculum = lessonContentService.getCurriculum(courseId) ?: return null
 
         // Check if the target lesson exists in the curriculum
         val targetLesson = curriculum.lessons.find { it.id == targetLessonId }
